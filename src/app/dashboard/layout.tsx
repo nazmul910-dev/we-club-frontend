@@ -13,6 +13,7 @@ import { Provider } from "react-redux";
 import { store } from "@/lib/redux/store/store";
 import Sidebar from "@/components/layout/Sidebar";
 import Topbar from "@/components/layout/Topbar";
+import { useState } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -46,6 +47,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+   const [sidebarOpen, setSidebarOpen] = useState(false)
   return (
     <html
       lang="en"
@@ -58,15 +61,25 @@ export default function RootLayout({
       <body className="min-h-full  flex flex-col">
 
         <Provider store={store}>
-          <main className="bg-[#0A0A0A] h-screen w-full flex items-start justify-start">
-            <div className="w-[15%] ">
-              <Sidebar />
+          <main className="flex min-h-screen bg-[#0A0A0A]">
+
+            <Sidebar
+              isOpen={sidebarOpen}
+              setIsOpen={setSidebarOpen}
+            />
+
+            <div className="flex min-h-screen flex-1 flex-col md:ml-64">
+
+              <Topbar
+                setIsOpen={setSidebarOpen}
+              />
+
+              <div className="flex-1 container1">
+                {children}
+              </div>
+
             </div>
-            <div className="flex w-full flex-col gap-5">
-              <Topbar/>
-              {children}  
-            </div>
-            
+
           </main>
 
         </Provider>
