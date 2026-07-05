@@ -14,6 +14,7 @@ import { store } from "@/lib/redux/store/store";
 import Sidebar from "@/components/layout/Sidebar";
 import Topbar from "@/components/layout/Topbar";
 import { useState } from "react";
+import AuthGuard from "@/components/Auth/authGuard/AuthGuard";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -58,10 +59,11 @@ export default function RootLayout({
         ${montserrat.variable}
         ${lato.variable}`}
     >
-      <body className="min-h-full  flex flex-col">
+      <body className="min-h-full flex flex-col">
 
         <Provider store={store}>
-          <main className="flex min-h-screen bg-[#0A0A0A]">
+          <AuthGuard>
+            <main className="flex min-h-screen bg-[#0A0A0A]">
 
             <Sidebar
               isOpen={sidebarOpen}
@@ -81,6 +83,7 @@ export default function RootLayout({
             </div>
 
           </main>
+          </AuthGuard>
 
         </Provider>
 
