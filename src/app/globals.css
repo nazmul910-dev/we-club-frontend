@@ -62,6 +62,9 @@ body {
 
 .container1{
   @apply w-full max-w-7xl mx-auto px-3 py-6 md:px-10 md:py-10
+
+}
+
 .text-eyebrow {
   font-family: var(--font-ui);
   letter-spacing: 0.24em;
@@ -69,5 +72,4 @@ body {
   color: var(--gold);
   font-size: 0.6875rem;
   font-weight: 500;
-}
 }
