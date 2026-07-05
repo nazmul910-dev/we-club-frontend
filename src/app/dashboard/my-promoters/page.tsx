@@ -35,7 +35,7 @@ const INITIAL_PROMOTERS: Promoter[] = [
   {
     id: "3",
     initials: "KT",
-    name: "Kenji Tanaka",
+    name: "Kenji Tanaka changed",
     phone: "+81 3 6840 9200",
     email: "k.tanaka@yamato.jp",
     value: "¥2.1B",
@@ -166,7 +166,7 @@ export default function MyPromotersPage() {
                   >
                     <Eye className="h-3.5 w-3.5" />
                   </button>
-                  
+                  {/* testing */}
                   <button 
                     type="button"
                     aria-label="Share" 
