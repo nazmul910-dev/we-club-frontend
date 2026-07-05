@@ -50,6 +50,23 @@ const listingsSlice = createSlice({
       .addCase(listingsApi.getListings.rejected, (state, action) => {
         state.loading = false;
         state.error = (action.payload as string) ?? "Failed to fetch listings";
+      })
+      .addCase(listingsApi.postListing.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+
+      .addCase(listingsApi.postListing.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+
+        // Add the newly created listing at the beginning
+        state.items.unshift(action.payload);
+      })
+
+      .addCase(listingsApi.postListing.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload ?? "Failed to create listing";
       });
   },
 });

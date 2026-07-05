@@ -33,9 +33,29 @@ const getListings = createAsyncThunk<ListingsApiResponse, void>(
       console.log(err);
       return rejectWithValue("Failed to fetch listings");
     }
-  }
+  },
 );
 
+export const postListing = createAsyncThunk<
+  Listing,
+  FormData,
+  { rejectValue: string }
+>(
+  "listings/postListing",
+  async (formData, { rejectWithValue }) => {
+    try {
+      const res = await api.post("/listings", formData);
+
+      // Return only the created listing
+      return res.data.data;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message ?? "Failed to create listing"
+      );
+    }
+  }
+);
 export const listingsApi = {
   getListings,
+  postListing,
 };
