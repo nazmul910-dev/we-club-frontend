@@ -2,6 +2,8 @@ import api from "@/lib/api/api";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { RegistrationFormData } from "./authSlice";
+import { decodeToken } from "@/lib/utils/auth";
+import { setUser } from "./authUserSlice";
 
 export interface SignupResponse {
   success: boolean;
@@ -68,7 +70,7 @@ export const loginUser = createAsyncThunk<
   { rejectValue: string }
 >(
   "auth/login",
-  async (payload, { rejectWithValue }) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     try {
       const res = await api.post<LoginResponse>(
         "/auth/login",
@@ -79,6 +81,11 @@ export const loginUser = createAsyncThunk<
         localStorage.setItem("token", res.data.data.token);
         if (res.data.data.refreshToken) {
           localStorage.setItem("refreshToken", res.data.data.refreshToken);
+        }
+
+        const decoded = decodeToken(res.data.data.token);
+        if (decoded) {
+          dispatch(setUser(decoded));
         }
       }
 
