@@ -136,14 +136,14 @@ export default function MyListingsPage() {
       </div>
 
       {/* Grid of Listings */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {PROPERTIES.map((property) => (
           <article 
             key={property.ref}
             className="card-luxe flex flex-col overflow-hidden"
           >
             {/* Card Image */}
-            <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+            <div className="relative aspect-4/3 overflow-hidden bg-muted">
               <img 
                 src={property.image} 
                 alt={property.title} 
