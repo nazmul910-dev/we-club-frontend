@@ -143,7 +143,7 @@ export default function MyListingsPage() {
             className="card-luxe flex flex-col overflow-hidden"
           >
             {/* Card Image */}
-            <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+            <div className="relative aspect-4/3 overflow-hidden bg-muted">
               <img 
                 src={property.image} 
                 alt={property.title} 
