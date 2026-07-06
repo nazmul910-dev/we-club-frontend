@@ -126,6 +126,16 @@ const listingsSlice = createSlice({
       .addCase(listingsApi.getMyListingPromoteRequests.rejected, (state, action) => {
         state.promoteRequestsLoading = false;
         state.promoteRequestsError = (action.payload as string) ?? "Failed to fetch promote requests";
+      })
+      .addCase(listingsApi.cancelPromoteRequest.fulfilled, (state, action) => {
+        state.promoteRequests = state.promoteRequests.filter(
+          (request) => request._id !== action.payload?._id,
+        );
+      })
+      .addCase(listingsApi.deletePromoteRequest.fulfilled, (state, action) => {
+        state.promoteRequests = state.promoteRequests.filter(
+          (request) => request._id !== action.payload?._id,
+        );
       });
   },
 });

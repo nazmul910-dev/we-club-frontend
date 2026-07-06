@@ -94,6 +94,54 @@ const getMyListingPromoteRequests = createAsyncThunk<
   },
 );
 
+export const cancelPromoteRequest = createAsyncThunk<
+  any,
+  string,
+  { rejectValue: string }
+>("listings/promote-requests/cancel", async (id, { rejectWithValue }) => {
+  try {
+    const res = await api.put(`/listings/promote-request/${id}`);
+    return res.data.data;
+  } catch (err: any) {
+    return rejectWithValue(
+      err?.response?.data?.message ?? "Failed to cancel promote request",
+    );
+  }
+});
+
+export const deletePromoteRequest = createAsyncThunk<
+  any,
+  string,
+  { rejectValue: string }
+>("listings/promote-requests/delete", async (id, { rejectWithValue }) => {
+  try {
+    const res = await api.delete(`/listings/promote-request/${id}`);
+    return res.data.data;
+  } catch (err: any) {
+    return rejectWithValue(
+      err?.response?.data?.message ?? "Failed to delete promote request",
+    );
+  }
+});
+
+export const managePromoteRequest = createAsyncThunk<
+  any,
+  { id: string; status: "approved" | "rejected"; selected_tier?: "tier_1" | "tier_2" | "tier_3" },
+  { rejectValue: string }
+>("listings/promote-requests/manage", async ({ id, status, selected_tier = "tier_1" }, { rejectWithValue }) => {
+  try {
+    const res = await api.post(`/listings/promote-request/manage/${id}`, {
+      status,
+      selected_tier,
+    });
+    return res.data.data;
+  } catch (err: any) {
+    return rejectWithValue(
+      err?.response?.data?.message ?? "Failed to manage promote request",
+    );
+  }
+});
+
 export const postListing = createAsyncThunk<
   Listing,
   FormData,
@@ -149,7 +197,7 @@ interface PromoterProfileApiResponse {
   data: PromoterProfile;
 }
  
-export const getPromoterProfile = createAsyncThunk<
+ const getPromoterProfile = createAsyncThunk<
   PromoterProfileApiResponse,
   string // user_id
 >(
@@ -167,6 +215,36 @@ export const getPromoterProfile = createAsyncThunk<
 );
 
 
+const cencelPendingListing = createAsyncThunk<any, string, { rejectValue: string }>(
+  "listings/cancelPendingListing",
+  async (id , { rejectWithValue }) => {  
+    try{
+      const res = await api.patch(`/listings/cancel/${id}`, );
+      return res.data.data;
+    }catch(err: any) {
+      return rejectWithValue(
+        err.response?.data?.message ?? "Failed to cancel pending listing"
+      );
+    }
+    
+  })
+  
+const deletePendingListing = createAsyncThunk<any, string, { rejectValue: string }>(
+  "listings/cancelPendingListing",
+  async (id , { rejectWithValue }) => {  
+    try{
+      const res = await api.patch(`/listings/delete/${id}`, );
+      return res.data.data;
+    }catch(err: any) {
+      return rejectWithValue(
+        err.response?.data?.message ?? "Failed to delete pending listing"
+      );
+    }
+    
+  })
+
+
+
 export const listingsApi = {
   getListings,
   postListing,
@@ -174,4 +252,9 @@ export const listingsApi = {
   getPromoterProfile,
   getMyListings,
   getMyListingPromoteRequests,
+  cancelPromoteRequest,
+  deletePromoteRequest,
+  managePromoteRequest,
+  cencelPendingListing,
+  deletePendingListing
 };
