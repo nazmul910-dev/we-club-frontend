@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { listingsApi } from "@/lib/features/listings/listingsApi"; // ← update this to match wherever you saved the file with getListings/listingsApi
+import { listingsApi, Promoter } from "@/lib/features/listings/listingsApi"; // ← update this to match wherever you saved the file with getListings/listingsApi
 
 export interface Listing {
   id: string;
@@ -15,9 +15,12 @@ interface ListingsMeta {
 
 interface ListingsState {
   items: Listing[];
-  meta: ListingsMeta | null;
+  meta: ListingsMeta | null; // ← union type, not just null
   loading: boolean;
   error: string | null;
+  promoters: Promoter[];
+  promotersLoading: boolean;
+  promotersError: string | null;
 }
 
 const initialState: ListingsState = {
@@ -25,6 +28,9 @@ const initialState: ListingsState = {
   meta: null,
   loading: false,
   error: null,
+  promoters: [],
+  promotersLoading: false,
+  promotersError: null,
 };
 
 const listingsSlice = createSlice({
@@ -67,6 +73,18 @@ const listingsSlice = createSlice({
       .addCase(listingsApi.postListing.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload ?? "Failed to create listing";
+      })
+      .addCase(listingsApi.getMyPromoters.pending, (state) => {
+        state.promotersLoading = true; // ← own loading flag
+        state.promotersError = null;
+      })
+      .addCase(listingsApi.getMyPromoters.fulfilled, (state, action) => {
+        state.promotersLoading = false;
+        state.promoters = action.payload.data; // ← own array, not state.items
+      })
+      .addCase(listingsApi.getMyPromoters.rejected, (state, action) => {
+        state.promotersLoading = false;
+        state.promotersError = action.payload as string; // ← own error
       });
   },
 });

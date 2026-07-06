@@ -13,6 +13,22 @@ interface ListingsMeta {
   totalPages: number;
 }
 
+export interface Promoter {
+  user_id : string;
+  name: string;
+  email: string;
+  phone: string;
+  tier : "tier_1" | "tier_2" | "tier_3";
+  totalListingsCount: number;
+  listingPrices : {ammount : number, currency : string}[];
+}
+
+interface PromotersApiResponse {
+  success: boolean;
+  message: string;
+  data: Promoter[];
+}
+
 // Matches the real API envelope: { success, message, data: { data, meta } }
 interface ListingsApiResponse {
   success: boolean;
@@ -56,7 +72,25 @@ export const postListing = createAsyncThunk<
     );
   }
 });
+
+
+ const getMyPromoters = createAsyncThunk<PromotersApiResponse, void>(
+  "listings/getMyPromoters",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get("/listings/my-promoters");
+      return res.data as PromotersApiResponse;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message ?? "Failed to fetch promoters"
+      );
+    }
+  }
+);
+
+
 export const listingsApi = {
   getListings,
   postListing,
+  getMyPromoters
 };
