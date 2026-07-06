@@ -88,9 +88,46 @@ export const postListing = createAsyncThunk<
   }
 );
 
+export interface PromoterProfile {
+  user_id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  city?: string;
+  country?: string;
+  licenseNumber?: string;
+  brokerage?: string;
+  marketingChannels?: string[];
+  bio?: string;
+}
+ 
+interface PromoterProfileApiResponse {
+  success: boolean;
+  message: string;
+  data: PromoterProfile;
+}
+ 
+export const getPromoterProfile = createAsyncThunk<
+  PromoterProfileApiResponse,
+  string // user_id
+>(
+  "listings/getPromoterProfile",
+  async (userId, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/users/${userId}`);
+      return res.data as PromoterProfileApiResponse;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message ?? "Failed to fetch promoter profile"
+      );
+    }
+  }
+);
+
 
 export const listingsApi = {
   getListings,
   postListing,
-  getMyPromoters
+  getMyPromoters,
+  getPromoterProfile,
 };
