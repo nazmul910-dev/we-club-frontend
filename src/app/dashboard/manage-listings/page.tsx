@@ -17,6 +17,7 @@ export default function ManageListingsPage() {
     promoteRequestsLoading,
     promoteRequestsError,
     currentUserId,
+    userRole,
   } = useSelector((s: RootState) => {
     return {
       myListings: (s as any).listings?.myListings ?? [],
@@ -27,6 +28,7 @@ export default function ManageListingsPage() {
         (s as any).listings?.promoteRequestsLoading ?? false,
       promoteRequestsError: (s as any).listings?.promoteRequestsError ?? null,
       currentUserId: (s as any).authUser?.user?.id ?? null,
+      userRole: (s as any).authUser?.user?.role ?? null,
     };
   });
 
@@ -89,7 +91,7 @@ export default function ManageListingsPage() {
   };
 
   const canApproveRejectRequest = (request: any) => {
-    return request?.status === "pending" && !isRequester(request);
+    return request?.status === "pending" && !isRequester(request) ;
   };
 
   const canDeleteRequest = (request: any) => {
@@ -111,6 +113,21 @@ export default function ManageListingsPage() {
     await dispatch(listingsApi.deletePendingListing(id)).unwrap();
     dispatch(listingsApi.getMyListings());
   }
+
+//   const isListingOwner = (listing : any) => {
+//     console.log(listing.associate_id.toString() === currentUserId.toString())
+//     return listing.associate_id.toString() === currentUserId.toString();
+//   }
+ const isAdmin = userRole === "admin" ;
+
+ const handleListingRequest =async (id : string) => {
+     if (!window.confirm("Approve this promote request?")) return;
+    await dispatch(
+      listingsApi.managePromoteRequest({ id, status: "approved" }) as any,
+    ).unwrap();
+    dispatch(listingsApi.getMyListingPromoteRequests());
+ }
+
 
   useEffect(() => {
     dispatch(listingsApi.getMyListings());
@@ -178,7 +195,7 @@ export default function ManageListingsPage() {
                       </td>
                       <td>
                         <div className="flex flex-wrap items-center gap-2">
-                          {l.status === "pending" ?
+                          {l.status === "pending"  ?
                            <>
                            <button
                               type="button"
@@ -200,13 +217,24 @@ export default function ManageListingsPage() {
                            </> 
                            : <span className="text-white/30 text-xs">No actions</span>
                           }
-                          {/* {!canManageRequest(l) &&
-                            !canApproveRejectRequest(l) &&
-                            !canDeleteRequest(l) && (
-                              <span className="text-xs text-muted-foreground">
-                                No actions
-                              </span>
-                            )} */}
+                         {canApproveRejectRequest(l) && isAdmin && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => handleApproveRequest(l._id)}
+                                className="inline-flex items-center gap-1 rounded-full border border-green-500/30 bg-green-500/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.2em] text-green-300 transition hover:bg-green-500/20"
+                              >
+                                Approve
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleRejectRequest(l._id)}
+                                className="inline-flex items-center gap-1 rounded-full border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.2em] text-red-300 transition hover:bg-red-500/20"
+                              >
+                                Reject
+                              </button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>

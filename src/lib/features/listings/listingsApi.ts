@@ -94,6 +94,9 @@ const getMyListingPromoteRequests = createAsyncThunk<
   },
 );
 
+
+// const manageListing = 
+
 export const cancelPromoteRequest = createAsyncThunk<
   any,
   string,
@@ -228,7 +231,7 @@ const cencelPendingListing = createAsyncThunk<any, string, { rejectValue: string
     }
     
   })
-  
+
 const deletePendingListing = createAsyncThunk<any, string, { rejectValue: string }>(
   "listings/cancelPendingListing",
   async (id , { rejectWithValue }) => {  
