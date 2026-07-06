@@ -52,6 +52,48 @@ const getListings = createAsyncThunk<ListingsApiResponse, void>(
   },
 );
 
+const getMyListings = createAsyncThunk<ListingsApiResponse, void>(
+  "listings/my",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get("/listings/my");
+      return res.data as ListingsApiResponse;
+    } catch (err: any) {
+      console.log(err?.response?.data ?? err);
+      return rejectWithValue(
+        err?.response?.data?.message ?? "Failed to fetch my listings",
+      );
+    }
+  },
+);
+
+interface PromoteRequestsApiResponse {
+  success: boolean;
+  message: string;
+  data: {
+    data: any[];
+    meta: any;
+  };
+}
+
+const getMyListingPromoteRequests = createAsyncThunk<
+  PromoteRequestsApiResponse,
+  void
+>(
+  "listings/promote-requests/received",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get("/listings/promote-request/received");
+      return res.data as PromoteRequestsApiResponse;
+    } catch (err: any) {
+      console.log(err?.response?.data ?? err);
+      return rejectWithValue(
+        err?.response?.data?.message ?? "Failed to fetch promote requests",
+      );
+    }
+  },
+);
+
 export const postListing = createAsyncThunk<
   Listing,
   FormData,
@@ -130,4 +172,6 @@ export const listingsApi = {
   postListing,
   getMyPromoters,
   getPromoterProfile,
+  getMyListings,
+  getMyListingPromoteRequests,
 };

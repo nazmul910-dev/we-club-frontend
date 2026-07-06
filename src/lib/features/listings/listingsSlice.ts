@@ -21,6 +21,12 @@ interface ListingsState {
   promoters: Promoter[];
   promotersLoading: boolean;
   promotersError: string | null;
+  myListings: Listing[];
+  myListingsLoading: boolean;
+  myListingsError: string | null;
+  promoteRequests: any[];
+  promoteRequestsLoading: boolean;
+  promoteRequestsError: string | null;
 }
 
 const initialState: ListingsState = {
@@ -31,6 +37,12 @@ const initialState: ListingsState = {
   promoters: [],
   promotersLoading: false,
   promotersError: null,
+  myListings: [],
+  myListingsLoading: false,
+  myListingsError: null,
+  promoteRequests: [],
+  promoteRequestsLoading: false,
+  promoteRequestsError: null,
 };
 
 const listingsSlice = createSlice({
@@ -85,6 +97,35 @@ const listingsSlice = createSlice({
       .addCase(listingsApi.getMyPromoters.rejected, (state, action) => {
         state.promotersLoading = false;
         state.promotersError = action.payload as string; // ← own error
+      });
+
+    // my listings
+    builder
+      .addCase(listingsApi.getMyListings.pending, (state) => {
+        state.myListingsLoading = true;
+        state.myListingsError = null;
+      })
+      .addCase(listingsApi.getMyListings.fulfilled, (state, action) => {
+        state.myListingsLoading = false;
+        state.myListings = action.payload.data.data;
+      })
+      .addCase(listingsApi.getMyListings.rejected, (state, action) => {
+        state.myListingsLoading = false;
+        state.myListingsError = (action.payload as string) ?? "Failed to fetch my listings";
+      })
+
+      // promote requests for my listings
+      .addCase(listingsApi.getMyListingPromoteRequests.pending, (state) => {
+        state.promoteRequestsLoading = true;
+        state.promoteRequestsError = null;
+      })
+      .addCase(listingsApi.getMyListingPromoteRequests.fulfilled, (state, action) => {
+        state.promoteRequestsLoading = false;
+        state.promoteRequests = action.payload.data.data;
+      })
+      .addCase(listingsApi.getMyListingPromoteRequests.rejected, (state, action) => {
+        state.promoteRequestsLoading = false;
+        state.promoteRequestsError = (action.payload as string) ?? "Failed to fetch promote requests";
       });
   },
 });
