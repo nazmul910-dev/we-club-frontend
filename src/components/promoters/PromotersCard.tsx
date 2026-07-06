@@ -22,18 +22,6 @@ const PromotersCard = ({ promoter }: { promoter: any }) => {
   );
   const dispatch = useDispatch<AppDispatch>();
 
-  const TIER_LABELS: Record<string, string> = {
-    tier_1: "Tier 1",
-    tier_2: "Tier 2",
-    tier_3: "Tier 3",
-  };
-
-  const TIER_COLORS: Record<string, string> = {
-    tier_1: "#16a34a",
-    tier_2: "#2563eb",
-    tier_3: "#7c3aed",
-  };
-
   const CURRENCY_SYMBOLS: Record<string, string> = {
     EUR: "€",
     USD: "$",
@@ -161,7 +149,7 @@ const PromotersCard = ({ promoter }: { promoter: any }) => {
                   {promoter.name || "Promoter Name"}
                 </h3>
                 {/* Tier badge */}
-                <span
+                {/* <span
                   className="shrink-0 font-ui text-[9px] tracking-widest uppercase px-2 py-0.5 rounded-full border"
                   style={{
                     color: TIER_COLORS[promoter.tier],
@@ -170,7 +158,7 @@ const PromotersCard = ({ promoter }: { promoter: any }) => {
                   }}
                 >
                   {TIER_LABELS[promoter.tier] ?? promoter.tier}
-                </span>
+                </span> */}
               </div>
 
               <div className="mt-2 space-y-1 text-xs text-muted-foreground">
