@@ -10,7 +10,7 @@ interface ListingsMeta {
   page: number;
   limit: number;
   total: number;
-  totalPages: number;
+  totalPage: number;
 }
 
 export interface Promoter {
@@ -39,14 +39,23 @@ interface ListingsApiResponse {
   };
 }
 
-const getListings = createAsyncThunk<ListingsApiResponse, void>(
-  "/listings",
-  async (_, { rejectWithValue }) => {
+interface ListQueryParams {
+  page?: number;
+  limit?: number;
+  [key: string]: any;
+}
+
+const getListings = createAsyncThunk<ListingsApiResponse, ListQueryParams, { rejectValue: string }>(
+  "listings/getListings",
+  async (query, { rejectWithValue }) => {
     try {
-      const res = await api.get("/listings");
+      const res = await api.get("/listings", {
+        params: query,
+      });
+
       return res.data as ListingsApiResponse;
-    } catch (err) {
-      console.log(err);
+    } catch (err: any) {
+      console.log(err?.response?.data ?? err);
       return rejectWithValue("Failed to fetch listings");
     }
   },
@@ -94,6 +103,23 @@ const getMyListingPromoteRequests = createAsyncThunk<
   },
 );
 
+const getMySentPromoteRequests = createAsyncThunk<
+  PromoteRequestsApiResponse,
+  void
+>(
+  "listings/promote-requests/sent",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get("/listings/promote-request/sent");
+      return res.data as PromoteRequestsApiResponse;
+    } catch (err: any) {
+      console.log(err?.response?.data ?? err);
+      return rejectWithValue(
+        err?.response?.data?.message ?? "Failed to fetch sent promote requests",
+      );
+    }
+  },
+);
 
 // const manageListing = 
 
@@ -247,6 +273,72 @@ const deletePendingListing = createAsyncThunk<any, string, { rejectValue: string
   })
 
 
+  // ── Add these to your existing lib/features/listings/listingsApi.ts ──
+
+// Admin/manager: browse every listing regardless of owner, with the same
+// {data, meta} shape as getListings — reuses GET "/" but keeps its own
+// action type so it can live in its own slice of state (`adminListings`)
+// without fighting with whatever getListings already populates elsewhere.
+const getAllListingsForAdmin = createAsyncThunk<
+  ListingsApiResponse,
+  ListQueryParams | void,
+  { rejectValue: string }
+>("listings/admin/getAll", async (query, { rejectWithValue }) => {
+  try {
+    const res = await api.get("/listings", { params: query ?? {} });
+    return res.data as ListingsApiResponse;
+  } catch (err: any) {
+    return rejectWithValue(
+      err?.response?.data?.message ?? "Failed to fetch listings"
+    );
+  }
+});
+
+// Admin/manager: approve or reject a listing.
+// POST /listings/manage/:id — verifyAdmin on the backend, so this call will
+// 403 for non-admins; the UI should also hide the buttons for non-admins.
+export const manageListingStatus = createAsyncThunk<
+  any,
+  { id: string; status: "approved" | "rejected" },
+  { rejectValue: string }
+>("listings/admin/manageStatus", async ({ id, status }, { rejectWithValue }) => {
+  try {
+    const res = await api.post(`/listings/manage/${id}`, { status });
+    return res.data.data;
+  } catch (err: any) {
+    return rejectWithValue(
+      err?.response?.data?.message ?? "Failed to update listing status"
+    );
+  }
+});
+
+// Admin (or owner, per your backend's isOwner/isAdmin check): permanently
+// delete a listing. This is the HARD delete (DELETE /listings/:id) — distinct
+// from cencelPendingListing/deletePendingListing, which are soft-delete/status
+// flips via PATCH. Use this one for the admin table's "Delete" action.
+export const deleteListing = createAsyncThunk<
+  string, // return the deleted id so the reducer can splice it out of state
+  string,
+  { rejectValue: string }
+>("listings/admin/deleteHard", async (id, { rejectWithValue }) => {
+  try {
+    await api.delete(`/listings/${id}`);
+    return id;
+  } catch (err: any) {
+    return rejectWithValue(
+      err?.response?.data?.message ?? "Failed to delete listing"
+    );
+  }
+});
+
+// Then add all three into your existing `listingsApi` export object:
+// export const listingsApi = {
+//   ...,
+//   getAllListingsForAdmin,
+//   manageListingStatus,
+//   deleteListingHard,
+// };
+
 
 export const listingsApi = {
   getListings,
@@ -255,9 +347,13 @@ export const listingsApi = {
   getPromoterProfile,
   getMyListings,
   getMyListingPromoteRequests,
+  getMySentPromoteRequests,
   cancelPromoteRequest,
   deletePromoteRequest,
   managePromoteRequest,
   cencelPendingListing,
-  deletePendingListing
+  deletePendingListing,
+  getAllListingsForAdmin,
+  manageListingStatus,
+  deleteListing
 };

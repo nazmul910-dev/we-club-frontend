@@ -1,6 +1,13 @@
 import { Bath, Bed, MapPin, Maximize2, Share2 } from "lucide-react";
+import ListingsPromoteModal from "./ListingsPromoteModal";
+import { promoteRequestApi } from "@/lib/features/PromoteRequest/promoteRequestApi";
+import { AppDispatch } from "@/lib/redux/store/store";
+import { useDispatch } from "react-redux";
 
 export const ListingCard = ({ property }: { property: any }) => {
+  const dispatch = useDispatch<AppDispatch>();
+
+  console.log(property._id)
   return (
     <article
       key={property.ref_code}
@@ -82,13 +89,16 @@ export const ListingCard = ({ property }: { property: any }) => {
 
         {/* Action Buttons */}
         <div className="mt-5 flex items-center gap-2 pt-1">
-          <button
-            type="button"
-            className="flex-1 rounded-full border border-gold/60 bg-transparent px-3 py-2 font-ui text-[10px] tracking-[0.22em] uppercase text-gold hover:bg-gold/10 transition duration-200 cursor-pointer text-center"
-          >
-            Request to Promote
-          </button>
+          <ListingsPromoteModal
+            listingId={property._id}
+            onSubmit={async (payload) => {
 
+            
+              await dispatch(
+                promoteRequestApi.createPromoteRequest(payload),
+              ).unwrap();
+            }}
+          />
           <button
             type="button"
             className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-gold-soft text-white/80 hover:border-gold hover:text-gold transition duration-200 cursor-pointer"
