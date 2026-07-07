@@ -1,10 +1,55 @@
-export default function CommissionLedgerPage() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <h1 className="text-3xl font-bold text-black dark:text-white">Commission Ledger Page</h1>
-      <p className="mt-4 text-lg text-gray-700 dark:text-gray-300">
-        This is the Commission Ledger page content.
-      </p>
-    </div>
-  );
+"use client";
+
+
+import CommissionHeader 
+from "@/components/commission/commission-header";
+
+import CommissionTabs 
+from "@/components/commission/commission-tabs";
+
+import CommissionTable 
+from "@/components/commission/commission-table";
+
+
+
+export default function CommissionLedgerPage(){
+
+
+return(
+
+<div
+className="
+min-h-screen
+bg-[#090909]
+px-6
+py-10
+"
+>
+
+
+<div
+className="
+max-w-7xl
+mx-auto
+"
+>
+
+
+<CommissionHeader/>
+
+
+<CommissionTabs/>
+
+
+<CommissionTable/>
+
+
+</div>
+
+
+</div>
+
+
+)
+
 }
