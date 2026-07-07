@@ -299,7 +299,7 @@ const getAllListingsForAdmin = createAsyncThunk<
 // 403 for non-admins; the UI should also hide the buttons for non-admins.
 export const manageListingStatus = createAsyncThunk<
   any,
-  { id: string; status: "approved" | "rejected" },
+  { id: string; status: "active" | "rejected" },
   { rejectValue: string }
 >("listings/admin/manageStatus", async ({ id, status }, { rejectWithValue }) => {
   try {
