@@ -12,6 +12,7 @@ import FilterListingDialog, {
   DEFAULT_LISTING_FILTERS,
   ListingFilters,
 } from "@/components/Listings/FilterListingDialog";
+import Title from "@/components/ui/title";
 
 export default function MyListingsPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -65,15 +66,11 @@ export default function MyListingsPage() {
     <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 flex flex-col gap-8 bg-[#0a0a0a] min-h-[calc(100vh-4rem)]">
       {/* Header Section */}
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <div className="text-eyebrow mb-2">Inventory · Discreet</div>
-          <h1 className="font-display text-3xl md:text-4xl text-white">
-            My Listings
-          </h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            Properties presented under your name or shared from the platform.
-          </p>
-        </div>
+        <Title
+          subtitle="Inventory . Discreet"
+          title="My Listings"
+          description="Properties presented under your name or shared from the platform."
+        />
 
         <div className="flex items-center gap-2">
           <FilterListingDialog

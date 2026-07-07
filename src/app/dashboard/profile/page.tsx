@@ -1,63 +1,145 @@
-import { Cormorant_Garamond, Jost } from "next/font/google";
-import { getProfile, CURRENT_USER_ID } from "@/lib/data/profile";
-import { ProfileHeaderCard } from "@/components/profile/profile-header-card";
-import { StandingPanel } from "@/components/profile/standing-panel";
-import { ParticularsForm } from "@/components/profile/particulars-form";
+"use client";
 
-const serif = Cormorant_Garamond({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-serif",
-});
+import {useEffect} from "react";
 
-const sans = Jost({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-sans",
-});
+import {useAppDispatch,useAppSelector} from "@/lib/redux/store/hook";
 
-export const metadata = {
-  title: "My Profile",
-};
+import {
+getMyProfile
+} from "@/lib/features/profile/profileApi";
 
-// Server Component: fetch happens here, so the page can later take a real
-// session/userId without the child components needing to change at all.
-export default async function ProfilePage() {
-  const profile = await getProfile(CURRENT_USER_ID);
 
-  return (
-    <div
-      className={`${serif.variable} ${sans.variable} min-h-screen bg-[#0b0b0d] px-6 sm:px-10 py-10`}
-      style={{ fontFamily: "var(--font-sans)" }}
-    >
-      <div className="max-w-6xl mx-auto">
-        {/* Page heading */}
-        <div className="mb-8">
-          <span className="text-[11px] tracking-[0.2em] uppercase text-[#c9a962]">
-            Account · Private
-          </span>
-          <h1
-            className="mt-2 text-4xl text-[#ece9e2]"
-            style={{ fontFamily: "var(--font-serif)" }}
-          >
-            My Profile
-          </h1>
-          <p className="mt-1.5 text-sm text-[#8a8a82]">
-            The face you present to the network.
-          </p>
-        </div>
+import ProfilePageHeader from "@/components/profile/profile-page-header";
+import ProfileHeaderCard from "@/components/profile/profile-header-card";
+import ProfileParticulars from "@/components/profile/profile-particulars";
+import ProfileStanding from "@/components/profile/profile-standing";
+import ProfileBio from "@/components/profile/profile-bio";
 
-        {/* Identity card */}
-        <div className="mb-6">
-          <ProfileHeaderCard identity={profile.identity} />
-        </div>
 
-        {/* Particulars + Standing */}
-        <div className="grid lg:grid-cols-[1fr_320px] gap-6">
-          <ParticularsForm userId={profile.id} initialData={profile.particulars} />
-          <StandingPanel standing={profile.standing} />
-        </div>
-      </div>
-    </div>
-  );
+export default function ProfilePage(){
+
+
+const dispatch = useAppDispatch();
+
+
+
+const profile =
+useAppSelector(
+(state)=>state.profile.profile
+);
+
+
+
+const loading =
+useAppSelector(
+(state)=>state.profile.loading
+);
+
+
+
+useEffect(()=>{
+
+
+if(!profile){
+
+dispatch(
+getMyProfile()
+);
+
+}
+
+
+},[
+profile,
+dispatch
+]);
+
+
+
+
+console.log(
+"Profile data1:",
+profile
+);
+
+
+
+if(loading || !profile){
+
+return(
+<div className="text-white p-10">
+Loading...
+</div>
+)
+
+}
+
+
+
+return(
+
+<div className="
+min-h-screen
+bg-[#090909]
+px-6
+py-10
+">
+
+
+<div className="
+max-w-6xl
+mx-auto
+">
+
+
+<ProfilePageHeader/>
+
+
+<ProfileHeaderCard
+profile={profile}
+/>
+
+
+
+<div className="
+grid
+lg:grid-cols-[1fr_300px]
+gap-6
+mt-6
+">
+
+
+<div>
+
+
+<ProfileParticulars
+profile={profile}
+/>
+
+
+<ProfileBio
+profile={profile}
+/>
+
+
+</div>
+
+
+
+<ProfileStanding
+profile={profile}
+/>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+)
+
+
 }
