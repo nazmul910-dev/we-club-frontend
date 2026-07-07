@@ -61,21 +61,30 @@ const getListings = createAsyncThunk<ListingsApiResponse, ListQueryParams, { rej
   },
 );
 
-const getMyListings = createAsyncThunk<ListingsApiResponse, void>(
+interface PaginationParams {
+  page?: number;
+  limit?: number;
+}
+
+const getMyListings = createAsyncThunk<
+  ListingsApiResponse,
+  PaginationParams | undefined
+>(
   "listings/my",
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      const res = await api.get("/listings/my");
-      return res.data as ListingsApiResponse;
+      const res = await api.get("/listings/my", {
+        params,
+      });
+
+      return res.data;
     } catch (err: any) {
-      console.log(err?.response?.data ?? err);
       return rejectWithValue(
-        err?.response?.data?.message ?? "Failed to fetch my listings",
+        err?.response?.data?.message ?? "Failed to fetch my listings"
       );
     }
-  },
+  }
 );
-
 interface PromoteRequestsApiResponse {
   success: boolean;
   message: string;
@@ -87,38 +96,45 @@ interface PromoteRequestsApiResponse {
 
 const getMyListingPromoteRequests = createAsyncThunk<
   PromoteRequestsApiResponse,
-  void
+  PaginationParams | undefined
 >(
   "listings/promote-requests/received",
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      const res = await api.get("/listings/promote-request/received");
+      const res = await api.get(
+        "/listings/promote-request/received",
+        { params }
+      );
       return res.data as PromoteRequestsApiResponse;
     } catch (err: any) {
-      console.log(err?.response?.data ?? err);
       return rejectWithValue(
-        err?.response?.data?.message ?? "Failed to fetch promote requests",
+        err?.response?.data?.message ??
+          "Failed to fetch promote requests"
       );
     }
-  },
+  }
 );
-
 const getMySentPromoteRequests = createAsyncThunk<
   PromoteRequestsApiResponse,
-  void
+  PaginationParams | undefined
 >(
   "listings/promote-requests/sent",
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      const res = await api.get("/listings/promote-request/sent");
+      const res = await api.get("/listings/promote-request/sent", {
+        params,
+      });
+
       return res.data as PromoteRequestsApiResponse;
     } catch (err: any) {
       console.log(err?.response?.data ?? err);
+
       return rejectWithValue(
-        err?.response?.data?.message ?? "Failed to fetch sent promote requests",
+        err?.response?.data?.message ??
+          "Failed to fetch sent promote requests"
       );
     }
-  },
+  }
 );
 
 // const manageListing = 
@@ -198,6 +214,9 @@ export const postListing = createAsyncThunk<
   async (_, { rejectWithValue }) => {
     try {
       const res = await api.get("/listings/my-promoters");
+
+  
+
       return res.data as PromotersApiResponse;
     } catch (err: any) {
       return rejectWithValue(

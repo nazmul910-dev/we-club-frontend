@@ -34,6 +34,9 @@ interface ListingsState {
   // "object literal may only specify known properties" error below
   adminListings: any[];
   adminListingsMeta: any;
+  myListingsMeta: any;
+  promoteRequestsMeta: any
+  myPromoteRequestsMeta : any
   adminListingsLoading: boolean;
   adminListingsError: string | null;
   managingListingId: string | null;
@@ -59,6 +62,9 @@ const initialState: ListingsState = {
   mySentPromoteRequestsError: null,
   adminListings: [],
   adminListingsMeta: null,
+  myListingsMeta : null,
+  promoteRequestsMeta : null,
+  myPromoteRequestsMeta : null,
   adminListingsLoading: false,
   adminListingsError: null,
   managingListingId: null,
@@ -130,6 +136,7 @@ const listingsSlice = createSlice({
       })
       .addCase(listingsApi.getMyListings.fulfilled, (state, action) => {
         state.myListingsLoading = false;
+        state.myListingsMeta = action.payload.data.meta;
         state.myListings = action.payload.data.data;
       })
       .addCase(listingsApi.getMyListings.rejected, (state, action) => {
@@ -147,6 +154,7 @@ const listingsSlice = createSlice({
         listingsApi.getMyListingPromoteRequests.fulfilled,
         (state, action) => {
           state.promoteRequestsLoading = false;
+          state.promoteRequestsMeta = action.payload.data.meta;
           state.promoteRequests = action.payload.data.data;
         },
       )
@@ -167,6 +175,7 @@ const listingsSlice = createSlice({
         (state, action) => {
           state.mySentPromoteRequestsLoading = false;
           state.mySentPromoteRequests = action.payload.data.data;
+          state.myPromoteRequestsMeta = action.payload.data.meta
         },
       )
       .addCase(

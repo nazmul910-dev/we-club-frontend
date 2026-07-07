@@ -18,15 +18,25 @@ import {
   canDeleteRequest as canDeleteRequestFn,
 } from "@/lib/utils/Helpers";
 import { MyPromoteRequestsSection } from "@/components/Listings/MyPromoteRequest";
+import { PaginationControl } from "@/components/ui/PaginationControll";
 
 export default function ManageListingsPage() {
   const dispatch = useDispatch<AppDispatch>();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
-  const [selectedTier, setSelectedTier] = useState<"tier_1" | "tier_2" | "tier_3">(
-    "tier_1"
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
+    null,
   );
+  const [selectedTier, setSelectedTier] = useState<
+    "tier_1" | "tier_2" | "tier_3"
+  >("tier_1");
   const [isConfirming, setIsConfirming] = useState(false);
+
+  const [page, setPage] = useState(1);
+  const [myListingsPage, setMyListingsPage] = useState(1);
+  const [adminListingsPage, setAdminListingsPage] = useState(1);
+  const [receivedRequestsPage, setReceivedRequestsPage] = useState(1);
+  const [sentRequestsPage, setSentRequestsPage] = useState(1);
+  const [limit, setLimit] = useState(10);
 
   const {
     myListings,
@@ -45,13 +55,18 @@ export default function ManageListingsPage() {
     adminListingsLoading,
     managingListingId,
     deletingListingId,
+    adminListingsMeta,
+    myListingsMeta,
+    promoteRequestsMeta,
+    myPromoteRequestsMeta
   } = useSelector((s: RootState) => {
     return {
       myListings: (s as any).listings?.myListings ?? [],
       myListingsLoading: (s as any).listings?.myListingsLoading ?? false,
       myListingsError: (s as any).listings?.myListingsError ?? null,
       promoteRequests: (s as any).listings?.promoteRequests ?? [],
-      promoteRequestsLoading: (s as any).listings?.promoteRequestsLoading ?? false,
+      promoteRequestsLoading:
+        (s as any).listings?.promoteRequestsLoading ?? false,
       promoteRequestsError: (s as any).listings?.promoteRequestsError ?? null,
       mySentPromoteRequests: (s as any).listings?.mySentPromoteRequests ?? [],
       mySentPromoteRequestsLoading:
@@ -62,6 +77,10 @@ export default function ManageListingsPage() {
       userRole: (s as any).authUser?.user?.role ?? null,
       adminListings: (s as any).listings?.adminListings ?? [],
       adminListingsLoading: (s as any).listings?.adminListingsLoading ?? false,
+      adminListingsMeta: (s as any).listings?.adminListingsMeta,
+      myListingsMeta: (s as any).listings?.myListingsMeta,
+      promoteRequestsMeta: (s as any).listings?.promoteRequestsMeta,
+      myPromoteRequestsMeta: (s as any).listings?.myPromoteRequestsMeta,
       adminListingsError: (s as any).listings?.adminListingsError ?? null,
       managingListingId: (s as any).listings?.managingListingId ?? null,
       deletingListingId: (s as any).listings?.deletingListingId ?? null,
@@ -70,6 +89,8 @@ export default function ManageListingsPage() {
 
   const isAdmin = userRole === "admin";
   const isAdminOrManager = userRole === "admin" || userRole === "manager";
+
+  console.log("Checking my myPromoteRequestsMeta  ", myPromoteRequestsMeta);
 
   // Tracks which tabs have already had their data fetched at least once, so
   // switching tabs repeatedly doesn't refire the request every time — only
@@ -99,13 +120,16 @@ export default function ManageListingsPage() {
     });
   };
 
+  //   console.log("testing listing value", adminListingsMeta);
+
   // Bound versions of the shared helpers, so section components stay
   // presentational and don't need to know about currentUserId themselves.
   const isRequester = (request: any) => isRequesterFn(request, currentUserId);
   const canManageRequest = (request: any) => canManageRequestFn(request);
   const canApproveRejectRequest = (request: any) =>
     canApproveRejectRequestFn(request, currentUserId);
-  const canDeleteRequest = (request: any) => canDeleteRequestFn(request, currentUserId);
+  const canDeleteRequest = (request: any) =>
+    canDeleteRequestFn(request, currentUserId);
 
   const handleCancelRequest = async (id: string) => {
     if (!window.confirm("Cancel this promote request?")) return;
@@ -135,7 +159,7 @@ export default function ManageListingsPage() {
           id: selectedRequestId,
           status: "approved",
           selected_tier: selectedTier,
-        }) as any
+        }) as any,
       ).unwrap();
       dispatch(listingsApi.getMyListingPromoteRequests());
       dispatch(listingsApi.getMySentPromoteRequests());
@@ -151,7 +175,7 @@ export default function ManageListingsPage() {
   const handleRejectRequest = async (id: string) => {
     if (!window.confirm("Reject this promote request?")) return;
     await dispatch(
-      listingsApi.managePromoteRequest({ id, status: "rejected" }) as any
+      listingsApi.managePromoteRequest({ id, status: "rejected" }) as any,
     ).unwrap();
     dispatch(listingsApi.getMyListingPromoteRequests());
     dispatch(listingsApi.getMySentPromoteRequests());
@@ -171,9 +195,13 @@ export default function ManageListingsPage() {
 
   const handleManageListingStatus = async (
     id: string,
-    status: "active" | "rejected"
+    status: "active" | "rejected",
   ) => {
-    if (!window.confirm(`${status === "active" ? "Approve" : "Reject"} this listing?`))
+    if (
+      !window.confirm(
+        `${status === "active" ? "Approve" : "Reject"} this listing?`,
+      )
+    )
       return;
     await dispatch(listingsApi.manageListingStatus({ id, status })).unwrap();
   };
@@ -181,24 +209,39 @@ export default function ManageListingsPage() {
   const handleHardDeleteListing = async (id: string) => {
     if (
       !window.confirm(
-        "This will PERMANENTLY delete this listing. This cannot be undone. Continue?"
+        "This will PERMANENTLY delete this listing. This cannot be undone. Continue?",
       )
     )
       return;
     await dispatch(listingsApi.deleteListing(id)).unwrap();
   };
 
-
-  
-
   useEffect(() => {
-    dispatch(listingsApi.getMyListings());
-    dispatch(listingsApi.getMyListingPromoteRequests());
-    dispatch(listingsApi.getMySentPromoteRequests());
+    dispatch(
+      listingsApi.getMyListings({
+        page: myListingsPage,
+        limit,
+      }),
+    );
+    dispatch(
+      listingsApi.getMyListingPromoteRequests({
+        page: receivedRequestsPage,
+        limit,
+      }),
+    );
+    dispatch(listingsApi.getMySentPromoteRequests(
+        {page : sentRequestsPage, limit}
+    ));
+
     if (isAdminOrManager) {
-      dispatch(listingsApi.getAllListingsForAdmin());
+      dispatch(
+        listingsApi.getAllListingsForAdmin({
+          page,
+          limit,
+        }),
+      );
     }
-  }, [dispatch, isAdminOrManager]);
+  }, [dispatch, isAdminOrManager, page, myListingsPage, receivedRequestsPage, sentRequestsPage, limit]);
 
   return (
     <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 flex flex-col gap-8 bg-[#0a0a0a] min-h-[calc(100vh-4rem)]">
@@ -213,19 +256,39 @@ export default function ManageListingsPage() {
 
       <Tabs defaultValue="my-listings" className="w-full ">
         <TabsList className="bg-[#0f0f0f]/60 border border-gold-soft/30 w-full rounded-xl">
-          <TabsTrigger value="my-listings" className="text-white/70 hover:text-gold/80 rounded-xl">My Listings</TabsTrigger>
+          <TabsTrigger
+            value="my-listings"
+            className="text-white/70 hover:text-gold/80 rounded-xl"
+          >
+            My Listings
+          </TabsTrigger>
           {isAdminOrManager && (
-            <TabsTrigger value="all-listings" className="text-white/70 hover:text-gold/80 rounded-xl">
+            <TabsTrigger
+              value="all-listings"
+              className="text-white/70 hover:text-gold/80 rounded-xl"
+            >
               All Listings <span className="ml-1.5 text-gold">Admin</span>
             </TabsTrigger>
           )}
-          <TabsTrigger value="received" className="text-white/70 hover:text-gold/80 rounded-xl" >Promote Requests Received</TabsTrigger>
-          <TabsTrigger value="sent" className="text-white/70 hover:text-gold/80 rounded-xl">My Promote Requests</TabsTrigger>
+          <TabsTrigger
+            value="received"
+            className="text-white/70 hover:text-gold/80 rounded-xl"
+          >
+            Promote Requests Received
+          </TabsTrigger>
+          <TabsTrigger
+            value="sent"
+            className="text-white/70 hover:text-gold/80 rounded-xl"
+          >
+            My Promote Requests
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="my-listings">
           <section className="rounded-2xl border border-gold-soft/30 bg-[#0f0f0f]/60 p-6">
-            <h2 className="mb-4 text-xl font-semibold text-white">My Listings</h2>
+            <h2 className="mb-4 text-xl font-semibold text-white">
+              My Listings
+            </h2>
             <MyListingsSection
               myListings={myListings}
               myListingsLoading={myListingsLoading}
@@ -237,6 +300,13 @@ export default function ManageListingsPage() {
               onApproveRequest={handleApproveRequest}
               onRejectRequest={handleRejectRequest}
             />
+            <div className="mt-8">
+              <PaginationControl
+                currentPage={myListingsMeta?.page}
+                totalPages={myListingsMeta?.totalPage ?? 1}
+                onPageChange={setMyListingsPage}
+              />
+            </div>
           </section>
         </TabsContent>
 
@@ -245,7 +315,10 @@ export default function ManageListingsPage() {
             <section className="rounded-2xl border border-gold-soft/30 bg-[#0f0f0f]/60 p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold text-white">
-                  All Listings <span className="text-gold text-sm align-middle ml-2">Admin</span>
+                  All Listings{" "}
+                  <span className="text-gold text-sm align-middle ml-2">
+                    Admin
+                  </span>
                 </h2>
               </div>
               <AllListingsAdminSection
@@ -257,6 +330,14 @@ export default function ManageListingsPage() {
                 onManageStatus={handleManageListingStatus}
                 onHardDelete={handleHardDeleteListing}
               />
+
+              <div className="mt-8">
+                <PaginationControl
+                  currentPage={adminListingsMeta?.page}
+                  totalPages={adminListingsMeta?.totalPage ?? 1}
+                  onPageChange={setPage}
+                />
+              </div>
             </section>
           </TabsContent>
         )}
@@ -279,6 +360,13 @@ export default function ManageListingsPage() {
               onReject={handleRejectRequest}
               onDelete={handleDeleteRequest}
             />
+              <div className="mt-8">
+              <PaginationControl
+                currentPage={promoteRequestsMeta?.page}
+                totalPages={promoteRequestsMeta?.totalPage ?? 1}
+                onPageChange={setReceivedRequestsPage}
+              />
+            </div>
           </section>
         </TabsContent>
 
@@ -294,6 +382,14 @@ export default function ManageListingsPage() {
               canManageRequest={canManageRequest}
               onCancel={handleCancelRequest}
             />
+
+             <div className="mt-8">
+              <PaginationControl
+                currentPage={myPromoteRequestsMeta?.page}
+                totalPages={myPromoteRequestsMeta?.totalPage ?? 1}
+                onPageChange={setSentRequestsPage}
+              />
+            </div>
           </section>
         </TabsContent>
       </Tabs>

@@ -243,7 +243,7 @@ const ListingsPromoteModal = ({ listingId, onSubmit }: ListingsPromoteModalProps
                         <Textarea
                           rows={4}
                           placeholder="I would like to promote this listing to my network of qualified buyers."
-                          className={`${fieldClass} h-auto resize-none py-2.5`}
+                          className={`${fieldClass} h-auto resize-none py-2.5 px-4`}
                           {...field}
                         />
                       </FormControl>
