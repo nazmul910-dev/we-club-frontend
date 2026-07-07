@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/select";
 import { CoverImageField, fieldClass, GalleryImagesField } from "./AddListingsUtils";
 
+
 // Shared classNames so every text/number input and select trigger looks
 // consistent: frosted glass surface, soft border, gold focus glow.
 
@@ -53,9 +54,12 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
   const [submitting, setSubmitting] = useState(false);
 
   // TODO: adjust this path to match your real auth slice shape.
+  
   const associateId = useSelector(
-    (s: RootState) => (s as any).registration?.user?.id ?? null,
+    (state: RootState) => state.authUser.user?.id
   );
+
+
 
   const form = useForm<ListingFormValues>({
     resolver: zodResolver(listingFormSchema),
@@ -83,7 +87,7 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
     // }
 
     const formData = new FormData();
-    formData.append("associate_id",  "6a3f5b7a81f774edbeba00c7"); // fallback to empty string if null
+    formData.append("associate_id",  associateId || ""); // fallback to empty string if null
     formData.append("title", values.title);
     formData.append("ref_code", values.ref_code);
     formData.append("status", values.status);
