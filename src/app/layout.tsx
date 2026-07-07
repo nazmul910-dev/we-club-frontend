@@ -5,12 +5,16 @@ import {
   Geist_Mono,
   Playfair_Display,
   Montserrat,
-  Lato,
-} from "next/font/google";
+  Lato, Inter, Noto_Sans } from "next/font/google";
 
 import "./globals.css";
 import { Provider } from "react-redux";
 import { store } from "@/lib/redux/store/store";
+import { cn } from "@/lib/utils";
+
+const playfairDisplayHeading = Playfair_Display({subsets:['latin'],variable:'--font-heading'});
+
+const notoSans = Noto_Sans({subsets:['latin'],variable:'--font-sans'});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,11 +51,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={` ${geistSans.variable}
-        ${geistMono.variable}
-        ${playfair.variable}
-        ${montserrat.variable}
-        ${lato.variable}`}
+      className={cn(geistSans.variable, geistMono.variable, playfair.variable, montserrat.variable, lato.variable, "font-sans", notoSans.variable, playfairDisplayHeading.variable)}
     >
       <body className="min-h-full flex flex-col">
         
