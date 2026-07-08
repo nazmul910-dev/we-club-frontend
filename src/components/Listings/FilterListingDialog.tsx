@@ -31,10 +31,7 @@ const FilterListingDialog = ({
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState<ListingFilters>(defaultValues);
 
-  useEffect(() => {
-    setFilters(defaultValues);
-  }, [defaultValues]);
-
+ 
   const applyFilters = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     event.stopPropagation();
@@ -49,6 +46,12 @@ const FilterListingDialog = ({
     onApply?.(clearedFilters);
     setIsOpen(false);
   };
+
+
+   useEffect(() => {
+    setFilters(defaultValues);
+  }, [defaultValues]);
+
 
   console.log("filters", filters);
   return (

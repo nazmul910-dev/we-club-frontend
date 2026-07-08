@@ -4,6 +4,10 @@ import listingsReducer from "@/lib/features/listings/listingsSlice";
 import authUserReducer from "@/lib/features/auth/authUserSlice";
 import profileReducer from "@/lib/features/profile/profileSlice";
 import commissionReducer from "@/lib/features/commissionLedger/commissionLedgerSlice";
+import promoteRequestReducer from "@/lib/features/PromoteRequest/promoteRequestSlice";
+
+
+
 
 export const store = configureStore({
   reducer: {
@@ -13,6 +17,7 @@ export const store = configureStore({
     listings: listingsReducer,
     commission: commissionReducer,
     
+    promoteRequests: promoteRequestReducer,
   },
 });
 

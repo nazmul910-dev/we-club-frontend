@@ -18,7 +18,7 @@ import {
 
 const MENU_ITEMS = [
     { label: 'Dashboard', href: '/dashboard', icon: LayoutGrid },
-    { label: 'My Listings', href: '/dashboard/my-listings', icon: Building2 },
+    { label: 'Listings', href: '/dashboard/listings', icon: Building2 },
     { label: 'Manage Listings', href: '/dashboard/manage-listings', icon: Building2 },
     { label: 'Network Directory', href: '/dashboard/network-directory', icon: Users },
     { label: 'My Promoters', href: '/dashboard/my-promoters', icon: UserPlus },
