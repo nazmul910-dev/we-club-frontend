@@ -33,6 +33,24 @@ export interface LoginResponse {
   };
 }
 
+export interface ForgotPasswordPayload {
+  email: string;
+}
+
+
+export interface ResetPasswordPayload {
+  newPassword: string;
+  token:string;
+}
+
+
+
+export interface ChangePasswordPayload {
+  oldPassword: string;
+  newPassword: string;
+}
+
+
 export interface LoginPayload {
   email: string;
   password: string;
@@ -100,5 +118,144 @@ export const loginUser = createAsyncThunk<
       return rejectWithValue("Unexpected error");
     }
   }
+);
+
+
+
+
+
+
+export const forgotPassword = createAsyncThunk<
+  any,
+  ForgotPasswordPayload,
+  { rejectValue:string }
+>(
+  "auth/forgotPassword",
+  async(payload,{rejectWithValue})=>{
+
+    try{
+
+      const res = await api.post(
+        "/auth/forget-password",
+        payload
+      );
+
+      return res.data;
+
+    }catch(err){
+
+      if(axios.isAxiosError(err)){
+        return rejectWithValue(
+          err.response?.data?.message || "Failed"
+        );
+      }
+
+      return rejectWithValue("Something went wrong");
+
+    }
+
+  }
+);
+
+
+
+export const resetPassword = createAsyncThunk<
+any,
+ResetPasswordPayload,
+{rejectValue:string}
+>(
+
+"auth/resetPassword",
+
+async(payload,{rejectWithValue})=>{
+
+
+try{
+
+
+const res = await api.post(
+
+"/auth/reset-password",
+
+{
+newPassword: payload.newPassword
+},
+
+{
+
+headers:{
+
+Authorization:`Bearer ${payload.token}`
+
+}
+
+}
+
+);
+
+
+return res.data;
+
+
+
+}catch(err){
+
+
+if(axios.isAxiosError(err)){
+
+return rejectWithValue(
+err.response?.data?.message || "Failed"
+)
+
+}
+
+
+return rejectWithValue(
+"Something went wrong"
+)
+
+
+}
+
+
+}
+
+);
+
+
+
+export const changePassword = createAsyncThunk<
+any,
+ChangePasswordPayload,
+{rejectValue:string}
+>(
+"auth/changePassword",
+
+async(payload,{rejectWithValue})=>{
+
+try{
+
+const res = await api.post(
+"/auth/change-password",
+payload
+);
+
+return res.data;
+
+
+}catch(err){
+
+if(axios.isAxiosError(err)){
+return rejectWithValue(
+err.response?.data?.message || "Failed"
+)
+}
+
+return rejectWithValue("Something went wrong")
+
+}
+
+}
+
 );
 
