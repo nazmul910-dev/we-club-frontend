@@ -56,7 +56,7 @@ export default function MyPromotersPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="text-eyebrow mb-2">Operators · Trusted</div>
-          <h1 className="font-display text-3xl md:text-4xl text-foreground">
+          <h1 className="font-display text-3xl md:text-4xl text-white">
             My Promoters
           </h1>
           <p className="mt-1.5 text-sm text-muted-foreground">
