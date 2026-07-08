@@ -1,7 +1,8 @@
 "use client";
 
 import { statusBadge } from "@/components/Listings/StatusBadge";
-import { Trash2 } from "lucide-react";
+import { Ticket, Trash2, XCircle } from "lucide-react";
+import { RowAction, RowActionsMenu } from "./RowActionMenu";
 
 interface AllListingsAdminSectionProps {
   adminListings: any[];
@@ -38,8 +39,7 @@ export function AllListingsAdminSection({
     return <div className="text-muted-foreground">No listings found.</div>;
   }
 
-  console.log("from admin listing section ", adminListings)
-
+  console.log("from admin listing section ", adminListings);
 
   return (
     <div className="overflow-x-auto">
@@ -73,44 +73,52 @@ export function AllListingsAdminSection({
               <tr key={l._id} className="hover:bg-white/2">
                 <td className="px-4 py-3 text-sm text-white">{l.title}</td>
                 <td className="px-4 py-3 text-sm text-white/70">
-                  {l.associate_id?.email ?? l.associate_id?._id ?? l.associate_id ?? "-"}
+                  {l.associate_id?.email ??
+                    l.associate_id?._id ??
+                    l.associate_id ??
+                    "-"}
                 </td>
                 <td className="px-4 py-3 text-sm text-white">
                   {l.price?.amount ?? "-"} {l.price?.currency ?? ""}
                 </td>
                 <td className="px-4 py-3">{statusBadge(l.status)}</td>
                 <td className="px-4 py-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    {l.status === "pending" && (
-                      <>
-                        <button
-                          type="button"
-                          disabled={busy}
-                          onClick={() => onManageStatus(l._id, "active")}
-                          className="inline-flex items-center gap-1 rounded-full border border-green-500/30 bg-green-500/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.2em] text-green-300 transition hover:bg-green-500/20 disabled:opacity-40"
-                        >
-                          {isManaging ? "..." : "Approve"}
-                        </button>
-                        <button
-                          type="button"
-                          disabled={busy}
-                          onClick={() => onManageStatus(l._id, "rejected")}
-                          className="inline-flex items-center gap-1 rounded-full border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.2em] text-red-300 transition hover:bg-red-500/20 disabled:opacity-40"
-                        >
-                          {isManaging ? "..." : "Reject"}
-                        </button>
-                      </>
-                    )}
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={() => onHardDelete(l._id)}
-                      className="inline-flex items-center gap-1 rounded-full border border-red-500/40 bg-red-500/15 px-2.5 py-1 text-[11px] uppercase tracking-[0.2em] text-red-300 transition hover:bg-red-500/25 disabled:opacity-40"
-                    >
-                      <Trash2 size={12} />
-                      {isDeleting ? "Deleting..." : "Delete"}
-                    </button>
-                  </div>
+             
+                  <td>
+                    {(() => {
+                      const actions: RowAction[] = [];
+
+                      if (l.status === "pending") {
+                        actions.push({
+                          label: "Approve",
+                          disabled: busy,
+                          icon: <Ticket size={14} />,
+                          onClick: () => onManageStatus(l._id, "active"),
+                          variant: "success",
+                        });
+                        actions.push({
+                          label: "Reject",
+                          icon: <Trash2 size={14} />,
+                          onClick: () => onManageStatus(l._id, "rejected"),
+                          variant: "warning",
+                        });
+                      }
+                      actions.push({
+                        label: "Delete",
+                          disabled: busy,
+                          icon: <Trash2 size={14} />,
+                          onClick: () => onHardDelete(l._id),
+                          variant: "danger",
+
+                      })
+
+                      return (
+                        <div className="flex justify-end pr-2">
+                          <RowActionsMenu actions={actions} />
+                        </div>
+                      );
+                    })()}
+                  </td>
                 </td>
               </tr>
             );

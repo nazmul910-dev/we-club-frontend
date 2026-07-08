@@ -3,6 +3,7 @@
 import { statusBadge } from "@/components/Listings/StatusBadge";
 import { formatDate } from "@/lib/utils/Helpers";
 import { XCircle, Trash2 } from "lucide-react";
+import { RowAction, RowActionsMenu } from "./RowActionMenu";
 
 
 interface PromoteRequestsReceivedSectionProps {
@@ -83,52 +84,48 @@ export function PromoteRequestsReceivedSection({
               <td className="px-4 py-3 text-sm text-white">
                 {formatDate(r.requested_at)}
               </td>
-              <td className="px-4 py-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  {canManageRequest(r) && isRequester(r) && (
-                    <button
-                      type="button"
-                      onClick={() => onCancel(r._id)}
-                      className="inline-flex items-center gap-1 rounded-full border border-yellow-500/30 bg-yellow-500/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.2em] text-yellow-300 transition hover:bg-yellow-500/20"
-                    >
-                      <XCircle size={12} />
-                      Cancel
-                    </button>
-                  )}
-                  {canApproveRejectRequest(r) && (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => onApprove(r._id)}
-                        className="inline-flex items-center gap-1 rounded-full border border-green-500/30 bg-green-500/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.2em] text-green-300 transition hover:bg-green-500/20"
-                      >
-                        Approve
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => onReject(r._id)}
-                        className="inline-flex items-center gap-1 rounded-full border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.2em] text-red-300 transition hover:bg-red-500/20"
-                      >
-                        Reject
-                      </button>
-                    </>
-                  )}
-                  {canDeleteRequest(r) && (
-                    <button
-                      type="button"
-                      onClick={() => onDelete(r._id)}
-                      className="inline-flex items-center gap-1 rounded-full border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.2em] text-red-300 transition hover:bg-red-500/20"
-                    >
-                      <Trash2 size={12} />
-                      Delete
-                    </button>
-                  )}
-                  {!canManageRequest(r) &&
-                    !canApproveRejectRequest(r) &&
-                    !canDeleteRequest(r) && (
-                      <span className="text-xs text-muted-foreground">No actions</span>
-                    )}
-                </div>
+                
+             <td className="px-4 py-3">
+                {(() => {
+                  const actions: RowAction[] = [];
+ 
+                  if (canManageRequest(r) && isRequester(r)) {
+                    actions.push({
+                      label: "Cancel",
+                      icon: <XCircle size={14} />,
+                      onClick: () => onCancel(r._id),
+                      variant: "warning",
+                    });
+                  }
+ 
+                  if (canApproveRejectRequest(r)) {
+                    actions.push({
+                      label: "Approve",
+                      onClick: () => onApprove(r._id),
+                      variant: "success",
+                    });
+                    actions.push({
+                      label: "Reject",
+                      onClick: () => onReject(r._id),
+                      variant: "danger",
+                    });
+                  }
+ 
+                  if (canDeleteRequest(r)) {
+                    actions.push({
+                      label: "Delete",
+                      icon: <Trash2 size={14} />,
+                      onClick: () => onDelete(r._id),
+                      variant: "danger",
+                    });
+                  }
+ 
+                  return (
+                    <div className="flex justify-end pr-2">
+                      <RowActionsMenu actions={actions} />
+                    </div>
+                  );
+                })()}
               </td>
             </tr>
           ))}

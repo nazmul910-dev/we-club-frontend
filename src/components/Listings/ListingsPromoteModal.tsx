@@ -16,6 +16,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
+import {
   Form,
   FormField,
   FormItem,
@@ -36,6 +42,11 @@ const fieldClass =
 
 interface ListingsPromoteModalProps {
   listingId: string;
+  // When set, the trigger renders as a disabled button with a tooltip
+  // explaining why, and the dialog never opens — no listingId/form logic
+  // runs at all in this state.
+  disabled?: boolean;
+  disabledReason?: string;
   // Called with { listing_id, ...formValues } — dispatch your create-promote-request
   // thunk inside here.
   onSubmit: (payload: {
@@ -46,7 +57,12 @@ interface ListingsPromoteModalProps {
   }) => Promise<void> | void;
 }
 
-const ListingsPromoteModal = ({ listingId, onSubmit }: ListingsPromoteModalProps) => {
+const ListingsPromoteModal = ({
+  listingId,
+  onSubmit,
+  disabled = false,
+  disabledReason,
+}: ListingsPromoteModalProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [succeeded, setSucceeded] = useState(false);
@@ -115,6 +131,33 @@ const ListingsPromoteModal = ({ listingId, onSubmit }: ListingsPromoteModalProps
     }
   }
 
+  if (disabled) {
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger >
+            {/* A disabled <button> fires no pointer/focus events in most
+                browsers, which breaks hover tooltips — wrapping it in a
+                span keeps the tooltip working while the button itself
+                stays visually and functionally disabled. */}
+            <span className="flex-1 inline-block" tabIndex={0}>
+              <button
+                type="button"
+                disabled
+                className="w-full rounded-full border border-white/10 bg-white/[0.03] px-3 py-2 font-ui text-[10px] tracking-[0.22em] uppercase text-white/30 cursor-not-allowed text-center"
+              >
+                Request to Promote
+              </button>
+            </span>
+          </TooltipTrigger>
+          <TooltipContent className="bg-[#1a1a1a] border-white/10 text-white text-xs max-w-[220px]">
+            {disabledReason ?? "Promoting this listing isn't available right now."}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger className="flex-1 rounded-full border border-gold/60 bg-transparent px-3 py-2 font-ui text-[10px] tracking-[0.22em] uppercase text-gold hover:bg-gold/10 transition duration-200 cursor-pointer text-center">
@@ -145,10 +188,10 @@ const ListingsPromoteModal = ({ listingId, onSubmit }: ListingsPromoteModalProps
                 Close
               </Button>
               <Button
-             
+                
                 className="rounded-full bg-gold text-primary-foreground hover:brightness-110"
               >
-                <Link href="/dashboard/manage-listings">Go to My Listings</Link>
+                <Link href="/manage-listings">Go to My Listings</Link>
               </Button>
             </div>
           </div>
@@ -243,7 +286,7 @@ const ListingsPromoteModal = ({ listingId, onSubmit }: ListingsPromoteModalProps
                         <Textarea
                           rows={4}
                           placeholder="I would like to promote this listing to my network of qualified buyers."
-                          className={`${fieldClass} h-auto resize-none py-2.5 px-4`}
+                          className={`${fieldClass} h-auto resize-none py-2.5`}
                           {...field}
                         />
                       </FormControl>

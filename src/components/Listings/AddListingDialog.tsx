@@ -66,6 +66,7 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
     defaultValues: {
       title: "",
       ref_code: "",
+      status : "pending",
       bedrooms: 0,
       bathrooms: 0,
       area_sqm: 0,
@@ -90,7 +91,6 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
     formData.append("associate_id",  associateId || ""); // fallback to empty string if null
     formData.append("title", values.title);
     formData.append("ref_code", values.ref_code);
-    formData.append("status", values.status);
     formData.append("bedrooms", String(values.bedrooms));
     formData.append("bathrooms", String(values.bathrooms));
     formData.append("area_sqm", String(values.area_sqm));
@@ -228,7 +228,7 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
               />
             </div>
 
-            <FormField
+            {/* <FormField
               control={form.control}
               name="status"
               render={({ field }) => (
@@ -254,7 +254,7 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-5">
               <FormField
