@@ -3,9 +3,17 @@ import api from "@/lib/api/api";
 import type { Commission } from "./types";
 
 interface ApiResponse<T> {
+  meta: null;
   success: boolean;
   message: string;
   data: T;
+}
+
+
+interface ListQueryParams {
+  page?: number;
+  limit?: number;
+  [key: string]: any;
 }
 
 /* =========================================
@@ -14,13 +22,13 @@ interface ApiResponse<T> {
 
 export const getMyCommissions = createAsyncThunk<
   ApiResponse<Commission[]>,
-  void,
+ ListQueryParams | void,
   { rejectValue: string }
 >(
   "commission/getMyCommissions",
-  async (_, { rejectWithValue }) => {
+  async ( params = {}, { rejectWithValue }) => {
     try {
-      const res = await api.get("/commission/my");
+      const res = await api.get("/commission/my", {params});
       return res.data as ApiResponse<Commission[]>;
     } catch (err: any) {
       return rejectWithValue(
@@ -31,19 +39,32 @@ export const getMyCommissions = createAsyncThunk<
   }
 );
 
+
+// const getMyCommissions = createAsyncThunk
+//   CommissionsApiResponse,
+//   PaginationParams | void
+// >("commissions/my", async (params = {}, { rejectWithValue }) => {
+//   try {
+//     const res = await api.get("/commissions/my", { params }); // ← forward params as axios config
+//     return res.data;
+//   } catch (err: any) {
+//     return rejectWithValue(err?.response?.data?.message ?? "Failed to fetch commissions");
+//   }
+// });
+
 /* =========================================
    Get All Commission
 ========================================= */
 
 export const getAllCommissions = createAsyncThunk<
   ApiResponse<Commission[]>,
-  void,
+  ListQueryParams | void,
   { rejectValue: string }
 >(
   "commission/getAllCommissions",
-  async (_, { rejectWithValue }) => {
+  async (params ={}, { rejectWithValue }) => {
     try {
-      const res = await api.get("/commission/admin/all");
+      const res = await api.get("/commission/admin/all", {params});
       return res.data as ApiResponse<Commission[]>;
     } catch (err: any) {
       return rejectWithValue(
