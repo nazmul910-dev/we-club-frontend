@@ -4,7 +4,8 @@ import {useState} from "react";
 import {Pencil} from "lucide-react";
 
 import ProfileImageModal from "./profile-image-modal";
-
+import Link from "next/link";
+import {LockKeyhole} from "lucide-react";
 
 export default function ProfileHeaderCard({
 profile
@@ -133,14 +134,39 @@ tracking-widest
 {profile.role}
 
 </span>
+ 
+ 
+
+</div>
+
 
 
 </div>
 
+<Link
 
+href="/dashboard/profile/change-password"
 
-</div>
+className="
+flex
+items-center
+gap-2
+border
+border-[#C9A962]
+px-4
+py-2
+rounded-lg
+text-[#C9A962]
+text-sm
+"
 
+>
+
+<LockKeyhole size={15}/>
+
+Change Password
+
+</Link>
 
 </div>
 
