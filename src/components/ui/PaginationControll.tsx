@@ -77,7 +77,7 @@ export function PaginationControl({
             <PaginationItem key={page}>
               <PaginationLink
                 href="#"
-                className="text-white border-1 border-gold hover:bg-gold "
+                className="text-white rounded-full text-xs h-6 w-6 border-1 border-gold hover:bg-gold "
                 isActive={page === currentPage}
                 onClick={(e) => {
                   e.preventDefault();
@@ -93,7 +93,6 @@ export function PaginationControl({
         <PaginationItem>
           <PaginationNext
             href="#"
-            
             onClick={(e) => {
               e.preventDefault();
               go(currentPage + 1);

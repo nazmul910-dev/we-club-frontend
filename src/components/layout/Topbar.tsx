@@ -32,16 +32,16 @@ export default function Topbar({ setIsOpen }: Props) {
   const showSwitchButton = accessTo === "both";
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[#2B2B2B] bg-[#0A0A0A]">
+    <header className="sticky top-0 z-50 border-b border-[#2B2B2B] bg-[#0A0A0A] w-full">
       <div className="flex items-center justify-between gap-4 px-4 py-3 md:px-6 lg:px-8">
         <button
           onClick={() => setIsOpen(true)}
-          className="md:hidden mr-3 flex h-10 w-10 items-center justify-center rounded-lg border border-[#3A3120] text-[#CDAE53] hover:bg-[#1a1610] transition"
+          className="lg:hidden mr-3 flex h-10 w-10 items-center justify-center rounded-lg border border-[#3A3120] text-[#CDAE53] hover:bg-[#1a1610] transition"
         >
           <Menu size={20} />
         </button>
 
-        <div className="relative flex-1 hidden md:block max-w-52 lg:max-w-md">
+        <div className="relative w-full flex-1 hidden lg:block max-w-52 xl:max-w-md">
           <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#888]" />
           <input
             type="text"
