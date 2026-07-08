@@ -14,13 +14,13 @@ interface ListingsMeta {
 }
 
 export interface Promoter {
-  user_id : string;
+  user_id: string;
   name: string;
   email: string;
   phone: string;
-  tier : "tier_1" | "tier_2" | "tier_3";
+  tier: "tier_1" | "tier_2" | "tier_3";
   totalListingsCount: number;
-  listingPrices : {ammount : number, currency : string}[];
+  listingPrices: { ammount: number; currency: string }[];
 }
 
 interface PromotersApiResponse {
@@ -45,21 +45,22 @@ interface ListQueryParams {
   [key: string]: any;
 }
 
-const getListings = createAsyncThunk<ListingsApiResponse, ListQueryParams, { rejectValue: string }>(
-  "listings/getListings",
-  async (query, { rejectWithValue }) => {
-    try {
-      const res = await api.get("/listings", {
-        params: query,
-      });
+const getListings = createAsyncThunk<
+  ListingsApiResponse,
+  ListQueryParams | void,
+  { rejectValue: string }
+>("listings/getListings", async (query, { rejectWithValue }) => {
+  try {
+    const res = await api.get("/listings", {
+      params: query,
+    });
 
-      return res.data as ListingsApiResponse;
-    } catch (err: any) {
-      console.log(err?.response?.data ?? err);
-      return rejectWithValue("Failed to fetch listings");
-    }
-  },
-);
+    return res.data as ListingsApiResponse;
+  } catch (err: any) {
+    console.log(err?.response?.data ?? err);
+    return rejectWithValue("Failed to fetch listings");
+  }
+});
 
 interface PaginationParams {
   page?: number;
@@ -68,23 +69,20 @@ interface PaginationParams {
 
 const getMyListings = createAsyncThunk<
   ListingsApiResponse,
-  PaginationParams | undefined
->(
-  "listings/my",
-  async (params = {}, { rejectWithValue }) => {
-    try {
-      const res = await api.get("/listings/my", {
-        params,
-      });
+  PaginationParams | void
+>("listings/my", async (params = {}, { rejectWithValue }) => {
+  try {
+    const res = await api.get("/listings/my", {
+      params,
+    });
 
-      return res.data;
-    } catch (err: any) {
-      return rejectWithValue(
-        err?.response?.data?.message ?? "Failed to fetch my listings"
-      );
-    }
+    return res.data;
+  } catch (err: any) {
+    return rejectWithValue(
+      err?.response?.data?.message ?? "Failed to fetch my listings",
+    );
   }
-);
+});
 interface PromoteRequestsApiResponse {
   success: boolean;
   message: string;
@@ -96,27 +94,25 @@ interface PromoteRequestsApiResponse {
 
 const getMyListingPromoteRequests = createAsyncThunk<
   PromoteRequestsApiResponse,
-  PaginationParams | undefined
+  PaginationParams | void
 >(
   "listings/promote-requests/received",
   async (params = {}, { rejectWithValue }) => {
     try {
-      const res = await api.get(
-        "/listings/promote-request/received",
-        { params }
-      );
+      const res = await api.get("/listings/promote-request/received", {
+        params,
+      });
       return res.data as PromoteRequestsApiResponse;
     } catch (err: any) {
       return rejectWithValue(
-        err?.response?.data?.message ??
-          "Failed to fetch promote requests"
+        err?.response?.data?.message ?? "Failed to fetch promote requests",
       );
     }
-  }
+  },
 );
 const getMySentPromoteRequests = createAsyncThunk<
   PromoteRequestsApiResponse,
-  PaginationParams | undefined
+  PaginationParams | void
 >(
   "listings/promote-requests/sent",
   async (params = {}, { rejectWithValue }) => {
@@ -130,14 +126,13 @@ const getMySentPromoteRequests = createAsyncThunk<
       console.log(err?.response?.data ?? err);
 
       return rejectWithValue(
-        err?.response?.data?.message ??
-          "Failed to fetch sent promote requests"
+        err?.response?.data?.message ?? "Failed to fetch sent promote requests",
       );
     }
-  }
+  },
 );
 
-// const manageListing = 
+// const manageListing =
 
 export const cancelPromoteRequest = createAsyncThunk<
   any,
@@ -171,21 +166,28 @@ export const deletePromoteRequest = createAsyncThunk<
 
 export const managePromoteRequest = createAsyncThunk<
   any,
-  { id: string; status: "approved" | "rejected"; selected_tier?: "tier_1" | "tier_2" | "tier_3" },
+  {
+    id: string;
+    status: "approved" | "rejected";
+    selected_tier?: "tier_1" | "tier_2" | "tier_3";
+  },
   { rejectValue: string }
->("listings/promote-requests/manage", async ({ id, status, selected_tier = "tier_1" }, { rejectWithValue }) => {
-  try {
-    const res = await api.post(`/listings/promote-request/manage/${id}`, {
-      status,
-      selected_tier,
-    });
-    return res.data.data;
-  } catch (err: any) {
-    return rejectWithValue(
-      err?.response?.data?.message ?? "Failed to manage promote request",
-    );
-  }
-});
+>(
+  "listings/promote-requests/manage",
+  async ({ id, status, selected_tier = "tier_1" }, { rejectWithValue }) => {
+    try {
+      const res = await api.post(`/listings/promote-request/manage/${id}`, {
+        status,
+        selected_tier,
+      });
+      return res.data.data;
+    } catch (err: any) {
+      return rejectWithValue(
+        err?.response?.data?.message ?? "Failed to manage promote request",
+      );
+    }
+  },
+);
 
 export const postListing = createAsyncThunk<
   Listing,
@@ -208,22 +210,19 @@ export const postListing = createAsyncThunk<
   }
 });
 
-
- const getMyPromoters = createAsyncThunk<PromotersApiResponse, void>(
+const getMyPromoters = createAsyncThunk<PromotersApiResponse, void>(
   "listings/getMyPromoters",
   async (_, { rejectWithValue }) => {
     try {
       const res = await api.get("/listings/my-promoters");
 
-  
-
       return res.data as PromotersApiResponse;
     } catch (err: any) {
       return rejectWithValue(
-        err.response?.data?.message ?? "Failed to fetch promoters"
+        err.response?.data?.message ?? "Failed to fetch promoters",
       );
     }
-  }
+  },
 );
 
 export interface PromoterProfile {
@@ -238,61 +237,58 @@ export interface PromoterProfile {
   marketingChannels?: string[];
   bio?: string;
 }
- 
+
 interface PromoterProfileApiResponse {
   success: boolean;
   message: string;
   data: PromoterProfile;
 }
- 
- const getPromoterProfile = createAsyncThunk<
+
+const getPromoterProfile = createAsyncThunk<
   PromoterProfileApiResponse,
   string // user_id
->(
-  "listings/getPromoterProfile",
-  async (userId, { rejectWithValue }) => {
-    try {
-      const res = await api.get(`/users/${userId}`);
-      return res.data as PromoterProfileApiResponse;
-    } catch (err: any) {
-      return rejectWithValue(
-        err.response?.data?.message ?? "Failed to fetch promoter profile"
-      );
-    }
+>("listings/getPromoterProfile", async (userId, { rejectWithValue }) => {
+  try {
+    const res = await api.get(`/users/${userId}`);
+    return res.data as PromoterProfileApiResponse;
+  } catch (err: any) {
+    return rejectWithValue(
+      err.response?.data?.message ?? "Failed to fetch promoter profile",
+    );
   }
-);
+});
 
+const cencelPendingListing = createAsyncThunk<
+  any,
+  string,
+  { rejectValue: string }
+>("listings/cancelPendingListing", async (id, { rejectWithValue }) => {
+  try {
+    const res = await api.patch(`/listings/cancel/${id}`);
+    return res.data.data;
+  } catch (err: any) {
+    return rejectWithValue(
+      err.response?.data?.message ?? "Failed to cancel pending listing",
+    );
+  }
+});
 
-const cencelPendingListing = createAsyncThunk<any, string, { rejectValue: string }>(
-  "listings/cancelPendingListing",
-  async (id , { rejectWithValue }) => {  
-    try{
-      const res = await api.patch(`/listings/cancel/${id}`, );
-      return res.data.data;
-    }catch(err: any) {
-      return rejectWithValue(
-        err.response?.data?.message ?? "Failed to cancel pending listing"
-      );
-    }
-    
-  })
+const deletePendingListing = createAsyncThunk<
+  any,
+  string,
+  { rejectValue: string }
+>("listings/cancelPendingListing", async (id, { rejectWithValue }) => {
+  try {
+    const res = await api.patch(`/listings/delete/${id}`);
+    return res.data.data;
+  } catch (err: any) {
+    return rejectWithValue(
+      err.response?.data?.message ?? "Failed to delete pending listing",
+    );
+  }
+});
 
-const deletePendingListing = createAsyncThunk<any, string, { rejectValue: string }>(
-  "listings/cancelPendingListing",
-  async (id , { rejectWithValue }) => {  
-    try{
-      const res = await api.patch(`/listings/delete/${id}`, );
-      return res.data.data;
-    }catch(err: any) {
-      return rejectWithValue(
-        err.response?.data?.message ?? "Failed to delete pending listing"
-      );
-    }
-    
-  })
-
-
-  // ── Add these to your existing lib/features/listings/listingsApi.ts ──
+// ── Add these to your existing lib/features/listings/listingsApi.ts ──
 
 // Admin/manager: browse every listing regardless of owner, with the same
 // {data, meta} shape as getListings — reuses GET "/" but keeps its own
@@ -308,7 +304,7 @@ const getAllListingsForAdmin = createAsyncThunk<
     return res.data as ListingsApiResponse;
   } catch (err: any) {
     return rejectWithValue(
-      err?.response?.data?.message ?? "Failed to fetch listings"
+      err?.response?.data?.message ?? "Failed to fetch listings",
     );
   }
 });
@@ -320,16 +316,19 @@ export const manageListingStatus = createAsyncThunk<
   any,
   { id: string; status: "active" | "rejected" },
   { rejectValue: string }
->("listings/admin/manageStatus", async ({ id, status }, { rejectWithValue }) => {
-  try {
-    const res = await api.post(`/listings/manage/${id}`, { status });
-    return res.data.data;
-  } catch (err: any) {
-    return rejectWithValue(
-      err?.response?.data?.message ?? "Failed to update listing status"
-    );
-  }
-});
+>(
+  "listings/admin/manageStatus",
+  async ({ id, status }, { rejectWithValue }) => {
+    try {
+      const res = await api.post(`/listings/manage/${id}`, { status });
+      return res.data.data;
+    } catch (err: any) {
+      return rejectWithValue(
+        err?.response?.data?.message ?? "Failed to update listing status",
+      );
+    }
+  },
+);
 
 // Admin (or owner, per your backend's isOwner/isAdmin check): permanently
 // delete a listing. This is the HARD delete (DELETE /listings/:id) — distinct
@@ -345,7 +344,7 @@ export const deleteListing = createAsyncThunk<
     return id;
   } catch (err: any) {
     return rejectWithValue(
-      err?.response?.data?.message ?? "Failed to delete listing"
+      err?.response?.data?.message ?? "Failed to delete listing",
     );
   }
 });
@@ -357,7 +356,6 @@ export const deleteListing = createAsyncThunk<
 //   manageListingStatus,
 //   deleteListingHard,
 // };
-
 
 export const listingsApi = {
   getListings,
@@ -374,5 +372,5 @@ export const listingsApi = {
   deletePendingListing,
   getAllListingsForAdmin,
   manageListingStatus,
-  deleteListing
+  deleteListing,
 };
