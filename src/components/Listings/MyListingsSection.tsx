@@ -2,6 +2,8 @@
 
 import { statusBadge } from "@/components/Listings/StatusBadge";
 import { XCircle, Trash2 } from "lucide-react";
+import { RowAction, RowActionsMenu } from "./RowActionMenu";
+
 
 interface MyListingsSectionProps {
   myListings: any[];
@@ -76,31 +78,31 @@ export function MyListingsSection({
                 {(l.promoters || []).length}
               </td>
               <td>
-                <div className="flex flex-wrap items-center gap-2">
-                  {l.status === "pending" ? (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => onCancelPending(l._id)}
-                        className="inline-flex items-center gap-1 rounded-full border border-yellow-500/30 bg-yellow-500/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.2em] text-yellow-300 transition hover:bg-yellow-500/20"
-                      >
-                        <XCircle size={12} />
-                        Cancel
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => onDeletePending(l._id)}
-                        className="inline-flex items-center gap-1 rounded-full border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.2em] text-red-300 transition hover:bg-red-500/20"
-                      >
-                        <Trash2 size={12} />
-                        Delete
-                      </button>
-                    </>
-                  ) : (
-                    <span className="text-white/30 text-xs">No actions</span>
-                  )}
-                  
-                </div>
+                {(() => {
+                  const actions: RowAction[] = [];
+
+                  if (l.status === "pending") {
+                    actions.push({
+                      label: "Cancel",
+                      icon: <XCircle size={14} />,
+                      onClick: () => onCancelPending(l._id),
+                      variant: "warning",
+                    });
+                    actions.push({
+                      label: "Delete",
+                      icon: <Trash2 size={14} />,
+                      onClick: () => onDeletePending(l._id),
+                      variant: "danger",
+                    });
+                  }
+
+               
+                  return (
+                    <div className="flex justify-end pr-2">
+                      <RowActionsMenu actions={actions} />
+                    </div>
+                  );
+                })()}
               </td>
             </tr>
           ))}

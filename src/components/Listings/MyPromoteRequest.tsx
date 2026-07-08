@@ -3,7 +3,7 @@
 import { statusBadge } from "@/components/Listings/StatusBadge";
 import { formatDate } from "@/lib/utils/Helpers";
 import { XCircle } from "lucide-react";
-
+import { RowAction, RowActionsMenu } from "./RowActionMenu";
 
 interface MyPromoteRequestsSectionProps {
   mySentPromoteRequests: any[];
@@ -76,22 +76,25 @@ export function MyPromoteRequestsSection({
               <td className="px-4 py-3 text-sm text-white">
                 {formatDate(request.requested_at)}
               </td>
-              <td className="px-4 py-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  {canManageRequest(request) && (
-                    <button
-                      type="button"
-                      onClick={() => onCancel(request._id)}
-                      className="inline-flex items-center gap-1 rounded-full border border-yellow-500/30 bg-yellow-500/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.2em] text-yellow-300 transition hover:bg-yellow-500/20"
-                    >
-                      <XCircle size={12} />
-                      Cancel
-                    </button>
-                  )}
-                  {!canManageRequest(request) && (
-                    <span className="text-xs text-muted-foreground">No actions</span>
-                  )}
-                </div>
+               <td className="px-4 py-3">
+                {(() => {
+                  const actions: RowAction[] = [];
+ 
+                  if (canManageRequest(request)) {
+                    actions.push({
+                      label: "Cancel",
+                      icon: <XCircle size={14} />,
+                      onClick: () => onCancel(request._id),
+                      variant: "warning",
+                    });
+                  }
+ 
+                  return (
+                    <div className="flex justify-end pr-2">
+                      <RowActionsMenu actions={actions} />
+                    </div>
+                  );
+                })()}
               </td>
             </tr>
           ))}
