@@ -45,7 +45,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                 onClick={() => setIsOpen((prev) => !prev)}
                 aria-label={isOpen ? 'Close menu' : 'Open menu'}
                 aria-expanded={isOpen}
-                className="fixed top-4 left-4 z-50 flex h-10 w-10 items-center justify-center rounded-lg border border-[#463C20]/60 bg-[#0A0A0A] text-[#CDAE53] backdrop-blur-md transition-colors hover:border-[#CDAE53]/60 md:hidden"
+                className="fixed top-4 left-4 z-50 flex h-10 w-10 items-center justify-center rounded-lg border border-[#463C20]/60 bg-[#0A0A0A] text-[#CDAE53] backdrop-blur-md transition-colors hover:border-[#CDAE53]/60 lg:hidden"
             >
                 {isOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -54,13 +54,13 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             <div
                 onClick={() => setIsOpen(false)}
                 aria-hidden="true"
-                className={`fixed inset-0 z-40 bg-[#0A0A0A] backdrop-blur-sm transition-opacity duration-300 md:hidden ${isOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
+                className={`fixed inset-0 z-40 bg-[#0A0A0A] backdrop-blur-sm transition-opacity duration-300 lg:hidden ${isOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
                     }`}
             />
 
             {/* Sidebar */}
             <aside
-                className={`fixed left-0 top-0 z-50 h-screen w-64 bg-[#0A0A0A] border-r border-[#463C20]/40 transition-transform duration-300 flex flex-col gap-5 py-5 md:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"}`} >
+                className={`fixed left-0 top-0 z-50 h-screen w-64 bg-[#0A0A0A] border-r border-[#463C20]/40 transition-transform duration-300 flex flex-col gap-5 py-5 lg:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"}`} >
                 {/* Sidebar logo */}
                 <div className="flex items-center justify-start gap-3 px-5">
                     <Crown className="text-[#CDAE53]" size={22} strokeWidth={1.75} />

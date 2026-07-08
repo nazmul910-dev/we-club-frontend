@@ -64,20 +64,20 @@ export default function RootLayout({
 
         <Provider store={store}>
           <AuthGuard>
-            <main className="flex min-h-screen bg-[#0A0A0A]">
+            <main className="flex  min-h-screen  bg-[#0A0A0A] overflow-hidden w-screen">
 
             <Sidebar
               isOpen={sidebarOpen}
               setIsOpen={setSidebarOpen}
             />
 
-            <div className="flex min-h-screen flex-1 flex-col md:ml-64">
+            <div className="flex min-h-screen flex-1 flex-col lg:ml-64 w-full">
 
               <Topbar
                 setIsOpen={setSidebarOpen}
               />
 
-              <div className="flex-1 container1">
+              <div className="  w-full container1">
                 {children}
               </div>
 

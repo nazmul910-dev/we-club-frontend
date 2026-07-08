@@ -58,7 +58,7 @@ export default function ManageListingsPage() {
     adminListingsMeta,
     myListingsMeta,
     promoteRequestsMeta,
-    myPromoteRequestsMeta
+    myPromoteRequestsMeta,
   } = useSelector((s: RootState) => {
     return {
       myListings: (s as any).listings?.myListings ?? [],
@@ -229,9 +229,9 @@ export default function ManageListingsPage() {
         limit,
       }),
     );
-    dispatch(listingsApi.getMySentPromoteRequests(
-        {page : sentRequestsPage, limit}
-    ));
+    dispatch(
+      listingsApi.getMySentPromoteRequests({ page: sentRequestsPage, limit }),
+    );
 
     if (isAdminOrManager) {
       dispatch(
@@ -241,11 +241,19 @@ export default function ManageListingsPage() {
         }),
       );
     }
-  }, [dispatch, isAdminOrManager, page, myListingsPage, receivedRequestsPage, sentRequestsPage, limit]);
+  }, [
+    dispatch,
+    isAdminOrManager,
+    page,
+    myListingsPage,
+    receivedRequestsPage,
+    sentRequestsPage,
+    limit,
+  ]);
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 flex flex-col gap-8 bg-[#0a0a0a] min-h-[calc(100vh-4rem)]">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+    <div className="flex-1   px-4 md:px-8 py-6 flex flex-col gap-8 bg-[#0a0a0a] min-h-[calc(100vh-4rem)] w-full ">
+      <div className="flex flex-wrap items-end justify-between gap-4 w-full">
         <div>
           <div className="text-eyebrow mb-2">Listings</div>
           <h1 className="font-display text-3xl md:text-4xl text-white">
@@ -254,8 +262,22 @@ export default function ManageListingsPage() {
         </div>
       </div>
 
-      <Tabs defaultValue="my-listings" className="w-full ">
-        <TabsList className="bg-[#0f0f0f]/60 border border-gold-soft/30 w-full rounded-xl">
+     <div className="w-full overflow-x-auto scrollbar-hide">
+
+         <Tabs defaultValue="my-listings" className="w-full">
+        <TabsList
+          className=" inline-flex w-full
+      min-w-max
+      gap-2
+      rounded-xl
+      border
+      border-gold-soft/30
+      bg-[#0f0f0f]/60
+      p-1
+     
+      
+      "
+        >
           <TabsTrigger
             value="my-listings"
             className="text-white/70 hover:text-gold/80 rounded-xl"
@@ -284,7 +306,7 @@ export default function ManageListingsPage() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="my-listings">
+        <TabsContent value="my-listings" className="w-full ">
           <section className="rounded-2xl border border-gold-soft/30 bg-[#0f0f0f]/60 p-6">
             <h2 className="mb-4 text-xl font-semibold text-white">
               My Listings
@@ -360,7 +382,7 @@ export default function ManageListingsPage() {
               onReject={handleRejectRequest}
               onDelete={handleDeleteRequest}
             />
-              <div className="mt-8">
+            <div className="mt-8">
               <PaginationControl
                 currentPage={promoteRequestsMeta?.page}
                 totalPages={promoteRequestsMeta?.totalPage ?? 1}
@@ -383,7 +405,7 @@ export default function ManageListingsPage() {
               onCancel={handleCancelRequest}
             />
 
-             <div className="mt-8">
+            <div className="mt-8">
               <PaginationControl
                 currentPage={myPromoteRequestsMeta?.page}
                 totalPages={myPromoteRequestsMeta?.totalPage ?? 1}
@@ -393,6 +415,7 @@ export default function ManageListingsPage() {
           </section>
         </TabsContent>
       </Tabs>
+     </div>
 
       <TierSelectionDialog
         open={isModalOpen}
