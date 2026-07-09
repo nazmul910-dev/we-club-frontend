@@ -72,7 +72,7 @@ function PaginationPrevious({
     <PaginationLink
       aria-label="Go to previous page"
       size="default"
-      className={cn("pl-2! text-white", className)}
+      className={cn("pl-2! text-white  hover:bg-gold/70", className)}
       {...props}
     >
       <ChevronLeftIcon data-icon="inline-start" />
@@ -90,7 +90,7 @@ function PaginationNext({
     <PaginationLink
       aria-label="Go to next page"
       size="default"
-      className={cn("pr-2! text-white/70", className)}
+      className={cn("pr-2! text-white/70 hover:bg-gold/70", className)}
       {...props}
     >
       <span className="hidden sm:block">{text}</span>
