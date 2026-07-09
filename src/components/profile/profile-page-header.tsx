@@ -22,7 +22,7 @@ Account · Private
 className="
 text-4xl
 text-[#eee]
-font-serif
+font-playfair
 mt-3
 ">
 

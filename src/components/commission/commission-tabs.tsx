@@ -30,7 +30,7 @@ useSelector(
 return(
 
 <div className="
-border
+border overflow-x-auto
 border-[#332b18]
 rounded-xl
 bg-[#111]
@@ -62,7 +62,7 @@ transition
 ${
 active===tab
 ?
-"text-black bg-[#C9A962] px-5 py-2 rounded-full"
+"text-black bg-white px-5 py-2 rounded-full"
 :
 "text-[#777]"
 }

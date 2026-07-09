@@ -127,8 +127,8 @@ export default function CommissionTable() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="overflow-hidden rounded-xl border border-[#332b18] bg-[#111]">
-        <table className="w-full text-left">
+      <div className=" rounded-xl overflow-x-auto border border-[#332b18] bg-[#111]">
+        <table className="w-full text-left ">
           <thead>
             <tr className="border-b border-[#332b18] text-xs tracking-[3px] text-[#777] uppercase">
               <th className="p-5">Listing</th>

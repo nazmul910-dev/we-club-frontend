@@ -19,5 +19,5 @@ export default function CommissionLedgerPage() {
         <CommissionTable />
       </div>
     </div>
-  );
+  ); 
 }

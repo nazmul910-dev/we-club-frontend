@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
+import { useAppSelector } from "@/lib/redux/store/hook";
 import Link from "next/link";
 import {
   LayoutGrid,
@@ -94,7 +95,9 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useAppDispatch();
-
+const userRole = useAppSelector(
+  (state) => state.authUser?.user?.role
+);
   const handleLogout = () => {
     dispatch(logout());
     router.push("/login");
@@ -151,7 +154,12 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             WORKSPACE
           </p>
 
-          {MENU_ITEMS.map(({ label, href, icon: Icon }) => {
+          {MENU_ITEMS.filter((item) => {
+            if (item.href === "/dashboard/users-management") {
+              return userRole === "admin" || userRole === "manager";
+            }
+            return true;
+          }).map(({ label, href, icon: Icon }) => {
             const isActive = pathname === href;
             return (
               <Link

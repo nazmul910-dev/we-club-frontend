@@ -267,13 +267,15 @@ export default function ManageListingsPage() {
          <Tabs defaultValue="my-listings" className="w-full">
         <TabsList
           className=" overflow-x-auto w-full
-      px-10
+      
       gap-2
       rounded-xl
       border
       border-gold-soft/30
       bg-[#0f0f0f]/60
-      p-1
+      py-1
+      px-2
+      flex justify-start items-center
      
       
       "
