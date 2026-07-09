@@ -28,7 +28,8 @@ border-[#302718]
 rounded-xl
 bg-[#111]
 p-6
-flex
+grid gap-2
+md:flex
 justify-between
 items-center
 "
@@ -38,7 +39,7 @@ items-center
 <div className="flex items-center gap-5">
 
 
-<div className="relative">
+<div className="relative ">
 
 
 {
@@ -123,7 +124,8 @@ p-1
 
 <h2
 className="
-text-3xl
+text-lg
+sm:text-3xl
 text-white
 font-serif
 "
@@ -158,7 +160,7 @@ tracking-widest
 href="/dashboard/profile/change-password"
 
 className="
-flex
+flex justify-center
 items-center
 gap-2
 border

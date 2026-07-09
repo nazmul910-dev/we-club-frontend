@@ -5,7 +5,7 @@ import {
 useEffect
 } from "react";
 
-
+import { redirect } from "next/navigation";
 import {
 useAppDispatch,
 useAppSelector
@@ -31,6 +31,9 @@ export default function UsersManagementPage(){
 
 const dispatch=useAppDispatch();
 
+const currentUser = useAppSelector(
+  (state) => state.authUser?.user
+);
 
 
 const users =
@@ -55,7 +58,12 @@ dispatch(getAllUsers());
 },[dispatch]);
 
 
-
+if(
+  currentUser &&
+  !["admin","manager"].includes(currentUser.role)
+){
+  redirect("/dashboard");
+}
 
 if(loading){
 
@@ -83,6 +91,7 @@ return(
 <div
 className="
 min-h-screen
+w-full
 bg-[#090909]
 px-6
 py-10
@@ -92,8 +101,7 @@ py-10
 
 <div
 className="
-max-w-7xl
-mx-auto
+
 "
 >
 

@@ -63,34 +63,38 @@ export default function StatCard({
         group
         relative
         overflow-hidden
-        rounded-xl
+        rounded-lg
+        xl:rounded-xl
         border
         border-[#655321]
         bg-[#111111]
-        p-7
+        p-5
         hover:shadow-gold transition-all duration-300 hover:border-gold/80 `,
         className
       )}
     >
       {/* subtle top glow */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#C8A44E]/50 to-transparent opacity-40" />
+      <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-[#C8A44E]/50 to-transparent opacity-40" />
 
       <p
         className="
-        text-[11px]
+        text-[10px]
+        xl:text-[11px]
         uppercase
-        tracking-[0.32em]
+        font-lato
+        tracking-widest
+        xl:tracking-[0.32em]
         text-zinc-500
       "
       >
         {stat.title}
       </p>
 
-      <h2 className="mt-7 font-display text-[48px] leading-none text-[#ECE7DF]">
+      <h2 className=" mt-2 xl:mt-4 font-playfair text-[20px] xl:text-[30px] leading-none text-[#ECE7DF]">
         {stat.value}
       </h2>
 
-      <p className="mt-4 text-sm text-[#B89237]">
+      <p className="mt-2 xl:mt-4 font-montserrat text-[11px] text-[#B89237]">
         {stat.change}
       </p>
     </div>

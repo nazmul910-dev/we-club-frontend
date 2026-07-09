@@ -256,7 +256,7 @@ export default function ManageListingsPage() {
       <div className="flex flex-wrap items-end justify-between gap-4 w-full">
         <div>
           <div className="text-eyebrow mb-2">Listings</div>
-          <h1 className="font-display text-3xl md:text-4xl text-white">
+          <h1 className="font-playfair text-3xl md:text-4xl text-white">
             Manage Listings
           </h1>
         </div>
@@ -266,21 +266,23 @@ export default function ManageListingsPage() {
 
          <Tabs defaultValue="my-listings" className="w-full">
         <TabsList
-          className=" inline-flex w-full
-      min-w-max
+          className=" overflow-x-auto w-full
+      
       gap-2
       rounded-xl
       border
       border-gold-soft/30
       bg-[#0f0f0f]/60
-      p-1
+      py-1
+      px-2
+      flex justify-start items-center
      
       
       "
         >
           <TabsTrigger
             value="my-listings"
-            className="text-white/70 hover:text-gold/80 rounded-xl"
+            className="text-white/70  hover:text-gold/80 rounded-xl"
           >
             My Listings
           </TabsTrigger>
@@ -308,7 +310,7 @@ export default function ManageListingsPage() {
 
         <TabsContent value="my-listings" className="w-full ">
           <section className="rounded-2xl border border-gold-soft/30 bg-[#0f0f0f]/60 p-6">
-            <h2 className="mb-4 text-xl font-semibold text-white">
+            <h2 className="mb-4 text-xl font-playfair font-semibold text-white">
               My Listings
             </h2>
             <MyListingsSection
@@ -336,7 +338,7 @@ export default function ManageListingsPage() {
           <TabsContent value="all-listings">
             <section className="rounded-2xl border border-gold-soft/30 bg-[#0f0f0f]/60 p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-white">
+                <h2 className="text-xl font-playfair font-semibold text-white">
                   All Listings{" "}
                   <span className="text-gold text-sm align-middle ml-2">
                     Admin
@@ -366,7 +368,7 @@ export default function ManageListingsPage() {
 
         <TabsContent value="received">
           <section className="rounded-2xl border border-gold-soft/30 bg-[#0f0f0f]/60 p-6">
-            <h2 className="mb-4 text-xl font-semibold text-white">
+            <h2 className="mb-4 text-xl font-playfair font-semibold text-white">
               Promote Requests Received
             </h2>
             <PromoteRequestsReceivedSection
@@ -394,7 +396,7 @@ export default function ManageListingsPage() {
 
         <TabsContent value="sent">
           <section className="rounded-2xl border border-gold-soft/30 bg-[#0f0f0f]/60 p-6">
-            <h2 className="mb-4 text-xl font-semibold text-white">
+            <h2 className="mb-4 text-xl font-playfair font-semibold text-white">
               My Promote Requests
             </h2>
             <MyPromoteRequestsSection
