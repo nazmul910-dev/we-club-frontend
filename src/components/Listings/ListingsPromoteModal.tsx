@@ -191,7 +191,7 @@ const ListingsPromoteModal = ({
                 
                 className="rounded-full bg-gold text-primary-foreground hover:brightness-110"
               >
-                <Link href="/manage-listings">Go to My Listings</Link>
+                <Link href="/dashboard/manage-listings">Go to My Listings</Link>
               </Button>
             </div>
           </div>
