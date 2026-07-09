@@ -1,24 +1,39 @@
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
+
 import api from "@/lib/api/api";
-import {createAsyncThunk} from "@reduxjs/toolkit";
 
 import {
- IUser
-} from "./user.types";
+IUser,
+ApprovalStatus,
+AccountStatus,
+LicenseVerificationStatus
+} from "@/types/user-managemetn";
 
 
 
-export const getAllUsers = createAsyncThunk<
- IUser[],
- void,
- {
- rejectValue:string
+interface UsersResponse{
+
+success:boolean;
+
+message:string;
+
+data:IUser[];
+
 }
 
+
+
+
+// GET ALL USERS
+
+export const getAllUsers = createAsyncThunk<
+IUser[],
+void,
+{rejectValue:string}
 >(
 
-
-"usersManagement/getAllUsers",
-
+"users/getAll",
 
 async(_, {rejectWithValue})=>{
 
@@ -26,7 +41,7 @@ async(_, {rejectWithValue})=>{
 try{
 
 
-const res = await api.get(
+const res = await api.get<UsersResponse>(
 "/users"
 );
 
@@ -34,12 +49,22 @@ const res = await api.get(
 return res.data.data;
 
 
-}catch(error:any){
+
+}catch(error){
+
+
+if(axios.isAxiosError(error)){
+
+return rejectWithValue(
+error.response?.data?.message ||
+"Failed to load users"
+)
+
+}
 
 
 return rejectWithValue(
- error?.response?.data?.message ||
- "Failed to fetch users"
+"Something went wrong"
 );
 
 
@@ -48,23 +73,25 @@ return rejectWithValue(
 
 }
 
-
-
 );
 
 
 
 
 
-export const updateApprovalStatus = createAsyncThunk<
+// UPDATE APPROVAL STATUS
+
+
+export const updateApprovalStatus =
+createAsyncThunk<
 
 IUser,
 
 {
 id:string;
-data:{
-approvalStatus:string;
-}
+approvalStatus:ApprovalStatus;
+rejectedReason?:string;
+
 },
 
 {
@@ -74,8 +101,7 @@ rejectValue:string
 >(
 
 
-"usersManagement/updateApprovalStatus",
-
+"users/updateApproval",
 
 async(payload,{rejectWithValue})=>{
 
@@ -84,47 +110,58 @@ try{
 
 
 const res = await api.patch(
-
 `/admin/users/${payload.id}/approval-status`,
-
-payload.data
-
+{
+approvalStatus:payload.approvalStatus,
+rejectedReason:payload.rejectedReason
+}
 );
 
 
 return res.data.data;
 
 
-}catch(error:any){
+
+}catch(error){
+
+
+if(axios.isAxiosError(error)){
 
 return rejectWithValue(
-error?.response?.data?.message ||
-"Update failed"
-);
+error.response?.data?.message ||
+"Approval update failed"
+)
+
+}
+
+
+return rejectWithValue(
+"Something went wrong"
+)
+
 
 }
 
 
 }
 
-
 );
 
 
 
 
 
+// UPDATE LICENSE
 
 
-export const updateLicenseStatus = createAsyncThunk<
+export const updateLicenseStatus =
+createAsyncThunk<
 
 IUser,
 
 {
 id:string;
-data:{
-licenseVerificationStatus:string;
-}
+licenseVerificationStatus:LicenseVerificationStatus
 },
 
 {
@@ -134,8 +171,7 @@ rejectValue:string
 >(
 
 
-"usersManagement/updateLicenseStatus",
-
+"users/updateLicense",
 
 async(payload,{rejectWithValue})=>{
 
@@ -147,7 +183,10 @@ const res = await api.patch(
 
 `/admin/users/${payload.id}/license-verification-status`,
 
-payload.data
+{
+licenseVerificationStatus:
+payload.licenseVerificationStatus
+}
 
 );
 
@@ -155,19 +194,29 @@ payload.data
 return res.data.data;
 
 
-}catch(error:any){
+
+}catch(error){
+
+
+if(axios.isAxiosError(error)){
 
 return rejectWithValue(
-error?.response?.data?.message ||
-"Update failed"
-);
+error.response?.data?.message ||
+"License update failed"
+)
+
+}
+
+
+return rejectWithValue(
+"Something went wrong"
+)
 
 }
 
 
 }
 
-
 );
 
 
@@ -176,15 +225,17 @@ error?.response?.data?.message ||
 
 
 
-export const updateAccountStatus = createAsyncThunk<
+// UPDATE ACCOUNT STATUS
+
+
+export const updateAccountStatus =
+createAsyncThunk<
 
 IUser,
 
 {
 id:string;
-data:{
-accountStatus:string;
-}
+accountStatus:AccountStatus
 },
 
 {
@@ -194,7 +245,7 @@ rejectValue:string
 >(
 
 
-"usersManagement/updateAccountStatus",
+"users/updateAccount",
 
 
 async(payload,{rejectWithValue})=>{
@@ -207,7 +258,9 @@ const res = await api.patch(
 
 `/admin/users/${payload.id}/account-status`,
 
-payload.data
+{
+accountStatus:payload.accountStatus
+}
 
 );
 
@@ -215,17 +268,28 @@ payload.data
 return res.data.data;
 
 
-}catch(error:any){
+
+}catch(error){
+
+
+if(axios.isAxiosError(error)){
 
 return rejectWithValue(
-error?.response?.data?.message ||
-"Update failed"
-);
+error.response?.data?.message ||
+"Account update failed"
+)
+
+}
+
+
+return rejectWithValue(
+"Something went wrong"
+)
+
 
 }
 
 
 }
-
 
 );

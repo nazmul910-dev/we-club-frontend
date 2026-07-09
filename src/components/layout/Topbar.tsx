@@ -9,7 +9,7 @@ import { fetchCurrentUserProfile } from "@/lib/features/auth/authUserSlice";
 interface Props {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
-
+ 
 export default function Topbar({ setIsOpen }: Props) {
   const dispatch = useAppDispatch();
   const profile = useAppSelector((state) => state.authUser.profile);
