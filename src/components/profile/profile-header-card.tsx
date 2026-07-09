@@ -45,7 +45,7 @@ items-center
 profile.profileImage?
 
 
-<img
+<img 
 src={profile.profileImage}
 className="
 w-20
@@ -71,10 +71,20 @@ flex
 items-center
 justify-center
 text-[#C9A962]
+text-xl
+font-semibold
+uppercase
+bg-[#1a160f]
 "
 >
 
-AV
+{
+profile.fullName
+?.split(" ")
+.map((name:string)=>name[0])
+.join("")
+.slice(0,2)
+}
 
 </div>
 

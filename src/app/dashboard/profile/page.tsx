@@ -17,13 +17,14 @@ export default function ProfilePage() {
 
   const profile = useAppSelector((state) => state.profile.profile);
 
+
   const loading = useAppSelector((state) => state.profile.loading);
 
   useEffect(() => {
     if (!profile) {
       dispatch(getMyProfile());
     }
-  }, [profile, dispatch]);
+  }, [profile, dispatch]); 
 
   console.log("Profile data1:", profile);
 
