@@ -1,8 +1,8 @@
 "use client";
 
-import { WorldMap } from "react-svg-worldmap";
+import { WorldMap, type DataItem } from "react-svg-worldmap";
 
-const mapData = [
+const mapData: DataItem<number>[] = [
   { country: "us", value: 1 },
   { country: "ca", value: 1 },
   { country: "gb", value: 1 },

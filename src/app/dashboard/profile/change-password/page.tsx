@@ -15,11 +15,10 @@ return (
 <section
 className="
 relative
-min-h-screen
 flex
 items-center
 justify-center
-bg-black
+h-[80vh]
 overflow-hidden
 px-5
 "
