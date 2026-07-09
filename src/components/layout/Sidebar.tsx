@@ -21,6 +21,7 @@ import {
 
 import { logout } from "@/lib/features/auth/authUserSlice";
 import { useAppDispatch } from "@/lib/redux/store/hook";
+import { clearProfile } from '@/lib/features/profile/profileSlice';
 
 
 const MENU_ITEMS = [
@@ -57,9 +58,9 @@ export default function Sidebar({
 
 
     const handleLogout = () => {
-
+ 
         dispatch(logout());
-
+        dispatch(clearProfile());
         router.push("/login");
 
     };
