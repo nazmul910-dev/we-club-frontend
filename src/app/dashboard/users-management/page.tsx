@@ -83,6 +83,7 @@ return(
 <div
 className="
 min-h-screen
+w-full
 bg-[#090909]
 px-6
 py-10
@@ -92,8 +93,7 @@ py-10
 
 <div
 className="
-max-w-7xl
-mx-auto
+
 "
 >
 
