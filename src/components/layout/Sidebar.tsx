@@ -49,47 +49,7 @@ interface SidebarProps {
 }
 
 
-export default function Sidebar({
-    isOpen,
-    setIsOpen
-}: SidebarProps) {
 
-
-    const pathname = usePathname();
-
-    const router = useRouter();
-
-    const dispatch = useAppDispatch();
-
-
-
-    const handleLogout = () => {
- 
-        dispatch(logout());
-        dispatch(clearProfile());
-        router.push("/login");
-
-    };
-
-
-
-    return (
-        <>
-
-
-            <button
-                type="button"
-                onClick={() => setIsOpen((prev) => !prev)}
-                aria-label={isOpen ? 'Close menu' : 'Open menu'}
-                className="fixed top-4 left-4 z-50 flex h-10 w-10 items-center justify-center rounded-lg border border-[#463C20]/60 bg-[#0A0A0A] text-[#CDAE53] backdrop-blur-md transition-colors hover:border-[#CDAE53]/60 md:hidden"
-            >
-                {isOpen ? <X size={20}/> : <Menu size={20}/>}
-            </button>
-
-
-
-
-            <div
 export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
