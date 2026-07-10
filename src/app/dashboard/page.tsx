@@ -9,6 +9,11 @@ import { fetchCurrentUserProfile } from "@/lib/features/auth/authUserSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
 import { useEffect, useState } from "react";
 
+import {
+  getDashboardStats,
+  fetchTopPromoters,
+} from "@/lib/features/dashboard/dashboardApi";
+
 function getGreeting() {
   const hour = new Date().getHours();
 
@@ -34,6 +39,11 @@ export default function Home() {
   useEffect(() => {
     setGreeting(getGreeting());
   }, []);
+
+  useEffect(() => {
+  dispatch(getDashboardStats());
+  dispatch(fetchTopPromoters());
+}, [dispatch]);
 
   const fullName = profile?.fullName;
 
