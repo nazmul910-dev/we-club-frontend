@@ -7,30 +7,43 @@ import { forgotPassword } from "@/lib/features/auth/authApi";
 import Link from "next/link";
 import Image from "next/image";
 import BgImage from "@/assets/Login/login-bg.jpg";
+import { toast } from "sonner";
 
 export default function ForgetPassword() {
   const dispatch = useAppDispatch();
 
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const [isError, setIsError] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage("");
-    setIsError(false);
+
+    if (!email) {
+      toast.error("Please enter your email.");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await dispatch(forgotPassword({ email })).unwrap();
-      setMessage("Reset link sent to your email");
-      setIsError(false);
-    } catch (err: any) {
-      setMessage(
-        typeof err === "string" ? err : err?.message || "Something went wrong"
-      );
-      setIsError(true);
+      await toast.promise(dispatch(forgotPassword({ email })).unwrap(), {
+        loading: "Sending reset link...",
+
+        success: () => {
+          setEmail("");
+          return "Reset link sent to your email.";
+        },
+
+        error: (err) => {
+          if (typeof err === "string") {
+            return err;
+          }
+
+          return err?.message || "Something went wrong. Please try again.";
+        },
+      });
+    } catch {
+      // toast.promise handles the error automatically.
     } finally {
       setLoading(false);
     }
@@ -80,16 +93,6 @@ export default function ForgetPassword() {
         >
           {loading ? "Sending..." : "Send Reset Link"}
         </button>
-
-        {message && (
-          <p
-            className={`text-center text-sm ${
-              isError ? "text-red-400" : "text-green-400"
-            }`}
-          >
-            {message}
-          </p>
-        )}
 
         <Link
           href="/login"

@@ -3,10 +3,11 @@
 import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
+import { useAppDispatch } from "@/lib/redux/store/hook";
 import { loginUser } from "@/lib/features/auth/authApi";
 
 import { Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 
 const inputClass =
   "w-full rounded-xl border border-amber-400/20 bg-transparent px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none transition-all focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20";
@@ -18,9 +19,7 @@ export default function LoginForm() {
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const isSubmitting = useAppSelector(
-    (state) => state.registration.isSubmitting,
-  );
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -43,22 +42,43 @@ export default function LoginForm() {
     setError("");
 
     if (!formData.email || !formData.password) {
-      setError("Please fill all required fields.");
+      toast.error("Please fill all required fields.");
       return;
     }
 
-    try {
-      const result = await dispatch(
-        loginUser({
-          email: formData.email,
-          password: formData.password,
-        }),
-      ).unwrap();
+    setIsSubmitting(true);
 
-      alert("Login successful!");
-      router.push("/dashboard");
-    } catch (err: any) {
-      setError(err || "Login failed. Please try again.");
+    try {
+      await toast.promise(
+        dispatch(
+          loginUser({
+            email: formData.email,
+            password: formData.password,
+          }),
+        ).unwrap(),
+        {
+          loading: "Signing in...",
+
+          success: () => {
+            router.push("/dashboard");
+            return "Login successful!";
+          },
+
+          error: (err) => {
+            const message =
+              typeof err === "string"
+                ? err
+                : err?.message || "Login failed. Please try again.";
+
+            setError(message);
+            return message;
+          },
+        },
+      );
+    } catch {
+      // toast.promise handles the error automatically.
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -141,11 +161,7 @@ export default function LoginForm() {
       <div className="text-center">
         <Link
           href="/forget-password"
-          className="
-text-sm
-text-amber-400
-hover:text-amber-300
-"
+          className="text-sm text-amber-400 hover:text-amber-300"
         >
           Forgot password?
         </Link>
