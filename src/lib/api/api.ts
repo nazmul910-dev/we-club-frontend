@@ -3,7 +3,7 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL:"http://localhost:5000/api/v1"   // https://we-club.onrender.com
+    baseURL:"https://we-club.onrender.com/api/v1"   //  http://localhost:5000
 });
 
 api.interceptors.request.use((config) => {
