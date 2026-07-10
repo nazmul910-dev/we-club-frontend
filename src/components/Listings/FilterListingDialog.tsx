@@ -56,13 +56,10 @@ const FilterListingDialog = ({
   console.log("filters", filters);
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger>
-        <button
-          type="button"
-          className="rounded-full border border-gold-soft px-4 py-2 font-ui text-[11px] tracking-[0.2em] uppercase text-white transition duration-200 hover:border-gold hover:text-gold cursor-pointer"
-        >
+      <DialogTrigger className="rounded-full border border-gold-soft px-4 py-2 font-ui text-[11px] tracking-[0.2em] uppercase text-white transition duration-200 hover:border-gold hover:text-gold cursor-pointer">
+      
           Filter
-        </button>
+      
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] border border-gold-soft/60 bg-[#111111]/80 text-white backdrop-blur-xl">
         <div className="flex flex-col gap-5">

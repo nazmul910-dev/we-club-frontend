@@ -23,7 +23,6 @@ export default function Topbar({ setIsOpen }: Props) {
     }
   }, [tokenUser, profile, isProfileLoading, dispatch]);
 
-  console.log("TopId",tokenUser?.id)
   const fullName = profile?.fullName;
   const role = profile?.role || tokenUser?.role;
   const accessTo = profile?.accessTo || tokenUser?.accessTo;

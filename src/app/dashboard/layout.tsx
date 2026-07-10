@@ -1,87 +1,23 @@
 "use client";
-
-import {
-  Geist,
-  Geist_Mono,
-  Playfair_Display,
-  Montserrat,
-  Lato,
-} from "next/font/google";
-
-import "../globals.css";
-import { Provider } from "react-redux";
-import { store } from "@/lib/redux/store/store";
 import Sidebar from "@/components/layout/Sidebar";
 import Topbar from "@/components/layout/Topbar";
 import { useState } from "react";
 import AuthGuard from "@/components/Auth/authGuard/AuthGuard";
-import { Toaster } from "sonner";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
-});
-
-const montserrat = Montserrat({
-  variable: "--font-montserrat",
-  subsets: ["latin"],
-});
-
-const lato = Lato({
-  variable: "--font-lato",
-  weight: ["100", "300", "400", "700", "900"],
-  subsets: ["latin"],
-});
-
-export default function RootLayout({
+export default function DashboardLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={` ${geistSans.variable}
-        ${geistMono.variable}
-        ${playfair.variable}
-        ${montserrat.variable}
-        ${lato.variable}`}
-    >
-      <body className="min-h-full flex flex-col">
-        <Provider store={store}>
-          <AuthGuard>
-            <main className="flex  min-h-screen  bg-[#0A0A0A]  ">
-              <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
-
-              <div className="flex min-h-screen flex-1 flex-col lg:pl-64 xl:pl-0 xl:ml-64 w-full">
-                <Topbar setIsOpen={setSidebarOpen} />
-
-                <div className="container1 bg-[#0a0a0a]">{children}</div>
-              </div>
-            </main>
-            <Toaster
-              position="top-right"
-              richColors
-              closeButton
-              expand
-              duration={3000}
-              theme="dark"
-            />
-          </AuthGuard>
-        </Provider>
-      </body>
-    </html>
+    <AuthGuard>
+      <main className="flex min-h-screen bg-[#0A0A0A]">
+        <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+        <div className="flex min-h-screen flex-1 flex-col lg:pl-64 xl:pl-0 xl:ml-64 w-full">
+          <Topbar setIsOpen={setSidebarOpen} />
+          <div className="container1 bg-[#0a0a0a]">{children}</div>
+        </div>
+      </main>
+    </AuthGuard>
   );
 }
