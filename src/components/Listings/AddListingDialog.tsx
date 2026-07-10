@@ -156,14 +156,11 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
-        <button
-          type="button"
-          className="inline-flex items-center gap-2 rounded-full bg-gold px-5 py-2 font-ui text-[11px] tracking-[0.22em] uppercase text-primary-foreground font-medium transition hover:brightness-110 duration-200 cursor-pointer"
-        >
+      <DialogTrigger className="inline-flex items-center gap-2 rounded-full bg-gold px-5 py-2 font-ui text-[11px] tracking-[0.22em] uppercase text-primary-foreground font-medium transition hover:brightness-110 duration-200 cursor-pointer">
+       
           <Plus size={14} strokeWidth={2.5} />
           Add Listing
-        </button>
+        
       </DialogTrigger>
 
       <DialogContent

@@ -6,8 +6,7 @@ import profileReducer from "@/lib/features/profile/profileSlice";
 import commissionReducer from "@/lib/features/commissionLedger/commissionLedgerSlice";
 import promoteRequestReducer from "@/lib/features/PromoteRequest/promoteRequestSlice";
 import usersReducer from "@/lib/features/users/usersSlice";
-
-
+import listingAssetsReducer from "@/lib/features/listingAssets/listingAssetsSlice";
 
 export const store = configureStore({
   reducer: {
@@ -18,7 +17,8 @@ export const store = configureStore({
     commission: commissionReducer,
     
     promoteRequests: promoteRequestReducer,
-    users:usersReducer
+    users:usersReducer,
+    listingAssets:listingAssetsReducer,
   },
 });
 
