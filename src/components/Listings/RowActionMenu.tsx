@@ -30,6 +30,15 @@ export function RowActionsMenu({ actions }: { actions: RowAction[] }) {
 
   return (
     <DropdownMenu>
+      {/* <DropdownMenuTrigger >
+        <button
+          type="button"
+          aria-label="Row actions"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-full text-white/60 transition hover:bg-white/10 hover:text-white"
+        >
+          <MoreVertical size={16} />
+        </button>
+      </DropdownMenuTrigger> */}
       <DropdownMenuTrigger >
         <button
           type="button"
@@ -39,6 +48,7 @@ export function RowActionsMenu({ actions }: { actions: RowAction[] }) {
           <MoreVertical size={16} />
         </button>
       </DropdownMenuTrigger>
+
       <DropdownMenuContent
         align="end"
         className="border-white/10 bg-[#141414] text-white"
