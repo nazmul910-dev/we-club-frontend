@@ -52,10 +52,10 @@ try {
 
 
 await axios.get(
-`http://localhost:5000/api/v1/payments/verify-session/${sessionId}`
+`https://we-club.onrender.com/api/v1/payments/verify-session/${sessionId}`
 );
 
-
+//https://we-club.onrender.com  http://localhost:5000
 
 router.push("/confirm-mail");
 
