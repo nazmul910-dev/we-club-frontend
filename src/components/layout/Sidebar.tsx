@@ -127,6 +127,9 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             if (item.href === "/dashboard/users-management") {
               return userRole === "admin" || userRole === "manager";
             }
+            if (item.href === "/dashboard/manager-management") {
+              return userRole === "admin" ;
+            }
             return true;
           }).map(({ label, href, icon: Icon }) => {
             const isActive = pathname === href;
