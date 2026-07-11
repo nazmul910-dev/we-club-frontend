@@ -79,7 +79,7 @@ const PromotersCard = ({ promoter }: { promoter: any }) => {
   const handleRevoke = (userId: string) => {
     if (confirm("Are you sure you want to revoke this promoter's access?")) {
       // TODO: dispatch revoke thunk
-      console.log("Revoke:", userId);
+
     }
   };
 

@@ -26,7 +26,6 @@ export default function ProfilePage() {
     }
   }, [profile, dispatch]); 
 
-  console.log("Profile data1:", profile);
 
   if (loading || !profile) {
     return <div className="text-white p-10">Loading...</div>;
