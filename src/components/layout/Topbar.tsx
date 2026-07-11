@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { Menu, Search, ArrowLeftRight } from "lucide-react";
+import { Menu, Search } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
 import { getInitials, formatLabel } from "@/lib/utils/auth";
 import { fetchCurrentUserProfile } from "@/lib/features/auth/authUserSlice";
@@ -25,10 +25,10 @@ export default function Topbar({ setIsOpen }: Props) {
 
   const fullName = profile?.fullName;
   const role = profile?.role || tokenUser?.role;
-  const accessTo = profile?.accessTo || tokenUser?.accessTo;
+
   const profileImage = profile?.profileImage;
   const location = [profile?.city, profile?.country].filter(Boolean).join(" · ");
-  const showSwitchButton = accessTo === "both";
+
 
   return (
     <header className="sticky top-0 right-0 left-0 z-40 border-b border-[#2B2B2B] bg-[#0A0A0A] w-full">
@@ -51,22 +51,10 @@ export default function Topbar({ setIsOpen }: Props) {
             ⌘ K
           </span>
         </div>
-
+ 
         <div className="flex flex-row-reverse md:flex-col items-center gap-2">
           <div className="flex items-center gap-3">
-            {showSwitchButton && (
-              <button
-                type="button"
-                title="Switch Platform"
-                className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#3A3120] text-[#CDAE53] transition hover:bg-[#1a1610] sm:h-10 sm:w-auto sm:gap-2 sm:px-3"
-              >
-                <ArrowLeftRight size={16} />
-                <span className="hidden font-montserrat text-[11px] uppercase tracking-wider sm:inline">
-                  Switch Platform
-                </span>
-              </button>
-            )} 
-
+ 
             <div className="hidden text-right sm:block">
               <h4 className="font-playfair text-xs font-light text-white lg:text-sm">
                 {fullName || "Loading..."}

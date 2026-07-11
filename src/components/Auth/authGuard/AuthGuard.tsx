@@ -19,7 +19,7 @@ export default function AuthGuard({ children, allowedRoles }: AuthGuardProps) {
 
   useEffect(() => {
     const stored = getStoredUser();
-    console.log("AuthGuard stored user (from token):", stored);
+
 
     if (!stored) {
       dispatch(logout());
