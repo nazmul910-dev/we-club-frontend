@@ -88,7 +88,7 @@ export function AllListingsAdminSection({
                     {(() => {
                       const actions: RowAction[] = [];
 
-                      if (l.status === "pending") {
+                      if (l.status === "pending" || "draft") {
                         actions.push({
                           label: "Approve",
                           disabled: busy,

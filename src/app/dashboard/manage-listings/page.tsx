@@ -216,6 +216,9 @@ export default function ManageListingsPage() {
     await dispatch(listingsApi.deleteListing(id)).unwrap();
   };
 
+
+  console.log("admin listings", adminListings)
+
   useEffect(() => {
     dispatch(
       listingsApi.getMyListings({
