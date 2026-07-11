@@ -57,7 +57,7 @@ export default function UsersTable({ users }: Props) {
       <UserTabs active={tab} setActive={setTab} />
 
       <div className="w-full overflow-x-auto rounded-xl border border-yellow-500/20 bg-[#111]">
-        <table className="w-full min-w-[900px]">
+        <table className="w-full ">
           <thead className="border-b border-yellow-500/20 bg-[#151515]">
             <tr className="text-left text-xs uppercase tracking-wider text-white/40">
               <th className="px-6 py-5">User</th>
@@ -78,7 +78,7 @@ export default function UsersTable({ users }: Props) {
             {filteredUsers.map((user) => (
               <tr
                 key={user._id}
-                className="border-b border-white/5 transition hover:bg-white/[0.03]"
+                className="border-b border-white/5 transition hover:bg-white/3"
               >
                 <td
                   onClick={() => setSelected(user)}

@@ -9,7 +9,9 @@ export type UserRole =
   | "ceo_partner"
   | "partner"
   | "ambassador"
-  | "we_club_member";
+  | "we_club_member"
+  | "admin"
+  | "manager";
 
 export interface SocialLinks {
   linkedin?: string;

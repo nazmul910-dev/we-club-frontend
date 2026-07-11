@@ -51,7 +51,7 @@ function TabsList({
       {...props}
     />
   )
-}
+} 
 
 function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
   return (

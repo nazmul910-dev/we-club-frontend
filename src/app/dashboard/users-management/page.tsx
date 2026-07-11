@@ -2,9 +2,20 @@
 
 import { useEffect } from "react";
 
-import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
 
-import { getAllUsers } from "@/lib/features/users/usersApi";
+import { redirect } from "next/navigation";
+import {
+useAppDispatch,
+useAppSelector
+}
+from "@/lib/redux/store/hook";
+
+
+import {
+getAllUsers
+}
+from "@/lib/features/users/usersApi";
+
 
 import UserHeader from "@/components/Admin/UsersManagement/UsersHeader";
 
@@ -17,14 +28,34 @@ export default function UsersManagementPage() {
 
   const loading = useAppSelector((state) => state.users.loading);
 
-  useEffect(() => {
-    dispatch(getAllUsers());
-  }, [dispatch]);
 
-  if (loading) {
-    return (
-      <div
-        className="
+
+
+const currentUser = useAppSelector(
+  (state) => state.authUser?.user
+);
+
+
+
+
+useEffect(()=>{
+
+dispatch(getAllUsers());
+
+},[dispatch]);
+
+if(
+  currentUser &&
+  !["admin","manager"].includes(currentUser.role)
+){
+  redirect("/dashboard");
+}
+
+if(loading){
+
+return(
+
+<div className="
 text-white
 p-10
 "
@@ -38,15 +69,17 @@ p-10
     <div
       className="
 min-h-screen
+w-full
 bg-[#090909]
 px-6
 py-10
 "
-    >
-      <div
-        className="
-max-w-7xl
-mx-auto
+>
+
+
+<div
+className="
+
 "
       >
         <UserHeader />

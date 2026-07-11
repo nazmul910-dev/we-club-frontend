@@ -23,7 +23,6 @@ export default function Topbar({ setIsOpen }: Props) {
     }
   }, [tokenUser, profile, isProfileLoading, dispatch]);
 
-  console.log("TopId",tokenUser?.id)
   const fullName = profile?.fullName;
   const role = profile?.role || tokenUser?.role;
   const accessTo = profile?.accessTo || tokenUser?.accessTo;
@@ -32,7 +31,7 @@ export default function Topbar({ setIsOpen }: Props) {
   const showSwitchButton = accessTo === "both";
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[#2B2B2B] bg-[#0A0A0A] w-full">
+    <header className="sticky top-0 right-0 left-0 z-40 border-b border-[#2B2B2B] bg-[#0A0A0A] w-full">
       <div className="flex items-center justify-between gap-4 px-4 py-3 md:px-6 lg:px-8">
         <button
           onClick={() => setIsOpen(true)}
@@ -66,7 +65,7 @@ export default function Topbar({ setIsOpen }: Props) {
                   Switch Platform
                 </span>
               </button>
-            )}
+            )} 
 
             <div className="hidden text-right sm:block">
               <h4 className="font-playfair text-xs font-light text-white lg:text-sm">
