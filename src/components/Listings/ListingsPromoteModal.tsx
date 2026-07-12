@@ -133,14 +133,14 @@ const ListingsPromoteModal = ({
 
   if (disabled) {
     return (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger >
+      <TooltipProvider >
+        <Tooltip >
+          <TooltipTrigger className="w-full" >
             {/* A disabled <button> fires no pointer/focus events in most
                 browsers, which breaks hover tooltips — wrapping it in a
                 span keeps the tooltip working while the button itself
                 stays visually and functionally disabled. */}
-            <span className="flex-1 inline-block" tabIndex={0}>
+            <div className="flex-1 " tabIndex={0}>
               {/* <button
                 type="button"
                 disabled
@@ -150,13 +150,13 @@ const ListingsPromoteModal = ({
               </button> */}
               <div
            
-                className="w-full rounded-full border border-white/10 bg-white/[0.03] px-3 py-2 font-ui text-[10px] tracking-[0.22em] uppercase text-white/30 cursor-not-allowed text-center"
+                className="w-full  rounded-full border border-white/10 bg-white/[0.03] px-3 py-2 font-ui text-[10px] tracking-[0.22em] uppercase text-white/30 cursor-not-allowed text-center"
               >
                 Request to Promote
               </div>              
-            </span>
+            </div>
           </TooltipTrigger>
-          <TooltipContent className="bg-[#1a1a1a] border-white/10 text-white text-xs max-w-[220px]">
+          <TooltipContent className="bg-[#1a1a1a]  border-white/10 text-white text-xs max-w-[220px]">
             {disabledReason ?? "Promoting this listing isn't available right now."}
           </TooltipContent>
         </Tooltip>
