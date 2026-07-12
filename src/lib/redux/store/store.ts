@@ -8,6 +8,7 @@ import promoteRequestReducer from "@/lib/features/PromoteRequest/promoteRequestS
 import usersReducer from "@/lib/features/users/usersSlice";
 import listingAssetsReducer from "@/lib/features/listingAssets/listingAssetsSlice";
 import dashboardReducer from "@/lib/features/dashboard/dashboardSlice";
+import promotersReducer from "@/lib/features/promoters/promotersSlice";
 
 import managerReducer from "@/lib/features/addManager/addManagerSlice";
 
@@ -23,8 +24,9 @@ export const store = configureStore({
     users: usersReducer,
     listingAssets: listingAssetsReducer,
     dashboard: dashboardReducer,
-    manager: managerReducer,
-  }
+    promoters : promotersReducer,
+     manager: managerReducer,
+  }, 
 
 });
 

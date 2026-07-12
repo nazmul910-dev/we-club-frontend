@@ -35,12 +35,15 @@ interface ListingsState {
   adminListings: any[];
   adminListingsMeta: any;
   myListingsMeta: any;
-  promoteRequestsMeta: any
-  myPromoteRequestsMeta : any
+  promoteRequestsMeta: any;
+  myPromoteRequestsMeta: any;
   adminListingsLoading: boolean;
   adminListingsError: string | null;
   managingListingId: string | null;
   deletingListingId: string | null;
+  mostViewedListings: any[];
+  mostViewedListingsLoading: boolean;
+  mostViewedListingsError: string | null;
 }
 
 const initialState: ListingsState = {
@@ -62,13 +65,16 @@ const initialState: ListingsState = {
   mySentPromoteRequestsError: null,
   adminListings: [],
   adminListingsMeta: null,
-  myListingsMeta : null,
-  promoteRequestsMeta : null,
-  myPromoteRequestsMeta : null,
+  myListingsMeta: null,
+  promoteRequestsMeta: null,
+  myPromoteRequestsMeta: null,
   adminListingsLoading: false,
   adminListingsError: null,
   managingListingId: null,
   deletingListingId: null,
+  mostViewedListings: [],
+  mostViewedListingsLoading: false,
+  mostViewedListingsError: null,
 };
 
 const listingsSlice = createSlice({
@@ -175,7 +181,7 @@ const listingsSlice = createSlice({
         (state, action) => {
           state.mySentPromoteRequestsLoading = false;
           state.mySentPromoteRequests = action.payload.data.data;
-          state.myPromoteRequestsMeta = action.payload.data.meta
+          state.myPromoteRequestsMeta = action.payload.data.meta;
         },
       )
       .addCase(
@@ -259,6 +265,19 @@ const listingsSlice = createSlice({
       })
       .addCase(listingsApi.deleteListing.rejected, (state) => {
         state.deletingListingId = null;
+      })
+      .addCase(listingsApi.getMostViewedListings.pending, (state) => {
+        state.mostViewedListingsLoading = true;
+        state.mostViewedListingsError = null;
+      })
+      .addCase(listingsApi.getMostViewedListings.fulfilled, (state, action) => {
+        state.mostViewedListingsLoading = false;
+        state.mostViewedListings = action.payload.data.data;
+      })
+      .addCase(listingsApi.getMostViewedListings.rejected, (state, action) => {
+        state.mostViewedListingsLoading = false;
+        state.mostViewedListingsError =
+          (action.payload as string) ?? "Failed to fetch most viewed listings";
       });
   },
 });
