@@ -5,6 +5,7 @@ import { ArrowUpRight } from "lucide-react";
 import PromoterRow from "./PromoterRow";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
 import { promotersApi, Promoter } from "@/lib/features/promoters/promotersApi";
+import Link from "next/link";
 
 const TOP_N = 5;
 
@@ -84,7 +85,7 @@ export default function TopPromoters() {
           </div>
 
           {hasViews && (
-            <button
+            <Link href="/dashboard/network-directory"
               className="
               mt-6
               flex
@@ -100,7 +101,7 @@ export default function TopPromoters() {
             >
               Explore Network
               <ArrowUpRight className="h-3.5 w-3.5" />
-            </button>
+            </Link>
           )}
         </>
       )}

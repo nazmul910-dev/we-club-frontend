@@ -6,6 +6,7 @@ import ListingRow, { Listing } from "./ListingRowComponent";
 import EmptyState from "./EmptyState";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
 import { listingsApi } from "@/lib/features/listings/listingsApi";
+import Link from "next/link";
 
 const TOP_N = 5;
 
@@ -65,7 +66,7 @@ export default function MostViewedListings() {
         )}
       </div>
 
-      <button
+      <Link href={"/dashboard/listings"}
         className="
         mt-6
         flex
@@ -82,7 +83,7 @@ export default function MostViewedListings() {
       >
         Browse Listings
         <ArrowUpRight className="h-3.5 w-3.5" />
-      </button>
+      </Link>
     </div>
   );
 }
