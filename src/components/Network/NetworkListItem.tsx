@@ -4,11 +4,13 @@
 import {
 Mail,
 Phone,
-MapPin
+MapPin,
+Eye
 } from "lucide-react";
 
 
 import Avatar from "./Avatar";
+import { late } from "zod/v3";
 
 
 interface Props{
@@ -23,9 +25,11 @@ data
 }:Props){
 
 
-const user=data.associate_id;
+const user=data.user;
 
+const latestListing = data.listings[0];
 
+console.log(latestListing)
 
 return (
 
@@ -87,7 +91,7 @@ Listing
 
 <p className="text-white text-sm mt-1">
 
-{data?.title}
+{latestListing.listing_title}
 
 </p>
 
@@ -103,7 +107,7 @@ Listing
 
 <p className="text-[#c9a227] text-sm">
 
-{data?.price?.amount} {data?.price?.currency}
+{latestListing?.listing_price} EUR
 
 </p>
 
@@ -111,7 +115,11 @@ Listing
 
 <div className="flex gap-2 mt-3 justify-end">
 
+<a href={`tel:${user?.phone}`} className="w-8 h-8 rounded-full border border-[#5c4518] flex items-center justify-center text-gray-400">
 
+<Eye size={14}/>
+
+</a>
 <a href={`mailto:${user?.email}`} className="w-8 h-8 rounded-full border border-[#5c4518] flex items-center justify-center text-gray-400">
 
 <Mail size={14}/>
@@ -125,6 +133,7 @@ Listing
 <Phone size={14}/>
 
 </a>
+
 
 
 

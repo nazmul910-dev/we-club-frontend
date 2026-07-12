@@ -1,7 +1,8 @@
 "use client";
 
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin, Eye } from "lucide-react";
 import Avatar from "./Avatar";
+import NetworkProfileDialog from "./NetworkProfileDialog";
 
 interface Props {
   data: any;
@@ -24,12 +25,17 @@ const roleStyles: Record<string, string> = {
 };
 
 export default function NetworkCard({ data }: Props) {
-  const user = data.associate_id;
+  const user = data.user;
+
+  // console.log(data.user);
 
   const role = user?.role || "associate";
 
   const badgeClass =
     roleStyles[role] || "border-gray-700 text-gray-400 bg-gray-900/30";
+
+  const latestListing = data.listings[0];
+  console.log(latestListing);
 
   return (
     <div
@@ -61,7 +67,6 @@ export default function NetworkCard({ data }: Props) {
             >
               {user?.fullName}
             </h3>
-
 
             <div
               className="
@@ -146,7 +151,7 @@ export default function NetworkCard({ data }: Props) {
             text-xs
             "
           >
-            {data?.totalActiveListings || 0}
+            {data?.listings.length || 0}
           </span>
 
           <span>Listings</span>
@@ -192,7 +197,7 @@ export default function NetworkCard({ data }: Props) {
             line-clamp-1
             "
           >
-            {data?.latestListing?.title}
+            {latestListing?.listing_title}
           </p>
 
           <p
@@ -204,8 +209,7 @@ export default function NetworkCard({ data }: Props) {
             whitespace-nowrap
             "
           >
-            {data?.latestListing?.price?.amount}{" "}
-            {data?.latestListing?.price?.currency}
+            {latestListing?.listing_price} EUR
           </p>
         </div>
       </div>
@@ -252,6 +256,7 @@ export default function NetworkCard({ data }: Props) {
         >
           <Phone size={15} />
         </a>
+        <NetworkProfileDialog profile={user} user={data}/>
       </div>
     </div>
   );

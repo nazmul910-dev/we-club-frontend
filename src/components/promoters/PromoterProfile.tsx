@@ -54,7 +54,7 @@ interface PromoterProfileDialogProps {
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
-const ProfileSkeleton = () => (
+export const ProfileSkeleton = () => (
   <div className="space-y-4 animate-pulse pt-2">
     {[80, 60, 70].map((w, i) => (
       <div
