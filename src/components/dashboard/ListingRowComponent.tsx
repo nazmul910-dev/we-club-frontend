@@ -14,7 +14,7 @@ interface ListingRowProps {
 
 export default function ListingRow({ listing }: ListingRowProps) {
   return (
-    <div className="group rounded-xl border border-transparent px-2 py-4 transition-all duration-300 hover:border-[#5E4A20] hover:bg-[#171717]">
+    <div className="w-full group rounded-xl border border-transparent px-2 py-4 transition-all duration-300 hover:border-[#5E4A20] hover:bg-[#171717]">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="font-medium text-white">{listing.title}</h3>
@@ -22,7 +22,7 @@ export default function ListingRow({ listing }: ListingRowProps) {
         </div>
 
         <div className="text-right">
-          <p className="font-display text-lg text-[#D8B761]">{listing.price}</p>
+          <p className=" text-lg text-[#D8B761]">{listing.price}</p>
 
           <div className="mt-2 flex items-center justify-end gap-2 text-xs uppercase tracking-[0.25em] text-zinc-500">
             <Eye className="h-3 w-3" />

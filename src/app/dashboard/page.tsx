@@ -70,7 +70,7 @@ export default function Home() {
       <div>
         <ChartAreaDefault />
       </div>
-      <div className="flex gap-4 flex-col xl:flex-row">
+      <div className="flex gap-4 flex-col xl:flex-row w-full">
         <TopPromoters />
         <MostViewedListings />
       </div>

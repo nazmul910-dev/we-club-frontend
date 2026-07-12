@@ -90,7 +90,7 @@ export default function PromoterRow({
         </div>
 
         <div className="text-right">
-          <p className="font-display text-xl text-white">
+          <p className=" text-xl text-white">
             {promoter.totalViews.toLocaleString()}
           </p>
 
