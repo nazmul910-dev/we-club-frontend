@@ -16,6 +16,20 @@ export const getDashboardStats = createAsyncThunk(
     }
   }
 );
+export const getLisitngViewsAnalytics = createAsyncThunk(
+  "dashboard/getLisitngViewsAnalytics",
+  async (_, thunkAPI) => {
+    try {
+      const res = await api.get("/dashboard/listing-analytics");
+
+      return res.data.data;
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || "Failed to load dashboard statistics"
+      );
+    }
+  }
+);
 
 export const fetchTopPromoters=createAsyncThunk(
 

@@ -195,5 +195,5 @@ export function MyPromoteRequestsSection({
         onConfirm={handleConfirmCancel}
       />
     </div>
-  );
+  ); 
 }

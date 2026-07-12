@@ -18,6 +18,7 @@ export default function StatsGrid() {
     dispatch(getDashboardStats());
   }, [dispatch]);
 
+
   const cards = dashboardStats(stats);
 
   return (

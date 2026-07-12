@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
   getDashboardStats,
   fetchTopPromoters,
+  getLisitngViewsAnalytics,
 } from "./dashboardApi";
 import {
   DashboardStats,
@@ -14,6 +15,9 @@ interface DashboardState {
 
   stats: DashboardStats;
 
+  listingViewsAnalytics:any;
+  listingViewsAnalyticsLoading: boolean;
+  listingViewsAnalyticsError: string | null;
   topPromoters: ITopPromoter[];
   topPromotersLoading: boolean;
   topPromotersError: string | null;
@@ -32,6 +36,9 @@ const initialState: DashboardState = {
     commission_pipeline: 0,
   },
 
+  listingViewsAnalytics:[],
+  listingViewsAnalyticsLoading:true,
+  listingViewsAnalyticsError:null,
   topPromoters: [],
   topPromotersLoading: false,
   topPromotersError: null,
@@ -77,6 +84,21 @@ const dashboardSlice = createSlice({
       .addCase(fetchTopPromoters.rejected, (state, action) => {
         state.topPromotersLoading = false;
         state.topPromotersError = action.payload as string;
+      })
+
+      .addCase(getLisitngViewsAnalytics.pending, (state) => {
+        state.listingViewsAnalyticsLoading = true;
+        state.listingViewsAnalyticsError = null;
+      })
+
+      .addCase(getLisitngViewsAnalytics.fulfilled, (state, action) => {
+        state.listingViewsAnalyticsLoading = false;
+        state.listingViewsAnalytics = action.payload;
+      })
+
+      .addCase(getLisitngViewsAnalytics.rejected, (state, action) => {
+        state.listingViewsAnalyticsLoading = false;
+        state.listingViewsAnalyticsError = action.payload as string;
       });
   },
 });
