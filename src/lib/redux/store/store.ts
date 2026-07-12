@@ -25,9 +25,8 @@ export const store = configureStore({
     listingAssets: listingAssetsReducer,
     dashboard: dashboardReducer,
     promoters : promotersReducer,
-    manager: managerReducer,
-  },
-  
+     manager: managerReducer,
+  }, 
 
 });
 
