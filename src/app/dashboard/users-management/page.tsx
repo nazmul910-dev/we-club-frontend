@@ -2,20 +2,10 @@
 
 import { useEffect } from "react";
 
-
 import { redirect } from "next/navigation";
-import {
-useAppDispatch,
-useAppSelector
-}
-from "@/lib/redux/store/hook";
+import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
 
-
-import {
-getAllUsers
-}
-from "@/lib/features/users/usersApi";
-
+import { getAllUsers } from "@/lib/features/users/usersApi";
 
 import UserHeader from "@/components/Admin/UsersManagement/UsersHeader";
 
@@ -28,42 +18,29 @@ export default function UsersManagementPage() {
 
   const loading = useAppSelector((state) => state.users.loading);
 
+  const currentUser = useAppSelector((state) => state.authUser?.user);
 
+  useEffect(() => {
+    dispatch(getAllUsers());
+  }, [dispatch]);
 
-
-const currentUser = useAppSelector(
-  (state) => state.authUser?.user
-);
-
-
-
-
-useEffect(()=>{
-
-dispatch(getAllUsers());
-
-},[dispatch]);
-
-if(
-  currentUser &&
-  !["admin","manager"].includes(currentUser.role)
-){
-  redirect("/dashboard");
-}
-
-if(loading){
-
-return(
-
-<div className="
-text-white
-p-10
-"
-      >
-        Loading users...
-      </div>
-    );
+  if (currentUser && !["admin", "manager"].includes(currentUser.role)) {
+    redirect("/dashboard");
   }
+
+  // if(loading){
+
+  // return(
+
+  // <div className="
+  // text-white
+  // p-10
+  // "
+  //       >
+  //         Loading users...
+  //       </div>
+  //     );
+  //   }
 
   return (
     <div
@@ -74,17 +51,15 @@ bg-[#090909]
 px-6
 py-10
 "
->
-
-
-<div
-className="
+    >
+      <div
+        className="
 
 "
       >
         <UserHeader />
 
-        <UsersTable users={users} />
+        <UsersTable users={users} loading={loading} />
       </div>
     </div>
   );

@@ -21,6 +21,9 @@ import {
   TableRow,
 } from "@/components/ui/Table";
 import { Badge } from "@/components/ui/Badge";
+import RowSkeleton from "@/components/ui/row-skeleton";
+import { ManagersTableSkeleton } from "@/components/ui/manager-table-skeleton";
+
 
 const TABS = [
   { value: "all", label: "All" },
@@ -70,6 +73,10 @@ export default function ManagerManagement() {
     (state) => state.manager
   );
 
+
+
+
+
   useEffect(() => {
     dispatch(getManagers(activeTab));
   }, [dispatch, activeTab]);
@@ -84,10 +91,13 @@ export default function ManagerManagement() {
     return managers;
   }, [managers, activeTab]);
 
+
+  console.log(loading)
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 w-full">
       {/* Header */}
-      <div className=" space-y-6 md:space-y-0 md:flex md:items-center justify-between">
+      <div className="w-full space-y-6 md:space-y-0 md:flex md:items-center justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#cdae53]">
             Manager Management
@@ -106,7 +116,7 @@ export default function ManagerManagement() {
       </div>
 
       {/* Main Card */}
-      <div className="overflow-hidden rounded-2xl border border-neutral-800 bg-[#0B0B0B] shadow-xl">
+      <div className="w-full overflow-hidden rounded-2xl border border-neutral-800 bg-[#0B0B0B] shadow-xl">
         {/* Tabs */}
         <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-5">
           <Tabs
@@ -129,13 +139,12 @@ export default function ManagerManagement() {
           </Tabs>
         </div>
 
-        {/* Loading */}
-        {loading && (
-          <div className="flex h-72 items-center justify-center gap-3 text-neutral-400">
-            <Loader2 className="h-5 w-5 animate-spin text-amber-500" />
-            Loading managers...
-          </div>
-        )}
+              {
+                loading && (
+                  <ManagersTableSkeleton/>
+                )
+              }
+
 
         {/* Error */}
         {error && (

@@ -130,7 +130,7 @@ function ListingCardInner({ property }: { property: any }) {
               {promoteState === "pending" ? "Pending Approval" : "Sold"}
             </div>
           ) : promoteState === "already-promoting" ? (
-            <div className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full border border-gold/30 bg-gold/6 px-3 py-2 text-gold/70">
+            <div className="flex-1 w-ful inline-flex items-center justify-center gap-1.5 rounded-full border border-gold/30 bg-gold/6 px-3 py-2 text-gold/70">
               <CheckCircle2 size={12} />
               Already Promoting
             </div>
@@ -151,8 +151,8 @@ function ListingCardInner({ property }: { property: any }) {
 
           <ListingDetailsModal property={property} />
 
-          <button type="button" className={iconButtonClass}>
-            <Share2 className="h-3.5 w-3.5" />
+          <button type="button" className={`${iconButtonClass} w-8 h-8 aspect-square flex-nowrap`} >
+            <Share2 className="h-3.5 w-3.5 rounded-full " />
           </button>
         </div>
       </div>

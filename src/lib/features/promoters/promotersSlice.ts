@@ -18,7 +18,7 @@ interface PromotersState {
 const initialState: PromotersState = {
   items: [],
   meta: null,
-  loading: false,
+  loading: true,
   error: null,
 };
 

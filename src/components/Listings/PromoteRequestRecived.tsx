@@ -4,6 +4,7 @@ import { statusBadge } from "@/components/Listings/StatusBadge";
 import { formatDate } from "@/lib/utils/Helpers";
 import { XCircle, Trash2 } from "lucide-react";
 import { RowAction, RowActionsMenu } from "./RowActionMenu";
+import RowSkeleton from "../ui/row-skeleton";
 
 
 interface PromoteRequestsReceivedSectionProps {
@@ -34,7 +35,7 @@ export function PromoteRequestsReceivedSection({
   onDelete,
 }: PromoteRequestsReceivedSectionProps) {
   if (promoteRequestsLoading) {
-    return <div className="text-muted-foreground">Loading promote requests…</div>;
+    return <RowSkeleton/>;
   }
 
   if (promoteRequestsError) {

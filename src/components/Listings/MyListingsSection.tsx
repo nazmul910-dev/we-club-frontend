@@ -3,7 +3,8 @@
 import { statusBadge } from "@/components/Listings/StatusBadge";
 import { XCircle, Trash2 } from "lucide-react";
 import { RowAction, RowActionsMenu } from "./RowActionMenu";
-
+import { Skeleton } from "../ui/skeleton";
+import RowSkeleton from "../ui/row-skeleton";
 
 interface MyListingsSectionProps {
   myListings: any[];
@@ -29,7 +30,9 @@ export function MyListingsSection({
   onRejectRequest,
 }: MyListingsSectionProps) {
   if (myListingsLoading) {
-    return <div className="text-muted-foreground">Loading listings…</div>;
+    return (
+     <RowSkeleton />
+    );
   }
 
   if (myListingsError) {
@@ -41,7 +44,9 @@ export function MyListingsSection({
   }
 
   if (myListings.length === 0) {
-    return <div className="text-muted-foreground">You have no listings yet.</div>;
+    return (
+      <div className="text-muted-foreground">You have no listings yet.</div>
+    );
   }
 
   return (
@@ -96,7 +101,6 @@ export function MyListingsSection({
                     });
                   }
 
-               
                   return (
                     <div className="flex justify-end pr-2">
                       <RowActionsMenu actions={actions} />

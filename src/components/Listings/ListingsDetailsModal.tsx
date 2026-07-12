@@ -90,7 +90,7 @@ export function ListingDetailsModal({ property }: { property: any }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogTrigger className="inline-flex cursor-pointer h-9 w-9 items-center justify-center rounded-full border border-gold-soft text-white/80 transition duration-200 hover:border-gold hover:text-gold">
+      <DialogTrigger className="inline-flex cursor-pointer w-9 h-9 aspect-square  items-center justify-center rounded-full border border-gold-soft text-white/80 transition duration-200 hover:border-gold hover:text-gold">
         <Eye className="h-3.5 w-3.5" />
       </DialogTrigger>
 
