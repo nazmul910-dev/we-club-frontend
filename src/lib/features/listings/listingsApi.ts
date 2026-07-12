@@ -42,6 +42,7 @@ interface ListingsApiResponse {
 interface ListQueryParams {
   page?: number;
   limit?: number;
+  sort? : string;
   [key: string]: any;
 }
 
@@ -65,6 +66,7 @@ const getListings = createAsyncThunk<
 interface PaginationParams {
   page?: number;
   limit?: number;
+  sort? : string;
 }
 
 const getMyListings = createAsyncThunk<
@@ -357,6 +359,38 @@ export const deleteListing = createAsyncThunk<
 //   deleteListingHard,
 // };
 
+
+const incrementListingView = createAsyncThunk<any, string, { rejectValue: string }>(
+  "listings/incrementView",
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await api.patch(`/listings/${id}/view`);
+      return res.data.data;
+    } catch (err: any) {
+      // Silently fail — a missed view-count write shouldn't disrupt anything
+      // the user is doing; there's nothing worth showing an error for here.
+      return rejectWithValue(err?.response?.data?.message ?? "Failed to record view");
+    }
+  }
+);
+
+const getMostViewedListings = createAsyncThunk<
+  ListingsApiResponse,
+  PaginationParams | void,
+  { rejectValue: string }
+>("listings/mostViewed", async (params = {}, { rejectWithValue }) => {
+  try {
+    const res = await api.get("/listings", { params });
+    return res.data as ListingsApiResponse;
+  } catch (err: any) {
+    return rejectWithValue(
+      err?.response?.data?.message ?? "Failed to fetch most viewed listings"
+    );
+  }
+});
+
+
+
 export const listingsApi = {
   getListings,
   postListing,
@@ -373,4 +407,6 @@ export const listingsApi = {
   getAllListingsForAdmin,
   manageListingStatus,
   deleteListing,
+  incrementListingView,
+  getMostViewedListings
 };

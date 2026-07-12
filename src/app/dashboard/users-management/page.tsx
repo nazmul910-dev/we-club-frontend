@@ -1,9 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
 
-import {
-useEffect
-} from "react";
 
 import { redirect } from "next/navigation";
 import {
@@ -23,29 +21,18 @@ import UserHeader from "@/components/Admin/UsersManagement/UsersHeader";
 
 import UsersTable from "@/components/Admin/UsersManagement/UsersTable";
 
+export default function UsersManagementPage() {
+  const dispatch = useAppDispatch();
+
+  const users = useAppSelector((state) => state.users.users);
+
+  const loading = useAppSelector((state) => state.users.loading);
 
 
 
-export default function UsersManagementPage(){
-
-
-const dispatch=useAppDispatch();
 
 const currentUser = useAppSelector(
   (state) => state.authUser?.user
-);
-
-
-const users =
-useAppSelector(
-state=>state.users.users
-);
-
-
-
-const loading =
-useAppSelector(
-state=>state.users.loading
 );
 
 
@@ -56,7 +43,6 @@ useEffect(()=>{
 dispatch(getAllUsers());
 
 },[dispatch]);
-
 
 if(
   currentUser &&
@@ -72,24 +58,16 @@ return(
 <div className="
 text-white
 p-10
-">
+"
+      >
+        Loading users...
+      </div>
+    );
+  }
 
-Loading users...
-
-</div>
-
-)
-
-}
-
-
-
-
-
-return(
-
-<div
-className="
+  return (
+    <div
+      className="
 min-h-screen
 w-full
 bg-[#090909]
@@ -103,23 +81,11 @@ py-10
 className="
 
 "
->
+      >
+        <UserHeader />
 
-
-<UserHeader/>
-
-
-<UsersTable
-users={users}
-/>
-
-
-</div>
-
-
-</div>
-
-)
-
-
+        <UsersTable users={users} />
+      </div>
+    </div>
+  );
 }
