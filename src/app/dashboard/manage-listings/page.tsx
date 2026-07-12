@@ -90,11 +90,7 @@ export default function ManageListingsPage() {
   const isAdmin = userRole === "admin";
   const isAdminOrManager = userRole === "admin" || userRole === "manager";
 
-  console.log("Checking my myPromoteRequestsMeta  ", myPromoteRequestsMeta);
 
-  // Tracks which tabs have already had their data fetched at least once, so
-  // switching tabs repeatedly doesn't refire the request every time — only
-  // the very first activation of each tab triggers its fetch.
   const [fetchedTabs, setFetchedTabs] = useState<Set<string>>(new Set());
 
   const fetchTabData = (tab: string) => {
@@ -120,7 +116,7 @@ export default function ManageListingsPage() {
     });
   };
 
-  //   console.log("testing listing value", adminListingsMeta);
+;
 
   // Bound versions of the shared helpers, so section components stay
   // presentational and don't need to know about currentUserId themselves.

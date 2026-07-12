@@ -141,13 +141,19 @@ const ListingsPromoteModal = ({
                 span keeps the tooltip working while the button itself
                 stays visually and functionally disabled. */}
             <span className="flex-1 inline-block" tabIndex={0}>
-              <button
+              {/* <button
                 type="button"
                 disabled
                 className="w-full rounded-full border border-white/10 bg-white/[0.03] px-3 py-2 font-ui text-[10px] tracking-[0.22em] uppercase text-white/30 cursor-not-allowed text-center"
               >
                 Request to Promote
-              </button>
+              </button> */}
+              <div
+           
+                className="w-full rounded-full border border-white/10 bg-white/[0.03] px-3 py-2 font-ui text-[10px] tracking-[0.22em] uppercase text-white/30 cursor-not-allowed text-center"
+              >
+                Request to Promote
+              </div>              
             </span>
           </TooltipTrigger>
           <TooltipContent className="bg-[#1a1a1a] border-white/10 text-white text-xs max-w-[220px]">

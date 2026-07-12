@@ -37,50 +37,49 @@ export default function LoginForm() {
     }));
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError("");
+const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  setError("");
 
-    if (!formData.email || !formData.password) {
-      toast.error("Please fill all required fields.");
-      return;
-    }
+  if (!formData.email || !formData.password) {
+    toast.error("Please fill all required fields.");
+    return;
+  }
 
-    setIsSubmitting(true);
+  setIsSubmitting(true);
 
-    try {
-      await toast.promise(
-        dispatch(
-          loginUser({
-            email: formData.email,
-            password: formData.password,
-          }),
-        ).unwrap(),
-        {
-          loading: "Signing in...",
+  try {
+    const loginPromise = dispatch(
+      loginUser({
+        email: formData.email,
+        password: formData.password,
+      })
+    ).unwrap();
 
-          success: () => {
-            router.push("/dashboard");
-            return "Login successful!";
-          },
+    toast.promise(loginPromise, {
+      loading: "Signing in...",
 
-          error: (err) => {
-            const message =
-              typeof err === "string"
-                ? err
-                : err?.message || "Login failed. Please try again.";
+      success: () => {
+        router.push("/dashboard");
+        return "Login successful!";
+      },
 
-            setError(message);
-            return message;
-          },
-        },
-      );
-    } catch {
-      // toast.promise handles the error automatically.
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+      error: (err) => {
+        const message =
+          typeof err === "string"
+            ? err
+            : err?.message || "Login failed. Please try again.";
+
+        setError(message);
+        return message;
+      },
+    });
+
+    await loginPromise;
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -135,9 +134,9 @@ export default function LoginForm() {
               className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/60 transition"
             >
               {showPassword ? (
-                <EyeOff className="text-amber-400" />
+                <EyeOff className="text-amber-400 cursor-pointer" />
               ) : (
-                <Eye className="text-amber-400" />
+                <Eye className="text-amber-400 cursor-pointer" />
               )}
             </button>
           </div>
@@ -153,7 +152,7 @@ export default function LoginForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full rounded-xl bg-amber-400 px-8 py-3 font-semibold text-black transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-60"
+        className="w-full rounded-xl cursor-pointer bg-amber-400 px-8 py-3 font-semibold text-black transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isSubmitting ? "Signing in..." : "Sign In"}
       </button>

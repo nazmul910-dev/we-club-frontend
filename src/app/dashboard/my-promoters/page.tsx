@@ -87,8 +87,8 @@ export default function MyPromotersPage() {
 
       {/* Empty state */}
       {!loading && !error && promoters.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-12 text-center border border-gold-soft rounded-lg bg-card/50">
-          <p className="text-muted-foreground font-ui text-xs tracking-wider uppercase">
+        <div className="flex flex-col items-center justify-center py-12 text-center border border-gold-soft rounded-lg bg-black/50">
+          <p className="text-white font-montserrat text-xs tracking-wider uppercase">
             No promoters added yet
           </p>
         </div>

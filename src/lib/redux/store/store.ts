@@ -10,20 +10,25 @@ import listingAssetsReducer from "@/lib/features/listingAssets/listingAssetsSlic
 import dashboardReducer from "@/lib/features/dashboard/dashboardSlice";
 import promotersReducer from "@/lib/features/promoters/promotersSlice";
 
+import managerReducer from "@/lib/features/addManager/addManagerSlice";
+
+
 export const store = configureStore({
   reducer: {
     registration: registrationReducer,
-    authUser:authUserReducer,
+    authUser: authUserReducer,
     profile: profileReducer,
     listings: listingsReducer,
     commission: commissionReducer,
-    
     promoteRequests: promoteRequestReducer,
-    users:usersReducer,
-    listingAssets:listingAssetsReducer,
+    users: usersReducer,
+    listingAssets: listingAssetsReducer,
     dashboard: dashboardReducer,
     promoters : promotersReducer,
+    manager: managerReducer,
   },
+  
+
 });
 
 export type RootState = ReturnType<typeof store.getState>;
