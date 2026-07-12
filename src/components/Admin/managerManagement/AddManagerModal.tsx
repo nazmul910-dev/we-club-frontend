@@ -36,6 +36,33 @@ const emptyForm: CreateManagerPayload = {
   accessTo: "we_command_center",
 };
 
+const isValidEmail = (value: string) => {
+  const normalized = value.trim().toLowerCase();
+  return /^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+$/i.test(
+    normalized
+  );
+};
+
+const validateManagerForm = (form: CreateManagerPayload) => {
+  if (!form.fullName.trim()) {
+    return "Full name is required.";
+  }
+
+  if (!form.email.trim()) {
+    return "Email is required.";
+  }
+
+  if (!isValidEmail(form.email)) {
+    return "Please enter a valid email address.";
+  }
+
+  if (form.password.trim().length < 8) {
+    return "Password must be at least 8 characters.";
+  }
+
+  return null;
+};
+
 export default function AddManagerModal() {
   const dispatch = useAppDispatch();
 
@@ -57,15 +84,24 @@ export default function AddManagerModal() {
   };
 
   const handleSubmit = async () => {
-    if (!form.fullName.trim() || !form.email.trim() || !form.password.trim()) {
-      setError("Full name, email, and password are required.");
+    const validationError = validateManagerForm(form);
+
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
     setSubmitting(true);
     setError(null);
 
-    const result = await dispatch(createManager(form));
+    const payload = {
+      ...form,
+      fullName: form.fullName.trim(),
+      email: form.email.trim(),
+      password: form.password.trim(),
+    };
+
+    const result = await dispatch(createManager(payload));
 
     setSubmitting(false);
 
@@ -93,7 +129,7 @@ export default function AddManagerModal() {
       }}
     >
       <DialogTrigger >
-        <div className="h-11 rounded-xl bg-[#c9a84c] px-5 text-sm font-bold text-black shadow-lg transition hover:bg-[#c9a125]">
+        <div className="h-11 rounded-xl flex justify-center items-center bg-[#c9a84c] px-5 text-sm font-bold text-black shadow-lg transition hover:bg-[#c9a125]">
           <UserPlus className="mr-2 h-4 w-4" />
           <p className="">Add Manager</p>
         </div>
