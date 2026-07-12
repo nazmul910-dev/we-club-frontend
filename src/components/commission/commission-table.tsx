@@ -12,6 +12,7 @@ import CommissionActionMenu from "./commission-action-menu";
 import { Commission } from "@/lib/features/commissionLedger/types";
 import { buildCommissionsCacheKey, getCachedCommissions, setCachedCommissions } from "@/lib/features/commissionLedger/commissionCached";
 import { PaginationControl } from "../ui/PaginationControll";
+import RowSkeleton from "../ui/row-skeleton";
 
 
 interface CommissionsMeta {
@@ -142,8 +143,8 @@ export default function CommissionTable() {
           <tbody>
             {loading && (
               <tr>
-                <td colSpan={6} className="py-16 text-center text-[#888]">
-                  Loading commissions...
+                <td colSpan={6} className=" p-4 text-center text-[#888]">
+                  <RowSkeleton />
                 </td>
               </tr>
             )}

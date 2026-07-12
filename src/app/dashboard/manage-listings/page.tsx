@@ -91,30 +91,30 @@ export default function ManageListingsPage() {
   const isAdminOrManager = userRole === "admin" || userRole === "manager";
 
 
-  const [fetchedTabs, setFetchedTabs] = useState<Set<string>>(new Set());
+  // const [fetchedTabs, setFetchedTabs] = useState<Set<string>>(new Set());
 
-  const fetchTabData = (tab: string) => {
-    setFetchedTabs((prev) => {
-      if (prev.has(tab)) return prev;
+  // const fetchTabData = (tab: string) => {
+  //   setFetchedTabs((prev) => {
+  //     if (prev.has(tab)) return prev;
 
-      switch (tab) {
-        case "my-listings":
-          dispatch(listingsApi.getMyListings());
-          break;
-        case "all-listings":
-          if (isAdminOrManager) dispatch(listingsApi.getAllListingsForAdmin());
-          break;
-        case "received":
-          dispatch(listingsApi.getMyListingPromoteRequests());
-          break;
-        case "sent":
-          dispatch(listingsApi.getMySentPromoteRequests());
-          break;
-      }
+  //     switch (tab) {
+  //       case "my-listings":
+  //         dispatch(listingsApi.getMyListings());
+  //         break;
+  //       case "all-listings":
+  //         if (isAdminOrManager) dispatch(listingsApi.getAllListingsForAdmin());
+  //         break;
+  //       case "received":
+  //         dispatch(listingsApi.getMyListingPromoteRequests());
+  //         break;
+  //       case "sent":
+  //         dispatch(listingsApi.getMySentPromoteRequests());
+  //         break;
+  //     }
 
-      return new Set(prev).add(tab);
-    });
-  };
+  //     return new Set(prev).add(tab);
+  //   });
+  // };
 
 ;
 
