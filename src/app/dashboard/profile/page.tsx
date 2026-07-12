@@ -11,56 +11,35 @@ import ProfileHeaderCard from "@/components/profile/profile-header-card";
 import ProfileParticulars from "@/components/profile/profile-particulars";
 import ProfileStanding from "@/components/profile/profile-standing";
 import ProfileBio from "@/components/profile/profile-bio";
+import ProfilePageSkeleton from "@/components/profile/ProfilePageSkeleton";
 
 export default function ProfilePage() {
   const dispatch = useAppDispatch();
 
-  const profile = useAppSelector((state) => state.profile.profile);
-
-
-  const loading = useAppSelector((state) => state.profile.loading);
+  const { profile, loading } = useAppSelector(
+    (state) => state.profile
+  );
 
   useEffect(() => {
     if (!profile) {
       dispatch(getMyProfile());
     }
-  }, [profile, dispatch]); 
-
+  }, [dispatch, profile]);
 
   if (loading || !profile) {
-    return <div className="text-white p-10">Loading...</div>;
+    return <ProfilePageSkeleton />;
   }
 
   return (
-    <div
-      className="
-min-h-screen
-bg-[#090909]
-px-6
-py-10
-"
-    >
-      <div
-        className="
-max-w-6xl
-mx-auto
-"
-      >
+    <div className="min-h-screen bg-[#090909] px-6 py-10">
+      <div className="mx-auto max-w-6xl">
         <ProfilePageHeader />
 
         <ProfileHeaderCard profile={profile} />
 
-        <div
-          className="
-grid
-lg:grid-cols-[1fr_300px]
-gap-6
-mt-6
-"
-        >
+        <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_300px]">
           <div>
             <ProfileParticulars profile={profile} />
-
             <ProfileBio profile={profile} />
           </div>
 

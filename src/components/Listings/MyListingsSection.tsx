@@ -5,7 +5,9 @@ import { toast } from "sonner";
 import { statusBadge } from "@/components/Listings/StatusBadge";
 import { XCircle, Trash2 } from "lucide-react";
 import { RowAction, RowActionsMenu } from "./RowActionMenu";
-import ConfirmDialog from "@/components/common/ConfirmDialog"; // adjust path if needed
+import { Skeleton } from "../ui/skeleton";
+import RowSkeleton from "../ui/row-skeleton";
+import ConfirmDialog from "../common/ConfirmDialog";
 
 interface MyListingsSectionProps {
   myListings: any[];
@@ -67,7 +69,9 @@ export function MyListingsSection({
   };
 
   if (myListingsLoading) {
-    return <div className="text-muted-foreground">Loading listings…</div>;
+    return (
+     <RowSkeleton />
+    );
   }
 
   if (myListingsError) {
@@ -79,7 +83,9 @@ export function MyListingsSection({
   }
 
   if (myListings.length === 0) {
-    return <div className="text-muted-foreground">You have no listings yet.</div>;
+    return (
+      <div className="text-muted-foreground">You have no listings yet.</div>
+    );
   }
 
   const dialogContent = (() => {
