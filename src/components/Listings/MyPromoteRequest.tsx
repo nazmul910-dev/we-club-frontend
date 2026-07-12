@@ -8,6 +8,7 @@ import { downloadZip } from "@/lib/utils/downloadListingZip";
 import { Download, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { RowAction, RowActionsMenu } from "./RowActionMenu";
+import RowSkeleton from "../ui/row-skeleton";
 
 interface MyPromoteRequestsSectionProps {
   mySentPromoteRequests: any[];
@@ -65,9 +66,7 @@ export function MyPromoteRequestsSection({
 
   if (mySentPromoteRequestsLoading) {
     return (
-      <div className="text-muted-foreground">
-        Loading your requests...
-      </div>
+      <RowSkeleton/>
     );
   }
 

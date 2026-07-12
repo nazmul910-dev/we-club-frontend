@@ -3,6 +3,7 @@
 import { statusBadge } from "@/components/Listings/StatusBadge";
 import { Ticket, Trash2, XCircle } from "lucide-react";
 import { RowAction, RowActionsMenu } from "./RowActionMenu";
+import RowSkeleton from "../ui/row-skeleton";
 
 interface AllListingsAdminSectionProps {
   adminListings: any[];
@@ -24,7 +25,7 @@ export function AllListingsAdminSection({
   onHardDelete,
 }: AllListingsAdminSectionProps) {
   if (adminListingsLoading) {
-    return <div className="text-muted-foreground">Loading all listings…</div>;
+    return  <RowSkeleton/>;
   }
 
   if (adminListingsError) {
