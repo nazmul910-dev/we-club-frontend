@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { statusBadge } from "@/components/Listings/StatusBadge";
 import { downloadListingAssets } from "@/lib/features/listingAssets/listingAssetsApi";
 import { useAppDispatch } from "@/lib/redux/store/hook";
@@ -9,13 +10,14 @@ import { Download, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { RowAction, RowActionsMenu } from "./RowActionMenu";
 import RowSkeleton from "../ui/row-skeleton";
+import ConfirmDialog from "../common/ConfirmDialog";
 
 interface MyPromoteRequestsSectionProps {
   mySentPromoteRequests: any[];
   mySentPromoteRequestsLoading: boolean;
   mySentPromoteRequestsError: string | null;
   canManageRequest: (request: any) => boolean;
-  onCancel: (id: string) => void;
+  onCancel: (id: string) => Promise<void> | void;
 }
 
 export function MyPromoteRequestsSection({
@@ -27,6 +29,30 @@ export function MyPromoteRequestsSection({
 }: MyPromoteRequestsSectionProps) {
   const dispatch = useAppDispatch();
 
+  const [cancelId, setCancelId] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState(false);
+
+  const openCancelConfirm = (id: string) => setCancelId(id);
+
+  const closeCancelConfirm = () => {
+    if (confirming) return;
+    setCancelId(null);
+  };
+
+  const handleConfirmCancel = async () => {
+    if (!cancelId) return;
+    setConfirming(true);
+    try {
+      await onCancel(cancelId);
+      toast.success("Promote request cancelled");
+      setCancelId(null);
+    } catch (err: any) {
+      toast.error(err?.message ?? "Something went wrong");
+    } finally {
+      setConfirming(false);
+    }
+  };
+
   const handleDownload = async (request: any) => {
     if (request.status !== "approved") {
       toast.error("You need approval from Admin or Listing Owner.");
@@ -35,25 +61,17 @@ export function MyPromoteRequestsSection({
 
     try {
       await toast.promise(
-        dispatch(
-          downloadListingAssets(request.listing_id._id)
-        ).unwrap(),
+        dispatch(downloadListingAssets(request.listing_id._id)).unwrap(),
         {
           loading: "Preparing download...",
 
           success: (blob) => {
-            downloadZip(
-              blob,
-              `${request.listing_id.ref_code}-assets.zip`
-            );
-
+            downloadZip(blob, `${request.listing_id.ref_code}-assets.zip`);
             return "Download started successfully.";
           },
 
           error: (err) => {
-            return typeof err === "string"
-              ? err
-              : "Download failed.";
+            return typeof err === "string" ? err : "Download failed.";
           },
         }
       );
@@ -61,8 +79,6 @@ export function MyPromoteRequestsSection({
       // toast.promise handles everything
     }
   };
-
-
 
   if (mySentPromoteRequestsLoading) {
     return (
@@ -94,23 +110,18 @@ export function MyPromoteRequestsSection({
             <th className="px-4 py-3 text-xs uppercase tracking-wider text-muted-foreground">
               Listing
             </th>
-
             <th className="px-4 py-3 text-xs uppercase tracking-wider text-muted-foreground">
               Price
             </th>
-
             <th className="px-4 py-3 text-xs uppercase tracking-wider text-muted-foreground">
               Status
             </th>
-
             <th className="px-4 py-3 text-xs uppercase tracking-wider text-muted-foreground">
               Requested
             </th>
-
             <th className="px-4 py-3 text-xs uppercase tracking-wider text-muted-foreground">
               Actions
             </th>
-
             <th className="px-4 py-3 text-xs uppercase tracking-wider text-muted-foreground">
               Download
             </th>
@@ -118,67 +129,71 @@ export function MyPromoteRequestsSection({
         </thead>
 
         <tbody className="divide-y divide-white/5 bg-transparent">
-          {mySentPromoteRequests.map((request: any) => (
-            <tr
-              key={request._id}
-              className="hover:bg-white/2"
-            >
-              <td className="px-4 py-3 text-sm text-white">
-                {request.listing_id?.title ||
-                  request.listing_id?.ref_code}
-              </td>
+          {mySentPromoteRequests.map((request: any) => {
+            const actions: RowAction[] = [];
 
-              <td className="px-4 py-3 text-sm text-white">
-                {request.listing_id?.price?.amount ?? "-"}{" "}
-                {request.listing_id?.price?.currency ?? ""}
-              </td>
+            if (canManageRequest(request)) {
+              actions.push({
+                label: "Cancel",
+                icon: <XCircle size={14} />,
+                onClick: () => openCancelConfirm(request._id),
+                variant: "warning",
+              });
+            }
 
-              <td className="px-4 py-3">
-                {statusBadge(request.status)}
-              </td>
+            return (
+              <tr key={request._id} className="hover:bg-white/2">
+                <td className="px-4 py-3 text-sm text-white">
+                  {request.listing_id?.title || request.listing_id?.ref_code}
+                </td>
 
-              <td className="px-4 py-3 text-sm text-white">
-                {formatDate(request.requested_at)}
-              </td>
-                            <td className="px-4 py-3">
-                {(() => {
-                  const actions: RowAction[] = [];
+                <td className="px-4 py-3 text-sm text-white">
+                  {request.listing_id?.price?.amount ?? "-"}{" "}
+                  {request.listing_id?.price?.currency ?? ""}
+                </td>
 
-                  if (canManageRequest(request)) {
-                    actions.push({
-                      label: "Cancel",
-                      icon: <XCircle size={14} />,
-                      onClick: () => onCancel(request._id),
-                      variant: "warning",
-                    });
-                  }
+                <td className="px-4 py-3">{statusBadge(request.status)}</td>
 
-                  return (
-                    <div className="flex items-center justify-center">
-                      <RowActionsMenu actions={actions} />
-                    </div>
-                  );
-                })()}
-              </td>
+                <td className="px-4 py-3 text-sm text-white">
+                  {formatDate(request.requested_at)}
+                </td>
 
-              <td className="px-4 py-3">
-                <button
-                  type="button"
-                  onClick={() => handleDownload(request)}
-                  className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition ${
-                    request.status === "approved"
-                      ? "cursor-pointer bg-amber-400 text-black hover:bg-amber-300"
-                      : "cursor-pointer bg-zinc-700 text-zinc-300 hover:bg-zinc-600"
-                  }`}
-                >
-                  <Download size={16} />
-                  Download
-                </button>
-              </td>
-            </tr>
-          ))}
+                <td className="px-4 py-3">
+                  <div className="flex items-center justify-center">
+                    <RowActionsMenu actions={actions} />
+                  </div>
+                </td>
+
+                <td className="px-4 py-3">
+                  <button
+                    type="button"
+                    onClick={() => handleDownload(request)}
+                    className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition ${
+                      request.status === "approved"
+                        ? "cursor-pointer bg-amber-400 text-black hover:bg-amber-300"
+                        : "cursor-pointer bg-zinc-700 text-zinc-300 hover:bg-zinc-600"
+                    }`}
+                  >
+                    <Download size={16} />
+                    Download
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
+
+      <ConfirmDialog
+        open={!!cancelId}
+        onOpenChange={(open) => !open && closeCancelConfirm()}
+        title="Cancel this promote request?"
+        description="This promote request will be cancelled and cannot be undone."
+        confirmText="Cancel Request"
+        confirmVariant="danger"
+        loading={confirming}
+        onConfirm={handleConfirmCancel}
+      />
     </div>
-  );
+  ); 
 }
