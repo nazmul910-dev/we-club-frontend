@@ -38,6 +38,9 @@ export default function ManageListingsPage() {
   const [sentRequestsPage, setSentRequestsPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
+
+
+
   const {
     myListings,
     myListingsLoading,
@@ -127,11 +130,10 @@ export default function ManageListingsPage() {
   const canDeleteRequest = (request: any) =>
     canDeleteRequestFn(request, currentUserId);
 
-  const handleCancelRequest = async (id: string) => {
-    if (!window.confirm("Cancel this promote request?")) return;
-    await dispatch(listingsApi.cancelPromoteRequest(id)).unwrap();
-    dispatch(listingsApi.getMyListingPromoteRequests());
-  };
+const handleCancelRequest = async (id: string) => {
+  await dispatch(listingsApi.cancelPromoteRequest(id)).unwrap();
+  dispatch(listingsApi.getMyListingPromoteRequests());
+};
 
   const handleDeleteRequest = async (id: string) => {
     if (!window.confirm("Delete this promote request?")) return;
@@ -177,40 +179,26 @@ export default function ManageListingsPage() {
     dispatch(listingsApi.getMySentPromoteRequests());
   };
 
-  const handleCancelPendingListings = async (id: string) => {
-    if (!window.confirm("Cancel this Listing request?")) return;
-    await dispatch(listingsApi.cencelPendingListing(id)).unwrap();
-    dispatch(listingsApi.getMyListings());
-  };
+const handleCancelPendingListings = async (id: string) => {
+  await dispatch(listingsApi.cencelPendingListing(id)).unwrap();
+  dispatch(listingsApi.getMyListings());
+};
 
-  const handleDeletePendingListings = async (id: string) => {
-    if (!window.confirm("Cancel this Listing request?")) return;
-    await dispatch(listingsApi.deletePendingListing(id)).unwrap();
-    dispatch(listingsApi.getMyListings());
-  };
+const handleDeletePendingListings = async (id: string) => {
+  await dispatch(listingsApi.deletePendingListing(id)).unwrap();
+  dispatch(listingsApi.getMyListings());
+};
 
-  const handleManageListingStatus = async (
-    id: string,
-    status: "active" | "rejected",
-  ) => {
-    if (
-      !window.confirm(
-        `${status === "active" ? "Approve" : "Reject"} this listing?`,
-      )
-    )
-      return;
-    await dispatch(listingsApi.manageListingStatus({ id, status })).unwrap();
-  };
+const handleManageListingStatus = async (
+  id: string,
+  status: "active" | "rejected",
+) => {
+  await dispatch(listingsApi.manageListingStatus({ id, status })).unwrap();
+};
 
-  const handleHardDeleteListing = async (id: string) => {
-    if (
-      !window.confirm(
-        "This will PERMANENTLY delete this listing. This cannot be undone. Continue?",
-      )
-    )
-      return;
-    await dispatch(listingsApi.deleteListing(id)).unwrap();
-  };
+const handleHardDeleteListing = async (id: string) => {
+  await dispatch(listingsApi.deleteListing(id)).unwrap();
+};
 
 
   console.log("admin listings", adminListings)
