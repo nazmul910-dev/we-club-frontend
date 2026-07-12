@@ -89,9 +89,9 @@ export default function StatCard({
         {stat.value}
       </h2>
 
-      <p className="mt-2 xl:mt-4 font-montserrat text-[11px] text-[#B89237]">
+      {/* <p className="mt-2 xl:mt-4 font-montserrat text-[11px] text-[#B89237]">
         {stat.change}
-      </p>
+      </p> */}
     </div>
   );
 }

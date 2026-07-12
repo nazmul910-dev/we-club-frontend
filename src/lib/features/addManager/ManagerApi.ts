@@ -66,7 +66,7 @@ export const createManager = createAsyncThunk<
       return rejectWithValue("Something went wrong");
     }
   }
-);
+); 
 
 export const suspendManager = createAsyncThunk<
   Manager,
