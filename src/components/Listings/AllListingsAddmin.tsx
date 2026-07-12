@@ -39,7 +39,7 @@ export function AllListingsAdminSection({
     return <div className="text-muted-foreground">No listings found.</div>;
   }
 
-  console.log("from admin listing section ", adminListings);
+
 
   return (
     <div className="overflow-x-auto">

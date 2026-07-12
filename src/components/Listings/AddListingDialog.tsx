@@ -124,7 +124,6 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
     try {
       setSubmitting(true);
 
-      console.log("===== FormData =====");
 
       for (const [key, value] of formData.entries()) {
         if (value instanceof File) {
@@ -138,7 +137,7 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
         }
       }
 
-      console.log("id of the user ", associateId)
+
       await onSubmit(formData);
 
       form.reset();

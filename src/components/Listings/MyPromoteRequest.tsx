@@ -32,10 +32,6 @@ export function MyPromoteRequestsSection({
       return;
     }
 
-
-    console.log("Listing ID:", request.listing_id._id);
-console.log("Requester ID:", request.requester.user_id);
-console.log("Status:", request.status);
     try {
       await toast.promise(
         dispatch(
@@ -65,7 +61,7 @@ console.log("Status:", request.status);
     }
   };
 
-  console.log("mypromote-req: ",mySentPromoteRequests)
+
 
   if (mySentPromoteRequestsLoading) {
     return (
