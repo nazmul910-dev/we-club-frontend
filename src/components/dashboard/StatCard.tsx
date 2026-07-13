@@ -85,7 +85,7 @@ export default function StatCard({
         {stat.title}
       </p>
 
-      <h2 className="mt-2 xl:mt-4 font-playfair text-[20px] xl:text-[30px] leading-none text-[#ECE7DF]">
+      <h2 className="mt-2 xl:mt-4  text-[20px] xl:text-[30px] leading-none text-[#ECE7DF]">
         {stat.value}
       </h2>
 

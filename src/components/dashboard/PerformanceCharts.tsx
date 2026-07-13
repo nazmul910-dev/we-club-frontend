@@ -1,12 +1,10 @@
-"use client"
+"use client";
 
-import { TrendingUp } from "lucide-react"
+import { TrendingUp } from "lucide-react";
 
 import { useEffect, useMemo, useState } from "react";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
-import {
-  getLisitngViewsAnalytics
-} from "@/lib/features/dashboard/dashboardApi";
+import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+import { getLisitngViewsAnalytics } from "@/lib/features/dashboard/dashboardApi";
 import {
   Card,
   CardContent,
@@ -14,16 +12,16 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
-} from "@/components/ui/chart"
+} from "@/components/ui/chart";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
 
-export const description = "A simple area chart"
+export const description = "A simple area chart";
 
 const chartData = {
   daily: [
@@ -57,89 +55,68 @@ const chartConfig = {
   desktop: {
     label: "Desktop",
     color: "var(--chart-1)",
-  }, 
-} satisfies ChartConfig
+  },
+} satisfies ChartConfig;
 
 export function ChartAreaDefault() {
-  const [period, setPeriod] =
-useState<"daily" | "weekly" | "monthly">(
-"monthly"
-);
+  const [period, setPeriod] = useState<"daily" | "weekly" | "monthly">(
+    "monthly",
+  );
 
-const dispatch = useAppDispatch()
+  const dispatch = useAppDispatch();
 
-const {listingViewsAnalytics} = useAppSelector((state)=> state.dashboard);
+  const { listingViewsAnalytics } = useAppSelector((state) => state.dashboard);
 
-const {average, totalViews, growth ,...rest} = listingViewsAnalytics;
+  const { average, totalViews, growth, ...rest } = listingViewsAnalytics;
 
-console.log("resting data", rest)
+  console.log("resting data", rest);
 
   useEffect(() => {
-  dispatch(getLisitngViewsAnalytics());
+    dispatch(getLisitngViewsAnalytics());
+  }, [dispatch]);
 
-}, [dispatch]);
+  console.log("anaalaa:", listingViewsAnalytics);
 
-console.log('anaalaa:',listingViewsAnalytics);
+  console.log(growth)
 
-const currentData = useMemo(() => {
-return rest[period];
-}, [period]);
+  const currentData = useMemo(() => {
+    return rest[period];
+  }, [period]);
 
   return (
     <Card className="bg-transparent px-0">
-<CardHeader className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+      <CardHeader className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <CardTitle className="text-white">Performance Overview</CardTitle>
 
-<div>
+          <CardDescription>Showing performance statistics</CardDescription>
+        </div>
 
-<CardTitle className="text-white">
-Performance Overview 
-</CardTitle>
-
-<CardDescription>
-Showing performance statistics
-</CardDescription>
-
-</div>
-
-<div className="flex gap-2">
-
-{["daily","weekly","monthly"].map((item)=>(
-
-<button
-
-key={item}
-
-onClick={()=>setPeriod(item as any)}
-
-className={`rounded-lg px-4 py-2 text-sm transition
+        <div className="flex gap-2">
+          {["daily", "weekly", "monthly"].map((item) => (
+            <button
+              key={item}
+              onClick={() => setPeriod(item as any)}
+              className={`rounded-lg px-4 py-2 text-sm transition
 
 ${
-period===item
-?
-
-"bg-[#D6B35B] text-black"
-
-:
-
-"bg-neutral-900 text-white hover:bg-neutral-800"
-
+  period === item
+    ? "bg-[#D6B35B] text-black"
+    : "bg-neutral-900 text-white hover:bg-neutral-800"
 }
 
 `}
-
->
-
-{item.charAt(0).toUpperCase()+item.slice(1)}
-
-</button>
-
-))}
-
-</div>
-
-</CardHeader>
+            >
+              {item.charAt(0).toUpperCase() + item.slice(1)}
+            </button>
+          ))}
+        </div>
+      </CardHeader>
       <CardContent className="px-0">
-        <ChartContainer config={chartConfig} className="h-[250px] sm:h-[320px] lg:h-[420px] w-full" >
+        <ChartContainer
+          config={chartConfig}
+          className="h-[250px] sm:h-[320px] lg:h-[420px] w-full"
+        >
           <AreaChart
             accessibilityLayer
             data={currentData}
@@ -161,97 +138,50 @@ period===item
               content={<ChartTooltipContent indicator="line" />}
             />
             <defs>
+              <linearGradient id="goldGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#D6B35B" stopOpacity={0.65} />
 
-<linearGradient
-id="goldGradient"
-x1="0"
-y1="0"
-x2="0"
-y2="1"
->
-
-<stop
-offset="5%"
-stopColor="#D6B35B"
-stopOpacity={0.65}
-/>
-
-<stop
-offset="95%"
-stopColor="#D6B35B"
-stopOpacity={0.05}
-/>
-
-</linearGradient>
-
-</defs>
-<Area
-
-type="monotone"
-
-dataKey="value"
-
-stroke="#D6B35B"
-
-strokeWidth={3}
-
-fill="url(#goldGradient)"
-
-dot={false}
-
-activeDot={{
-r:5
-}}
-
-fillOpacity={1}
-
-/>
+                <stop offset="95%" stopColor="#D6B35B" stopOpacity={0.05} />
+              </linearGradient>
+            </defs>
+            <Area
+              type="monotone"
+              dataKey="value"
+              stroke="#D6B35B"
+              strokeWidth={3}
+              fill="url(#goldGradient)"
+              dot={false}
+              activeDot={{
+                r: 5,
+              }}
+              fillOpacity={1}
+            />
           </AreaChart>
         </ChartContainer>
       </CardContent>
-<CardFooter className="border-t border-neutral-800 mt-6 pt-6">
+      <CardFooter className="border-t border-neutral-800 mt-6 pt-6">
+        <div className="grid w-full grid-cols-3 gap-6">
+          <div>
+            <p className="text-xs text-neutral-500">Total Views</p>
 
-<div className="grid w-full grid-cols-3 gap-6">
+            <h3 className="mt-1 text-2xl font-bold text-white">{totalViews}</h3>
+          </div>
 
-<div>
+          <div>
+            <p className="text-xs text-neutral-500">Growth</p>
 
-<p className="text-xs text-neutral-500">
-Total Views
-</p>
+            <h3 className="mt-1 text-2xl font-bold text-emerald-400">
+              {growth ? growth :  10}%
+            </h3>
+          </div>
 
-<h3 className="mt-1 text-2xl font-bold text-white">
-{totalViews}
-</h3>
+          <div>
+            <p className="text-xs text-neutral-500">Average</p>
 
-</div>
-
-<div>
-
-<p className="text-xs text-neutral-500">
-Growth
-</p>
-
-<h3 className="mt-1 text-2xl font-bold text-emerald-400">
-{growth}
-</h3>
-
-</div>
-
-<div>
-
-<p className="text-xs text-neutral-500">
-Average
-</p>
-
-<h3 className="mt-1 text-2xl font-bold text-white">
-{average}
-</h3>
-
-</div>
-
-</div>
-
-</CardFooter>
+            <h3 className="mt-1 text-2xl font-bold text-white">{average}</h3>
+          </div>
+        </div>
+      </CardFooter>
     </Card>
-  )
+  );
 }
