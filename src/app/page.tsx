@@ -113,7 +113,7 @@ export default function Home() {
                 Create Account
                 <ArrowRight
                   size={18}
-                  className="translate-x-0 opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100"
+                  className="translate-x-0 transition-all duration-300 group-hover:translate-x-1 "
                 />
               </button>
             </Link>

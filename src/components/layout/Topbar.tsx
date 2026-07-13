@@ -1,10 +1,24 @@
 "use client";
 
+import * as React from "react";
+import { useRouter } from "next/navigation";
+
 import { useEffect } from "react";
 import { Menu, Search } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
 import { getInitials, formatLabel } from "@/lib/utils/auth";
 import { fetchCurrentUserProfile } from "@/lib/features/auth/authUserSlice";
+
+
+import {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 
 interface Props {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -16,12 +30,30 @@ export default function Topbar({ setIsOpen }: Props) {
   const tokenUser = useAppSelector((state) => state.authUser.user);
   const isProfileLoading = useAppSelector((state) => state.authUser.isProfileLoading);
 
+  const router = useRouter();
+
+  const [open, setOpen] = React.useState(false);
+
   useEffect(() => { 
 
     if (tokenUser?.id && !profile && !isProfileLoading) {
       dispatch(fetchCurrentUserProfile(tokenUser.id));
     }
   }, [tokenUser, profile, isProfileLoading, dispatch]);
+
+
+  React.useEffect(() => {
+  const down = (e: KeyboardEvent) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+      e.preventDefault();
+      setOpen((prev) => !prev);
+    }
+  };
+
+  document.addEventListener("keydown", down);
+
+  return () => document.removeEventListener("keydown", down);
+}, []);
 
   const fullName = profile?.fullName;
   const role = profile?.role || tokenUser?.role;
@@ -31,6 +63,7 @@ export default function Topbar({ setIsOpen }: Props) {
 
 
   return (
+    <>
     <header className="sticky top-0 right-0 left-0 z-40 border-b border-[#2B2B2B] bg-[#0A0A0A] w-full">
       <div className="flex items-center justify-between gap-4 px-4 py-3 md:px-6 lg:px-8">
         <button
@@ -40,17 +73,24 @@ export default function Topbar({ setIsOpen }: Props) {
           <Menu size={20} />
         </button>
 
-        <div className="relative w-full flex-1 hidden lg:block max-w-52 xl:max-w-md">
-          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#888]" />
-          <input
-            type="text"
-            placeholder="Search..."
-            className="h-10 w-full rounded-lg border border-[#3A3120] bg-[#131313] pl-11 pr-14 text-sm text-white placeholder:text-[#888] outline-none transition-all duration-200 focus:border-[#CDAE53]"
-          />
-          <span className="absolute right-3 top-1/2 hidden -translate-y-1/2 rounded border border-[#3A3120] px-2 py-0.5 text-xs text-[#888] lg:block">
-            ⌘ K
-          </span>
-        </div>
+        <div className="relative hidden w-full max-w-52 flex-1 lg:block xl:max-w-md">
+  <button
+    type="button"
+    onClick={() => setOpen(true)}
+    className="relative flex h-10 w-full items-center rounded-lg border border-[#3A3120] bg-[#131313] pl-11 pr-14 text-left text-sm text-[#888] transition-all duration-200 hover:border-[#CDAE53]"
+  >
+    <Search
+      size={18}
+      className="absolute left-4 top-1/2 -translate-y-1/2 text-[#888]"
+    />
+
+    <span>Search...</span>
+
+    <span className="absolute right-3 top-1/2 -translate-y-1/2 rounded border border-[#3A3120] px-2 py-0.5 text-xs text-[#888]">
+      ⌘ K
+    </span>
+  </button>
+</div>
  
         <div className="flex flex-row-reverse md:flex-col items-center gap-2">
           <div className="flex items-center gap-3">
@@ -86,5 +126,121 @@ export default function Topbar({ setIsOpen }: Props) {
         </div>
       </div>
     </header>
+
+    <CommandDialog open={open} onOpenChange={setOpen}>
+  <Command className="bg-gray-900 text-white">
+    <CommandInput placeholder="Search pages..." />
+
+    <CommandList>
+      <CommandEmpty>No results found.</CommandEmpty>
+
+      <CommandGroup heading="Navigation" >
+        
+        <CommandItem
+        className="text-amber-300"
+          onSelect={() => {
+            router.push("/dashboard");
+            setOpen(false);
+          }}
+        >
+          Dashboard
+        </CommandItem>
+
+        <CommandItem
+        className="text-amber-300"
+          onSelect={() => {
+            router.push("/dashboard/listings");
+            setOpen(false);
+          }}
+        >
+          Listings
+        </CommandItem>
+
+        <CommandItem
+        className="text-amber-300"
+          onSelect={() => {
+            router.push("/dashboard/users");
+            setOpen(false);
+          }}
+        >
+          Users
+        </CommandItem>
+
+        <CommandItem
+        className="text-amber-300"
+          onSelect={() => {
+            router.push("/dashboard/manage-listings");
+            setOpen(false);
+          }}
+        >
+          Manage Listings
+        </CommandItem>
+
+        <CommandItem
+        className="text-amber-300"
+          onSelect={() => {
+            router.push("/dashboard/network-directory");
+            setOpen(false);
+          }}
+        >
+          Network Directory
+        </CommandItem>
+
+        <CommandItem
+        className="text-amber-300"
+          onSelect={() => {
+            router.push("/dashboard/my-promoters");
+            setOpen(false);
+          }}
+        >
+          My Promoters
+        </CommandItem>
+
+        <CommandItem
+        className="text-amber-300"
+          onSelect={() => {
+            router.push("/dashboard/commission-ledger");
+            setOpen(false);
+          }}
+        >
+          Commission Ledger
+        </CommandItem>
+
+        <CommandItem
+        className="text-amber-300"
+          onSelect={() => {
+            router.push("/dashboard/academy");
+            setOpen(false);
+          }}
+        >
+          Academy
+        </CommandItem>
+
+        <CommandItem
+        className="text-amber-300"
+          onSelect={() => {
+            router.push("/dashboard/profile");
+            setOpen(false);
+          }}
+        >
+          My Profile
+        </CommandItem>
+
+        <CommandItem
+        className="text-amber-300"
+          onSelect={() => {
+            router.push("/dashboard/manager-management");
+            setOpen(false);
+          }}
+        >
+          Manager Management
+        </CommandItem>
+      </CommandGroup>
+    </CommandList>
+  </Command>
+</CommandDialog>
+    
+    </>
+    
   );
 }

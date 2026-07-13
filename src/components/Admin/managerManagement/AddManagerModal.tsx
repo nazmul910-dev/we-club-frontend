@@ -158,7 +158,7 @@ export default function AddManagerModal() {
               autoComplete="off"
               onChange={(e) => handleChange("fullName", e.target.value)}
               disabled={submitting}
-              className="h-11 rounded-xl border-neutral-800 bg-neutral-900 text-white placeholder:text-neutral-500 focus-visible:ring-[#cfa12396]"
+              className="h-11 rounded-xl px-2 border-neutral-800 bg-neutral-900 text-white placeholder:text-neutral-500 focus-visible:ring-[#cfa12396]"
             />
           </div>
 
@@ -176,7 +176,7 @@ export default function AddManagerModal() {
               autoComplete="new-email"
               onChange={(e) => handleChange("email", e.target.value)}
               disabled={submitting}
-              className="h-11 rounded-xl border-neutral-800 bg-neutral-900 text-white placeholder:text-neutral-500 focus-visible:ring-[#cfa12396]"
+              className="h-11 rounded-xl px-2 border-neutral-800 bg-neutral-900 text-white placeholder:text-neutral-500 focus-visible:ring-[#cfa12396]"
             />
           </div>
 
@@ -195,7 +195,7 @@ export default function AddManagerModal() {
                 autoComplete="new-password"
                 onChange={(e) => handleChange("password", e.target.value)}
                 disabled={submitting}
-                className="h-11 rounded-xl border-neutral-800 bg-neutral-900 pr-12 text-white placeholder:text-neutral-500 focus-visible:ring-[#cfa12396]"
+                className="h-11 rounded-xl px-2 border-neutral-800 bg-neutral-900 pr-12 text-white placeholder:text-neutral-500 focus-visible:ring-[#cfa12396]"
               />
               <button
                 type="button"
