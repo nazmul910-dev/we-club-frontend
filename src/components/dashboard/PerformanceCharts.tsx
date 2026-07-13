@@ -72,14 +72,14 @@ const {listingViewsAnalytics} = useAppSelector((state)=> state.dashboard);
 
 const {average, totalViews, growth ,...rest} = listingViewsAnalytics;
 
-console.log("resting data", rest)
+
 
   useEffect(() => {
   dispatch(getLisitngViewsAnalytics());
 
 }, [dispatch]);
 
-console.log('anaalaa:',listingViewsAnalytics);
+
 
 const currentData = useMemo(() => {
 return rest[period];
