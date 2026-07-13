@@ -66,6 +66,8 @@ const getPromoters = createAsyncThunk<
   { rejectValue: string }
 >("promoters/getPromoters", async (params = {}, { rejectWithValue }) => {
   try {
+    console.log(params)
+
     const res = await api.get<PromotersApiResponse>("/promoters", { params });
     
     return res.data.data;

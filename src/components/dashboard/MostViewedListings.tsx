@@ -44,8 +44,8 @@ export default function MostViewedListings() {
   );
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center border border-gold/50  rounded-md px-5 py-4 hover:shadow-gold transition-all duration-300 hover:border-gold/80 hover:-translate-y-1">
-      <div className=" flex-1">
+    <div className="w-full flex-1 flex flex-col items-center justify-center border border-gold/50  rounded-md px-5 py-4 hover:shadow-gold transition-all duration-300 hover:border-gold/80 hover:-translate-y-1">
+      <div className=" flex-1 w-full">
         {loading ? (
           <p className="py-12 text-center text-sm text-zinc-400">
             Loading most viewed listings...
