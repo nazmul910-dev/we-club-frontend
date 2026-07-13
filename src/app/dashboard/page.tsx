@@ -28,6 +28,11 @@ export default function Home() {
   const profile = useAppSelector((state) => state.authUser.profile);
   const tokenUser = useAppSelector((state) => state.authUser.user);
 
+    const { stats } = useAppSelector(
+    (state) => state.dashboard
+  );
+
+
   const [greeting, setGreeting] = useState("Good Morning");
 
   useEffect(() => {
@@ -43,6 +48,7 @@ export default function Home() {
   useEffect(() => {
   dispatch(getDashboardStats());
   dispatch(fetchTopPromoters());
+
 }, [dispatch]);
 
   const fullName = profile?.fullName;
@@ -68,7 +74,7 @@ export default function Home() {
         <StatsGrid />
       </div>
       <div>
-        <ChartAreaDefault />
+        <ChartAreaDefault  />
       </div>
       <div className="flex gap-4 flex-col xl:flex-row w-full">
         <TopPromoters />

@@ -2,9 +2,11 @@
 
 import { TrendingUp } from "lucide-react"
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
-
+import {
+  getLisitngViewsAnalytics
+} from "@/lib/features/dashboard/dashboardApi";
 import {
   Card,
   CardContent,
@@ -19,6 +21,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart"
+import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
 
 export const description = "A simple area chart"
 
@@ -63,8 +66,23 @@ useState<"daily" | "weekly" | "monthly">(
 "monthly"
 );
 
+const dispatch = useAppDispatch()
+
+const {listingViewsAnalytics} = useAppSelector((state)=> state.dashboard);
+
+const {average, totalViews, growth ,...rest} = listingViewsAnalytics;
+
+console.log("resting data", rest)
+
+  useEffect(() => {
+  dispatch(getLisitngViewsAnalytics());
+
+}, [dispatch]);
+
+console.log('anaalaa:',listingViewsAnalytics);
+
 const currentData = useMemo(() => {
-return chartData[period];
+return rest[period];
 }, [period]);
 
   return (
@@ -74,7 +92,7 @@ return chartData[period];
 <div>
 
 <CardTitle className="text-white">
-Performance Overview
+Performance Overview 
 </CardTitle>
 
 <CardDescription>
@@ -202,7 +220,7 @@ Total Views
 </p>
 
 <h3 className="mt-1 text-2xl font-bold text-white">
-24,120
+{totalViews}
 </h3>
 
 </div>
@@ -214,7 +232,7 @@ Growth
 </p>
 
 <h3 className="mt-1 text-2xl font-bold text-emerald-400">
-+12.4%
+{growth}
 </h3>
 
 </div>
@@ -226,7 +244,7 @@ Average
 </p>
 
 <h3 className="mt-1 text-2xl font-bold text-white">
-804
+{average}
 </h3>
 
 </div>
