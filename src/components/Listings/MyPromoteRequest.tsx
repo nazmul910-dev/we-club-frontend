@@ -73,7 +73,7 @@ export function MyPromoteRequestsSection({
           error: (err) => {
             return typeof err === "string" ? err : "Download failed.";
           },
-        }
+        },
       );
     } catch {
       // toast.promise handles everything
@@ -81,9 +81,7 @@ export function MyPromoteRequestsSection({
   };
 
   if (mySentPromoteRequestsLoading) {
-    return (
-      <RowSkeleton/>
-    );
+    return <RowSkeleton />;
   }
 
   if (mySentPromoteRequestsError) {
@@ -195,5 +193,5 @@ export function MyPromoteRequestsSection({
         onConfirm={handleConfirmCancel}
       />
     </div>
-  ); 
+  );
 }

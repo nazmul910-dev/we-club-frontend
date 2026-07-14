@@ -1,6 +1,7 @@
 "use client";
 
 import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
+import { Button } from "../ui/button";
 
 type Tier = "tier_1" | "tier_2" | "tier_3";
 
@@ -74,16 +75,18 @@ export function TierSelectionDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-6xl w-full sm:min-w-2xl md:min-w-3xl lg:min-w-4xl   bg-gold-soft backdrop:blur-2xl ">
         <DialogHeader>
-          <h2 className="text-xl font-semibold text-white">Assign Sharing Permission</h2>
-          <p className="text-sm text-muted-foreground mt-2">
-            Determine how this promoter may present the property. Revocable at any
-            time.
+          <h2 className="text-xl font-semibold text-white">
+            Assign Sharing Permission
+          </h2>
+          <p className="text-sm text-muted/70 ">
+            Determine how this promoter may present the property. Revocable at
+            any time.
           </p>
         </DialogHeader>
 
-        <div className="grid grid-cols-3 gap-4 py-6">
+        <div className="flex  lg:grid  sm:grid-cols-3 overflow-auto w-full  gap-4 py-6">
           {TIER_OPTIONS.map((tier) => {
             const isSelected = selectedTier === tier.value;
             return (
@@ -91,7 +94,7 @@ export function TierSelectionDialog({
                 key={tier.value}
                 type="button"
                 onClick={() => onSelectTier(tier.value)}
-                className={`rounded-2xl border p-4 transition ${
+                className={`rounded-2xl border w-full cursor-pointer min-w-[300] md:min-w-auto p-4 transition text-left  shadow-2xl  backdrop-blur-lg ${
                   isSelected
                     ? tier.accent === "gold"
                       ? "border-gold bg-gold/10"
@@ -101,9 +104,7 @@ export function TierSelectionDialog({
               >
                 <div className="flex items-center justify-between mb-3">
                   <span
-                    className={`text-xs font-ui uppercase tracking-wider ${
-                      tier.accent === "gold" ? "text-gold" : "text-gold-soft"
-                    }`}
+                    className={`text-xs font-ui uppercase tracking-wider text-white/80 `}
                   >
                     Option
                   </span>
@@ -112,16 +113,16 @@ export function TierSelectionDialog({
                       isSelected ? "border-gold bg-gold" : "border-gold-soft/30"
                     }`}
                   >
-                    {isSelected && <div className="h-2 w-2 bg-black rounded-full" />}
+                    {isSelected && (
+                      <div className="h-2 w-2 bg-white rounded-full" />
+                    )}
                   </div>
                 </div>
-                <h3 className="text-base font-semibold text-white mb-2">
+                <h3 className="text-base font-semibold text-gold mb-2">
                   {tier.title}
                 </h3>
-                <p className="text-xs text-muted-foreground mb-3">
-                  {tier.description}
-                </p>
-                <ul className="text-xs text-muted-foreground space-y-1">
+                <p className="text-xs text-muted/70 mb-3">{tier.description}</p>
+                <ul className="text-xs text-muted/70 space-y-1">
                   {tier.bullets.map((bullet) => (
                     <li key={bullet}>• {bullet}</li>
                   ))}
@@ -131,23 +132,24 @@ export function TierSelectionDialog({
           })}
         </div>
 
-        <div className="flex justify-center gap-4">
-          <button
-            type="button"
-            onClick={() => onOpenChange(false)}
-            disabled={isConfirming}
-            className="rounded-full border border-white/20 bg-transparent px-8 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-white/5 disabled:opacity-50"
+        <div className="flex flex-col sm:flex-row justify-center w-full gap-4">
+          <Button
+            variant="outline"
+            onClickCapture={() => onOpenChange(false)}
+            className="rounded-2xl cursor-pointer bg-white/80"
           >
             Cancel
-          </button>
-          <button
-            type="button"
-            onClick={onConfirm}
+          </Button>
+
+          <Button
             disabled={isConfirming}
-            className="rounded-full border border-gold bg-gold px-8 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-black transition hover:bg-gold/90 disabled:opacity-50"
+            onClick={onConfirm}
+            type="button"
+            className="rounded-2xl bg-gold cursor-pointer hover:bg-yellow-600"
           >
+            {" "}
             {isConfirming ? "Confirming..." : "Confirm Marketing Permission"}
-          </button>
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

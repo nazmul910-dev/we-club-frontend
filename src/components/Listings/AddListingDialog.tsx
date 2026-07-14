@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSelector } from "react-redux";
+import { toast } from "sonner";
 import { Plus, ImagePlus, UploadCloud, X } from "lucide-react";
 
 import { RootState } from "@/lib/redux/store/store";
@@ -40,33 +41,25 @@ import {
 } from "@/components/ui/select";
 import { CoverImageField, fieldClass, GalleryImagesField } from "./AddListingsUtils";
 
-
-// Shared classNames so every text/number input and select trigger looks
-// consistent: frosted glass surface, soft border, gold focus glow.
-
 interface AddListingDialogProps {
   onSubmit: (formData: FormData) => Promise<void> | void;
 }
-
 
 export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   // TODO: adjust this path to match your real auth slice shape.
-  
   const associateId = useSelector(
     (state: RootState) => state.authUser.user?.id
   );
-
-
 
   const form = useForm<ListingFormValues>({
     resolver: zodResolver(listingFormSchema),
     defaultValues: {
       title: "",
       ref_code: "",
-      status : "pending",
+      status: "pending",
       bedrooms: 0,
       bathrooms: 0,
       area_sqm: 0,
@@ -80,15 +73,8 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
   });
 
   async function handleSubmit(values: ListingFormValues) {
-    // if (!associateId) {
-    //   form.setError("root", {
-    //     message: "Could not determine your associate ID. Please re-login.",
-    //   });
-    //   return;
-    // }
-
     const formData = new FormData();
-    formData.append("associate_id",  associateId || ""); // fallback to empty string if null
+    formData.append("associate_id", associateId || ""); // fallback to empty string if null
     formData.append("title", values.title);
     formData.append("ref_code", values.ref_code);
     formData.append("bedrooms", String(values.bedrooms));
@@ -101,22 +87,21 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
         city: values.city,
         region: values.region,
         country: values.country,
-      }),
+      })
     );
     formData.append(
       "price",
       JSON.stringify({
         amount: values.price_amount,
         currency: values.price_currency,
-      }),
+      })
     );
     formData.append(
       "referral_commission",
-      JSON.stringify({ offered_amount: values.referral_commission_offered }),
+      JSON.stringify({ offered_amount: values.referral_commission_offered })
     );
 
     formData.append("cover_image", values.cover_image);
-
     values.images.forEach((file: any) => {
       formData.append("images", file);
     });
@@ -124,42 +109,35 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
     try {
       setSubmitting(true);
 
-
-      for (const [key, value] of formData.entries()) {
-        if (value instanceof File) {
-          console.log(key, {
-            name: value.name,
-            type: value.type,
-            size: value.size,
-          });
-        } else {
-          console.log(key, value);
-        }
-      }
-
-
+      // onSubmit is whatever the parent page passed in — for MyListingsPage
+      // that's just `dispatch(listingsApi.postListing(formData)).unwrap()`,
+      // with no refetch after it, since postListing.fulfilled already
+      // unshifts the new listing into state directly.
       await onSubmit(formData);
 
-      form.reset();
+      toast.success("Listing created", {
+        description: `"${values.title}" has been added to your listings.`,
+      });
 
+      form.reset();
       setOpen(false);
     } catch (err) {
+      toast.error("Failed to create listing", {
+        description: "Please check the form and try again.",
+      });
       form.setError("root", {
         message: "Failed to create listing. Please try again.",
       });
     } finally {
       setSubmitting(false);
-      console.log("[AddListingDialog] submitted formData:", formData);
     }
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger className="inline-flex items-center gap-2 rounded-full bg-gold px-5 py-2 font-ui text-[11px] tracking-[0.22em] uppercase text-primary-foreground font-medium transition hover:brightness-110 duration-200 cursor-pointer">
-       
-          <Plus size={14} strokeWidth={2.5} />
-          Add Listing
-        
+        <Plus size={14} strokeWidth={2.5} />
+        Add Listing
       </DialogTrigger>
 
       <DialogContent

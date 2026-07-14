@@ -12,7 +12,6 @@ import FilterListingDialog, {
   DEFAULT_LISTING_FILTERS,
   ListingFilters,
 } from "@/components/Listings/FilterListingDialog";
-import { Pagination } from "@/components/ui/pagination";
 import { PaginationControl } from "@/components/ui/PaginationControll";
 
 export default function MyListingsPage() {
@@ -20,13 +19,9 @@ export default function MyListingsPage() {
   const { items, loading, error, meta } = useSelector((s: RootState) => {
     return s.listings;
   });
-  const [filters, setFilters] = useState<ListingFilters>(
-    DEFAULT_LISTING_FILTERS,
-  );
+  const [filters, setFilters] = useState<ListingFilters>(DEFAULT_LISTING_FILTERS);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-
-
 
   const visibleItems = useMemo(() => {
     const sortedItems = [...items];
@@ -35,30 +30,22 @@ export default function MyListingsPage() {
     const filterByCommission = sortedItems.filter((property) => {
       if (filters.commission === "any") return true;
 
-      const commission = Number(
-        property?.referral_commission?.offered_amount ?? 0,
-      );
-      if (filters.commission === "0-5")
-        return commission >= 0 && commission < 5;
-      if (filters.commission === "5-10")
-        return commission >= 5 && commission < 10;
-      if (filters.commission === "10-15")
-        return commission >= 10 && commission < 15;
+      const commission = Number(property?.referral_commission?.offered_amount ?? 0);
+      if (filters.commission === "0-5") return commission >= 0 && commission < 5;
+      if (filters.commission === "5-10") return commission >= 5 && commission < 10;
+      if (filters.commission === "10-15") return commission >= 10 && commission < 15;
       return commission >= 15;
     });
 
     if (filters.sortBy === "price") {
       filterByCommission.sort((a, b) => {
         return (
-          (Number(a?.price?.amount ?? 0) - Number(b?.price?.amount ?? 0)) *
-          direction
+          (Number(a?.price?.amount ?? 0) - Number(b?.price?.amount ?? 0)) * direction
         );
       });
     } else if (filters.sortBy === "area_sqm") {
       filterByCommission.sort((a, b) => {
-        return (
-          (Number(a?.area_sqm ?? 0) - Number(b?.area_sqm ?? 0)) * direction
-        );
+        return (Number(a?.area_sqm ?? 0) - Number(b?.area_sqm ?? 0)) * direction;
       });
     } else {
       filterByCommission.sort((a, b) => {
@@ -101,7 +88,9 @@ export default function MyListingsPage() {
             <AddListingDialog
               onSubmit={async (formData) => {
                 await dispatch(listingsApi.postListing(formData)).unwrap();
-                dispatch(listingsApi.getListings({ page, limit }));
+                // postListing.fulfilled already unshifts into items — no
+                // refetch needed here (same fix as the previous version of
+                // this page).
               }}
             />
           </div>
@@ -128,6 +117,10 @@ export default function MyListingsPage() {
 
       {loading ? (
         <ListingsGridSkeleton count={6} />
+      ) : error ? (
+        <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          {error}
+        </div>
       ) : visibleItems.length === 0 ? (
         <div className="flex min-h-[30vh] flex-col items-center justify-center rounded-3xl border border-gold-soft/30 bg-[#111111]/70 p-10 text-center text-white shadow-xl">
           <span className="mb-3 text-sm font-ui uppercase tracking-[0.3em] text-gold">
@@ -155,11 +148,11 @@ export default function MyListingsPage() {
               totalPages={meta?.totalPages ?? 1}
               onPageChange={(nextPage) => {
                 setPage(nextPage);
-                dispatch(
-                  listingsApi.getAllListingsForAdmin({ page: nextPage }),
-                );
+                // Was calling getAllListingsForAdmin — wrong endpoint
+                // entirely (that writes into adminListings, not items,
+                // which this page actually reads) and was missing `limit`.
+                dispatch(listingsApi.getListings({ page: nextPage, limit }));
               }}
-              
             />
           </div>
         </>

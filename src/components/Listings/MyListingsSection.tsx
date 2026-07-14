@@ -155,9 +155,9 @@ export function MyListingsSection({
                 <td className="px-4 py-3 text-sm text-white">
                   {l.price?.amount ?? "-"} {l.price?.currency ?? ""}
                 </td>
-                <td className="px-4 py-3">{statusBadge(l.status)}</td>
+                <td className={`px-4 py-3 `}>{statusBadge(l.status)}</td>
                 <td className="px-4 py-3 text-sm text-white">
-                  {(l.promoters || []).length}
+                  {(l.promoters || []).length }
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex justify-end pr-2">
