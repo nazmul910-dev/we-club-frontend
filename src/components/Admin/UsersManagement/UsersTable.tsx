@@ -163,6 +163,9 @@ export default function UsersTable({ users, loading }: Props) {
                       onOpenChange={(open) =>
                         setOpenDropdown(open ? user._id : null)
                       }
+                      approvalStatus={user.approvalStatus}
+                      licenseVerificationStatus={user.licenseVerificationStatus}
+                      accountStatus={user.accountStatus}
                       onApproval={async (status) => {
                         await dispatch(
                           updateApprovalStatus({

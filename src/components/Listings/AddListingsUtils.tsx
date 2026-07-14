@@ -78,7 +78,7 @@ export function CoverImageField({
         </label>
       )}
     </div>
-  );
+  ); 
 }
 
 export function GalleryImagesField({

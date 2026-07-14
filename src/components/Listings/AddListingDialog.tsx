@@ -166,7 +166,7 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
         className="w-[95vw] sm:max-w-2xl lg:max-w-3xl max-h-[88vh] overflow-y-auto
           border border-gold-soft/60 bg-[#111111]/70 backdrop-blur-2xl
           shadow-[0_20px_70px_-20px_rgba(0,0,0,0.7)] text-white
-          supports-[backdrop-filter]:bg-[#111111]/55"
+          supports-backdrop-filter:bg-[#111111]/55"
       >
         <DialogHeader>
           <DialogTitle className="font-display text-2xl sm:text-3xl text-white">
@@ -223,34 +223,6 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
                 )}
               />
             </div>
-
-            {/* <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-white/70 text-xs uppercase tracking-wider">
-                    Status
-                  </FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className={`${fieldClass} w-full`}>
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent className="border-white/10 bg-[#161616]/95 backdrop-blur-xl text-white">
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="sold">Sold</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-5">
               <FormField

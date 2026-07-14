@@ -113,7 +113,9 @@ const res = await api.patch(
 `/admin/users/${payload.id}/approval-status`,
 {
 approvalStatus:payload.approvalStatus,
-rejectedReason:payload.rejectedReason
+rejectedReason:payload.approvalStatus === "rejected"
+        ? "Admin not satisfied"
+        : undefined,
 }
 );
 

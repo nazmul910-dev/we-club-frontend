@@ -11,10 +11,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+
+  approvalStatus?: string;
+  licenseVerificationStatus?: string;
+  accountStatus?: string;
 
   onApproval: (status: string) => Promise<any>;
   onLicense: (status: string) => Promise<any>;
@@ -24,6 +27,9 @@ interface Props {
 export default function StatusDropdown({
   open,
   onOpenChange,
+  approvalStatus,
+  licenseVerificationStatus,
+  accountStatus,
   onApproval,
   onLicense,
   onAccount,
@@ -49,92 +55,115 @@ export default function StatusDropdown({
     };
   }, [open, onOpenChange]);
 
-return (
-  <DropdownMenu open={open} onOpenChange={onOpenChange}>
-    <DropdownMenuTrigger >
-      <button
-        type="button"
-        className="rounded-lg p-2 text-yellow-400 transition hover:bg-yellow-500/10"
-      >
-        <MoreVertical size={20} />
-      </button>
-    </DropdownMenuTrigger>
+  const isApproved = approvalStatus === "approved";
+  const isRejectedApproval = approvalStatus === "rejected";
 
-    <DropdownMenuContent
-      align="end"
-      sideOffset={8}
-      className="w-56 border border-yellow-500/20 bg-[#111]"
-    >
-      <DropdownMenuItem
-      className="text-green-400 focus:text-green-400"
-        onClick={async () => {
-          try {
-            await onApproval("approved");
-            toast.success("User approved successfully.");
-          } catch (e: any) {
-            toast.error(e?.message || "Failed to approve user.");
-          }
-        }}
-      >
-        Approve User
-      </DropdownMenuItem>
+  const isVerified = licenseVerificationStatus === "verified";
 
-      <DropdownMenuItem
-        className="text-red-400 focus:text-red-400"
-        onClick={async () => {
-          try {
-            await onApproval("rejected");
-            toast.success("User rejected successfully.");
-          } catch (e: any) {
-            toast.error(e?.message || "Failed to reject user.");
-          }
-        }}
-      >
-        Reject User
-      </DropdownMenuItem>
+  const isActive = accountStatus === "active";
+  const isSuspended = accountStatus === "suspended";
 
-      <DropdownMenuItem
-        className="text-green-400 focus:text-green-400"
-        onClick={async () => {
-          try {
-            await onLicense("verified");
-            toast.success("License verified successfully.");
-          } catch (e: any) {
-            toast.error(e?.message || "Failed to verify license.");
-          }
-        }}
-      >
-        Verify License
-      </DropdownMenuItem>
+  return (
+    <DropdownMenu open={open} onOpenChange={onOpenChange}>
+      <DropdownMenuTrigger>
+        <button
+          type="button"
+          className="rounded-lg p-2 text-yellow-400 transition hover:bg-yellow-500/10"
+        >
+          <MoreVertical size={20} />
+        </button>
+      </DropdownMenuTrigger>
 
-      <DropdownMenuItem
-        className="text-yellow-400 focus:text-yellow-400"
-        onClick={async () => {
-          try {
-            await onAccount("active");
-            toast.success("Account activated successfully.");
-          } catch (e: any) {
-            toast.error(e?.message || "Failed to activate account.");
-          }
-        }}
+      <DropdownMenuContent
+        align="end"
+        sideOffset={8}
+        className="w-56 border border-yellow-500/20 bg-[#111]"
       >
-        Activate Account
-      </DropdownMenuItem>
+        <DropdownMenuItem
+          disabled={isApproved}
+          className="text-green-400 focus:text-green-400 data-disabled:opacity-40"
+          onClick={async () => {
+            if (isApproved) return;
 
-      <DropdownMenuItem
-        className="text-red-400 focus:text-red-400"
-        onClick={async () => {
-          try {
-            await onAccount("suspended");
-            toast.success("Account suspended successfully.");
-          } catch (e: any) {
-            toast.error(e?.message || "Failed to suspend account.");
-          }
-        }}
-      >
-        Suspend Account
-      </DropdownMenuItem>
-    </DropdownMenuContent>
-  </DropdownMenu>
-);
+            try {
+              await onApproval("approved");
+              toast.success("User approved successfully.");
+            } catch (e: any) {
+              toast.error(e?.message || "Failed to approve user.");
+            }
+          }}
+        >
+          Approve User
+        </DropdownMenuItem>
+
+        <DropdownMenuItem
+          disabled={isRejectedApproval}
+          className="text-red-400 focus:text-red-400 data-disabled:opacity-40"
+          onClick={async () => {
+            if (isRejectedApproval) return;
+
+            try {
+              await onApproval("rejected");
+              toast.success("User rejected successfully.");
+            } catch (e: any) {
+              toast.error(e?.message || "Failed to reject user.");
+            }
+          }}
+        >
+          Reject User
+        </DropdownMenuItem>
+
+        <DropdownMenuItem
+          disabled={isVerified}
+          className="text-green-400 focus:text-green-400 data-disabled:opacity-40"
+          onClick={async () => {
+            if (isVerified) return;
+
+            try {
+              await onLicense("verified");
+              toast.success("License verified successfully.");
+            } catch (e: any) {
+              toast.error(e?.message || "Failed to verify license.");
+            }
+          }}
+        >
+          Verify License
+        </DropdownMenuItem>
+
+        <DropdownMenuItem
+          disabled={isActive}
+          className="text-yellow-400 focus:text-yellow-400 data-disabled:opacity-40"
+          onClick={async () => {
+            if (isActive) return;
+
+            try {
+              await onAccount("active");
+              toast.success("Account activated successfully.");
+            } catch (e: any) {
+              toast.error(e?.message || "Failed to activate account.");
+            }
+          }}
+        >
+          Activate Account
+        </DropdownMenuItem>
+
+        <DropdownMenuItem
+          disabled={isSuspended}
+          className="text-red-400 focus:text-red-400 data-disabled:opacity-40"
+          onClick={async () => {
+            if (isSuspended) return;
+
+            try {
+              await onAccount("suspended");
+              toast.success("Account suspended successfully.");
+            } catch (e: any) {
+              toast.error(e?.message || "Failed to suspend account.");
+            }
+          }}
+        >
+          Suspend Account
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 }
