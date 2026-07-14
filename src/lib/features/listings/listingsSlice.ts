@@ -115,6 +115,7 @@ const listingsSlice = createSlice({
 
         // Add the newly created listing at the beginning
         state.items.unshift(action.payload);
+        state.myListings.unshift(action.payload);
       })
 
       .addCase(listingsApi.postListing.rejected, (state, action) => {

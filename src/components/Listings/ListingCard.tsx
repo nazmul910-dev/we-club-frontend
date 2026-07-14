@@ -10,6 +10,7 @@ import { promoteRequestApi } from "@/lib/features/PromoteRequest/promoteRequestA
 import { AppDispatch, RootState } from "@/lib/redux/store/store";
 import { DEFAULT_STATUS_STYLE, STATUS_STYLES } from "@/styles/listingsStyles";
 import { ListingDetailsModal } from "./ListingsDetailsModal";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 type PromoteState = "available" | "pending" | "sold" | "owner" | "already-promoting";
 
@@ -37,13 +38,11 @@ const iconButtonClass =
 
 function ListingCardInner({ property }: { property: any }) {
   const dispatch = useDispatch<AppDispatch>();
+
   const currentUserId = useSelector(
     (s: RootState) => (s as any).authUser?.user?.id ?? null
   );
 
-  // Both of these were recomputed on every render before; memoizing avoids
-  // redoing the promoter-array scan and object lookup unless the actual
-  // inputs (property or currentUserId) change.
   const promoteState = useMemo(
     () => getPromoteState(property, currentUserId),
     [property, currentUserId]
@@ -130,7 +129,7 @@ function ListingCardInner({ property }: { property: any }) {
               {promoteState === "pending" ? "Pending Approval" : "Sold"}
             </div>
           ) : promoteState === "already-promoting" ? (
-            <div className="flex-1 w-ful inline-flex items-center justify-center gap-1.5 rounded-full border border-gold/30 bg-gold/6 px-3 py-2 text-gold/70">
+            <div className="flex-1 w-full inline-flex items-center justify-center gap-1.5 rounded-full border border-gold/30 bg-gold/6 px-3 py-2 text-gold/70">
               <CheckCircle2 size={12} />
               Already Promoting
             </div>
@@ -151,9 +150,29 @@ function ListingCardInner({ property }: { property: any }) {
 
           <ListingDetailsModal property={property} />
 
-          <button type="button" className={`${iconButtonClass} w-8 h-8 aspect-square flex-nowrap`} >
-            <Share2 className="h-3.5 w-3.5 rounded-full " />
-          </button>
+          {/* NOTE: relies on a <TooltipProvider> mounted once higher up the
+              tree (e.g. root layout) — see note below the component. */}
+          <Tooltip>
+            <TooltipTrigger >
+              {/* Disabled native buttons often don't reliably fire the
+                  hover/focus events Tooltip depends on — wrapping in a
+                  span keeps the tooltip working while the button stays
+                  genuinely non-interactive, matching the disabled-promote
+                  pattern used elsewhere. */}
+              <span className="inline-block" tabIndex={0}>
+                <button
+                  type="button"
+                  disabled
+                  className={`${iconButtonClass} w-8 h-8 aspect-square flex-nowrap opacity-40 cursor-not-allowed hover:border-gold-soft hover:text-white/80`}
+                >
+                  <Share2 className="h-3.5 w-3.5" />
+                </button>
+              </span>
+            </TooltipTrigger>
+            <TooltipContent className="bg-[#1a1a1a] text-center border-white/10 text-white text-xs max-w-[220px]">
+              Sharing this listing isn't available right now.
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
     </article>
