@@ -9,9 +9,9 @@ import CommissionTable from "@/components/commission/commission-table";
 export default function CommissionLedgerPage() {
   return (
     <div
-      className="min-h-screen bg-[#090909] px-6 py-10"
+      className="flex-1 overflow-y-auto px-4 md:px-8 py-6 flex flex-col gap-8 bg-[#0a0a0a] min-h-[calc(100vh-4rem)]"
     >
-      <div className="max-w-7xl mx-auto">
+      <div className="">
         <CommissionHeader />
 
         <CommissionTabs />

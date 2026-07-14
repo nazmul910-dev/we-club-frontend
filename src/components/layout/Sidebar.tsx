@@ -5,19 +5,18 @@ import { useAppSelector } from "@/lib/redux/store/hook";
 import { useState } from "react";
 import Link from "next/link";
 import {
-  LayoutGrid,
   Building2,
   Users,
   ShieldUser,
-  UserPlus,
   FileText,
   GraduationCap,
   CircleUserRound,
   Crown,
-  Menu,
-  X,
+  LayoutDashboard ,
   LogOut,
   ArrowLeftRight,
+  Network ,
+  Megaphone ,
 } from "lucide-react";
 import {
   Dialog,
@@ -32,11 +31,11 @@ import { useAppDispatch } from "@/lib/redux/store/hook";
 import { clearProfile } from "@/lib/features/profile/profileSlice";
 
 const MENU_ITEMS = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutGrid },
+  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Listings", href: "/dashboard/listings", icon: Building2 },
   { label: "Users", href: "/dashboard/users-management", icon: Users },
   {
-    label: "Manager Management",
+    label: "Management",
     href: "/dashboard/manager-management",
     icon: ShieldUser,
   },
@@ -46,18 +45,18 @@ const MENU_ITEMS = [
     icon: Building2,
   },
   {
-    label: "Network Directory",
+    label: "Network",
     href: "/dashboard/network-directory",
-    icon: Users,
+    icon: Network,
   },
-  { label: "My Promoters", href: "/dashboard/my-promoters", icon: UserPlus },
+  { label: "Promoters", href: "/dashboard/my-promoters", icon: Megaphone },
   {
-    label: "Commission Ledger",
+    label: "Ledger",
     href: "/dashboard/commission-ledger",
     icon: FileText,
   },
   { label: "Academy", href: "/dashboard/academy", icon: GraduationCap },
-  { label: "My Profile", href: "/dashboard/profile", icon: CircleUserRound },
+  { label: "Profile", href: "/dashboard/profile", icon: CircleUserRound },
 ];
 
 interface SidebarProps {
@@ -148,7 +147,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                   size={18}
                   className={isActive ? "text-[#CDAE53]" : "text-white/50"}
                 />
-                <span>{label}</span>
+                <span className=" uppercase">{label}</span>
               </Link>
             );
           })}

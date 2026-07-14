@@ -83,7 +83,7 @@ function DropdownMenuItem({
   variant?: "default" | "destructive"
 }) {
   return (
-    <MenuPrimitive.Item
+    <MenuPrimitive.Item 
       data-slot="dropdown-menu-item"
       data-inset={inset}
       data-variant={variant}

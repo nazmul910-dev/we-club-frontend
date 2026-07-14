@@ -1,8 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil } from "lucide-react";
+import { Pencil, CircleCheck, AlertTriangle, BadgeCheck, ShieldCheck } from "lucide-react";
 import { useDispatch } from "react-redux";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import CommissionModal from "./commission-modal";
 
@@ -12,141 +19,88 @@ interface Props {
   commission: Commission;
 }
 
-type ModalType =
-  | "confirm"
-  | "paid"
-  | "dispute"
-  | "resolve";
+type ModalType = "confirm" | "paid" | "dispute" | "resolve";
 
-export default function CommissionActionMenu({
-  commission,
-}: Props) {
-
+export default function CommissionActionMenu({ commission }: Props) {
   const dispatch = useDispatch<any>();
 
-  const [open, setOpen] = useState(false);
-
   const [modal, setModal] = useState(false);
-
   const [type, setType] = useState<ModalType>("confirm");
 
-  const openModal = (
-    modalType: ModalType
-  ) => {
-
+  const openModal = (modalType: ModalType) => {
     setType(modalType);
-
     setModal(true);
-
-    setOpen(false);
-
   };
 
   const closeModal = () => {
-
     setModal(false);
-
-    setOpen(false);
-
   };
+
   return (
+    <div className="relative inline-block">
+      <DropdownMenu>
+        <DropdownMenuTrigger>
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#332b18] bg-[#111] text-[#C9A962] transition hover:border-[#C9A962] hover:bg-[#1a1a1a]">
+            <Pencil size={16} />
+          </div>
+        </DropdownMenuTrigger>
 
-<div className="relative">
+        <DropdownMenuContent
+          align="end"
+          sideOffset={8}
+          className="w-52 border border-[#332b18] bg-[#111]"
+        >
+          {commission.status === "pending" && (
+            <>
+              <DropdownMenuItem
+                onClick={() => openModal("confirm")}
+                className="text-green-400 focus:text-green-400"
+              >
+                <CircleCheck className="mr-2 h-4 w-4 " />
+                Confirm
+              </DropdownMenuItem>
 
-<button
-onClick={() => setOpen((prev) => !prev)}
-className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#332b18] bg-[#111] text-[#C9A962] transition hover:border-[#C9A962] hover:bg-[#1a1a1a]"
->
+              <DropdownMenuItem
+                onClick={() => openModal("dispute")}
+                className="text-red-400 focus:text-red-400"
+              >
+                <AlertTriangle className="mr-2 h-4 w-4" />
+                Dispute
+              </DropdownMenuItem>
+            </>
+          )}
 
-<Pencil size={16} />
+          {commission.status === "confirmed" && (
+            <DropdownMenuItem
+              onClick={() => openModal("paid")}
+              className="text-green-400 focus:text-green-400"
+            >
+              <BadgeCheck className="mr-2 h-4 w-4" />
+              Mark Paid
+            </DropdownMenuItem>
+          )}
 
-</button>
+          {commission.status === "disputed" && (
+            <DropdownMenuItem
+              onClick={() => openModal("resolve")}
+              className="text-blue-400 focus:text-blue-400"
+            >
+              <ShieldCheck className="mr-2 h-4 w-4" />
+              Resolve Dispute
+            </DropdownMenuItem>
+          )}
 
-{
-open && (
+          {commission.status === "paid" && (
+            <div className="px-4 py-3 text-sm text-gray-500">
+              Commission Completed
+            </div>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
 
-<div className="absolute right-0 top-11 z-50 w-52 overflow-hidden rounded-xl border border-[#332b18] bg-[#111] shadow-2xl">
-
-{
-commission.status === "pending" && (
-
-<>
-
-<button
-onClick={() => openModal("confirm")}
-className="block w-full border-b border-[#222] px-4 py-3 text-left text-sm text-white transition hover:bg-[#1a1a1a]"
->
-Confirm Commission
-</button>
-
-<button
-onClick={() => openModal("dispute")}
-className="block w-full px-4 py-3 text-left text-sm text-red-400 transition hover:bg-[#1a1a1a]"
->
-Open Dispute
-</button>
-
-</>
-
-)
-}
-
-{
-commission.status === "confirmed" && (
-
-<button
-onClick={() => openModal("paid")}
-className="block w-full px-4 py-3 text-left text-sm text-green-400 transition hover:bg-[#1a1a1a]"
->
-Mark Paid
-</button>
-
-)
-}
-
-{
-commission.status === "disputed" && (
-
-<button
-onClick={() => openModal("resolve")}
-className="block w-full px-4 py-3 text-left text-sm text-blue-400 transition hover:bg-[#1a1a1a]"
->
-Resolve Dispute
-</button>
-
-)
-}
-
-{
-commission.status === "paid" && (
-
-<div className="px-4 py-3 text-sm text-gray-500">
-Commission Completed
-</div>
-
-)
-}
-
-</div>
-
-)
-
-}
-{
-modal && (
-
-<CommissionModal
-commission={commission}
-type={type}
-close={closeModal}
-/>
-
-)
-
-}
-
-</div>
-
-);
-
+      {modal && (
+        <CommissionModal commission={commission} type={type} close={closeModal} />
+      )}
+    </div>
+  );
 }

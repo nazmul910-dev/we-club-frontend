@@ -95,7 +95,7 @@ export default function ManagerManagement() {
   console.log(loading)
 
   return (
-    <div className="space-y-8 w-full">
+    <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 flex flex-col gap-8 bg-[#0a0a0a] min-h-[calc(100vh-4rem)]">
       {/* Header */}
       <div className="w-full space-y-6 md:space-y-0 md:flex md:items-center justify-between">
         <div>

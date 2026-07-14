@@ -50,8 +50,8 @@ export default function NetworkDirectoryPage() {
   }, [dispatch, page, search]);
 
   return (
-    <div className="min-h-screen bg-black px-6 py-10 md:px-10">
-      <div className="mx-auto max-w-7xl">
+    <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 flex flex-col gap-8 bg-[#0a0a0a] min-h-[calc(100vh-4rem)]">
+      <div className="">
         <NetworkHeader />
 
         <div className="mt-8">
