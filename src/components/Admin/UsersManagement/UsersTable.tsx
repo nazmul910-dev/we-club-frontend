@@ -24,8 +24,10 @@ interface Props {
   loading?: boolean;
 }
 
-export default function UsersTable({ users , loading}: Props) {
+export default function UsersTable({ users, loading }: Props) {
   const dispatch = useAppDispatch();
+
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   const [selected, setSelected] = useState<IUser | null>(null);
 
@@ -157,33 +159,34 @@ export default function UsersTable({ users , loading}: Props) {
 
                   <td className="px-6 py-5 text-center">
                     <StatusDropdown
-                      onApproval={(status) =>
-                        dispatch(
+                      open={openDropdown === user._id}
+                      onOpenChange={(open) =>
+                        setOpenDropdown(open ? user._id : null)
+                      }
+                      onApproval={async (status) => {
+                        await dispatch(
                           updateApprovalStatus({
                             id: user._id,
-
                             approvalStatus: status as any,
                           }),
-                        )
-                      }
-                      onLicense={(status) =>
-                        dispatch(
+                        ).unwrap();
+                      }}
+                      onLicense={async (status) => {
+                        await dispatch(
                           updateLicenseStatus({
                             id: user._id,
-
                             licenseVerificationStatus: status as any,
                           }),
-                        )
-                      }
-                      onAccount={(status) =>
-                        dispatch(
+                        ).unwrap();
+                      }}
+                      onAccount={async (status) => {
+                        await dispatch(
                           updateAccountStatus({
                             id: user._id,
-
                             accountStatus: status as any,
                           }),
-                        )
-                      }
+                        ).unwrap();
+                      }}
                     />
                   </td>
                 </tr>
