@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 
 export const fieldClass =
-  "h-11 rounded-lg border-white/10 bg-white/[0.04] text-white placeholder:text-white/30 " +
+  "h-11 rounded-lg border-white/10 px-2 bg-white/[0.04] text-white placeholder:text-white/30 " +
   "backdrop-blur-sm transition-colors focus-visible:border-gold/60 " +
   "focus-visible:ring-2 focus-visible:ring-gold/30 focus-visible:ring-offset-0";
 
