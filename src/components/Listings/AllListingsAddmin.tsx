@@ -110,7 +110,7 @@ export function AllListingsAdminSection({
   })();
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto w-full">
       <table className="min-w-full divide-y divide-white/5">
         <thead className="bg-[#0b0b0b]">
           <tr className="text-left">

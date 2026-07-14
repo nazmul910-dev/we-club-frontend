@@ -38,9 +38,6 @@ export default function ManageListingsPage() {
   const [sentRequestsPage, setSentRequestsPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
-
-
-
   const {
     myListings,
     myListingsLoading,
@@ -93,7 +90,6 @@ export default function ManageListingsPage() {
   const isAdmin = userRole === "admin";
   const isAdminOrManager = userRole === "admin" || userRole === "manager";
 
-
   // const [fetchedTabs, setFetchedTabs] = useState<Set<string>>(new Set());
 
   // const fetchTabData = (tab: string) => {
@@ -119,8 +115,6 @@ export default function ManageListingsPage() {
   //   });
   // };
 
-;
-
   // Bound versions of the shared helpers, so section components stay
   // presentational and don't need to know about currentUserId themselves.
   const isRequester = (request: any) => isRequesterFn(request, currentUserId);
@@ -130,10 +124,10 @@ export default function ManageListingsPage() {
   const canDeleteRequest = (request: any) =>
     canDeleteRequestFn(request, currentUserId);
 
-const handleCancelRequest = async (id: string) => {
-  await dispatch(listingsApi.cancelPromoteRequest(id)).unwrap();
-  dispatch(listingsApi.getMyListingPromoteRequests());
-};
+  const handleCancelRequest = async (id: string) => {
+    await dispatch(listingsApi.cancelPromoteRequest(id)).unwrap();
+    dispatch(listingsApi.getMyListingPromoteRequests());
+  };
 
   const handleDeleteRequest = async (id: string) => {
     if (!window.confirm("Delete this promote request?")) return;
@@ -179,29 +173,28 @@ const handleCancelRequest = async (id: string) => {
     dispatch(listingsApi.getMySentPromoteRequests());
   };
 
-const handleCancelPendingListings = async (id: string) => {
-  await dispatch(listingsApi.cencelPendingListing(id)).unwrap();
-  dispatch(listingsApi.getMyListings());
-};
+  const handleCancelPendingListings = async (id: string) => {
+    await dispatch(listingsApi.cencelPendingListing(id)).unwrap();
+    dispatch(listingsApi.getMyListings());
+  };
 
-const handleDeletePendingListings = async (id: string) => {
-  await dispatch(listingsApi.deletePendingListing(id)).unwrap();
-  dispatch(listingsApi.getMyListings());
-};
+  const handleDeletePendingListings = async (id: string) => {
+    await dispatch(listingsApi.deletePendingListing(id)).unwrap();
+    dispatch(listingsApi.getMyListings());
+  };
 
-const handleManageListingStatus = async (
-  id: string,
-  status: "active" | "rejected",
-) => {
-  await dispatch(listingsApi.manageListingStatus({ id, status })).unwrap();
-};
+  const handleManageListingStatus = async (
+    id: string,
+    status: "active" | "rejected",
+  ) => {
+    await dispatch(listingsApi.manageListingStatus({ id, status })).unwrap();
+  };
 
-const handleHardDeleteListing = async (id: string) => {
-  await dispatch(listingsApi.deleteListing(id)).unwrap();
-};
+  const handleHardDeleteListing = async (id: string) => {
+    await dispatch(listingsApi.deleteListing(id)).unwrap();
+  };
 
-
-  console.log("admin listings", adminListings)
+  console.log("admin listings", adminListings);
 
   useEffect(() => {
     dispatch(
@@ -249,162 +242,147 @@ const handleHardDeleteListing = async (id: string) => {
         </div>
       </div>
 
-     <div className="w-full overflow-x-auto scrollbar-hide">
-
-         <Tabs defaultValue="my-listings" className="w-full">
-        <TabsList
-          className=" overflow-x-auto w-full
-      
-      gap-2
-      rounded-xl
-      border
-      border-gold-soft/30
-      bg-[#0f0f0f]/60
-      py-1
-      px-2
-      flex justify-start items-center
-     
-      
-      "
-        >
-          <TabsTrigger
-            value="my-listings"
-            className="text-white/70  hover:text-gold/80 rounded-xl"
-          >
-            My Listings
-          </TabsTrigger>
-          {isAdminOrManager && (
+      <div className="w-full overflow-x-auto scrollbar-hide">
+        <Tabs defaultValue="my-listings" className="w-full">
+          <TabsList className=" overflow-x-auto w-full gap-2 rounded-xl border border-gold-soft/30 bg-[#0f0f0f]/60 py-1 px-2 flex justify-start items-center">
             <TabsTrigger
-              value="all-listings"
+              value="my-listings"
+              className="text-white/70  hover:text-gold/80 rounded-xl"
+            >
+              My Listings
+            </TabsTrigger>
+            {isAdminOrManager && (
+              <TabsTrigger
+                value="all-listings"
+                className="text-white/70 hover:text-gold/80 rounded-xl"
+              >
+                All Listings <span className="ml-1.5 text-gold">Admin</span>
+              </TabsTrigger>
+            )}
+            <TabsTrigger
+              value="received"
               className="text-white/70 hover:text-gold/80 rounded-xl"
             >
-              All Listings <span className="ml-1.5 text-gold">Admin</span>
+              Promote Requests Received
             </TabsTrigger>
-          )}
-          <TabsTrigger
-            value="received"
-            className="text-white/70 hover:text-gold/80 rounded-xl"
-          >
-            Promote Requests Received
-          </TabsTrigger>
-          <TabsTrigger
-            value="sent"
-            className="text-white/70 hover:text-gold/80 rounded-xl"
-          >
-            My Promote Requests
-          </TabsTrigger>
-        </TabsList>
+            <TabsTrigger
+              value="sent"
+              className="text-white/70 hover:text-gold/80 rounded-xl"
+            >
+              My Promote Requests
+            </TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="my-listings" className="w-full ">
-          <section className="rounded-2xl border border-gold-soft/30 bg-[#0f0f0f]/60 p-6">
-            <h2 className="mb-4 text-xl font-playfair font-semibold text-white">
-              My Listings
-            </h2>
-            <MyListingsSection
-              myListings={myListings}
-              myListingsLoading={myListingsLoading}
-              myListingsError={myListingsError}
-              isAdmin={isAdmin}
-              canApproveRejectRequest={canApproveRejectRequest}
-              onCancelPending={handleCancelPendingListings}
-              onDeletePending={handleDeletePendingListings}
-              onApproveRequest={handleApproveRequest}
-              onRejectRequest={handleRejectRequest}
-            />
-            <div className="mt-8">
-              <PaginationControl
-                currentPage={myListingsMeta?.page}
-                totalPages={myListingsMeta?.totalPage ?? 1}
-                onPageChange={setMyListingsPage}
-              />
-            </div>
-          </section>
-        </TabsContent>
-
-        {isAdminOrManager && (
-          <TabsContent value="all-listings">
+          <TabsContent value="my-listings" className="w-full ">
             <section className="rounded-2xl border border-gold-soft/30 bg-[#0f0f0f]/60 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-playfair font-semibold text-white">
-                  All Listings{" "}
-                  <span className="text-gold text-sm align-middle ml-2">
-                    Admin
-                  </span>
-                </h2>
-              </div>
-              <AllListingsAdminSection
-                adminListings={adminListings}
-                adminListingsLoading={adminListingsLoading}
-                adminListingsError={adminListingsError}
-                managingListingId={managingListingId}
-                deletingListingId={deletingListingId}
-                onManageStatus={handleManageListingStatus}
-                onHardDelete={handleHardDeleteListing}
+              <h2 className="mb-4 text-xl font-playfair font-semibold text-white">
+                My Listings
+              </h2>
+              <MyListingsSection
+                myListings={myListings}
+                myListingsLoading={myListingsLoading}
+                myListingsError={myListingsError}
+                isAdmin={isAdmin}
+                canApproveRejectRequest={canApproveRejectRequest}
+                onCancelPending={handleCancelPendingListings}
+                onDeletePending={handleDeletePendingListings}
+                onApproveRequest={handleApproveRequest}
+                onRejectRequest={handleRejectRequest}
               />
-
               <div className="mt-8">
                 <PaginationControl
-                  currentPage={adminListingsMeta?.page}
-                  totalPages={adminListingsMeta?.totalPage ?? 1}
-                  onPageChange={setPage}
+                  currentPage={myListingsMeta?.page}
+                  totalPages={myListingsMeta?.totalPage ?? 1}
+                  onPageChange={setMyListingsPage}
                 />
               </div>
             </section>
           </TabsContent>
-        )}
 
-        <TabsContent value="received">
-          <section className="rounded-2xl border border-gold-soft/30 bg-[#0f0f0f]/60 p-6">
-            <h2 className="mb-4 text-xl font-playfair font-semibold text-white">
-              Promote Requests Received
-            </h2>
-            <PromoteRequestsReceivedSection
-              promoteRequests={promoteRequests}
-              promoteRequestsLoading={promoteRequestsLoading}
-              promoteRequestsError={promoteRequestsError}
-              isRequester={isRequester}
-              canManageRequest={canManageRequest}
-              canApproveRejectRequest={canApproveRejectRequest}
-              canDeleteRequest={canDeleteRequest}
-              onCancel={handleCancelRequest}
-              onApprove={handleApproveRequest}
-              onReject={handleRejectRequest}
-              onDelete={handleDeleteRequest}
-            />
-            <div className="mt-8">
-              <PaginationControl
-                currentPage={promoteRequestsMeta?.page}
-                totalPages={promoteRequestsMeta?.totalPage ?? 1}
-                onPageChange={setReceivedRequestsPage}
+          {isAdminOrManager && (
+            <TabsContent value="all-listings">
+              <section className="rounded-2xl border border-gold-soft/30 bg-[#0f0f0f]/60 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-playfair font-semibold text-white">
+                    All Listings{" "}
+                    <span className="text-gold text-sm align-middle ml-2">
+                      Admin
+                    </span>
+                  </h2>
+                </div>
+                <AllListingsAdminSection
+                  adminListings={adminListings}
+                  adminListingsLoading={adminListingsLoading}
+                  adminListingsError={adminListingsError}
+                  managingListingId={managingListingId}
+                  deletingListingId={deletingListingId}
+                  onManageStatus={handleManageListingStatus}
+                  onHardDelete={handleHardDeleteListing}
+                />
+
+                <div className="mt-8">
+                  <PaginationControl
+                    currentPage={adminListingsMeta?.page}
+                    totalPages={adminListingsMeta?.totalPage ?? 1}
+                    onPageChange={setPage}
+                  />
+                </div>
+              </section>
+            </TabsContent>
+          )}
+
+          <TabsContent value="received">
+            <section className="rounded-2xl border border-gold-soft/30 bg-[#0f0f0f]/60 p-6">
+              <h2 className="mb-4 text-xl font-playfair font-semibold text-white">
+                Promote Requests Received
+              </h2>
+              <PromoteRequestsReceivedSection
+                promoteRequests={promoteRequests}
+                promoteRequestsLoading={promoteRequestsLoading}
+                promoteRequestsError={promoteRequestsError}
+                isRequester={isRequester}
+                canManageRequest={canManageRequest}
+                canApproveRejectRequest={canApproveRejectRequest}
+                canDeleteRequest={canDeleteRequest}
+                onCancel={handleCancelRequest}
+                onApprove={handleApproveRequest}
+                onReject={handleRejectRequest}
+                onDelete={handleDeleteRequest}
               />
-            </div>
-          </section>
-        </TabsContent>
+              <div className="mt-8">
+                <PaginationControl
+                  currentPage={promoteRequestsMeta?.page}
+                  totalPages={promoteRequestsMeta?.totalPage ?? 1}
+                  onPageChange={setReceivedRequestsPage}
+                />
+              </div>
+            </section>
+          </TabsContent>
 
-        <TabsContent value="sent">
-          <section className="rounded-2xl border border-gold-soft/30 bg-[#0f0f0f]/60 p-6">
-            <h2 className="mb-4 text-xl font-playfair font-semibold text-white">
-              My Promote Requests
-            </h2>
-            <MyPromoteRequestsSection
-              mySentPromoteRequests={mySentPromoteRequests}
-              mySentPromoteRequestsLoading={mySentPromoteRequestsLoading}
-              mySentPromoteRequestsError={mySentPromoteRequestsError}
-              canManageRequest={canManageRequest}
-              onCancel={handleCancelRequest}
-            />
-
-            <div className="mt-8">
-              <PaginationControl
-                currentPage={myPromoteRequestsMeta?.page}
-                totalPages={myPromoteRequestsMeta?.totalPage ?? 1}
-                onPageChange={setSentRequestsPage}
+          <TabsContent value="sent">
+            <section className="rounded-2xl border border-gold-soft/30 bg-[#0f0f0f]/60 p-6">
+              <h2 className="mb-4 text-xl font-playfair font-semibold text-white">
+                My Promote Requests
+              </h2>
+              <MyPromoteRequestsSection
+                mySentPromoteRequests={mySentPromoteRequests}
+                mySentPromoteRequestsLoading={mySentPromoteRequestsLoading}
+                mySentPromoteRequestsError={mySentPromoteRequestsError}
+                canManageRequest={canManageRequest}
+                onCancel={handleCancelRequest}
               />
-            </div>
-          </section>
-        </TabsContent>
-      </Tabs>
-     </div>
+
+              <div className="mt-8">
+                <PaginationControl
+                  currentPage={myPromoteRequestsMeta?.page}
+                  totalPages={myPromoteRequestsMeta?.totalPage ?? 1}
+                  onPageChange={setSentRequestsPage}
+                />
+              </div>
+            </section>
+          </TabsContent>
+        </Tabs>
+      </div>
 
       <TierSelectionDialog
         open={isModalOpen}

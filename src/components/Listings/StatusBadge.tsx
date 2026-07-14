@@ -34,6 +34,30 @@
           Cancelled
         </span>
       );
+    if (s === "active")
+      return (
+        <span
+          className={`${base} bg-green-800/30 text-green-300 border border-green-800/80 capitalize`}
+        >
+          active
+        </span>
+      );
+    if (s === "sold")
+      return (
+        <span
+          className={`${base}  bg-gray-800/20 text-gray-300 border border-gray-700/30`}
+        >
+          Sold
+        </span>
+      );
+    if (s === "draft")
+      return (
+        <span
+          className={`${base} bg-gold/10 text-gold border border-amber-400 capitalize`}
+        >
+          draft
+        </span>
+      );
     return (
       <span
         className={`${base} bg-white/5 text-white/80 border border-white/10`}

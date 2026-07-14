@@ -37,8 +37,8 @@ export default function ConfirmDialog({
   onConfirm,
 }: ConfirmDialogProps) {
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="border-neutral-800 bg-[#111] text-white">
+    <AlertDialog open={open} onOpenChange={onOpenChange} >
+      <AlertDialogContent className=" border-neutral-800 bg-[#111] text-white">
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
 
