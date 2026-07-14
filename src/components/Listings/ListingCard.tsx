@@ -1,7 +1,14 @@
 "use client";
 
 import { memo, useMemo } from "react";
-import { Bath, Bed, MapPin, Maximize2, Share2, CheckCircle2 } from "lucide-react";
+import {
+  Bath,
+  Bed,
+  MapPin,
+  Maximize2,
+  Share2,
+  CheckCircle2,
+} from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 
 import ListingsPromoteModal from "./ListingsPromoteModal";
@@ -12,9 +19,17 @@ import { DEFAULT_STATUS_STYLE, STATUS_STYLES } from "@/styles/listingsStyles";
 import { ListingDetailsModal } from "./ListingsDetailsModal";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
-type PromoteState = "available" | "pending" | "sold" | "owner" | "already-promoting";
+type PromoteState =
+  | "available"
+  | "pending"
+  | "sold"
+  | "owner"
+  | "already-promoting";
 
-function getPromoteState(property: any, currentUserId: string | null): PromoteState {
+function getPromoteState(
+  property: any,
+  currentUserId: string | null,
+): PromoteState {
   if (property.status === "pending") return "pending";
   if (property.status === "sold") return "sold";
 
@@ -22,10 +37,12 @@ function getPromoteState(property: any, currentUserId: string | null): PromoteSt
     typeof property.associate_id === "string"
       ? property.associate_id
       : property.associate_id?._id;
-  if (currentUserId && String(associateId) === String(currentUserId)) return "owner";
+  if (currentUserId && String(associateId) === String(currentUserId))
+    return "owner";
 
   const isAlreadyPromoter = (property.promoters ?? []).some((p: any) => {
-    const promoterId = typeof p.user_id === "string" ? p.user_id : p.user_id?._id;
+    const promoterId =
+      typeof p.user_id === "string" ? p.user_id : p.user_id?._id;
     return currentUserId && String(promoterId) === String(currentUserId);
   });
   if (isAlreadyPromoter) return "already-promoting";
@@ -40,16 +57,16 @@ function ListingCardInner({ property }: { property: any }) {
   const dispatch = useDispatch<AppDispatch>();
 
   const currentUserId = useSelector(
-    (s: RootState) => (s as any).authUser?.user?.id ?? null
+    (s: RootState) => (s as any).authUser?.user?.id ?? null,
   );
 
   const promoteState = useMemo(
     () => getPromoteState(property, currentUserId),
-    [property, currentUserId]
+    [property, currentUserId],
   );
   const statusStyle = useMemo(
     () => STATUS_STYLES[property.status] ?? DEFAULT_STATUS_STYLE,
-    [property.status]
+    [property.status],
   );
 
   return (
@@ -88,7 +105,9 @@ function ListingCardInner({ property }: { property: any }) {
 
       {/* Content */}
       <div className="flex flex-1 flex-col p-5">
-        <h3 className="font-display text-white text-xl truncate">{property.title}</h3>
+        <h3 className="font-display text-white text-xl truncate">
+          {property.title}
+        </h3>
 
         <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
           <MapPin className="h-3.5 w-3.5" />
@@ -143,7 +162,9 @@ function ListingCardInner({ property }: { property: any }) {
                   : undefined
               }
               onSubmit={async (payload) => {
-                await dispatch(promoteRequestApi.createPromoteRequest(payload)).unwrap();
+                await dispatch(
+                  promoteRequestApi.createPromoteRequest(payload),
+                ).unwrap();
               }}
             />
           )}
@@ -153,21 +174,16 @@ function ListingCardInner({ property }: { property: any }) {
           {/* NOTE: relies on a <TooltipProvider> mounted once higher up the
               tree (e.g. root layout) — see note below the component. */}
           <Tooltip>
-            <TooltipTrigger >
+            <TooltipTrigger
+              className={`${iconButtonClass} w-8 h-8 aspect-square flex-nowrap opacity-40 cursor-not-allowed hover:border-gold-soft hover:text-white/80`}
+            >
               {/* Disabled native buttons often don't reliably fire the
                   hover/focus events Tooltip depends on — wrapping in a
                   span keeps the tooltip working while the button stays
                   genuinely non-interactive, matching the disabled-promote
                   pattern used elsewhere. */}
-              <span className="inline-block" tabIndex={0}>
-                <button
-                  type="button"
-                  disabled
-                  className={`${iconButtonClass} w-8 h-8 aspect-square flex-nowrap opacity-40 cursor-not-allowed hover:border-gold-soft hover:text-white/80`}
-                >
-                  <Share2 className="h-3.5 w-3.5" />
-                </button>
-              </span>
+
+              <Share2 className="h-3.5 w-3.5" />
             </TooltipTrigger>
             <TooltipContent className="bg-[#1a1a1a] text-center border-white/10 text-white text-xs max-w-[220px]">
               Sharing this listing isn't available right now.

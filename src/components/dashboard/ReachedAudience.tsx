@@ -1,6 +1,7 @@
 import { ArrowUpRight } from "lucide-react";
 import WorldMapCard from "./WorldMap";
 import { StatPill } from "./StatPill";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 
 
 
@@ -29,9 +30,9 @@ export default function ReachedAudience() {
             label="Cities"
           />
 
-          <button
-            className="
-            rounded-full
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger  className="cursor-not-allowed rounded-full
             border
             border-[#6B5522]
             px-5
@@ -42,12 +43,17 @@ export default function ReachedAudience() {
             text-[#D3AE57]
             transition
             hover:border-[#C9A227]
-            hover:bg-[#191919]
-          "
-          >
+            hover:bg-[#191919]">
+             
             Open Atlas
             <ArrowUpRight className="ml-2 inline h-3 w-3" />
-          </button>
+      
+              </TooltipTrigger>
+                 <TooltipContent className="bg-[#1a1a1a] text-center border-white/10 text-white text-xs max-w-[220px]">
+              This feature isn't avaiable yet!
+            </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
 
         </div>
 
