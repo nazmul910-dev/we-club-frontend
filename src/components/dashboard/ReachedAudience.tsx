@@ -30,7 +30,7 @@ export default function ReachedAudience() {
             label="Cities"
           />
 
-          <TooltipProvider>
+          <TooltipProvider> 
             <Tooltip>
               <TooltipTrigger  className="cursor-not-allowed rounded-full
             border

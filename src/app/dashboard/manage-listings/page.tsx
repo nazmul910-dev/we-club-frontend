@@ -90,33 +90,7 @@ export default function ManageListingsPage() {
   const isAdmin = userRole === "admin";
   const isAdminOrManager = userRole === "admin" || userRole === "manager";
 
-  // const [fetchedTabs, setFetchedTabs] = useState<Set<string>>(new Set());
 
-  // const fetchTabData = (tab: string) => {
-  //   setFetchedTabs((prev) => {
-  //     if (prev.has(tab)) return prev;
-
-  //     switch (tab) {
-  //       case "my-listings":
-  //         dispatch(listingsApi.getMyListings());
-  //         break;
-  //       case "all-listings":
-  //         if (isAdminOrManager) dispatch(listingsApi.getAllListingsForAdmin());
-  //         break;
-  //       case "received":
-  //         dispatch(listingsApi.getMyListingPromoteRequests());
-  //         break;
-  //       case "sent":
-  //         dispatch(listingsApi.getMySentPromoteRequests());
-  //         break;
-  //     }
-
-  //     return new Set(prev).add(tab);
-  //   });
-  // };
-
-  // Bound versions of the shared helpers, so section components stay
-  // presentational and don't need to know about currentUserId themselves.
   const isRequester = (request: any) => isRequesterFn(request, currentUserId);
   const canManageRequest = (request: any) => canManageRequestFn(request);
   const canApproveRejectRequest = (request: any) =>
@@ -193,8 +167,6 @@ export default function ManageListingsPage() {
   const handleHardDeleteListing = async (id: string) => {
     await dispatch(listingsApi.deleteListing(id)).unwrap();
   };
-
-  console.log("admin listings", adminListings);
 
   useEffect(() => {
     dispatch(

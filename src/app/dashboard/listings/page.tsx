@@ -19,36 +19,63 @@ export default function MyListingsPage() {
   const { items, loading, error, meta } = useSelector((s: RootState) => {
     return s.listings;
   });
-  const [filters, setFilters] = useState<ListingFilters>(DEFAULT_LISTING_FILTERS);
+
+  const [countrySearch, setCountrySearch] = useState("");
+  const [filters, setFilters] = useState<ListingFilters>(
+    DEFAULT_LISTING_FILTERS,
+  );
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
+
+  console.log("filter", filters);
 
   const visibleItems = useMemo(() => {
     const sortedItems = [...items];
     const direction = filters.direction === "asc" ? 1 : -1;
 
-    const filterByCommission = sortedItems.filter((property) => {
-      if (filters.commission === "any") return true;
+    const filteredItems = sortedItems.filter((property) => {
+      const matchesCountry =
+        countrySearch.trim() === "" ||
+        property.location?.country
+          ?.toLowerCase()
+          .includes(countrySearch.trim().toLowerCase());
 
-      const commission = Number(property?.referral_commission?.offered_amount ?? 0);
-      if (filters.commission === "0-5") return commission >= 0 && commission < 5;
-      if (filters.commission === "5-10") return commission >= 5 && commission < 10;
-      if (filters.commission === "10-15") return commission >= 10 && commission < 15;
-      return commission >= 15;
+      let matchesCommission = true;
+
+      if (filters.commission !== "any") {
+        const commission = Number(
+          property.referral_commission?.offered_amount ?? 0,
+        );
+
+        if (filters.commission === "0-5") {
+          matchesCommission = commission >= 0 && commission < 5;
+        } else if (filters.commission === "5-10") {
+          matchesCommission = commission >= 5 && commission < 10;
+        } else if (filters.commission === "10-15") {
+          matchesCommission = commission >= 10 && commission < 15;
+        } else {
+          matchesCommission = commission >= 15;
+        }
+      }
+
+      return matchesCountry && matchesCommission;
     });
 
     if (filters.sortBy === "price") {
-      filterByCommission.sort((a, b) => {
+      filteredItems.sort((a, b) => {
         return (
-          (Number(a?.price?.amount ?? 0) - Number(b?.price?.amount ?? 0)) * direction
+          (Number(a?.price?.amount ?? 0) - Number(b?.price?.amount ?? 0)) *
+          direction
         );
       });
     } else if (filters.sortBy === "area_sqm") {
-      filterByCommission.sort((a, b) => {
-        return (Number(a?.area_sqm ?? 0) - Number(b?.area_sqm ?? 0)) * direction;
+      filteredItems.sort((a, b) => {
+        return (
+          (Number(a?.area_sqm ?? 0) - Number(b?.area_sqm ?? 0)) * direction
+        );
       });
     } else {
-      filterByCommission.sort((a, b) => {
+      filteredItems.sort((a, b) => {
         return (
           (Number(a?.referral_commission?.offered_amount ?? 0) -
             Number(b?.referral_commission?.offered_amount ?? 0)) *
@@ -57,12 +84,12 @@ export default function MyListingsPage() {
       });
     }
 
-    return filterByCommission;
+    return filteredItems;
   }, [filters, items]);
 
   useEffect(() => {
-    dispatch(listingsApi.getListings({ page, limit }));
-  }, [dispatch, page, limit]);
+    dispatch(listingsApi.getListings({ page, limit,search: countrySearch }));
+  }, [dispatch, page, limit,countrySearch]);
 
   return (
     <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 flex flex-col gap-8 bg-[#0a0a0a] min-h-[calc(100vh-4rem)]">
@@ -79,7 +106,26 @@ export default function MyListingsPage() {
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-2">
-          <div className="flex items-center gap-2">
+          <div className="space-x-3 space-y-3 md:space-x-0 md:space-y-0 md:flex items-center gap-2">
+            <input
+              type="text"
+              placeholder="Search by country..."
+              value={countrySearch}
+              onChange={(e) => {
+                const value = e.target.value;
+                setCountrySearch(value);
+
+                dispatch(
+                  listingsApi.getListings({
+                    page: 1,
+                    limit,
+                    search: value,
+                  }),
+                );
+              }}
+              className="w-64 rounded-full border border-gold-soft bg-[#131313] px-4 py-2 text-sm text-white placeholder:text-white/40 outline-none focus:border-gold"
+            />
+
             <FilterListingDialog
               onApply={(filters) => setFilters(filters)}
               onReset={() => setFilters(DEFAULT_LISTING_FILTERS)}
@@ -148,9 +194,6 @@ export default function MyListingsPage() {
               totalPages={meta?.totalPages ?? 1}
               onPageChange={(nextPage) => {
                 setPage(nextPage);
-                // Was calling getAllListingsForAdmin — wrong endpoint
-                // entirely (that writes into adminListings, not items,
-                // which this page actually reads) and was missing `limit`.
                 dispatch(listingsApi.getListings({ page: nextPage, limit }));
               }}
             />

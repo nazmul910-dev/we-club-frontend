@@ -111,14 +111,14 @@ function ListingCardInner({ property }: { property: any }) {
 
         <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
           <MapPin className="h-3.5 w-3.5" />
-          {property.location?.city}, {property.location?.state},{" "}
-          {property.location?.region}
+          {property.location?.city}, {property.location?.region},{" "}
+          {property.location?.country}
         </p>
 
         <div className="mt-4 flex items-center gap-5 font-ui text-[11px] text-foreground/80">
           <span className="flex items-center gap-1.5 text-white/70">
             <Bed className="h-3.5 w-3.5 text-gold" />
-            {property.bedrooms}
+            {property.bedrooms} {property.location?.region}
           </span>
           <span className="flex items-center gap-1.5 text-white/70">
             <Bath className="h-3.5 w-3.5 text-gold" />
