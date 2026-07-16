@@ -13,7 +13,7 @@ export interface ListingFilters {
 export const DEFAULT_LISTING_FILTERS: ListingFilters = {
   sortBy: "price",
   direction: "desc",
-  commission: "any",
+  commission: "any", 
 };
 
 interface FilterListingDialogProps {
@@ -107,6 +107,7 @@ const FilterListingDialog = ({
                 </select>
               </label>
             </div>
+            
 
             <label className="flex flex-col gap-2 text-sm text-white/80">
               <span>Commission %</span>
