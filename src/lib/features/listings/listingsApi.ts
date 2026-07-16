@@ -43,7 +43,8 @@ interface ListQueryParams {
   page?: number;
   limit?: number;
   sort? : string;
-  [key: string]: any;
+  search?: string;
+  // [key: string]: any;
 }
 
 const getListings = createAsyncThunk<
@@ -54,7 +55,7 @@ const getListings = createAsyncThunk<
   try {
     const res = await api.get("/listings", {
       params: query,
-    });
+    }); 
 
     return res.data as ListingsApiResponse;
   } catch (err: any) {
@@ -290,12 +291,7 @@ const deletePendingListing = createAsyncThunk<
   }
 });
 
-// ── Add these to your existing lib/features/listings/listingsApi.ts ──
 
-// Admin/manager: browse every listing regardless of owner, with the same
-// {data, meta} shape as getListings — reuses GET "/" but keeps its own
-// action type so it can live in its own slice of state (`adminListings`)
-// without fighting with whatever getListings already populates elsewhere.
 const getAllListingsForAdmin = createAsyncThunk<
   ListingsApiResponse,
   ListQueryParams | void,
@@ -311,9 +307,7 @@ const getAllListingsForAdmin = createAsyncThunk<
   }
 });
 
-// Admin/manager: approve or reject a listing.
-// POST /listings/manage/:id — verifyAdmin on the backend, so this call will
-// 403 for non-admins; the UI should also hide the buttons for non-admins.
+
 export const manageListingStatus = createAsyncThunk<
   any,
   { id: string; status: "active" | "rejected" },
