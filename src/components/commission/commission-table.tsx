@@ -8,11 +8,15 @@ import {
   getMyCommissions,
 } from "@/lib/features/commissionLedger/commissionLedgerApi";
 import CommissionStatusBadge from "./commission-status-badge";
+
 import CommissionActionMenu from "./commission-action-menu";
+import CommissionDetailsModal from "./commission-details-modal";
 import { Commission } from "@/lib/features/commissionLedger/types";
 import { buildCommissionsCacheKey, getCachedCommissions, setCachedCommissions } from "@/lib/features/commissionLedger/commissionCached";
 import { PaginationControl } from "../ui/PaginationControll";
 import RowSkeleton from "../ui/row-skeleton";
+import CommissionSentCell from "./commission-sent-cell";
+import CommissionReceivedCell from "./commission-received-cell";
 
 
 interface CommissionsMeta {
@@ -22,16 +26,7 @@ interface CommissionsMeta {
   totalPage: number;
 }
 
-// Roles that can see every commission record, not just their own.
-const PRIVILEGED_ROLES = [
-  "admin",
-  "associate",
-  "ceo",
-  "ceo_partner",
-  "partner",
-  "ambassador",
-  "we_club_member",
-];
+const PRIVILEGED_ROLES = ["admin", "manager"];
 
 const PAGE_SIZE = 10;
 
@@ -41,6 +36,8 @@ export default function CommissionTable() {
   const [commissions, setCommissions] = useState<Commission[]>([]);
   const [meta, setMeta] = useState<CommissionsMeta | null>(null);
   const [page, setPage] = useState(1);
+  const [selectedCommission, setSelectedCommission] =
+    useState<Commission | null>(null);
 
   const tab = useAppSelector((state) => state.commission.tab);
   const user = useAppSelector((state) => state.authUser.user);
@@ -49,16 +46,14 @@ export default function CommissionTable() {
     user?.role && PRIVILEGED_ROLES.includes(user.role)
   );
 
-  // Reset back to page 1 whenever the tab changes — a saved page number
-  // from a different status filter won't necessarily exist in the new one.
+
   useEffect(() => {
     setPage(1);
   }, [tab]);
 
-  // Guards against a slow, stale response overwriting a newer tab/page's
-  // data — e.g. user clicks "pending" then immediately "paid" before the
-  // first request resolves; without this, whichever response arrives last
-  // wins even if it's for the tab the user already navigated away from.
+
+  console.log("commissions: ",commissions)
+
   const requestIdRef = useRef(0);
 
   const loadCommissions = useCallback(
@@ -80,10 +75,7 @@ export default function CommissionTable() {
       setLoading(true);
 
       try {
-        // Filter server-side by status when a specific tab is selected,
-        // rather than fetching one page and filtering it client-side — the
-        // latter silently drops rows that belong on other pages and makes
-        // pagination counts wrong for anything but the "all" tab.
+
         const params = {
           page,
           limit: PAGE_SIZE,
@@ -96,8 +88,6 @@ export default function CommissionTable() {
 
         const result = await dispatch(thunkAction);
 
-        // A newer request has since started (user switched tabs again) —
-        // discard this response instead of letting it clobber fresher state.
         if (requestId !== requestIdRef.current) return;
 
         const isFulfilled =
@@ -135,6 +125,8 @@ export default function CommissionTable() {
               <th className="p-5">Listing</th>
               <th className="p-5">Promoter</th>
               <th className="p-5">Status</th>
+              <th className="p-5">Sent</th>
+              <th className="p-5">Received</th>
               <th className="p-5">Estimated Value</th>
               <th className="p-5">Date</th>
               <th className="p-5 text-center">Action</th>
@@ -143,7 +135,7 @@ export default function CommissionTable() {
           <tbody>
             {loading && (
               <tr>
-                <td colSpan={6} className=" p-4 text-center text-[#888]">
+                <td colSpan={8} className=" p-4 text-center text-[#888]">
                   <RowSkeleton />
                 </td>
               </tr>
@@ -151,7 +143,7 @@ export default function CommissionTable() {
 
             {!loading && commissions.length === 0 && (
               <tr>
-                <td colSpan={6} className="py-16 text-center text-[#666]">
+                <td colSpan={8} className="py-16 text-center text-[#666]">
                   No commission records found.
                 </td>
               </tr>
@@ -164,12 +156,18 @@ export default function CommissionTable() {
                   className="border-b border-[#332b18] transition hover:bg-[#161616]"
                 >
                   <td className="p-5">
-                    <p className="font-playfair text-white">
-                      {item?.listing_id?.title ?? "Listing Removed"}
-                    </p>
-                    <p className="mt-1 text-xs text-[#777]">
-                      #{item?.listing_id?.ref_code ?? "--"}
-                    </p>
+                    <button
+                      onClick={() => setSelectedCommission(item)}
+                      className="text-left cursor-pointer"
+                      title="View full details"
+                    >
+                      <p className="font-playfair text-white underline decoration-[#332b18] underline-offset-4 transition hover:text-[#C9A962] hover:decoration-[#C9A962]">
+                        {item?.listing_id?.title ?? "Listing Removed"}
+                      </p>
+                      <p className="mt-1 text-xs text-[#777]">
+                        #{item?.listing_id?.ref_code ?? "--"}
+                      </p>
+                    </button>
                   </td>
                   <td className="p-5">
                     <p className="text-white">{item.promoter_id?.fullName}</p>
@@ -179,6 +177,12 @@ export default function CommissionTable() {
                   </td>
                   <td className="p-5">
                     <CommissionStatusBadge status={item.status} />
+                  </td>
+                  <td className="p-5">
+                    <CommissionSentCell commission={item} />
+                  </td>
+                  <td className="p-5">
+                    <CommissionReceivedCell commission={item} />
                   </td>
                   <td className="p-5 text-white">
                     {item.currency}{" "}
@@ -201,6 +205,13 @@ export default function CommissionTable() {
           currentPage={meta.page}
           totalPages={meta.totalPage}
           onPageChange={setPage}
+        />
+      )}
+
+      {selectedCommission && (
+        <CommissionDetailsModal
+          commission={selectedCommission}
+          close={() => setSelectedCommission(null)}
         />
       )}
     </div>

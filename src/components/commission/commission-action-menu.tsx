@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Pencil, CircleCheck, AlertTriangle, BadgeCheck, ShieldCheck } from "lucide-react";
-import { useDispatch } from "react-redux";
+import { useAppSelector } from "@/lib/redux/store/hook";
 
 import {
   DropdownMenu,
@@ -21,11 +21,22 @@ interface Props {
 
 type ModalType = "confirm" | "paid" | "dispute" | "resolve";
 
-export default function CommissionActionMenu({ commission }: Props) {
-  const dispatch = useDispatch<any>();
+// Roles that can see and manage every commission, not just their own.
+// IMPORTANT: keep this in sync with commission-table.tsx and with the backend's
+// authorizeRoles('admin', 'manager') on GET /commission/admin/all.
+const PRIVILEGED_ROLES = ["admin", "manager"];
 
+export default function CommissionActionMenu({ commission }: Props) {
   const [modal, setModal] = useState(false);
   const [type, setType] = useState<ModalType>("confirm");
+
+  const user = useAppSelector((state) => state.authUser.user);
+
+  const isAdminOrManager = Boolean(
+    user?.role && PRIVILEGED_ROLES.includes(user.role)
+  );
+
+  const receivedAt = commission.payment_tracking?.receiver_confirmed_at;
 
   const openModal = (modalType: ModalType) => {
     setType(modalType);
@@ -36,11 +47,19 @@ export default function CommissionActionMenu({ commission }: Props) {
     setModal(false);
   };
 
+
+  const hasAnyAction =
+    (commission.status === "pending" && isAdminOrManager) ||
+    (commission.status === "confirmed" &&
+      isAdminOrManager &&
+      Boolean(receivedAt)) ||
+    (commission.status === "disputed" && isAdminOrManager);
+
   return (
     <div className="relative inline-block">
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#332b18] bg-[#111] text-[#C9A962] transition hover:border-[#C9A962] hover:bg-[#1a1a1a]">
+          <div className="flex cursor-pointer h-9 w-9 items-center justify-center rounded-lg border border-[#332b18] bg-[#111] text-[#C9A962] transition hover:border-[#C9A962] hover:bg-[#1a1a1a]">
             <Pencil size={16} />
           </div>
         </DropdownMenuTrigger>
@@ -50,7 +69,7 @@ export default function CommissionActionMenu({ commission }: Props) {
           sideOffset={8}
           className="w-52 border border-[#332b18] bg-[#111]"
         >
-          {commission.status === "pending" && (
+          {commission.status === "pending" && isAdminOrManager && (
             <>
               <DropdownMenuItem
                 onClick={() => openModal("confirm")}
@@ -70,17 +89,19 @@ export default function CommissionActionMenu({ commission }: Props) {
             </>
           )}
 
-          {commission.status === "confirmed" && (
-            <DropdownMenuItem
-              onClick={() => openModal("paid")}
-              className="text-green-400 focus:text-green-400"
-            >
-              <BadgeCheck className="mr-2 h-4 w-4" />
-              Mark Paid
-            </DropdownMenuItem>
-          )}
+          {commission.status === "confirmed" &&
+            isAdminOrManager &&
+            receivedAt && (
+              <DropdownMenuItem
+                onClick={() => openModal("paid")}
+                className="text-green-400 focus:text-green-400"
+              >
+                <BadgeCheck className="mr-2 h-4 w-4" />
+                Mark Paid
+              </DropdownMenuItem>
+            )}
 
-          {commission.status === "disputed" && (
+          {commission.status === "disputed" && isAdminOrManager && (
             <DropdownMenuItem
               onClick={() => openModal("resolve")}
               className="text-blue-400 focus:text-blue-400"
@@ -93,6 +114,12 @@ export default function CommissionActionMenu({ commission }: Props) {
           {commission.status === "paid" && (
             <div className="px-4 py-3 text-sm text-gray-500">
               Commission Completed
+            </div>
+          )}
+
+          {!hasAnyAction && commission.status !== "paid" && (
+            <div className="px-4 py-3 text-sm text-gray-500">
+              No action available
             </div>
           )}
         </DropdownMenuContent>

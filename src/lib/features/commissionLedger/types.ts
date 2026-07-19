@@ -1,52 +1,119 @@
-export interface Commission {
+export type CommissionStatus =
+  | "pending"
+  | "confirmed"
+  | "paid"
+  | "disputed"
+  | "cancelled";
 
-_id:string;
+export type CommissionPaymentMethod =
+  | "bank_transfer"
+  | "stripe"
+  | "helcim"
+  | "cash"
+  | "check"
+  | "other";
 
-status:
-| "pending"
-| "confirmed"
-| "paid"
-| "disputed";
+export type PlatformFeeStatus =
+  | "not_required"
+  | "pending"
+  | "paid"
+  | "failed";
 
-currency:string;
-
-estimated_commission_amount:number;
-
-created_at:string;
-
-listing_id?:{
-
-title:string;
-
-ref_code:string;
-
-price:{
-amount:number;
-currency:string;
+export interface PopulatedUser {
+  _id: string;
+  fullName: string;
+  email: string;
+  role: string;
 }
 
-};
+export interface PopulatedListing {
+  _id: string;
+  title: string;
+  ref_code: string;
+  cover_image?: string;
+  price: {
+    amount: number;
+    currency: string;
+  };
+  referral_commission: {
+    offered_amount: number;
+  };
+}
 
-promoter_id:{
+export interface CommissionStatusHistoryEntry {
+  status: CommissionStatus;
+  changed_by: string;
+  changed_at: string;
+  note?: string;
+}
 
-_id:string;
+export interface CommissionPaymentTracking {
+  sent_by?: string;
+  sent_at?: string;
 
-fullName:string;
+  marked_paid_by?: string;
+  marked_paid_at?: string;
 
-email:string;
+  receiver_confirmed_by?: string;
+  receiver_confirmed_at?: string;
 
-role:string;
+  payment_method?: CommissionPaymentMethod;
+  payment_reference?: string;
+  note?: string;
+}
 
-};
+export interface CommissionDispute {
+  opened_by?: string;
+  opened_at?: string;
+  reason?: string;
 
-dispute?:{
+  resolved_by?: string;
+  resolved_at?: string;
+  resolution_note?: string;
+}
 
-reason:string;
+export interface CommissionPlatformFee {
+  rate_percent: number;
+  amount: number;
+  status: PlatformFeeStatus;
+  provider?: "stripe" | "helcim";
+  provider_payment_id?: string;
+  paid_at?: string;
+}
 
-opened_at:string;
+export interface Commission {
+  _id: string;
 
-opened_by:string;
+  listing_id: PopulatedListing;
+  promotion_request_id?: string;
 
-};
+  listing_owner_id: PopulatedUser;
+  promoter_id: PopulatedUser;
 
+  created_by: PopulatedUser;
+
+  status: CommissionStatus;
+
+  currency: string;
+
+  listing_price_amount: number;
+  commission_rate_percent: number;
+
+  estimated_commission_amount: number;
+  final_commission_amount?: number;
+
+  deal_closed_at?: string;
+
+  payment_tracking?: CommissionPaymentTracking;
+  dispute?: CommissionDispute;
+  platform_fee?: CommissionPlatformFee;
+
+  status_history: CommissionStatusHistoryEntry[];
+
+  is_frozen: boolean;
+
+  note?: string;
+
+  created_at: string;
+  updated_at: string;
 }

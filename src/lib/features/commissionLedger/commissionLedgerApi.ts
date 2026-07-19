@@ -16,9 +16,6 @@ interface ListQueryParams {
   [key: string]: any;
 }
 
-/* =========================================
-   Get My Commission
-========================================= */
 
 export const getMyCommissions = createAsyncThunk<
   ApiResponse<Commission[]>,
@@ -40,22 +37,6 @@ export const getMyCommissions = createAsyncThunk<
 );
 
 
-// const getMyCommissions = createAsyncThunk
-//   CommissionsApiResponse,
-//   PaginationParams | void
-// >("commissions/my", async (params = {}, { rejectWithValue }) => {
-//   try {
-//     const res = await api.get("/commissions/my", { params }); // ← forward params as axios config
-//     return res.data;
-//   } catch (err: any) {
-//     return rejectWithValue(err?.response?.data?.message ?? "Failed to fetch commissions");
-//   }
-// });
-
-/* =========================================
-   Get All Commission
-========================================= */
-
 export const getAllCommissions = createAsyncThunk<
   ApiResponse<Commission[]>,
   ListQueryParams | void,
@@ -75,9 +56,6 @@ export const getAllCommissions = createAsyncThunk<
   }
 );
 
-/* =========================================
-   Confirm Commission
-========================================= */
 
 export const confirmCommission = createAsyncThunk<
   ApiResponse<Commission>,
@@ -119,21 +97,18 @@ export const confirmCommission = createAsyncThunk<
   }
 );
 
-/* =========================================
-   Mark Paid
-========================================= */
 
 export const markPaid = createAsyncThunk<
   ApiResponse<Commission>,
   {
     id: string;
-    payment_method:
+    payment_method?:
       | "bank_transfer"
       | "stripe"
       | "helcim"
       | "cash"
       | "check"
-      | "other";
+      | "other" | undefined;
   },
   { rejectValue: string }
 >(
@@ -143,7 +118,7 @@ export const markPaid = createAsyncThunk<
       const res = await api.patch(
         `/commission/${id}/mark-paid`,
         {
-          payment_method,
+           ...(payment_method && { payment_method }),
         }
       );
 
@@ -157,9 +132,6 @@ export const markPaid = createAsyncThunk<
   }
 );
 
-/* =========================================
-   Confirm Received
-========================================= */
 
 export const confirmReceived = createAsyncThunk<
   ApiResponse<Commission>,
@@ -167,7 +139,10 @@ export const confirmReceived = createAsyncThunk<
   { rejectValue: string }
 >(
   "commission/confirmReceived",
-  async (id, { rejectWithValue }) => {
+  async (
+    id,
+    { rejectWithValue }
+  ) => {
     try {
       const res = await api.patch(
         `/commission/${id}/confirm-received`,
@@ -175,6 +150,7 @@ export const confirmReceived = createAsyncThunk<
       );
 
       return res.data as ApiResponse<Commission>;
+
     } catch (err: any) {
       return rejectWithValue(
         err?.response?.data?.message ??
@@ -184,9 +160,6 @@ export const confirmReceived = createAsyncThunk<
   }
 );
 
-/* =========================================
-   Dispute
-========================================= */
 
 export const disputeCommission = createAsyncThunk<
   ApiResponse<Commission>,
@@ -222,9 +195,6 @@ export const disputeCommission = createAsyncThunk<
   }
 );
 
-/* =========================================
-   Resolve Dispute
-========================================= */
 
 export const resolveDispute = createAsyncThunk<
   ApiResponse<Commission>,
@@ -264,4 +234,55 @@ export const resolveDispute = createAsyncThunk<
       );
     }
   }
+);
+
+export const sendCommissionPayment = createAsyncThunk<
+  ApiResponse<Commission>,
+  {
+    id:string;
+    payment_method:
+      |"bank_transfer"
+      |"stripe"
+      |"helcim"
+      |"cash"
+      |"check"
+      |"other";
+  },
+  {rejectValue:string}
+>(
+"commission/sendCommissionPayment",
+
+async(
+{
+ id,
+ payment_method
+},
+{rejectWithValue}
+
+)=>{
+
+try{
+
+const res = await api.patch(
+`/commission/${id}/send-payment`,
+{
+ payment_method
+}
+);
+
+
+return res.data as ApiResponse<Commission>;
+
+
+}catch(err:any){
+
+return rejectWithValue(
+err?.response?.data?.message ??
+"Failed to send payment"
+);
+
+}
+
+}
+
 );
