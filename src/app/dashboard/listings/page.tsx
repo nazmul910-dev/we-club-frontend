@@ -27,7 +27,7 @@ export default function MyListingsPage() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
-  console.log("filter", filters);
+
 
   const visibleItems = useMemo(() => {
     const sortedItems = [...items];

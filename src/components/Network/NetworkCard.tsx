@@ -27,7 +27,7 @@ const roleStyles: Record<string, string> = {
 export default function NetworkCard({ data }: Props) {
   const user = data.user;
 
-  // console.log(data.user);
+
 
   const role = user?.role || "associate";
 
@@ -35,7 +35,7 @@ export default function NetworkCard({ data }: Props) {
     roleStyles[role] || "border-gray-700 text-gray-400 bg-gray-900/30";
 
   const latestListing = data.listings[0];
-  console.log(latestListing);
+
 
   return (
     <div

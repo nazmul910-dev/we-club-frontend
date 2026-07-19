@@ -1,6 +1,69 @@
 import api from "@/lib/api/api";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
+
+export interface PublicPromoteRequestDetails {
+  id: string;
+  status: "pending" | "approved" | "rejected";
+  selected_tier: string;
+  requested_at: string;
+  resolved_at: string | null;
+  proposed_commission_pct: number;
+  confirmed_commission_pct: number;
+
+  listing: {
+    id: string;
+    title: string;
+    ref_code: string;
+    status: string;
+    cover_image: string;
+    images: string[];
+    price: any;
+    location: any;
+    bedrooms: number;
+    bathrooms: number;
+    area_sqm: number;
+    referral_commission: number;
+  } | null;
+
+  listing_owner: {
+    fullName: string;
+    email: string;
+    phone: string;
+    licenseNumber: string;
+    brokerage: string;
+    profileImage: string;
+    city: string;
+    country: string;
+    bio: string;
+    socialLinks: any;
+    role: string;
+  } | null;
+
+  promoter: {
+    fullName: string;
+    email: string;
+    phone: string;
+    licenseNumber: string;
+    brokerage: string;
+    profileImage: string;
+    city: string;
+    country: string;
+    bio: string;
+    socialLinks: any;
+    role: string;
+  } | {
+    email: string;
+  };
+}
+
+
+interface PublicPromoteRequestResponse {
+  success: boolean;
+  message: string;
+  data: PublicPromoteRequestDetails;
+}
+
 export interface CreatePromoteRequestPayload {
   listing_id: string;
   proposed_commission_pct: number;
@@ -141,8 +204,36 @@ const getReceivedPromoteRequests = createAsyncThunk<
   }
 );
 
+
+const getPublicPromoteRequestDetails = createAsyncThunk<
+  PublicPromoteRequestDetails,
+  string,
+  { rejectValue: ApiError }
+>(
+  "promoteRequests/getPublicPromoteRequestDetails",
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await api.get<PublicPromoteRequestResponse>(
+        `/listings/promote-request/public/${id}`
+      );
+
+      return res.data.data;
+
+    } catch (err: any) {
+      return rejectWithValue(
+        toApiError(
+          err,
+          "Failed to fetch promote request details"
+        )
+      );
+    }
+  }
+);
+
+
 export const promoteRequestApi = {
   createPromoteRequest,
 //   getMyPromoteRequests,
   getReceivedPromoteRequests,
+  getPublicPromoteRequestDetails,
 };

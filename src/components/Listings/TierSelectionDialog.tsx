@@ -15,6 +15,7 @@ interface TierSelectionDialogProps {
 }
 
 const TIER_OPTIONS: {
+  option:string;
   value: Tier;
   title: string;
   description: string;
@@ -26,6 +27,7 @@ const TIER_OPTIONS: {
   accent: "gold" | "gold-soft";
 }[] = [
   {
+    option: "Option 1",
     value: "tier_1",
     title: "Full Marketing + Website",
     description: "Maximum reach. Full address and visuals exposed.",
@@ -38,6 +40,7 @@ const TIER_OPTIONS: {
     ],
   },
   {
+    option: "Option 2",
     value: "tier_2",
     title: "Full Marketing",
     description: "Distribution to qualified buyers only — no public listing.",
@@ -49,18 +52,18 @@ const TIER_OPTIONS: {
       "Print collateral & private decks allowed",
     ],
   },
-  {
-    value: "tier_3",
-    title: "Discreet Marketing",
-    description: "Off-market. Whispered; never broadcast.",
-    accent: "gold-soft",
-    bullets: [
-      "Address withheld until NDA signed",
-      "Exterior photography only",
-      "1:1 introductions only — no decks",
-      "All inquiries routed through Associate",
-    ],
-  },
+  // {
+  //   value: "tier_3",
+  //   title: "Discreet Marketing",
+  //   description: "Off-market. Whispered; never broadcast.",
+  //   accent: "gold-soft",
+  //   bullets: [
+  //     "Address withheld until NDA signed",
+  //     "Exterior photography only",
+  //     "1:1 introductions only — no decks",
+  //     "All inquiries routed through Associate",
+  //   ],
+  // },
 ];
 
 export function TierSelectionDialog({
@@ -106,7 +109,7 @@ export function TierSelectionDialog({
                   <span
                     className={`text-xs font-ui uppercase tracking-wider text-white/80 `}
                   >
-                    Option
+                    {tier.option} 
                   </span>
                   <div
                     className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${

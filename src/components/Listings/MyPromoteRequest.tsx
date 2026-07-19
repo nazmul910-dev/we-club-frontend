@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { RowAction, RowActionsMenu } from "./RowActionMenu";
 import RowSkeleton from "../ui/row-skeleton";
 import ConfirmDialog from "../common/ConfirmDialog";
+import { Share2 } from "lucide-react";
+import Link from "next/link";
 
 interface MyPromoteRequestsSectionProps {
   mySentPromoteRequests: any[];
@@ -123,6 +125,9 @@ export function MyPromoteRequestsSection({
             <th className="px-4 py-3 text-xs uppercase tracking-wider text-muted-foreground">
               Download
             </th>
+            <th className="px-4 py-3 text-xs uppercase tracking-wider text-muted-foreground">
+              Share
+            </th>
           </tr>
         </thead>
 
@@ -175,6 +180,51 @@ export function MyPromoteRequestsSection({
                     <Download size={16} />
                     Download
                   </button>
+                </td>
+                <td className="px-4 py-3">
+                  {request.status === "approved" ? (
+                    <Link
+                      href={`/promote-request/public/${request._id}`}
+                      className="text-green-400 cursor-pointer"
+                    >
+                      <Share2 size={14} />
+
+                      <span
+                        className="
+pointer-events-none
+absolute
+-bottom-10
+hidden
+whitespace-nowrap
+rounded-md
+bg-black
+px-3
+py-1
+text-xs
+text-white
+group-hover:block
+"
+                      >
+                        View Public Page
+                      </span>
+                    </Link>
+                  ) : (
+                    <button
+                      disabled
+                      className="
+inline-flex
+cursor-not-allowed
+items-center
+justify-center
+rounded-lg
+bg-zinc-300
+p-3
+text-zinc-500
+"
+                    >
+                      <Share2 size={14} />
+                    </button>
+                  )}
                 </td>
               </tr>
             );
