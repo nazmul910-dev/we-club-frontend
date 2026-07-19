@@ -59,7 +59,7 @@ export function AllListingsAdminSection({
     setPendingAction(null);
   };
 
-  console.log("AsdminListing: ", adminListings);
+
 
   const handleConfirm = async () => {
     if (!pendingAction) return;

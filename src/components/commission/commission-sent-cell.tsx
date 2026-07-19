@@ -25,7 +25,7 @@ export default function CommissionSentCell({ commission }: Props) {
   const canSend =
     isListingOwner && commission.status === "confirmed" && !sentAt;
 
-    console.log("set: ",canSend)
+  
 
   return (
     <div className="flex items-center gap-2">

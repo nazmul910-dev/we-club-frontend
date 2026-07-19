@@ -23,7 +23,7 @@ const NetworkProfileDialog = ({ profile, user } : {profile : any, user : any}) =
 
 
     const dispatch = useDispatch<AppDispatch>();
-    console.log("user from the " , user)
+
   const TIER_LABELS: Record<string, string> = {
     tier_1: "Tier 1 · Full Marketing + Website",
     tier_2: "Tier 2 · Full Marketing",

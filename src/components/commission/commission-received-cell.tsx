@@ -14,9 +14,7 @@ export default function CommissionReceivedCell({ commission }: Props) {
   const [modal, setModal] = useState(false);
   const user = useAppSelector((state) => state.authUser.user);
 
-  console.log("user11:",user)
-  console.log("userprormoter:",commission.promoter_id)
-  console.log("pame:",commission)
+
 
   const isPromoter = Boolean(
     user?.id && commission.promoter_id?._id === user.id
@@ -25,14 +23,12 @@ export default function CommissionReceivedCell({ commission }: Props) {
   const sentAt = commission.payment_tracking?.sent_at;
   const receivedAt = commission.payment_tracking?.receiver_confirmed_at;
 
-  console.log("setAt: ",sentAt)
-  console.log("resAt: ",receivedAt)
+
 
   // Promoter can confirm receipt only after the listing owner has sent
   // payment, and only once.
   const canReceive = isPromoter && Boolean(sentAt) && !receivedAt;
 
-  console.log("rece: ",canReceive)
 
   return (
     <div className="flex items-center gap-2">
