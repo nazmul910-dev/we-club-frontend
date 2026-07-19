@@ -52,7 +52,7 @@ export default function CommissionTable() {
   }, [tab]);
 
 
-  console.log("commissions: ",commissions)
+
 
   const requestIdRef = useRef(0);
 

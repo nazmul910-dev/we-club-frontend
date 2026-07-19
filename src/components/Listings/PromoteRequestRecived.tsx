@@ -39,7 +39,7 @@ export function PromoteRequestsReceivedSection({
   }
 
 
-  console.log("promoteRequest11: ",promoteRequests);
+ 
 
   if (promoteRequestsError) {
     return (

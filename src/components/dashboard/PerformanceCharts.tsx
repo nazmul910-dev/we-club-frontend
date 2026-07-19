@@ -69,15 +69,12 @@ export function ChartAreaDefault() {
 
   const { average, totalViews, growth, ...rest } = listingViewsAnalytics;
 
-  console.log("resting data", rest);
+
 
   useEffect(() => {
     dispatch(getLisitngViewsAnalytics());
   }, [dispatch]);
 
-  console.log("anaalaa:", listingViewsAnalytics);
-
-  console.log(growth)
 
   const currentData = useMemo(() => {
     return rest[period];

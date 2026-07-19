@@ -29,7 +29,7 @@ const user=data.user;
 
 const latestListing = data.listings[0];
 
-console.log(latestListing)
+
 
 return (
 

@@ -33,7 +33,7 @@ export default function NetworkDirectoryPage() {
     setPage(1);
   }, [search]);
 
-  console.log("search query : ", search)
+ 
 
   useEffect(() => {
     const timer = setTimeout(() => {

@@ -66,7 +66,7 @@ export default function Topbar({ setIsOpen }: Props) {
   );
 
   const userRole = profile?.role || tokenUser?.role;
-  console.log("userRole:11:: ",userRole)
+
   const router = useRouter();
 
   const [open, setOpen] = React.useState(false);
