@@ -58,6 +58,7 @@ export default function ListingOwnerDetailsModal({
   const [mounted, setMounted] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
+  
   useEffect(() => {
     setMounted(true);
   }, []);

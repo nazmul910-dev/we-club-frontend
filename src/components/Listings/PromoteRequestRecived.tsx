@@ -5,6 +5,7 @@ import { formatDate } from "@/lib/utils/Helpers";
 import { XCircle, Trash2 } from "lucide-react";
 import { RowAction, RowActionsMenu } from "./RowActionMenu";
 import RowSkeleton from "../ui/row-skeleton";
+import PromoteRequestDetailsModal from "./UserDetailsModal";
 
 
 interface PromoteRequestsReceivedSectionProps {
@@ -26,7 +27,7 @@ export function PromoteRequestsReceivedSection({
   promoteRequestsLoading,
   promoteRequestsError,
   isRequester,
-  canManageRequest,
+  canManageRequest, 
   canApproveRejectRequest,
   canDeleteRequest,
   onCancel,
@@ -39,7 +40,7 @@ export function PromoteRequestsReceivedSection({
   }
 
 
- 
+ console.log("promoteRequest1: ",promoteRequests)
 
   if (promoteRequestsError) {
     return (
@@ -82,7 +83,7 @@ export function PromoteRequestsReceivedSection({
                 {r.listing_id?.title || r.listing_id?.ref_code}
               </td>
               <td className="px-4 py-3 text-sm text-white">
-                {r.requester?.email || r.requester?.user_id}
+                <PromoteRequestDetailsModal request={r}/>
               </td>
               <td className="px-4 py-3">{statusBadge(r.status)}</td>
               <td className="px-4 py-3 text-sm text-white">

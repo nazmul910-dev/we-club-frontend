@@ -147,7 +147,7 @@ export function ListingDetailsModal({ property }: { property: any }) {
           <Spec
             icon={<Maximize2 size={16} />}
             label="Area"
-            value={`${property.area_sqm} m²`}
+            value={`${property?.area_sqm?.value} ${property?.area_sqm?.unit} `}
           />
         </div>
 
