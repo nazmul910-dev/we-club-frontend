@@ -187,7 +187,7 @@ const getReceivedPromoteRequests = createAsyncThunk<
   PromoteRequestsListResponse["data"],
   Record<string, unknown> | void,
   { rejectValue: ApiError }
->(
+>(        
   "promoteRequests/getReceivedPromoteRequests",
   async (query, { rejectWithValue }) => {
     try {

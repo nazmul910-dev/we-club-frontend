@@ -126,7 +126,7 @@ function ListingCardInner({ property }: { property: any }) {
           </span>
           <span className="flex items-center gap-1.5 text-white/70">
             <Maximize2 className="h-3.5 w-3.5 text-gold" />
-            {property.area_sqm}
+            {property?.area_sqm?.value} {property?.area_sqm?.unit}
           </span>
         </div>
 
