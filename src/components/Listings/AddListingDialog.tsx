@@ -39,7 +39,11 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { CoverImageField, fieldClass, GalleryImagesField } from "./AddListingsUtils";
+import {
+  CoverImageField,
+  fieldClass,
+  GalleryImagesField,
+} from "./AddListingsUtils";
 
 interface AddListingDialogProps {
   onSubmit: (formData: FormData) => Promise<void> | void;
@@ -51,7 +55,7 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
 
   // TODO: adjust this path to match your real auth slice shape.
   const associateId = useSelector(
-    (state: RootState) => state.authUser.user?.id
+    (state: RootState) => state.authUser.user?.id,
   );
 
   const form = useForm<ListingFormValues>({
@@ -62,7 +66,10 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
       status: "pending",
       bedrooms: 0,
       bathrooms: 0,
-      area_sqm: 0,
+      area_sqm: {
+        value: 0,
+        unit: "sqft",
+      },
       city: "",
       region: "",
       country: "",
@@ -79,7 +86,7 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
     formData.append("ref_code", values.ref_code);
     formData.append("bedrooms", String(values.bedrooms));
     formData.append("bathrooms", String(values.bathrooms));
-    formData.append("area_sqm", String(values.area_sqm));
+    formData.append("area_sqm",JSON.stringify(values.area_sqm));
 
     formData.append(
       "location",
@@ -87,18 +94,18 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
         city: values.city,
         region: values.region,
         country: values.country,
-      })
+      }),
     );
     formData.append(
       "price",
       JSON.stringify({
         amount: values.price_amount,
         currency: values.price_currency,
-      })
+      }),
     );
     formData.append(
       "referral_commission",
-      JSON.stringify({ offered_amount: values.referral_commission_offered })
+      JSON.stringify({ offered_amount: values.referral_commission_offered }),
     );
 
     formData.append("cover_image", values.cover_image);
@@ -247,21 +254,68 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
               />
               <FormField
                 control={form.control}
-                name="area_sqm"
-                render={({ field: { onChange, ...field } }) => (
-                  <FormItem className="col-span-2 sm:col-span-1">
-                    <FormLabel className="text-white/70 text-xs uppercase tracking-wider">
-                      Area (m²)
-                    </FormLabel>
+                name="area_sqm.value"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>AREA</FormLabel>
+
                     <FormControl>
-                      <Input
-                        type="number"
-                        min={0}
-                        className={fieldClass}
-                        onChange={(e) => onChange(e.target.valueAsNumber)}
-                        {...field}
-                      />
+                      <div className="flex items-center gap-2">
+                        {/* Area Input */}
+                        <Input
+                          type="number"
+                          placeholder="Enter area"
+                          className={fieldClass}
+                          value={field.value || ""}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value ? Number(e.target.value) : 0,
+                            )
+                          }
+                        />
+
+                        {/* Unit Select */}
+                        <FormField
+                          control={form.control}
+                          name="area_sqm.unit"
+                          render={({ field: unitField }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Select
+                                  value={unitField.value}
+                                  onValueChange={unitField.onChange}
+                                >
+                                  <SelectTrigger
+                                    className="h-11 rounded-lg border-white/10 px-2 bg-white/[0.04] text-white placeholder:text-white/30  "
+                                  >
+                                    <SelectValue placeholder="Unit" />
+                                  </SelectTrigger>
+
+                                  <SelectContent
+                                    className=" bg-[#111]  border-white/10  text-white"
+                                  >
+                                    <SelectItem value="sqft">sqft</SelectItem>
+
+                                    <SelectItem value="sqm">sqm</SelectItem>
+
+                                    <SelectItem value="acre">acre</SelectItem>
+
+                                    <SelectItem value="katha">katha</SelectItem>
+
+                                    <SelectItem value="decimal">
+                                      decimal
+                                    </SelectItem>
+
+                                    <SelectItem value="bigha">bigha</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                     </FormControl>
+
                     <FormMessage />
                   </FormItem>
                 )}

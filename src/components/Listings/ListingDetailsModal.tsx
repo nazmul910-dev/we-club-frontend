@@ -210,7 +210,7 @@ export default function ListingDetailsModal({ listing, children }: Props) {
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
           <Info icon={<Bed size={15} />} label="Bedrooms" value={bedrooms} />
           <Info icon={<Bath size={15} />} label="Bathrooms" value={bathrooms} />
-          <Info icon={<Ruler size={15} />} label="Area (sqm)" value={area_sqm} />
+          <Info icon={<Ruler size={15} />} label={area_sqm.unit} value={area_sqm.value} />
           <Info icon={<Hash size={15} />} label="Ref Code" value={ref_code} />
           <Info icon={<Eye size={15} />} label="Views" value={listings_view} />
           <Info
