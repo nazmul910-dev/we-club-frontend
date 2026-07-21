@@ -3,6 +3,7 @@
 import { X } from "lucide-react";
 import { Commission } from "@/lib/features/commissionLedger/types";
 import CommissionStatusBadge from "./commission-status-badge";
+import { formatCompactNumber } from "@/lib/utils/format-number";
 
 interface Props {
   commission: Commission;
@@ -14,9 +15,18 @@ const formatDate = (value?: string | null) => {
   return new Date(value).toLocaleString();
 };
 
-const formatMoney = (amount?: number | null, currency?: string) => {
-  if (amount === undefined || amount === null) return "--";
-  return `${currency ?? ""} ${Number(amount).toLocaleString()}`;
+const formatMoney = (
+  amount?: number | null,
+  currency?: string
+) => {
+  if (amount === undefined || amount === null) {
+    return "--";
+  }
+
+  return formatCompactNumber(amount, {
+    currency,
+    decimals: 1,
+  });
 };
 
 const Row = ({
@@ -30,7 +40,9 @@ const Row = ({
     <span className="text-xs uppercase tracking-[2px] text-[#777]">
       {label}
     </span>
-    <span className="text-right text-sm text-white">{value}</span>
+    <span className="text-right text-sm text-white">
+      {value}
+    </span>
   </div>
 );
 
@@ -49,15 +61,17 @@ const Section = ({
   </div>
 );
 
-export default function CommissionDetailsModal({ commission, close }: Props) {
+export default function CommissionDetailsModal({
+  commission,
+  close,
+}: Props) {
   const {
     listing_id,
     listing_owner_id,
     promoter_id,
-    created_by ,
+    created_by,
     status,
     currency,
-    listing_price_amount,
     commission_rate_percent,
     estimated_commission_amount,
     final_commission_amount,
@@ -85,7 +99,10 @@ export default function CommissionDetailsModal({ commission, close }: Props) {
             </p>
           </div>
 
-          <button onClick={close} className="text-[#888] cursor-pointer hover:text-white">
+          <button
+            onClick={close}
+            className="cursor-pointer text-[#888] hover:text-white"
+          >
             <X size={20} />
           </button>
         </div>
@@ -93,6 +110,7 @@ export default function CommissionDetailsModal({ commission, close }: Props) {
         <div className="p-6">
           <div className="mb-5 flex items-center justify-between">
             <CommissionStatusBadge status={status} />
+
             {is_frozen && (
               <span className="inline-block rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs uppercase tracking-wider text-red-400">
                 Frozen (Disputed)
@@ -105,10 +123,18 @@ export default function CommissionDetailsModal({ commission, close }: Props) {
               label="Title"
               value={listing_id?.title ?? "Listing Removed"}
             />
-            <Row label="Ref Code" value={`#${listing_id?.ref_code ?? "--"}`} />
+
+            <Row
+              label="Ref Code"
+              value={`#${listing_id?.ref_code ?? "--"}`}
+            />
+
             <Row
               label="Listing Price"
-              value={formatMoney(listing_id?.price?.amount, listing_id?.price?.currency)}
+              value={formatMoney(
+                listing_id?.price?.amount,
+                listing_id?.price?.currency
+              )}
             />
           </Section>
 
@@ -121,6 +147,7 @@ export default function CommissionDetailsModal({ commission, close }: Props) {
                   : "--"
               }
             />
+
             <Row
               label="Promoter"
               value={
@@ -129,6 +156,7 @@ export default function CommissionDetailsModal({ commission, close }: Props) {
                   : "--"
               }
             />
+
             <Row
               label="Created By"
               value={
@@ -140,16 +168,32 @@ export default function CommissionDetailsModal({ commission, close }: Props) {
           </Section>
 
           <Section title="Commission">
-            <Row label="Rate" value={`${commission_rate_percent}%`} />
+            <Row
+              label="Rate"
+              value={`${commission_rate_percent}%`}
+            />
+
             <Row
               label="Estimated Amount"
-              value={formatMoney(estimated_commission_amount, currency)}
+              value={formatMoney(
+                estimated_commission_amount,
+                currency
+              )}
             />
+
             <Row
               label="Final Amount"
-              value={formatMoney(final_commission_amount, currency)}
+              value={formatMoney(
+                final_commission_amount,
+                currency
+              )}
             />
-            <Row label="Deal Closed At" value={formatDate(deal_closed_at)} />
+
+            <Row
+              label="Deal Closed At"
+              value={formatDate(deal_closed_at)}
+            />
+
             {note && <Row label="Note" value={note} />}
           </Section>
 
@@ -158,24 +202,38 @@ export default function CommissionDetailsModal({ commission, close }: Props) {
               label="Sent At"
               value={formatDate(payment_tracking?.sent_at)}
             />
+
             <Row
               label="Marked Paid At"
-              value={formatDate(payment_tracking?.marked_paid_at)}
+              value={formatDate(
+                payment_tracking?.marked_paid_at
+              )}
             />
+
             <Row
               label="Receiver Confirmed At"
-              value={formatDate(payment_tracking?.receiver_confirmed_at)}
+              value={formatDate(
+                payment_tracking?.receiver_confirmed_at
+              )}
             />
+
             <Row
               label="Payment Method"
               value={payment_tracking?.payment_method ?? "--"}
             />
+
             <Row
               label="Payment Reference"
-              value={payment_tracking?.payment_reference ?? "--"}
+              value={
+                payment_tracking?.payment_reference ?? "--"
+              }
             />
+
             {payment_tracking?.note && (
-              <Row label="Note" value={payment_tracking.note} />
+              <Row
+                label="Note"
+                value={payment_tracking.note}
+              />
             )}
           </Section>
 
@@ -188,23 +246,48 @@ export default function CommissionDetailsModal({ commission, close }: Props) {
                   : "--"
               }
             />
+
             <Row
               label="Amount"
-              value={formatMoney(platform_fee?.amount, currency)}
+              value={formatMoney(
+                platform_fee?.amount,
+                currency
+              )}
             />
-            <Row label="Status" value={platform_fee?.status ?? "--"} />
-            <Row label="Provider" value={platform_fee?.provider ?? "--"} />
-            <Row label="Paid At" value={formatDate(platform_fee?.paid_at)} />
+
+            <Row
+              label="Status"
+              value={platform_fee?.status ?? "--"}
+            />
+
+            <Row
+              label="Provider"
+              value={platform_fee?.provider ?? "--"}
+            />
+
+            <Row
+              label="Paid At"
+              value={formatDate(platform_fee?.paid_at)}
+            />
           </Section>
 
           {dispute && (dispute.opened_at || dispute.reason) && (
             <Section title="Dispute">
-              <Row label="Opened At" value={formatDate(dispute.opened_at)} />
-              <Row label="Reason" value={dispute.reason ?? "--"} />
+              <Row
+                label="Opened At"
+                value={formatDate(dispute.opened_at)}
+              />
+
+              <Row
+                label="Reason"
+                value={dispute.reason ?? "--"}
+              />
+
               <Row
                 label="Resolved At"
                 value={formatDate(dispute.resolved_at)}
               />
+
               <Row
                 label="Resolution Note"
                 value={dispute.resolution_note ?? "--"}
@@ -213,40 +296,55 @@ export default function CommissionDetailsModal({ commission, close }: Props) {
           )}
 
           <Section title="Status History">
-            {status_history && status_history.length > 0 ? (
+            {status_history?.length ? (
               <div className="flex flex-col gap-3">
-                {status_history.map((entry:any, idx:any) => (
+                {status_history.map((entry: any, idx: number) => (
                   <div
                     key={idx}
                     className="rounded-lg border border-[#221d10] p-3"
                   >
                     <div className="flex items-center justify-between">
-                      <CommissionStatusBadge status={entry.status} />
+                      <CommissionStatusBadge
+                        status={entry.status}
+                      />
+
                       <span className="text-xs text-[#777]">
                         {formatDate(entry.changed_at)}
                       </span>
                     </div>
+
                     {entry.note && (
-                      <p className="mt-2 text-sm text-[#ccc]">{entry.note}</p>
+                      <p className="mt-2 text-sm text-[#ccc]">
+                        {entry.note}
+                      </p>
                     )}
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-[#777]">No history yet.</p>
+              <p className="text-sm text-[#777]">
+                No history yet.
+              </p>
             )}
           </Section>
 
           <Section title="Timestamps">
-            <Row label="Created At" value={formatDate(created_at)} />
-            <Row label="Updated At" value={formatDate(updated_at)} />
+            <Row
+              label="Created At"
+              value={formatDate(created_at)}
+            />
+
+            <Row
+              label="Updated At"
+              value={formatDate(updated_at)}
+            />
           </Section>
         </div>
 
         <div className="flex justify-end border-t border-[#332b18] px-6 py-4">
           <button
             onClick={close}
-            className="rounded-lg cursor-pointer bg-[#C9A962] px-6 py-2 text-sm font-medium text-black"
+            className="cursor-pointer rounded-lg bg-[#C9A962] px-6 py-2 text-sm font-medium text-black"
           >
             Close
           </button>

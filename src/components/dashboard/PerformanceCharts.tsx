@@ -20,6 +20,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
+import { formatCompactNumber } from "@/lib/utils/format-number";
 
 export const description = "A simple area chart";
 
@@ -161,7 +162,7 @@ ${
           <div>
             <p className="text-xs text-neutral-500">Total Views</p>
 
-            <h3 className="mt-1 text-2xl font-bold text-white">{totalViews}</h3>
+            <h3 className="mt-1 text-2xl font-bold text-white"> {formatCompactNumber(totalViews)}</h3>
           </div>
 
           <div>
