@@ -14,6 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
+import { formatCompactNumber } from "@/lib/utils/format-number";
 
 interface AllListingsAdminSectionProps {
   adminListings: any[];
@@ -203,7 +204,7 @@ export function AllListingsAdminSection({
                   </TooltipProvider>
                 </td>
                 <td className="px-4 py-3 text-sm text-white">
-                  {l.price?.amount ?? "-"} {l.price?.currency ?? ""}
+                  {formatCompactNumber(l.price?.amount)?? "-"} {l.price?.currency ?? ""}
                 </td>
                 <td className="px-4 py-3">{statusBadge(l.status)}</td>
                 <td className="px-4 py-3">
