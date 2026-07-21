@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { DashboardStats } from "@/lib/features/dashboard/dashboardTypes";
+import { formatCompactNumber } from "@/lib/utils/format-number";
 
 interface StatCardProps {
   stat: DashboardStat;
@@ -19,37 +20,41 @@ export const dashboardStats = (
   {
     id: 1,
     title: "NO. OF LISTINGS",
-    value: String(stats.total_listings),
+    value: formatCompactNumber(stats.total_listings),
     change: "+3 this month",
   },
   {
     id: 2,
     title: "VALUE OF LISTINGS",
-    value: `€${stats.listing_value}`,
+    value: formatCompactNumber(stats.listing_value, {
+      currency: "€",
+    }),
     change: "+€12.4M MoM",
   },
   {
     id: 3,
     title: "LISTING VIEWS GENERATED",
-    value: String(stats.listing_views),
+    value: formatCompactNumber(stats.listing_views),
     change: "+8.7% WoW",
   },
   {
     id: 4,
     title: "NO. OF PROMOTERS",
-    value: String(stats.total_promoters),
+    value: formatCompactNumber(stats.total_promoters),
     change: "12 active today",
   },
   {
     id: 5,
     title: "PROPERTIES SHARED WITH ME",
-    value: String(stats.properties_shared_with_me),
+    value: formatCompactNumber(stats.properties_shared_with_me),
     change: "3 new this week",
   },
   {
     id: 6,
     title: "COMMISSION PIPELINE",
-    value: `€${stats.commission_pipeline}`,
+    value: formatCompactNumber(stats.commission_pipeline, {
+      currency: "€",
+    }),
     change: "9 deals in flight",
   },
 ];

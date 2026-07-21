@@ -18,6 +18,7 @@ import { AppDispatch, RootState } from "@/lib/redux/store/store";
 import { DEFAULT_STATUS_STYLE, STATUS_STYLES } from "@/styles/listingsStyles";
 import { ListingDetailsModal } from "./ListingsDetailsModal";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { formatCompactNumber } from "@/lib/utils/format-number";
 
 type PromoteState =
   | "available"
@@ -98,7 +99,7 @@ function ListingCardInner({ property }: { property: any }) {
         <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-[#0A0A0A] via-[#0A0A0A]/70 to-transparent p-4 pt-12">
           <div className="text-meta text-white/50">Asking</div>
           <div className="mt-0.5 font-display text-white text-2xl">
-            {property.price.amount} {property.price.currency}
+            {formatCompactNumber(property.price.amount)} {property.price.currency}
           </div>
         </div>
       </div>

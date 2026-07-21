@@ -8,6 +8,7 @@ import { RowAction, RowActionsMenu } from "./RowActionMenu";
 import { Skeleton } from "../ui/skeleton";
 import RowSkeleton from "../ui/row-skeleton";
 import ConfirmDialog from "../common/ConfirmDialog";
+import { formatCompactNumber } from "@/lib/utils/format-number";
 
 interface MyListingsSectionProps {
   myListings: any[];
@@ -153,7 +154,7 @@ export function MyListingsSection({
               <tr key={l._id} className="hover:bg-white/2">
                 <td className="px-4 py-3 text-sm text-white">{l.title}</td>
                 <td className="px-4 py-3 text-sm text-white">
-                  {l.price?.amount ?? "-"} {l.price?.currency ?? ""}
+                  {formatCompactNumber(l.price?.amount) ?? "-"} {l.price?.currency ?? ""}
                 </td>
                 <td className={`px-4 py-3 `}>{statusBadge(l.status)}</td>
                 <td className="px-4 py-3 text-sm text-white">
