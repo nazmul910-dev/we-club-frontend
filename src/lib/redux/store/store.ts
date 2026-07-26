@@ -9,9 +9,8 @@ import usersReducer from "@/lib/features/users/usersSlice";
 import listingAssetsReducer from "@/lib/features/listingAssets/listingAssetsSlice";
 import dashboardReducer from "@/lib/features/dashboard/dashboardSlice";
 import promotersReducer from "@/lib/features/promoters/promotersSlice";
-
 import managerReducer from "@/lib/features/addManager/addManagerSlice";
-
+import chatReducer from "@/lib/features/chat/chatSlice";
 
 export const store = configureStore({
   reducer: {
@@ -26,6 +25,7 @@ export const store = configureStore({
     dashboard: dashboardReducer,
     promoters : promotersReducer,
     manager: managerReducer,
+    chat : chatReducer,
   }, 
 
 });
