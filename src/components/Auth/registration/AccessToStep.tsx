@@ -1,30 +1,35 @@
-'use client';
+"use client";
 
-import { useDispatch } from 'react-redux';
-import { setAccessTo, AccessTo } from '@/lib/features/auth/authSlice';
+import { useDispatch } from "react-redux";
+import { setAccessTo, AccessTo } from "@/lib/features/auth/authSlice";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 
 const OPTIONS: { value: AccessTo; title: string; description: string }[] = [
   {
-    value: 'we_command_center',
-    title: 'We Command Center',
-    description: 'Access the We Command Center workspace and tools.',
+    value: "we_command_center",
+    title: "We Command Center",
+    description: "Access the We Command Center workspace and tools.",
   },
   {
-    value: 'invictus',
-    title: 'Invictus',
-    description: 'Access the Invictus workspace and tools.',
+    value: "invictus",
+    title: "Invictus",
+    description: "Access the Invictus workspace and tools.",
   },
   {
-    value: 'both',
-    title: 'We Command Center + Invictus',
-    description: 'Full access to both workspaces.',
+    value: "both",
+    title: "We Command Center + Invictus",
+    description: "Full access to both workspaces.",
   },
 ];
 
 export default function AccessToStep() {
   const dispatch = useDispatch();
 
-  return ( 
+  const route = useRouter();
+
+  return (
     <div>
       <h1 className="mb-1 text-center text-2xl font-semibold text-amber-400">
         Choose your access
@@ -49,6 +54,16 @@ export default function AccessToStep() {
             </span>
           </button>
         ))}
+      </div>
+      <div className="flex mt-5 items-center justify-between">
+        <button
+          type="button"
+          onClick={() => route.back()}
+          className="rounded-xl cursor-pointer border flex justify-center items-center gap-x-2 border-white/20 px-6 py-2 text-white transition hover:border-white/40"
+        >
+          <ArrowLeft size={18}/>
+          Back
+        </button>
       </div>
     </div>
   );
