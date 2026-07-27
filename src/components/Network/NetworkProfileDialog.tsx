@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { promotersApi } from "@/lib/features/promoters/promotersApi";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/lib/redux/store/store";
+import Avatar from "./Avatar";
 
 const NetworkProfileDialog = ({ profile, user } : {profile : any, user : any}) => {
 
@@ -76,7 +77,8 @@ useEffect(() => {
         <div className="flex flex-col text-left  gap-4 pb-4 border-b border-gold-soft">
           
           <div className="min-w-0">
-            <img src={profile.profileImage} height={60} width={60} className="rounded-full overflow-hidden"/>
+            {/* <img src={profile.profileImage} height={60} width={60} className="rounded-full overflow-hidden"/> */}
+            <Avatar image={profile.profileImage} name={profile.fullName} />
            
           </div>
           <div
