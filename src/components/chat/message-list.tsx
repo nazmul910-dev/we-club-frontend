@@ -10,7 +10,7 @@ export default function MessageList() {
   const messages = useSelector((state: RootState) => state.chat.messages);
   const typingUsers = useSelector((state: RootState) => state.chat.typingUsers);
   const currentUserId = useSelector(
-    (state: RootState) => state.authUser.profile?._id
+    (state: RootState) => state.authUser.profile?._id,
   );
 
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -19,24 +19,26 @@ export default function MessageList() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages.length, typingUsers.length]);
 
+  console.log("Rendering MessageList with messages:", messages);
+
   return (
-    <ScrollArea className="flex-1">
-
+    <ScrollArea className="min-h-0">
       <div className="space-y-6 p-6">
-
-        {messages.map((message) => (
-          <MessageItem
-            key={message._id}
-            me={message.sender._id === currentUserId}
-            name={message.sender.fullName}
-            avatar={message.sender.profileImage ?? ""}
-            message={message.content}
-            time={new Date(message.createdAt).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          />
-        ))}
+        {messages
+          .filter((message) => message?.sender)
+          .map((message) => (
+            <MessageItem
+              key={message._id}
+              me={message.sender._id === currentUserId}
+              name={message.sender.fullName}
+              avatar={message.sender.profileImage ?? ""}
+              message={message.content}
+              time={new Date(message.createdAt).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            />
+          ))}
 
         {typingUsers.length > 0 && (
           <TypingIndicator
@@ -45,9 +47,7 @@ export default function MessageList() {
         )}
 
         <div ref={bottomRef} />
-
       </div>
-
     </ScrollArea>
   );
 }
