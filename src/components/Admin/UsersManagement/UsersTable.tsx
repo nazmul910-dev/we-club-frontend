@@ -174,14 +174,14 @@ export default function UsersTable({ users, loading }: Props) {
                           }),
                         ).unwrap();
                       }}
-                      onLicense={async (status) => {
-                        await dispatch(
-                          updateLicenseStatus({
-                            id: user._id,
-                            licenseVerificationStatus: status as any,
-                          }),
-                        ).unwrap();
-                      }}
+                      // onLicense={async (status) => {
+                      //   await dispatch(
+                      //     updateLicenseStatus({
+                      //       id: user._id,
+                      //       licenseVerificationStatus: status as any,
+                      //     }),
+                      //   ).unwrap();
+                      // }}
                       onAccount={async (status) => {
                         await dispatch(
                           updateAccountStatus({
