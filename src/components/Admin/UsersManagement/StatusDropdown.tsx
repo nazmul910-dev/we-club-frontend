@@ -20,7 +20,7 @@ interface Props {
   accountStatus?: string;
 
   onApproval: (status: string) => Promise<any>;
-  onLicense: (status: string) => Promise<any>;
+  // onLicense: (status: string) => Promise<any>;
   onAccount: (status: string) => Promise<any>;
 }
 
@@ -31,7 +31,7 @@ export default function StatusDropdown({
   licenseVerificationStatus,
   accountStatus,
   onApproval,
-  onLicense,
+  // onLicense,
   onAccount,
 }: Props) {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -113,7 +113,7 @@ export default function StatusDropdown({
           Reject User
         </DropdownMenuItem>
 
-        <DropdownMenuItem
+        {/* <DropdownMenuItem
           disabled={isVerified}
           className="text-green-400 focus:text-green-400 data-disabled:opacity-40"
           onClick={async () => {
@@ -128,9 +128,9 @@ export default function StatusDropdown({
           }}
         >
           Verify License
-        </DropdownMenuItem>
+        </DropdownMenuItem> */}
 
-        <DropdownMenuItem
+        {/* <DropdownMenuItem
           disabled={isActive}
           className="text-yellow-400 focus:text-yellow-400 data-disabled:opacity-40"
           onClick={async () => {
@@ -145,7 +145,7 @@ export default function StatusDropdown({
           }}
         >
           Activate Account
-        </DropdownMenuItem>
+        </DropdownMenuItem> */}
 
         <DropdownMenuItem
           disabled={isSuspended}
