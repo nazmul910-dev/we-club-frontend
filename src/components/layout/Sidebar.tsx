@@ -2,7 +2,7 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import { useAppSelector } from "@/lib/redux/store/hook";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Building2,
@@ -12,11 +12,12 @@ import {
   GraduationCap,
   CircleUserRound,
   Crown,
-  LayoutDashboard ,
+  LayoutDashboard,
   LogOut,
   ArrowLeftRight,
-  Network ,
-  Megaphone ,
+  Network,
+  Megaphone,
+  Globe,
 } from "lucide-react";
 import {
   Dialog,
@@ -29,6 +30,7 @@ import {
 import { logout } from "@/lib/features/auth/authUserSlice";
 import { useAppDispatch } from "@/lib/redux/store/hook";
 import { clearProfile } from "@/lib/features/profile/profileSlice";
+import { getLogo } from "@/lib/features/logo/logoApi";
 
 const MENU_ITEMS = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -38,6 +40,11 @@ const MENU_ITEMS = [
     label: "Management",
     href: "/dashboard/manager-management",
     icon: ShieldUser,
+  },
+  {
+    label: "Manage Logo",
+    href: "/dashboard/manage-logo",
+    icon: Globe,
   },
   {
     label: "Manage Listings",
@@ -74,9 +81,15 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const profile = useAppSelector((state) => state.authUser.profile);
   const accessTo = profile?.accessTo || tokenUser?.accessTo;
 
+  const siteLogo = useAppSelector((state) => state.logo?.logo);
+
   const showSwitchButton = accessTo === "both";
 
   const [logoutModal, setLogoutModal] = useState(false);
+
+  useEffect(() => {
+    dispatch(getLogo());
+  }, [dispatch]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -103,7 +116,16 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
       >
         {/* Logo */}
         <div className="flex items-center gap-3 px-5">
-          <Crown className="text-[#CDAE53]" size={22} strokeWidth={1.75} />
+          {siteLogo?.logo ? (
+
+            <img
+              src={siteLogo.logo}
+              alt="WE"
+              className="h-auto w-16 lg:w-20 object-contain rounded-full shrink-0"
+            />
+          ) : (
+            <Crown className="text-[#CDAE53]" size={22} strokeWidth={1.75} />
+          )}
           <div className="uppercase">
             <h2 className="font-playfair text-[18px] leading-tight text-[#CDAE53]">
               WE
@@ -127,7 +149,10 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
               return userRole === "admin" || userRole === "manager";
             }
             if (item.href === "/dashboard/manager-management") {
-              return userRole === "admin" ;
+              return userRole === "admin";
+            }
+            if (item.href === "/dashboard/manage-logo") {
+              return userRole === "admin";
             }
             return true;
           }).map(({ label, href, icon: Icon }) => {

@@ -300,13 +300,13 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
 
                                     <SelectItem value="acre">acre</SelectItem>
 
-                                    <SelectItem value="katha">katha</SelectItem>
+                                    {/* <SelectItem value="katha">katha</SelectItem>
 
                                     <SelectItem value="decimal">
                                       decimal
                                     </SelectItem>
 
-                                    <SelectItem value="bigha">bigha</SelectItem>
+                                    <SelectItem value="bigha">bigha</SelectItem> */}
                                   </SelectContent>
                                 </Select>
                               </FormControl>
