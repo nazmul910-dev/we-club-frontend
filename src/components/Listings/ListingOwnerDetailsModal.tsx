@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { Badge } from "../ui/Badge";
 import ListingDetailsModal from "./ListingDetailsModal";
+import Avatar from "./ListingAvatar";
+
 
 
 
@@ -139,13 +141,14 @@ export default function ListingOwnerDetailsModal({
 
           <div className="flex w-full flex-col items-center md:w-56 md:shrink-0 lg:w-64">
 
-            <Image
-              src={owner.profileImage}
+            <Avatar image={owner.profileImage} name={owner.fullName} />
+            {/* <Image
+              src={owner.profileImage} 
               alt={owner.fullName}
               width={120}
               height={120}
               className="h-24 w-24 rounded-full border-4 border-gold object-cover sm:h-28 sm:w-28 md:h-32 md:w-32"
-            />
+            /> */}
 
             <h2 className="mt-3 text-center text-lg font-semibold sm:mt-4 sm:text-xl md:text-2xl">
               {owner.fullName}

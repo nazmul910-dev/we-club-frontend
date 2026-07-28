@@ -63,7 +63,7 @@ export default function MessageInput({
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           placeholder="Type your message..."
-          className="bg-zinc-900 border-zinc-800 text-white"
+          className="bg-zinc-900 px-4 border-zinc-800 text-white"
         />
 
         <Button size="icon" onClick={handleSend}>

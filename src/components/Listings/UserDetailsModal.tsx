@@ -18,6 +18,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
+import Avatar from "./ListingAvatar";
 
 interface Props {
   request: any;
@@ -117,15 +118,16 @@ export default function PromoteRequestDetailsModal({ request }: Props) {
 
                 <div className="flex items-center gap-4">
                   {user?.profileImage ? (
-                    <Image
-                      src={user.profileImage}
-                      width={64}
-                      height={64}
-                      alt={user?.fullName || "Requester"}
-                      className="h-16 w-16 rounded-full object-cover ring-2 ring-white/10"
-                    />
+                    <Avatar image={user.profileImage} name={user.name}/>
+                    // <Image
+                    //   src={user.profileImage}
+                    //   width={64}
+                    //   height={64}
+                    //   alt={user?.fullName || "Requester"}
+                    //   className="h-16 w-16 rounded-full object-cover ring-2 ring-white/10"
+                    // />
                   ) : (
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/15 text-base font-bold text-primary ring-2 ring-white/10">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/15 text-base font-bold text-white ring-2 ring-white/10">
                       {initials(user?.fullName) || "—"}
                     </div>
                   )}

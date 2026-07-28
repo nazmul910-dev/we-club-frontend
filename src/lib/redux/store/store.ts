@@ -11,6 +11,7 @@ import dashboardReducer from "@/lib/features/dashboard/dashboardSlice";
 import promotersReducer from "@/lib/features/promoters/promotersSlice";
 import managerReducer from "@/lib/features/addManager/addManagerSlice";
 import chatReducer from "@/lib/features/chat/chatSlice";
+import logoReducer from "@/lib/features/logo/logoSlice"
 
 export const store = configureStore({
   reducer: {
@@ -26,6 +27,7 @@ export const store = configureStore({
     promoters : promotersReducer,
     manager: managerReducer,
     chat : chatReducer,
+    logo:logoReducer
   }, 
 
 });

@@ -42,7 +42,7 @@ return (
 <Avatar
 image={user?.profileImage}
 name={user?.fullName || "User"}
-/>
+/> 
 
 
 

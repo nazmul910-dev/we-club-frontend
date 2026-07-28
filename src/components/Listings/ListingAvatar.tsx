@@ -19,7 +19,7 @@ export default function Avatar({
 
 
   return (
-    <div className="w-12 h-12 rounded-full border border-[#8a6a22] bg-[#111] flex items-center justify-center overflow-hidden shrink-0">
+    <div className="w-24 h-24 rounded-full border border-[#8a6a22] bg-[#111] flex items-center justify-center overflow-hidden shrink-0">
       
       {
         image ? (
