@@ -115,22 +115,22 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         }`}
       >
         {/* Logo */}
-        <div className="flex items-center gap-3 px-5">
+        <div className="flex flex-col items-center gap-3 px-5">
           {siteLogo?.logo ? (
 
             <img
               src={siteLogo.logo}
               alt="WE"
-              className="h-auto w-16 lg:w-20 object-contain rounded-full shrink-0"
+              className="h-auto w-28 lg:w-30 object-contain shrink-0"
             />
           ) : (
             <Crown className="text-[#CDAE53]" size={22} strokeWidth={1.75} />
           )}
           <div className="uppercase">
-            <h2 className="font-playfair text-[18px] leading-tight text-[#CDAE53]">
+            {/* <h2 className="font-playfair text-center text-[18px] leading-tight text-[#CDAE53]">
               WE
-            </h2>
-            <p className="font-montserrat text-[11px] tracking-wide text-[#888]">
+            </h2> */}
+            <p className="font-montserrat text-center text-[19px] tracking-wide text-[#888]">
               command center
             </p>
           </div>
