@@ -14,7 +14,7 @@ const data=[
 calculateTenure(profile.createdAt)],
 
 ["LIFETIME COMMISSION",
-`€${profile.lifetimeCommissionEarned}`],
+`$${profile.lifetimeCommissionEarned}`],
 
 ["DISCRETION SCORE",
 profile.discretionScore || "Add"]

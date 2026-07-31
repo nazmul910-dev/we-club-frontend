@@ -235,7 +235,7 @@ export default function DetailsStep() {
             onChange={(e) =>
               handleChange('country', e.target.value)
             }
-            placeholder="Bangladesh"
+            placeholder="Enter your country"
           />
         </div>
 

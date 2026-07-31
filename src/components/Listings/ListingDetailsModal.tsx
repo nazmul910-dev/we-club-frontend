@@ -17,6 +17,7 @@ import {
   X,
 } from "lucide-react";
 import { Badge } from "../ui/Badge";
+import { formatCompactNumber } from "@/lib/utils/format-number";
 
 interface Props {
   listing: any;
@@ -202,7 +203,7 @@ export default function ListingDetailsModal({ listing, children }: Props) {
         <div className="mb-4 flex flex-wrap items-center gap-3 sm:mb-6">
           <Badge className={statusColor(status)}>{status || "-"}</Badge>
           <span className="text-lg font-semibold text-gold sm:text-xl">
-            {price ? `${price.amount} ${price.currency}` : "-"}
+            {price ? `${formatCompactNumber(price.amount)} ${price.currency}` : "-"}
           </span>
         </div>
 

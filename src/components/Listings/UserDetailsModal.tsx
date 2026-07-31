@@ -10,6 +10,12 @@ import {
   Calendar,
   Hash,
   ArrowUpRight,
+  Notebook,
+  Tag,
+  Percent,
+  Megaphone,
+  MessageSquare,
+  Award,
 } from "lucide-react";
 
 import {
@@ -19,6 +25,7 @@ import {
   TooltipTrigger,
 } from "../ui/tooltip";
 import Avatar from "./ListingAvatar";
+import { formatCompactNumber } from "@/lib/utils/format-number";
 
 interface Props {
   request: any;
@@ -34,8 +41,10 @@ const STATUS_STYLES: Record<string, string> = {
 export default function PromoteRequestDetailsModal({ request }: Props) {
   const [open, setOpen] = useState(false);
 
-  const user = request?.requester?.user_id;
+  const requester = request?.requester;
+  const user = requester?.user_id;
   const listing = request?.listing_id;
+  console.log("lsss: ",listing)
 
   // lock background scroll while modal is open
   useEffect(() => {
@@ -60,6 +69,23 @@ export default function PromoteRequestDetailsModal({ request }: Props) {
   const statusKey = (request?.status || "").toLowerCase();
   const statusClass = STATUS_STYLES[statusKey] || STATUS_STYLES.default;
 
+  const location =
+    listing?.location?.city || listing?.location?.country
+      ? [listing?.location?.city, listing?.location?.country]
+          .filter(Boolean)
+          .join(", ")
+      : "N/A";
+
+  const formattedPrice = listing?.price?.amount
+    ? new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency: listing?.price?.currency || "USD",
+        maximumFractionDigits: 0,
+      }).format(listing.price.amount)
+    : "N/A";
+
+  const marketingChannels: string[] = request?.marketing_channels || [];
+
   return (
     <>
       <TooltipProvider>
@@ -78,17 +104,17 @@ export default function PromoteRequestDetailsModal({ request }: Props) {
 
       {open && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm animate-in fade-in duration-150"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-2 backdrop-blur-sm animate-in fade-in duration-150 sm:p-4"
           onClick={() => setOpen(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-white/10 bg-[#111] shadow-2xl shadow-black/50 animate-in zoom-in-95 slide-in-from-bottom-2 duration-200"
+            className="max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-white/10 bg-[#111] shadow-2xl shadow-black/50 animate-in zoom-in-95 slide-in-from-bottom-2 duration-200"
           >
             {/* HEADER */}
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-[#111]/95 px-6 py-4 backdrop-blur">
-              <div>
-                <h2 className="text-lg font-semibold text-white">
+            <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-white/10 bg-[#111]/95 px-4 py-3.5 backdrop-blur sm:px-6 sm:py-4">
+              <div className="min-w-0">
+                <h2 className="truncate text-base font-semibold text-white sm:text-lg">
                   Promote Request
                 </h2>
                 <p className="text-xs text-gray-500">
@@ -104,52 +130,55 @@ export default function PromoteRequestDetailsModal({ request }: Props) {
 
               <button
                 onClick={() => setOpen(false)}
-                className="cursor-pointer rounded-full p-1.5 text-gray-400 transition hover:bg-white/10 hover:text-white"
+                className="shrink-0 cursor-pointer rounded-full p-1.5 text-gray-400 transition hover:bg-white/10 hover:text-white"
                 aria-label="Close"
               >
                 <X size={18} />
               </button>
             </div>
 
-            <div className="space-y-7 px-6 py-6">
+            <div className="space-y-6 px-4 py-5 sm:space-y-7 sm:px-6 sm:py-6">
               {/* REQUESTER */}
               <section>
                 <SectionLabel>Requester</SectionLabel>
 
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center gap-4">
                   {user?.profileImage ? (
-                    <Avatar image={user.profileImage} name={user.name}/>
-                    // <Image
-                    //   src={user.profileImage}
-                    //   width={64}
-                    //   height={64}
-                    //   alt={user?.fullName || "Requester"}
-                    //   className="h-16 w-16 rounded-full object-cover ring-2 ring-white/10"
-                    // />
+                    <Avatar image={user.profileImage} name={user.fullName} />
                   ) : (
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/15 text-base font-bold text-white ring-2 ring-white/10">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary/15 text-base font-bold text-white ring-2 ring-white/10 sm:h-16 sm:w-16">
                       {initials(user?.fullName) || "—"}
                     </div>
                   )}
 
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <h4 className="truncate text-base font-semibold text-white">
                       {user?.fullName || "Unknown"}
                     </h4>
-                    {user?.role && (
-                      <span className="inline-block rounded-full bg-white/5 px-2 py-0.5 text-xs text-gray-400">
-                        {user.role}
-                      </span>
-                    )}
+
+                    <div className="mt-1 flex flex-wrap gap-1.5">
+                      {user?.role && (
+                        <span className="inline-block rounded-full bg-white/5 px-2 py-0.5 text-xs capitalize text-gray-400">
+                          {user.role}
+                        </span>
+                      )}
+                      {requester?.selected_tier && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs capitalize text-primary">
+                          <Award size={11} />
+                          {requester.selected_tier}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
                 <div className="mt-4 grid gap-2.5 rounded-xl border border-white/5 bg-white/[0.03] p-4">
+                  <Info icon={<Notebook size={15} />} text={user?.bio || "N/A"} />
+                </div>
+
+                <div className="mt-4 grid gap-2.5 rounded-xl border border-white/5 bg-white/[0.03] p-4 sm:grid-cols-2">
                   <Info icon={<Mail size={15} />} text={user?.email || "N/A"} />
-                  <Info
-                    icon={<Phone size={15} />}
-                    text={user?.phone || "N/A"}
-                  />
+                  <Info icon={<Phone size={15} />} text={user?.phone || "N/A"} />
                   <Info
                     icon={<MapPin size={15} />}
                     text={
@@ -167,8 +196,8 @@ export default function PromoteRequestDetailsModal({ request }: Props) {
               <section>
                 <SectionLabel>Listing</SectionLabel>
 
-                <div className="flex gap-4 rounded-xl border border-white/5 bg-white/[0.03] p-4">
-                  <div className="relative h-[70px] w-[100px] shrink-0 overflow-hidden rounded-lg bg-white/5">
+                <div className="flex flex-col gap-4 rounded-xl border border-white/5 bg-white/[0.03] p-4 sm:flex-row">
+                  <div className="relative h-[140px] w-full shrink-0 overflow-hidden rounded-lg bg-white/5 sm:h-[70px] sm:w-[100px]">
                     {listing?.cover_image && (
                       <Image
                         src={listing.cover_image}
@@ -187,6 +216,7 @@ export default function PromoteRequestDetailsModal({ request }: Props) {
                       <Hash size={12} />
                       <span>{listing?.ref_code || "—"}</span>
                     </div>
+
                     <a
                       href={listing?.url || "#"}
                       className="mt-1 inline-flex w-fit items-center gap-1 text-xs font-medium text-primary transition hover:text-primary/80"
@@ -194,6 +224,64 @@ export default function PromoteRequestDetailsModal({ request }: Props) {
                       View listing
                       <ArrowUpRight size={12} />
                     </a>
+                  </div>
+                </div>
+
+                <div className="mt-3 grid gap-2.5 rounded-xl border border-white/5 bg-white/[0.03] p-4 sm:grid-cols-2">
+                  <Info icon={<MapPin size={15} />} text={location} />
+                  <Info icon={<Tag size={15} />} text={`$ ${formatCompactNumber(listing.price.amount)}`} />
+                  <Info
+                    icon={<Percent size={15} />}
+                    text={
+                      listing?.referral_commission?.offered_amount != null
+                        ? `${listing.referral_commission.offered_amount}% referral commission offered`
+                        : "N/A"
+                    }
+                  />
+                </div>
+              </section>
+
+              {/* PROMOTER PROPOSAL */}
+              <section>
+                <SectionLabel>Promoter Proposal</SectionLabel>
+
+                <div className="grid gap-2.5 rounded-xl border border-white/5 bg-white/[0.03] p-4">
+                  <Info
+                    icon={<Percent size={15} />}
+                    text={
+                      request?.proposed_commission_pct != null
+                        ? `Proposed commission: ${request.proposed_commission_pct}%`
+                        : "N/A"
+                    }
+                  />
+
+                  <div className="flex items-start gap-3 text-sm text-gray-200">
+                    <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/5 text-gray-400">
+                      <Megaphone size={15} />
+                    </span>
+                    <div className="flex min-w-0 flex-1 flex-wrap gap-1.5">
+                      {marketingChannels.length > 0 ? (
+                        marketingChannels.map((channel) => (
+                          <span
+                            key={channel}
+                            className="rounded-full bg-white/5 px-2 py-0.5 text-xs capitalize text-gray-300 ring-1 ring-white/10"
+                          >
+                            {channel.replace(/_/g, " ")}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-gray-500">N/A</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 text-sm text-gray-200">
+                    <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/5 text-gray-400">
+                      <MessageSquare size={15} />
+                    </span>
+                    <p className="min-w-0 flex-1 whitespace-pre-wrap wrap-break-word text-gray-300">
+                      {request?.message || "N/A"}
+                    </p>
                   </div>
                 </div>
               </section>
@@ -233,13 +321,27 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Info({ icon, text }: { icon: any; text: string }) {
+function Info({
+  icon,
+  text,
+  wrap = false,
+}: {
+  icon: any;
+  text: string;
+  wrap?: boolean;
+}) {
   return (
-    <div className="flex items-center gap-3 text-sm text-gray-200">
+    <div className={`flex gap-3 text-sm text-gray-200 ${wrap ? "items-start" : "items-center"}`}>
       <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/5 text-gray-400">
         {icon}
       </span>
-      <span className="truncate">{text}</span>
+      <span
+        className={`min-w-0 flex-1 ${
+          wrap ? "whitespace-normal wrap-break-word" : "truncate"
+        }`}
+      >
+        {text}
+      </span>
     </div>
   );
 }

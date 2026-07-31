@@ -39,9 +39,6 @@ export function PromoteRequestsReceivedSection({
     return <RowSkeleton/>;
   }
 
-
- console.log("promoteRequest1: ",promoteRequests)
-
   if (promoteRequestsError) {
     return (
       <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">

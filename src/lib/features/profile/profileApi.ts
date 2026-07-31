@@ -1,328 +1,155 @@
-import {createAsyncThunk} from "@reduxjs/toolkit";
+import { createAsyncThunk } from "@reduxjs/toolkit";
 import api from "@/lib/api/api";
 import axios from "axios";
 
+const errorHandler = (error: any) => {
+  if (axios.isAxiosError(error)) {
+    return error.response?.data?.message || "Request failed";
+  }
 
-
-const errorHandler=(error:any)=>{
-
-if(axios.isAxiosError(error)){
-
-return error.response?.data?.message || "Request failed";
-
-}
-
-return "Something went wrong";
-
+  return "Something went wrong";
 };
-
-
-
 
 // GET PROFILE
 
-export const getMyProfile=createAsyncThunk(
+export const getMyProfile = createAsyncThunk(
+  "profile/get",
 
-"profile/get",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get("/profile/me");
 
-async(_,{rejectWithValue})=>{
-
-try{
-
-const res=await api.get("/profile/me");
-
-return res.data.data;
-
-
-}catch(error){
-
-return rejectWithValue(errorHandler(error));
-
-}
-
-}
-
+      return res.data.data;
+    } catch (error) {
+      return rejectWithValue(errorHandler(error));
+    }
+  },
 );
-
-
-
 
 // BASIC UPDATE
 
+export const updateBasicProfile = createAsyncThunk(
+  "profile/basic",
 
-export const updateBasicProfile=createAsyncThunk(
+  async (payload: any, { rejectWithValue }) => {
+    try {
+      const res = await api.patch("/profile/me/basic", payload);
 
-"profile/basic",
-
-async(payload:any,{rejectWithValue})=>{
-
-try{
-
-
-const res=await api.patch(
-"/profile/me/basic",
-payload
+      return res.data.data;
+    } catch (error) {
+      return rejectWithValue(errorHandler(error));
+    }
+  },
 );
-
-
-return res.data.data;
-
-
-}catch(error){
-
-return rejectWithValue(errorHandler(error));
-
-}
-
-
-}
-
-);
-
-
-
 
 // BIO
 
+export const updateBio = createAsyncThunk(
+  "profile/bio",
 
-export const updateBio=createAsyncThunk(
+  async (payload: { bio: string }, { rejectWithValue }) => {
+    try {
+      const res = await api.patch("/profile/me/bio", payload);
 
-"profile/bio",
-
-async(payload:{bio:string},{rejectWithValue})=>{
-
-
-try{
-
-
-const res=await api.patch(
-"/profile/me/bio",
-payload
+      return res.data.data;
+    } catch (error) {
+      return rejectWithValue(errorHandler(error));
+    }
+  },
 );
-
-
-return res.data.data;
-
-
-}catch(error){
-
-return rejectWithValue(errorHandler(error));
-
-}
-
-
-}
-
-);
-
-
-
-
 
 // SOCIAL LINK
 
+export const updateSocialLink = createAsyncThunk(
+  "profile/social",
 
-export const updateSocialLink=createAsyncThunk(
+  async (
+    payload: {
+      platform: string;
+      url: string;
+    },
+    { rejectWithValue },
+  ) => {
+    try {
+      const res = await api.patch("/profile/me/social-links", payload);
 
-"profile/social",
-
-async(
-payload:{
-platform:string;
-url:string;
-},
-{rejectWithValue}
-)=>{
-
-
-try{
-
-
-const res=await api.patch(
-"/profile/me/social-links",
-payload
+      return res.data.data;
+    } catch (error) {
+      return rejectWithValue(errorHandler(error));
+    }
+  },
 );
-
-
-return res.data.data;
-
-
-}catch(error){
-
-return rejectWithValue(errorHandler(error));
-
-}
-
-}
-
-);
-
-
-
 
 // DELETE SOCIAL
 
+export const deleteSocialLink = createAsyncThunk(
+  "profile/social/delete",
 
-export const deleteSocialLink=createAsyncThunk(
+  async (platform: string, { rejectWithValue }) => {
+    try {
+      const res = await api.delete(`/profile/me/social-links/${platform}`);
 
-"profile/social/delete",
-
-async(platform:string,{rejectWithValue})=>{
-
-
-try{
-
-
-const res=await api.delete(
-`/profile/me/social-links/${platform}`
+      return res.data.data;
+    } catch (error) {
+      return rejectWithValue(errorHandler(error));
+    }
+  },
 );
-
-
-return res.data.data;
-
-
-}catch(error){
-
-return rejectWithValue(errorHandler(error));
-
-}
-
-}
-
-
-);
-
-
-
-
 
 // MARKETING CHANNEL
 
+export const updateMarketingChannels = createAsyncThunk(
+  "profile/marketing",
 
-export const updateMarketingChannels=createAsyncThunk(
+  async (marketingChannels: string[], { rejectWithValue }) => {
+    try {
+      const res = await api.patch("/profile/me/marketing-channels", {
+        marketingChannels,
+      });
 
-"profile/marketing",
-
-async(
-marketingChannels:string[],
-{rejectWithValue}
-)=>{
-
-
-try{
-
-
-const res=await api.patch(
-"/profile/me/marketing-channels",
-{
-marketingChannels
-}
+      return res.data.data;
+    } catch (error) {
+      return rejectWithValue(errorHandler(error));
+    }
+  },
 );
-
-
-return res.data.data;
-
-
-}catch(error){
-
-return rejectWithValue(errorHandler(error));
-
-}
-
-
-}
-
-);
-
-
-
-
-
 
 // IMAGE UPLOAD
 
+export const updateProfileImage = createAsyncThunk(
+  "profile/image",
 
-export const updateProfileImage=createAsyncThunk(
+  async (file: File, { rejectWithValue }) => {
+    try {
+      const formData = new FormData();
 
-"profile/image",
+      formData.append("profileImage", file);
 
-async(
-file:File,
-{rejectWithValue}
-)=>{
+      const res = await api.patch("/profile/me/image", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
-
-try{
-
-
-const formData=new FormData();
-
-formData.append(
-"profileImage",
-file
+      return res.data.data;
+    } catch (error) {
+      return rejectWithValue(errorHandler(error));
+    }
+  },
 );
-
-
-
-const res=await api.patch(
-"/profile/me/image",
-formData,
-{
-headers:{
-"Content-Type":"multipart/form-data"
-}
-}
-);
-
-
-
-return res.data.data;
-
-
-
-}catch(error){
-
-return rejectWithValue(errorHandler(error));
-
-}
-
-
-}
-
-);
-
-
-
-
 
 // DELETE IMAGE
 
+export const deleteProfileImage = createAsyncThunk(
+  "profile/image/delete",
 
-export const deleteProfileImage=createAsyncThunk(
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.delete("/profile/me/image");
 
-"profile/image/delete",
-
-async(_,{rejectWithValue})=>{
-
-
-try{
-
-
-const res=await api.delete(
-"/profile/me/image"
-);
-
-
-return res.data.data;
-
-
-}catch(error){
-
-return rejectWithValue(errorHandler(error));
-
-}
-
-
-}
-
+      return res.data.data;
+    } catch (error) {
+      return rejectWithValue(errorHandler(error));
+    }
+  },
 );

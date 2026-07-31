@@ -1,229 +1,142 @@
-import {createSlice, PayloadAction} from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
-getMyProfile,
-updateBasicProfile,
-updateBio,
-updateSocialLink,
-deleteSocialLink,
-updateMarketingChannels,
-updateProfileImage,
-deleteProfileImage
+  getMyProfile,
+  updateBasicProfile,
+  updateBio,
+  updateSocialLink,
+  deleteSocialLink,
+  updateMarketingChannels,
+  updateProfileImage,
+  deleteProfileImage,
 } from "./profileApi";
 
-
 export interface Profile {
+  _id: string;
 
-_id:string;
+  fullName: string;
+  email: string;
 
-fullName:string;
-email:string;
+  role: string;
+  accessTo: string;
 
-role:string;
-accessTo:string;
+  licenseNumber?: string;
 
-licenseNumber?:string;
+  brokerage?: string;
+  phone?: string;
 
-brokerage?:string;
-phone?:string;
+  city?: string;
+  country?: string;
 
-city?:string;
-country?:string;
+  bio?: string;
 
-bio?:string;
+  profileImage?: string;
 
-profileImage?:string;
+  socialLinks?: {
+    linkedin?: string;
+    facebook?: string;
+    twitter?: string;
+    instagram?: string;
+    website?: string;
+  };
 
+  marketingChannels?: string[];
 
-socialLinks?:{
-linkedin?:string;
-facebook?:string;
-twitter?:string;
-instagram?:string;
-website?:string;
-};
+  accountStatus: string;
 
+  approvalStatus: string;
 
-marketingChannels?:string[];
+  paymentStatus: string;
 
+  subscriptionStatus: string;
 
-accountStatus:string;
+  lifetimeCommissionEarned: number;
 
-approvalStatus:string;
+  discretionScore: number;
 
-paymentStatus:string;
-
-subscriptionStatus:string;
-
-
-lifetimeCommissionEarned:number;
-
-discretionScore:number;
-
-
-createdAt:string;
-
+  createdAt: string;
 }
-
 
 export type UserProfile = Profile;
 
-interface State{
+interface State {
+  profile: Profile | null;
 
-profile:Profile|null;
+  loading: boolean;
 
-loading:boolean;
-
-error:string|null;
-
+  error: string | null;
 }
 
+const initialState: State = {
+  profile: null,
 
-const initialState:State={
+  loading: false,
 
-profile:null,
-
-loading:false,
-
-error:null
-
+  error: null,
 };
 
+const profileSlice = createSlice({
+  name: "profile",
 
+  initialState,
 
-const profileSlice=createSlice({
+  reducers: {
+    clearProfile: (state) => {
+      state.profile = null;
+    },
+  },
 
-name:"profile",
+  extraReducers: (builder) => {
+    builder
 
-initialState,
+      .addCase(getMyProfile.pending, (state) => {
+        state.loading = true;
+      })
 
+      .addCase(
+        getMyProfile.fulfilled,
+        (state, action: PayloadAction<Profile>) => {
+          state.loading = false;
 
-reducers:{
+          state.profile = action.payload;
+        },
+      )
 
+      .addCase(getMyProfile.rejected, (state, action) => {
+        state.loading = false;
 
-clearProfile:(state)=>{
+        state.error = action.payload as string;
+      })
 
-state.profile=null;
+      .addCase(updateBasicProfile.fulfilled, (state, action) => {
+        state.profile = action.payload;
+      })
 
-}
+      .addCase(updateBio.fulfilled, (state, action) => {
+        state.profile = action.payload;
+      })
 
+      .addCase(updateSocialLink.fulfilled, (state, action) => {
+        state.profile = action.payload;
+      })
 
-},
+      .addCase(deleteSocialLink.fulfilled, (state, action) => {
+        state.profile = action.payload;
+      })
 
+      .addCase(updateMarketingChannels.fulfilled, (state, action) => {
+        state.profile = action.payload;
+      })
 
+      .addCase(updateProfileImage.fulfilled, (state, action) => {
+        state.profile = action.payload;
+      })
 
-extraReducers:(builder)=>{
-
-
-builder
-
-
-.addCase(getMyProfile.pending,(state)=>{
-state.loading=true;
-})
-
-
-.addCase(
-getMyProfile.fulfilled,
-(state,action:PayloadAction<Profile>)=>{
-
-state.loading=false;
-
-state.profile=action.payload;
-
-}
-)
-
-
-.addCase(getMyProfile.rejected,(state,action)=>{
-
-state.loading=false;
-
-state.error=action.payload as string;
-
-})
-
-
-
-.addCase(
-updateBasicProfile.fulfilled,
-(state,action)=>{
-
-state.profile=action.payload;
-
-}
-)
-
-
-.addCase(
-updateBio.fulfilled,
-(state,action)=>{
-
-state.profile=action.payload;
-
-}
-)
-
-
-.addCase(
-updateSocialLink.fulfilled,
-(state,action)=>{
-
-state.profile=action.payload;
-
-}
-)
-
-
-.addCase(
-deleteSocialLink.fulfilled,
-(state,action)=>{
-
-state.profile=action.payload;
-
-}
-)
-
-
-.addCase(
-updateMarketingChannels.fulfilled,
-(state,action)=>{
-
-state.profile=action.payload;
-
-}
-)
-
-
-.addCase(
-updateProfileImage.fulfilled,
-(state,action)=>{
-
-state.profile=action.payload;
-
-}
-)
-
-
-
-.addCase(
-deleteProfileImage.fulfilled,
-(state,action)=>{
-
-state.profile=action.payload;
-
-}
-)
-
-
-}
-
+      .addCase(deleteProfileImage.fulfilled, (state, action) => {
+        state.profile = action.payload;
+      });
+  },
 });
 
-
-
-export const {
-clearProfile
-}=profileSlice.actions;
-
+export const { clearProfile } = profileSlice.actions;
 
 export default profileSlice.reducer;
