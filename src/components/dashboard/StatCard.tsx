@@ -27,9 +27,9 @@ export const dashboardStats = (
     id: 2,
     title: "VALUE OF LISTINGS",
     value: formatCompactNumber(stats.listing_value, {
-      currency: "€",
+      currency: "$",
     }),
-    change: "+€12.4M MoM",
+    change: "+$12.4M MoM",
   },
   {
     id: 3,
@@ -53,7 +53,7 @@ export const dashboardStats = (
     id: 6,
     title: "COMMISSION PIPELINE",
     value: formatCompactNumber(stats.commission_pipeline, {
-      currency: "€",
+      currency: "$",
     }),
     change: "9 deals in flight",
   },

@@ -13,6 +13,7 @@ import RowSkeleton from "../ui/row-skeleton";
 import ConfirmDialog from "../common/ConfirmDialog";
 import { Share2 } from "lucide-react";
 import Link from "next/link";
+import { formatCompactNumber } from "@/lib/utils/format-number";
 
 interface MyPromoteRequestsSectionProps {
   mySentPromoteRequests: any[];
@@ -151,7 +152,7 @@ export function MyPromoteRequestsSection({
                 </td>
 
                 <td className="px-4 py-3 text-sm text-white">
-                  {request.listing_id?.price?.amount ?? "-"}{" "}
+                  {formatCompactNumber(request.listing_id?.price?.amount) ?? "-"}{" "}
                   {request.listing_id?.price?.currency ?? ""}
                 </td>
 

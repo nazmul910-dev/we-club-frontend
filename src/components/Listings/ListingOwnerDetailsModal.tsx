@@ -65,7 +65,7 @@ export default function ListingOwnerDetailsModal({
     setMounted(true);
   }, []);
 
-  // Esc key দিয়ে close
+
   useEffect(() => {
     if (!open) return;
 

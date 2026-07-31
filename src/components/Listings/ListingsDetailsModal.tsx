@@ -14,6 +14,7 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/lib/redux/store/store";
 import { useState } from "react";
 import { listingsApi } from "@/lib/features/listings/listingsApi";
+import { formatCompactNumber } from "@/lib/utils/format-number";
 
 function Spec({
   icon,
@@ -154,7 +155,7 @@ export function ListingDetailsModal({ property }: { property: any }) {
         <div className="grid grid-cols-2 gap-3">
           <InfoBox
             label="Asking Price"
-            value={`${property.price?.amount} ${property.price?.currency}`}
+            value={`${formatCompactNumber(property.price?.amount)} ${property.price?.currency}`}
           />
           <InfoBox
             label="Referral Commission"

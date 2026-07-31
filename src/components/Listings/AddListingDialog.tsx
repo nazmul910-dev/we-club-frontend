@@ -74,7 +74,7 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
       region: "",
       country: "",
       price_amount: 0,
-      price_currency: "EUR",
+      price_currency: "USD",
       referral_commission_offered: 0,
     },
   });
@@ -418,13 +418,13 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
                     >
                       <FormControl>
                         <SelectTrigger className={`${fieldClass} w-full`}>
-                          <SelectValue placeholder="EUR" />
+                          <SelectValue placeholder="USD" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="border-white/10 bg-[#161616]/95 backdrop-blur-xl text-white">
-                        <SelectItem value="EUR">EUR</SelectItem>
+                        {/* <SelectItem value="EUR">EUR</SelectItem> */}
                         <SelectItem value="USD">USD</SelectItem>
-                        <SelectItem value="GBP">GBP</SelectItem>
+                        {/* <SelectItem value="GBP">GBP</SelectItem> */}
                       </SelectContent>
                     </Select>
                     <FormMessage />

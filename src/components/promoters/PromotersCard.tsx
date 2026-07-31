@@ -23,7 +23,7 @@ const PromotersCard = ({ promoter }: { promoter: any }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const CURRENCY_SYMBOLS: Record<string, string> = {
-    EUR: "€",
+    EUR: "$",
     USD: "$",
     GBP: "£",
     JPY: "¥",
@@ -94,7 +94,7 @@ const PromotersCard = ({ promoter }: { promoter: any }) => {
   const formatValue = (
     listingPrices: { amount: number; currency: string }[],
   ) => {
-    // Group by currency and sum
+
     const byCurrency = listingPrices.reduce<Record<string, number>>(
       (acc, { amount, currency }) => {
         acc[currency] = (acc[currency] ?? 0) + amount;
