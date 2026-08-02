@@ -18,6 +18,7 @@ import api from "@/lib/api/api";
 
 import Logo from "../../../public/assets/world-logo.png"
 import Link from "next/link";
+import { formatCompactNumber } from "@/lib/utils/format-number";
 
 
 interface PublicPromoteRequestDetailsProps {
@@ -39,6 +40,34 @@ const statusStyles: Record<string, string> = {
   pending: "bg-[#FBF0DC] text-[#8A5A00]",
   rejected: "bg-[#FBE4E1] text-[#A32C1E]",
   cancelled: "bg-[#ECEAE4] text-[#5F5F5F]",
+};
+
+const formatDisplayValue = (value: unknown, fallback = "-"): string => {
+  if (value === null || value === undefined || value === "") {
+    return fallback;
+  }
+
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => formatDisplayValue(item, fallback)).join(", ");
+  }
+
+  if (typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    const amount = record.amount ?? record.value;
+    const currency = record.currency ?? record.unit;
+
+    if (amount !== undefined || currency !== undefined) {
+      const amountText = amount !== undefined ? String(amount) : "";
+      const currencyText = currency !== undefined ? String(currency) : "";
+      return [amountText, currencyText].filter(Boolean).join(" ").trim();
+    }
+  }
+
+  return fallback;
 };
 
 export default function PublicPromoteRequestDetails({
@@ -165,10 +194,7 @@ export default function PublicPromoteRequestDetails({
             </p>
 
             <p className="font-serif text-3xl sm:text-4xl">
-              {listing?.price?.amount?.toLocaleString?.() ?? listing?.price?.amount}{" "}
-              <span className="font-mono text-sm tracking-wide text-[#9A9C99]">
-                {listing?.price?.currency}
-              </span>
+              {formatDisplayValue(listing?.price)}
             </p>
 
             <div className="flex flex-wrap items-center gap-6 border-t border-[#EDEAE2] pt-5 text-sm text-[#3F3F3F]">
@@ -188,7 +214,7 @@ export default function PublicPromoteRequestDetails({
               </span>
               <span className="flex items-center gap-2">
                 <Ruler size={18} className="text-[#9A9C99]" />
-                {listing?.area_sqm} m²{" "}
+                {formatDisplayValue(listing?.area_sqm)}{" "}
                 <span className="font-mono text-[12px] tracking-wide text-[#000000]">
                   AREA
                 </span>
@@ -198,7 +224,7 @@ export default function PublicPromoteRequestDetails({
 
           {/* Image column */}
           <div>
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl border border-[#EDEAE2]">
+            <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl border border-[#EDEAE2]">
               {activeImage && (
                 <Image
                   key={imageKey}
@@ -265,12 +291,7 @@ export default function PublicPromoteRequestDetails({
                   "-"
                 }%`}
               />
-              <Row
-                label="PRICE"
-                value={`${listing?.price?.amount ?? "-"} ${
-                  listing?.price?.currency ?? ""
-                }`}
-              />
+              <Row label="PRICE" value={listing?.price} />
               <Row label="STATUS" value={data.status} capitalize />
             </dl>
           </div>
@@ -284,16 +305,15 @@ export default function PublicPromoteRequestDetails({
               <Card
                 icon={<span className="font-serif text-base">$</span>}
                 title="Price"
-                value={`${listing?.price?.amount ?? "-"} ${
-                  listing?.price?.currency ?? ""
-                }`}
+                value={listing?.price} 
               />
+
               <Card icon={<Bed size={15} />} title="Bedrooms" value={listing?.bedrooms} />
               <Card icon={<Bath size={15} />} title="Bathrooms" value={listing?.bathrooms} />
               <Card
                 icon={<Ruler size={15} />}
                 title="Area"
-                value={`${listing?.area_sqm ?? "-"} m²`}
+                value={listing?.area_sqm}
               />
             </div>
           </div>
@@ -437,7 +457,7 @@ function Row({
           capitalize ? "capitalize" : ""
         }`}
       >
-        {value}
+        {formatDisplayValue(value)}
       </dd>
     </div>
   );
@@ -525,7 +545,7 @@ function Card({
         {title}
       </div>
       <h3 className="mt-2 font-lato text-xl text-[#101214]">
-        {value || "-"}
+        {formatDisplayValue(value)}
       </h3>
     </div>
   );
