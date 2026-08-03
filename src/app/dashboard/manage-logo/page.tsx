@@ -18,7 +18,6 @@ export default function ManageLogo() {
 
   return (
     <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 flex flex-col gap-8 bg-[#0a0a0a] min-h-[calc(100vh-4rem)]">
-      {/* Header */}
       <div className="w-full space-y-6 md:space-y-0 md:flex md:items-center justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#cdae53]">

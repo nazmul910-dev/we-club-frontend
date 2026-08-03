@@ -117,12 +117,13 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         {/* Logo */}
         <div className="flex flex-col items-center gap-3 px-5">
           {siteLogo?.logo ? (
-
-            <img
-              src={siteLogo.logo}
-              alt="WE"
-              className="h-auto w-28 lg:w-30 object-contain shrink-0"
-            />
+            <Link href="/dashboard">
+              <img
+                src={siteLogo.logo}
+                alt="WE"
+                className="h-auto w-28 lg:w-30 object-contain shrink-0"
+              />
+            </Link>
           ) : (
             <Crown className="text-[#CDAE53]" size={22} strokeWidth={1.75} />
           )}
@@ -146,13 +147,13 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
 
           {MENU_ITEMS.filter((item) => {
             if (item.href === "/dashboard/users-management") {
-              return userRole === "admin" || userRole === "manager";
+              return userRole === "admin" || userRole === "manager" || userRole === "founder";
             }
             if (item.href === "/dashboard/manager-management") {
-              return userRole === "admin";
+              return userRole === "admin" || userRole === "founder" || userRole === "manager";
             }
             if (item.href === "/dashboard/manage-logo") {
-              return userRole === "admin";
+              return userRole === "founder" || userRole === "manager";
             }
             return true;
           }).map(({ label, href, icon: Icon }) => {

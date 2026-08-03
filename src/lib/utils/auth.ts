@@ -8,7 +8,10 @@ export type UserRole =
   | "ambassador"
   | "we_club_member"
   | "admin"
-  | "manager";
+  | "manager"
+  | "founder"
+  | "super_admin"
+  | "community_manager";
 
 export type AccessTo = "we_command_center" | "invictus" | "both";
 

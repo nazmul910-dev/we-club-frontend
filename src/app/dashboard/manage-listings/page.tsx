@@ -219,12 +219,7 @@ export default function ManageListingsPage() {
     userRole === "admin" ||
     userRole === "manager";
 
-  /*
-   * Pending promote request শুধু cancel করা যাবে।
-   *
-   * Owner approval হওয়ার পরে সাধারণ cancel নয়;
-   * তখন promoter Accept/Reject terms করবে।
-   */
+
   const canManageRequest = (
     request: any,
   ): boolean => {
