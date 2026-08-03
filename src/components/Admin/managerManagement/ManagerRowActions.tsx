@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -12,7 +11,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-
 import {
   activateManager,
   suspendManager,
@@ -20,12 +18,23 @@ import {
 } from "@/lib/features/addManager/ManagerApi";
 import { Manager } from "@/lib/features/addManager/managerTypes";
 import ConfirmActionModal from "./ConfirmActionModal";
-import { useAppDispatch } from "@/lib/redux/store/hook";
+import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
 
 type PendingAction = "activate" | "suspend" | "delete" | null;
 
-export default function ManagerRowActions({ manager }: { manager: Manager }) {
+interface Props {
+  manager: Manager;
+  canDelete?: boolean;
+}
+
+export default function ManagerRowActions({ manager, canDelete: canDeleteProp }: Props) {
   const dispatch = useAppDispatch();
+
+  const currentUserRole = useAppSelector((state) => state.authUser?.user?.role) as
+    | string
+    | undefined;
+
+  const canDelete = canDeleteProp ?? currentUserRole === "founder";
 
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const [loading, setLoading] = useState(false);
@@ -38,6 +47,11 @@ export default function ManagerRowActions({ manager }: { manager: Manager }) {
 
   const runAction = async () => {
     if (!pendingAction) return;
+
+    if (pendingAction === "delete" && !canDelete) {
+      setPendingAction(null);
+      return;
+    }
 
     setLoading(true);
 
@@ -55,22 +69,27 @@ export default function ManagerRowActions({ manager }: { manager: Manager }) {
 
   const confirmCopy: Record<
     Exclude<PendingAction, null>,
-    { title: string; description: string; confirmLabel: string; destructive: boolean }
+    {
+      title: string;
+      description: string;
+      confirmLabel: string;
+      destructive: boolean;
+    }
   > = {
     activate: {
-      title: "Activate manager?",
+      title: "Activate account?",
       description: `${manager.fullName} will regain access immediately.`,
       confirmLabel: "Activate",
       destructive: false,
     },
     suspend: {
-      title: "Suspend manager?",
+      title: "Suspend account?",
       description: `${manager.fullName} will lose access until reactivated.`,
       confirmLabel: "Suspend",
       destructive: false,
     },
     delete: {
-      title: "Delete manager?",
+      title: "Delete account?",
       description: `This permanently removes ${manager.fullName}'s account. This can't be undone.`,
       confirmLabel: "Delete",
       destructive: true,
@@ -80,21 +99,10 @@ export default function ManagerRowActions({ manager }: { manager: Manager }) {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger >
-          {/* <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-neutral-400 hover:text-amber-400"
-          >
+        <DropdownMenuTrigger>
+          <div className="h-8 w-8 text-neutral-400 hover:text-amber-400">
             <MoreVertical className="h-4 w-4" />
-          </Button> */}
-
-          <div
-
-            className="h-8 w-8 text-neutral-400 hover:text-amber-400"
-          >
-            <MoreVertical className="h-4 w-4" />
-          </div>          
+          </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           {isActive ? (
@@ -108,13 +116,16 @@ export default function ManagerRowActions({ manager }: { manager: Manager }) {
               Activate
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem
-            onClick={() => setPendingAction("delete")}
-            className="text-red-500 focus:text-red-500"
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Delete
-          </DropdownMenuItem>
+
+          {canDelete && (
+            <DropdownMenuItem
+              onClick={() => setPendingAction("delete")}
+              className="text-red-500 focus:text-red-500"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 

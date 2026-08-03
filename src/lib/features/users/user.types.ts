@@ -1,54 +1,47 @@
 import {
- ApprovalStatus,
- AccountStatus,
- LicenseVerificationStatus
+  ApprovalStatus,
+  AccountStatus,
+  LicenseVerificationStatus,
 } from "@/constants/userStatus";
 
-
 export interface IUser {
+  _id: string;
 
- _id:string;
+  fullName: string;
 
- fullName:string;
+  email: string;
 
- email:string;
+  role: string;
 
- role:string;
+  accessTo: string;
 
- accessTo:string;
+  licenseNumber: string;
 
- licenseNumber:string;
+  brokerage: string;
 
- brokerage:string;
+  phone: string;
 
- phone:string;
+  city: string;
 
- city:string;
+  country: string;
 
- country:string;
+  bio: string;
 
- bio:string;
+  approvalStatus: ApprovalStatus;
 
+  accountStatus: AccountStatus;
 
- approvalStatus:ApprovalStatus;
+  licenseVerificationStatus: LicenseVerificationStatus;
 
- accountStatus:AccountStatus;
+  paymentStatus: string;
 
- licenseVerificationStatus:LicenseVerificationStatus;
+  subscriptionStatus: string;
 
+  lifetimeCommissionEarned: number;
 
- paymentStatus:string;
+  discretionScore: number;
 
- subscriptionStatus:string;
+  createdAt: string;
 
-
- lifetimeCommissionEarned:number;
-
- discretionScore:number;
-
-
- createdAt:string;
-
- updatedAt:string;
-
+  updatedAt: string;
 }

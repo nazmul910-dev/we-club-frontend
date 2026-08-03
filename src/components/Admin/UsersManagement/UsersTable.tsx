@@ -11,6 +11,8 @@ import {
   updateApprovalStatus,
   updateLicenseStatus,
   updateAccountStatus,
+  deleteUser as deleteUserThunk,
+  getAllUsers,
 } from "@/lib/features/users/usersApi";
 
 import UserDetailsModal from "./UserDetailsModal";
@@ -157,12 +159,17 @@ export default function UsersTable({ users, loading }: Props) {
                     </div>
                   </td>
 
-                  <td className="px-6 py-5 text-center">
+                  <td className="px-6  py-5 text-center">
                     <StatusDropdown
                       open={openDropdown === user._id}
                       onOpenChange={(open) =>
                         setOpenDropdown(open ? user._id : null)
                       }
+                      userId={user._id}
+                      deleteUser={async (id) => {
+                        await dispatch(deleteUserThunk({ id })).unwrap();
+                        await dispatch(getAllUsers());
+                      }}
                       approvalStatus={user.approvalStatus}
                       licenseVerificationStatus={user.licenseVerificationStatus}
                       accountStatus={user.accountStatus}
@@ -174,14 +181,14 @@ export default function UsersTable({ users, loading }: Props) {
                           }),
                         ).unwrap();
                       }}
-                      // onLicense={async (status) => {
-                      //   await dispatch(
-                      //     updateLicenseStatus({
-                      //       id: user._id,
-                      //       licenseVerificationStatus: status as any,
-                      //     }),
-                      //   ).unwrap();
-                      // }}
+                      onLicense={async (status) => {
+                        await dispatch(
+                          updateLicenseStatus({
+                            id: user._id,
+                            licenseVerificationStatus: status as any,
+                          }),
+                        ).unwrap();
+                      }}
                       onAccount={async (status) => {
                         await dispatch(
                           updateAccountStatus({

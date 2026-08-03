@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Loader2, UserPlus, Eye, EyeOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -25,14 +24,19 @@ import {
 } from "@/components/ui/select";
 
 import { createManager } from "@/lib/features/addManager/ManagerApi";
-import { CreateManagerPayload } from "@/lib/features/addManager/managerTypes";
-import { useAppDispatch } from "@/lib/redux/store/hook";
+import {
+  CreateManagerPayload,
+  CreatableAdminRole,
+  CREATABLE_ROLES_BY_CURRENT_ROLE,
+  ROLE_LABELS,
+} from "@/lib/features/addManager/managerTypes";
+import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
 
 const emptyForm: CreateManagerPayload = {
   fullName: "",
   email: "",
   password: "",
-  role: "manager",
+  role: "community_manager",
   accessTo: "we_command_center",
 };
 
@@ -44,27 +48,26 @@ const isValidEmail = (value: string) => {
 };
 
 const validateManagerForm = (form: CreateManagerPayload) => {
-  if (!form.fullName.trim()) {
-    return "Full name is required.";
-  }
-
-  if (!form.email.trim()) {
-    return "Email is required.";
-  }
-
-  if (!isValidEmail(form.email)) {
-    return "Please enter a valid email address.";
-  }
-
-  if (form.password.trim().length < 8) {
-    return "Password must be at least 8 characters.";
-  }
-
+  if (!form.fullName.trim()) return "Full name is required.";
+  if (!form.email.trim()) return "Email is required.";
+  if (!isValidEmail(form.email)) return "Please enter a valid email address.";
+  if (form.password.trim().length < 8) return "Password must be at least 8 characters.";
+  if (!form.role) return "Please select a role.";
   return null;
 };
 
 export default function AddManagerModal() {
   const dispatch = useAppDispatch();
+
+ 
+  const currentUserRole = useAppSelector((state) => state.authUser?.user?.role) as
+    | string
+    | undefined;
+
+  const allowedRoles = useMemo(() => {
+    if (!currentUserRole) return [];
+    return CREATABLE_ROLES_BY_CURRENT_ROLE[currentUserRole] ?? [];
+  }, [currentUserRole]);
 
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -84,8 +87,12 @@ export default function AddManagerModal() {
   };
 
   const handleSubmit = async () => {
-    const validationError = validateManagerForm(form);
+    if (!allowedRoles.includes(form.role)) {
+      setError("You are not permitted to create this role.");
+      return;
+    }
 
+    const validationError = validateManagerForm(form);
     if (validationError) {
       setError(validationError);
       return;
@@ -102,17 +109,18 @@ export default function AddManagerModal() {
     };
 
     const result = await dispatch(createManager(payload));
-
     setSubmitting(false);
 
     if (createManager.fulfilled.match(result)) {
       resetAndClose();
     } else {
-      setError(
-        (result.payload as string) || "Failed to create manager. Try again."
-      );
+      setError((result.payload as string) || "Failed to create account. Try again.");
     }
   };
+
+  if (allowedRoles.length === 0) {
+    return null;
+  }
 
   return (
     <Dialog
@@ -128,32 +136,27 @@ export default function AddManagerModal() {
         }
       }}
     >
-      <DialogTrigger >
-        <div className="h-11 rounded-xl flex justify-center items-center bg-[#c9a84c] px-5 text-sm font-bold text-black shadow-lg transition hover:bg-[#c9a125]">
+      <DialogTrigger>
+        <div className="h-11 rounded-xl cursor-pointer flex justify-center items-center bg-[#c9a84c] px-5 text-sm font-bold text-black shadow-lg transition hover:bg-[#c9a125]">
           <UserPlus className="mr-2 h-4 w-4" />
-          <p className="">Add Manager</p>
+          <p>Manage Roles</p>
         </div>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-lg rounded-2xl border border-neutral-800 bg-[#0B0B0B] text-white shadow-2xl">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-white">
-            Add New Manager
-          </DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-white">Add New Admin</DialogTitle>
           <DialogDescription className="text-sm text-neutral-400">
-            Create a manager account and assign system access.
+            Create an admin account and assign a role.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5 py-5">
-          {/* Full Name */}
           <div className="space-y-2">
-            <Label className="text-sm font-semibold text-neutral-200">
-              Full Name
-            </Label>
+            <Label className="text-sm font-semibold text-neutral-200">Full Name</Label>
             <Input
               name="manager-name"
-              placeholder="Enter manager full name"
+              placeholder="Enter full name"
               value={form.fullName}
               autoComplete="off"
               onChange={(e) => handleChange("fullName", e.target.value)}
@@ -162,16 +165,13 @@ export default function AddManagerModal() {
             />
           </div>
 
-          {/* Email */}
           <div className="space-y-2">
-            <Label className="text-sm font-semibold text-neutral-200">
-              Email Address
-            </Label>
+            <Label className="text-sm font-semibold text-neutral-200">Email Address</Label>
             <Input
               id="email"
               name="manager-email"
               type="email"
-              placeholder="Use your manager email"
+              placeholder="Use admin email"
               value={form.email}
               autoComplete="new-email"
               onChange={(e) => handleChange("email", e.target.value)}
@@ -180,17 +180,14 @@ export default function AddManagerModal() {
             />
           </div>
 
-          {/* Password */}
           <div className="space-y-2">
-            <Label className="text-sm font-semibold text-neutral-200">
-              Password
-            </Label>
+            <Label className="text-sm font-semibold text-neutral-200">Password</Label>
             <div className="relative">
               <Input
                 id="password"
                 name="manager-password"
                 type={showPassword ? "text" : "password"}
-                placeholder="Create manager password"
+                placeholder="Create password"
                 value={form.password}
                 autoComplete="new-password"
                 onChange={(e) => handleChange("password", e.target.value)}
@@ -202,27 +199,37 @@ export default function AddManagerModal() {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 transition hover:text-amber-400"
               >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
           </div>
 
-          {/* Access */}
           <div className="space-y-2">
-            <Label className="text-sm font-semibold text-neutral-200">
-              System Access
-            </Label>
+            <Label className="text-sm font-semibold text-neutral-200">Role</Label>
+            <Select
+              value={form.role}
+              onValueChange={(value) => handleChange("role", value as CreatableAdminRole)}
+              disabled={submitting}
+            >
+              <SelectTrigger className="h-11 rounded-xl border-neutral-800 bg-neutral-900 text-white focus:ring-[#cfa12396]">
+                <SelectValue placeholder="Select role" />
+              </SelectTrigger>
+              <SelectContent className="rounded-xl border-neutral-800 bg-neutral-900 text-white">
+                {allowedRoles.map((role) => (
+                  <SelectItem key={role} value={role}>
+                    {ROLE_LABELS[role]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold text-neutral-200">System Access</Label>
             <Select
               value={form.accessTo}
               onValueChange={(value) =>
-                handleChange(
-                  "accessTo",
-                  value as CreateManagerPayload["accessTo"]
-                )
+                handleChange("accessTo", value as CreateManagerPayload["accessTo"])
               }
               disabled={submitting}
             >
@@ -230,9 +237,7 @@ export default function AddManagerModal() {
                 <SelectValue placeholder="Select access type" />
               </SelectTrigger>
               <SelectContent className="rounded-xl border-neutral-800 bg-neutral-900 text-white">
-                <SelectItem value="we_command_center">
-                  WE Command Center
-                </SelectItem>
+                <SelectItem value="we_command_center">WE Command Center</SelectItem>
                 <SelectItem value="invictus">Invictus</SelectItem>
                 <SelectItem value="both">Both Platforms</SelectItem>
               </SelectContent>
@@ -251,17 +256,17 @@ export default function AddManagerModal() {
             variant="ghost"
             onClick={resetAndClose}
             disabled={submitting}
-            className="h-11 rounded-xl font-bold text-neutral-300 hover:bg-neutral-800 hover:text-white"
+            className="h-11 cursor-pointer rounded-xl bg-red-500 font-bold text-white hover:bg-red-600 duration-300 hover:text-white"
           >
             Cancel
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={submitting}
-            className="h-11 rounded-xl bg-[#c9a84c] px-6 font-bold text-black hover:bg-[#cfa123]"
+            className="h-11 rounded-xl cursor-pointer bg-[#c9a84c] px-6 font-bold text-white duration-300 hover:bg-[#cfa123]"
           >
             {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Create Manager
+            Create
           </Button>
         </DialogFooter>
       </DialogContent>
