@@ -58,7 +58,8 @@ export default function MyListingsPage() {
         }
       }
 
-      return matchesCountry && matchesCommission;
+      const matchesFinalized = !property.is_sale_finalized;
+      return matchesCountry && matchesCommission && matchesFinalized;
     });
 
     if (filters.sortBy === "price") {

@@ -94,10 +94,19 @@ function ListingCardInner({ property }: { property: any }) {
             {property.status}
           </span>
         </div>
-
+         {
+          property.status === "sold" && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+              <span className=" -rotate-45 font-lato text-[40px] md:text-[30px] lg:text-[50px] uppercase text-white">  
+              sold
+              </span>
+            </div>
+          )
+        }
+         
         {/* Price Overlay */}
         <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-[#0A0A0A] via-[#0A0A0A]/70 to-transparent p-4 pt-12">
-          <div className="text-meta text-white/50">Asking</div>
+          {/* <div className="text-meta text-white/50">Asking</div> */}
           <div className="mt-0.5 font-display text-white text-2xl">
             {formatCompactNumber(property.price.amount)} {property.price.currency}
           </div>
