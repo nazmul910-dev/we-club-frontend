@@ -44,7 +44,7 @@ export default function PromoteRequestDetailsModal({ request }: Props) {
   const requester = request?.requester;
   const user = requester?.user_id;
   const listing = request?.listing_id;
-  console.log("lsss: ",listing)
+
 
   // lock background scroll while modal is open
   useEffect(() => {

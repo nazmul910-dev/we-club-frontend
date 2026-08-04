@@ -150,7 +150,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
               return userRole === "admin" || userRole === "manager" || userRole === "founder";
             }
             if (item.href === "/dashboard/manager-management") {
-              return userRole === "admin" || userRole === "founder" || userRole === "manager";
+              return userRole === "founder" || userRole === "manager";
             }
             if (item.href === "/dashboard/manage-logo") {
               return userRole === "founder" || userRole === "manager";

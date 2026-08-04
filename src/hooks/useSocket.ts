@@ -25,12 +25,12 @@ export const useSocket = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     
-    console.log(
-      "useSocket effect: isAuthenticated =",
-      isAuthenticated,
-      "| token exists =",
-      !!token,
-    );
+    // console.log(
+    //   "useSocket effect: isAuthenticated =",
+    //   isAuthenticated,
+    //   "| token exists =",
+    //   !!token,
+    // );
 
     if (!isAuthenticated) return;
     if (!token) return;

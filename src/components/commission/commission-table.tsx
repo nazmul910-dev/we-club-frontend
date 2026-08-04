@@ -26,7 +26,7 @@ interface CommissionsMeta {
   totalPage: number;
 }
 
-const PRIVILEGED_ROLES = ["admin", "manager"];
+const PRIVILEGED_ROLES = ["founder", "manager"];
 
 const PAGE_SIZE = 10;
 

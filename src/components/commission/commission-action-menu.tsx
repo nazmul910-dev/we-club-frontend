@@ -23,8 +23,8 @@ type ModalType = "confirm" | "paid" | "dispute" | "resolve";
 
 // Roles that can see and manage every commission, not just their own.
 // IMPORTANT: keep this in sync with commission-table.tsx and with the backend's
-// authorizeRoles('admin', 'manager') on GET /commission/admin/all.
-const PRIVILEGED_ROLES = ["admin", "manager"];
+// authorizeRoles('founder', 'manager') on GET /commission/admin/all.
+const PRIVILEGED_ROLES = ["founder", "manager"];
 
 export default function CommissionActionMenu({ commission }: Props) {
   const [modal, setModal] = useState(false);

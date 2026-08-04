@@ -41,9 +41,7 @@ import { PaginationControl } from "@/components/ui/PaginationControll";
 export default function ManageListingsPage() {
   const dispatch = useDispatch<AppDispatch>();
 
-  /*
-   * Owner approval modal states
-   */
+
   const [isModalOpen, setIsModalOpen] =
     useState(false);
 
@@ -62,9 +60,7 @@ export default function ManageListingsPage() {
   const [isConfirming, setIsConfirming] =
     useState(false);
 
-  /*
-   * Pagination states
-   */
+
   const [page, setPage] = useState(1);
 
   const [
@@ -84,11 +80,7 @@ export default function ManageListingsPage() {
 
   const [limit] = useState(10);
 
-  /*
-   * Listing slice data
-   *
-   * এখানে শুধু listing-related data থাকবে।
-   */
+
   const {
     myListings,
     myListingsLoading,
@@ -158,15 +150,7 @@ export default function ManageListingsPage() {
     };
   });
 
-  /*
-   * নতুন promoteRequests slice data
-   *
-   * Received requests:
-   * state.promoteRequests.received
-   *
-   * Sent requests:
-   * state.promoteRequests.mine
-   */
+
   const {
     receivedPromoteRequests,
     receivedPromoteRequestsLoading,
@@ -216,7 +200,7 @@ export default function ManageListingsPage() {
     userRole === "admin";
 
   const isAdminOrManager =
-    userRole === "admin" ||
+    userRole === "founder" ||
     userRole === "manager";
 
 
@@ -226,10 +210,7 @@ export default function ManageListingsPage() {
     return request.status === "pending";
   };
 
-  /*
-   * Listing owner অথবা authorized user
-   * pending request approve/reject করতে পারবে।
-   */
+
   const canApproveRejectRequest = (
     request: any,
   ): boolean => {
@@ -252,9 +233,7 @@ export default function ManageListingsPage() {
     );
   };
 
-  /*
-   * Refresh received promote requests
-   */
+
   const refreshReceivedRequests = async () => {
     await dispatch(
       promoteRequestApi.getReceivedPromoteRequests({
@@ -264,9 +243,7 @@ export default function ManageListingsPage() {
     ).unwrap();
   };
 
-  /*
-   * Refresh promoter-এর sent requests
-   */
+
   const refreshSentRequests = async () => {
     await dispatch(
       promoteRequestApi.getMyPromoteRequests({
@@ -276,12 +253,6 @@ export default function ManageListingsPage() {
     ).unwrap();
   };
 
-  /*
-   * Promoter pending request cancel করবে।
-   *
-   * Cancel API এখনো listingsApi-তে থাকলে
-   * সেটাই ব্যবহার করা হচ্ছে।
-   */
   const handleCancelRequest = async (
     id: string,
   ) => {
@@ -295,9 +266,7 @@ export default function ManageListingsPage() {
     ]);
   };
 
-  /*
-   * Admin promote request delete করবে।
-   */
+
   const handleDeleteRequest = async (
     id: string,
   ) => {
@@ -317,12 +286,6 @@ export default function ManageListingsPage() {
     ]);
   };
 
-  /*
-   * Owner approve button click।
-   *
-   * Modal open হবে এবং proposed commission
-   * default confirmed commission হিসেবে বসবে।
-   */
   const handleApproveRequest = (
     id: string,
   ) => {
@@ -352,14 +315,6 @@ export default function ManageListingsPage() {
     setIsModalOpen(true);
   };
 
-  /*
-   * Owner final approve করবে।
-   *
-   * Backend-এ এর পরে status হবে:
-   * owner_approved
-   *
-   * এখনো promotion final active হবে না।
-   */
   const handleConfirmApprove = async () => {
     if (!selectedRequestId) return;
 
@@ -402,9 +357,7 @@ export default function ManageListingsPage() {
     }
   };
 
-  /*
-   * Listing owner request reject করবে।
-   */
+
   const handleRejectRequest = async (
     id: string,
   ) => {
@@ -427,12 +380,6 @@ export default function ManageListingsPage() {
     ]);
   };
 
-  /*
-   * Owner approve করার পরে original requester
-   * Accept অথবা Reject করবে।
-   *
-   * এই জায়গায় নতুন respondToOwnerTerms API call হচ্ছে।
-   */
   const handleRespondToOwnerTerms = async (
     payload: RespondToOwnerTermsPayload,
   ) => {
@@ -448,9 +395,6 @@ export default function ManageListingsPage() {
     ]);
   };
 
-  /*
-   * Listing-related handlers
-   */
   const handleCancelPendingListings = async (
     id: string,
   ) => {
@@ -501,13 +445,8 @@ export default function ManageListingsPage() {
     ).unwrap();
   };
 
-  /*
-   * Initial data fetching
-   */
   useEffect(() => {
-    /*
-     * Listing data
-     */
+
     dispatch(
       listingsApi.getMyListings({
         page: myListingsPage,
@@ -515,10 +454,6 @@ export default function ManageListingsPage() {
       }),
     );
 
-    /*
-     * নতুন promoteRequestApi:
-     * Owner-এর received requests
-     */
     dispatch(
       promoteRequestApi.getReceivedPromoteRequests({
         page: receivedRequestsPage,
@@ -526,10 +461,6 @@ export default function ManageListingsPage() {
       }),
     );
 
-    /*
-     * নতুন promoteRequestApi:
-     * Promoter-এর sent requests
-     */
     dispatch(
       promoteRequestApi.getMyPromoteRequests({
         page: sentRequestsPage,

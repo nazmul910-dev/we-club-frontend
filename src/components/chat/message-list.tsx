@@ -19,7 +19,7 @@ export default function MessageList() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages.length, typingUsers.length]);
 
-  console.log("Rendering MessageList with messages:", messages);
+  // console.log("Rendering MessageList with messages:", messages);
 
   return (
     <ScrollArea className="min-h-0">
