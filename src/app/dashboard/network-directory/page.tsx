@@ -54,7 +54,7 @@ export default function NetworkDirectoryPage() {
       <div className="">
         <NetworkHeader />
 
-        <div className="mt-8">
+        <div className="">
           <NetworkSearch value={search} onChange={setSearch} />
         </div>
 
@@ -95,7 +95,7 @@ export default function NetworkDirectoryPage() {
         )}
 
         {meta && meta.totalPage > 1 && !loading && (
-          <div className="mt-8">
+          <div className="">
             <PaginationControl
               currentPage={meta.page}
               totalPages={meta.totalPage}

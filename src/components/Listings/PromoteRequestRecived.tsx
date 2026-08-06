@@ -108,10 +108,6 @@ export function PromoteRequestsReceivedSection({
           {promoteRequests.map((request: any) => {
             const actions: RowAction[] = [];
 
-            /*
-             * Listing owner শুধু pending request
-             * approve অথবা reject করতে পারবে।
-             */
             if (
               request.status === "pending" &&
               canApproveRejectRequest(request)
@@ -132,9 +128,6 @@ export function PromoteRequestsReceivedSection({
               });
             }
 
-            /*
-             * Admin permission থাকলে delete দেখাবে।
-             */
             if (canDeleteRequest(request)) {
               actions.push({
                 label: "Delete",
@@ -221,9 +214,7 @@ function PromoterResponseStatus({
 }: {
   request: any;
 }) {
-  /*
-   * Owner এখনও decision দেয়নি।
-   */
+
   if (request.status === "pending") {
     return (
       <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-yellow-300">
@@ -233,10 +224,6 @@ function PromoterResponseStatus({
     );
   }
 
-  /*
-   * Owner approve করেছে।
-   * এখন promoter Accept/Reject করবে।
-   */
   if (
     request.status === "owner_approved" &&
     request.promoter_agreement_status ===
@@ -250,9 +237,6 @@ function PromoterResponseStatus({
     );
   }
 
-  /*
-   * Promoter final Accept করেছে।
-   */
   if (
     request.status === "approved" &&
     request.promoter_agreement_status ===
@@ -266,9 +250,7 @@ function PromoterResponseStatus({
     );
   }
 
-  /*
-   * Promoter owner-এর terms Reject করেছে।
-   */
+
   if (
     request.status ===
       "promoter_rejected" ||
@@ -283,9 +265,7 @@ function PromoterResponseStatus({
     );
   }
 
-  /*
-   * Listing owner request Reject করেছে।
-   */
+
   if (request.status === "rejected") {
     return (
       <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-red-300">
@@ -295,9 +275,6 @@ function PromoterResponseStatus({
     );
   }
 
-  /*
-   * Requester pending request Cancel করেছে।
-   */
   if (request.status === "cancelled") {
     return (
       <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-zinc-400">

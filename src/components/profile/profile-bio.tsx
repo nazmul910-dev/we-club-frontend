@@ -23,7 +23,7 @@ export default function ProfileBio({ profile }: Props) {
 
           <button
             onClick={() => setOpen(true)}
-            className="text-[#C9A962] hover:text-white transition"
+            className="text-[#C9A962] hover:text-white cursor-pointer transition"
           >
             <Pencil size={15} />
           </button>

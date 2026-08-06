@@ -45,7 +45,7 @@ export function RowActionsMenu({ actions }: { actions: RowAction[] }) {
         <button
           type="button"
           aria-label="Row actions"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-full text-white/60 transition hover:bg-white/10 hover:text-white"
+          className="inline-flex cursor-pointer h-8 w-8 items-center justify-center rounded-full text-white/60 transition hover:bg-white/10 hover:text-white"
         >
           <MoreVertical size={16} />
         </button>

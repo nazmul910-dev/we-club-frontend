@@ -577,7 +577,7 @@ export default function ManageListingsPage() {
                 }
               />
 
-              <div className="mt-8">
+              <div className="">
                 <PaginationControl
                   currentPage={
                     myListingsMeta?.page ?? 1
@@ -632,7 +632,7 @@ export default function ManageListingsPage() {
                   }
                 />
 
-                <div className="mt-8">
+                <div className="">
                   <PaginationControl
                     currentPage={
                       adminListingsMeta?.page ??
@@ -683,7 +683,7 @@ export default function ManageListingsPage() {
                 }
               />
 
-              <div className="mt-8">
+              <div className="">
                 <PaginationControl
                   currentPage={
                     receivedPromoteRequestsMeta
@@ -732,7 +732,7 @@ export default function ManageListingsPage() {
                 }
               />
 
-              <div className="mt-8">
+              <div className="">
                 <PaginationControl
                   currentPage={
                     myPromoteRequestsMeta?.page ??

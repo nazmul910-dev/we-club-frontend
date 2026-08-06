@@ -277,7 +277,7 @@ export default function DetailsStep() {
         <button
           type="button"
           onClick={() => dispatch(prevStep())}
-          className="rounded-xl border border-white/20 px-6 py-3 text-white transition hover:border-white/40"
+          className="rounded-xl border cursor-pointer border-white/20 px-6 py-3 text-white transition hover:border-white/40"
         >
           Back
         </button>
@@ -285,7 +285,7 @@ export default function DetailsStep() {
         <button
           type="submit"
           disabled={isLoading}
-          className="rounded-xl bg-amber-400 px-8 py-3 font-semibold text-black transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-xl cursor-pointer bg-amber-400 px-8 py-3 font-semibold text-black transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isLoading ? 'Creating Account...' : 'Create Account'}
         </button>

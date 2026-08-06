@@ -51,10 +51,10 @@ onEdit &&
 
 <button
 onClick={onEdit}
-className="text-[#C9A962]"
+className="text-[#C9A962] hover:text-white cursor-pointer transition"
 >
 
-<Pencil size={14}/>
+<Pencil size={14}  />
 
 </button>
 
