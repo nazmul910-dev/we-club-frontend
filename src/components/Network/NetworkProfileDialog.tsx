@@ -60,6 +60,7 @@ useEffect(() => {
       rounded-full
       border border-[#5c4518]
       flex
+      cursor-pointer
       items-center
       justify-center
       text-gray-400
@@ -115,7 +116,7 @@ useEffect(() => {
           <div className="space-y-0 divide-y divide-gold-soft">
             {/* Contact */}
             <div className="space-y-2.5 py-3">
-              <p className="font-ui text-[9px] tracking-widest uppercase text-gold/60 mb-3">
+              <p className="font-ui text-[9px] tracking-widest uppercase text-gold mb-3">
                 Contact
               </p>
 
@@ -144,7 +145,7 @@ useEffect(() => {
             {/* Professional */}
             {(profile.licenseNumber || profile.brokerage) && (
               <div className="space-y-2.5 py-3">
-                <p className="font-ui text-[9px] tracking-widest uppercase text-gold/60 mb-3">
+                <p className="font-ui text-[9px] tracking-widest uppercase text-gold mb-3">
                   Professional
                 </p>
 
@@ -171,7 +172,7 @@ useEffect(() => {
             {profile.marketingChannels &&
               profile.marketingChannels.length > 0 && (
                 <div className="space-y-2 py-3">
-                  <p className="font-ui text-[9px] tracking-widest uppercase text-gold/60 mb-3">
+                  <p className="font-ui text-[9px] tracking-widest uppercase text-gold mb-3">
                     Marketing Channels
                   </p>
                   <div className="flex items-start gap-3 text-sm text-white/80">
@@ -193,7 +194,7 @@ useEffect(() => {
             {/* Bio */}
             {profile.bio && (
               <div className="py-3">
-                <p className="font-ui text-[9px] tracking-widest uppercase text-gold/60 mb-2">
+                <p className="font-ui text-[9px] tracking-widest uppercase text-gold mb-2">
                   Bio
                 </p>
                 <p className="text-sm text-white/70 leading-relaxed">

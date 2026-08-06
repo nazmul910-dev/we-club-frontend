@@ -1,262 +1,235 @@
 "use client";
 
-import { Mail, Phone, MapPin, Eye } from "lucide-react";
+import {
+  BadgeCheck,
+  Building2,
+  CalendarDays,
+  Mail,
+  MapPin,
+  Megaphone,
+  Phone,
+} from "lucide-react";
+
 import Avatar from "./Avatar";
 import NetworkProfileDialog from "./NetworkProfileDialog";
 
 interface Props {
-  data: any;
+  user: any;
 }
 
 const roleStyles: Record<string, string> = {
   admin: "border-green-700 text-green-400 bg-green-950/20",
-
   associate: "border-yellow-700 text-yellow-400 bg-yellow-950/20",
-
   partner: "border-blue-700 text-blue-400 bg-blue-950/20",
-
   ceo: "border-purple-700 text-purple-400 bg-purple-950/20",
-
   ceo_partner: "border-cyan-700 text-cyan-400 bg-cyan-950/20",
-
-  ambassador: "border-emerald-700 text-emerald-400 bg-emerald-950/20",
-
-  we_club_member: "border-gray-700 text-gray-400 bg-gray-900/30",
+  ambassador:
+    "border-emerald-700 text-emerald-400 bg-emerald-950/20",
+  we_club_member:
+    "border-gray-700 text-gray-400 bg-gray-900/30",
+  founder: "border-amber-600 text-amber-400 bg-amber-950/20",
+  super_admin: "border-rose-700 text-rose-400 bg-rose-950/20",
+  community_manager:
+    "border-teal-700 text-teal-400 bg-teal-950/20",
+  manager: "border-indigo-700 text-indigo-400 bg-indigo-950/20",
 };
 
-export default function NetworkCard({ data }: Props) {
-  const user = data.user;
+const formatJoinDate = (dateStr?: string) => {
+  if (!dateStr) return null;
 
+  const date = new Date(dateStr);
 
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
 
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    year: "numeric",
+  });
+};
+
+export default function NetworkCard({ user }: Props) {
   const role = user?.role || "associate";
 
   const badgeClass =
-    roleStyles[role] || "border-gray-700 text-gray-400 bg-gray-900/30";
+    roleStyles[role] ||
+    "border-gray-700 text-gray-400 bg-gray-900/30";
 
-  const latestListing = data.listings[0];
+  const userName = user?.fullName || "User";
 
+  const location =
+    [user?.city, user?.country].filter(Boolean).join(", ") ||
+    "Location not set";
+
+  const joinDate = formatJoinDate(user?.createdAt);
+
+  const channels: string[] = Array.isArray(user?.marketingChannels)
+    ? user.marketingChannels
+    : [];
 
   return (
-    <div
-      className="
-      rounded-[12px] 
-      border border-[#5c4518] 
-      bg-[#090909] 
-      p-5 sm:p-6
-      shadow-[0_0_10px_#00000040]
-      hover:shadow-[#c9a3276b]
-      transition duration-300
-      "
-    >
+    <div className="flex h-full flex-col rounded-[12px] border border-[#5c4518] bg-[#090909] p-4 shadow-[0_0_10px_#00000040] transition duration-300 hover:shadow-[#c9a3276b] sm:p-6">
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
-        <div className="flex gap-3 sm:gap-4 min-w-0">
-          <Avatar image={user?.profileImage} name={user?.fullName || "User"} />
+        <div className="flex min-w-0 gap-3 sm:gap-4">
+          <Avatar
+            image={user?.profileImage}
+            name={userName}
+          />
 
           <div className="min-w-0">
-            <h3
-              className="
-              text-white 
-              text-[14px] 
-              
-              font-playfair 
-              font-medium
-              truncate
-              "
-            >
-              {user?.fullName}
+            <h3 className="truncate font-playfair text-sm font-medium text-white sm:text-[15px]">
+              {userName}
             </h3>
 
-            <div
-              className="
-              flex 
-              items-center 
-              gap-1 
-              mt-2 
-              text-xs 
-              text-gray-400
-              "
-            >
-              <MapPin size={12} />
+            <div className="mt-1.5 flex items-center gap-1 text-xs text-gray-400">
+              <MapPin
+                size={12}
+                className="shrink-0"
+              />
 
-              <span className="truncate text-[10px]">
-                {user?.city}, {user?.country}
+              <span className="truncate text-[10px] sm:text-[11px]">
+                {location}
               </span>
             </div>
           </div>
         </div>
 
-        {/* <span
-          className={`
-          shrink-0
-          px-3 
-          py-1 
-          rounded-full 
-          text-[9px] 
-          sm:text-[10px]
-          uppercase 
-          tracking-[1.5px]
-          border
-          ${badgeClass}
-          `}
-        >
-          {role.replace("_"," ")}
-        </span> */}
-      </div>
-
-      {/* Role + Listing Count */}
-      <div
-        className="
-        mt-4 
-        flex 
-        items-center 
-        justify-between
-        gap-2
-        "
-      >
         <span
-          className={`
-          shrink-0
-          px-3 
-          py-0.5
-          rounded-full 
-          text-[9px] 
-          uppercase 
-          tracking-[1.5px]
-          border
-          ${badgeClass}
-          `}
+          className={`shrink-0 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-[8px] uppercase tracking-[1px] sm:px-3 sm:text-[9px] sm:tracking-[1.5px] ${badgeClass}`}
         >
-          {role.replace("_", " ")}
+          {role.replaceAll("_", " ")}
         </span>
-
-        <div
-          className="
-          flex 
-          items-center 
-          gap-1
-          text-[9px]
-          sm:text-[10px]
-          uppercase 
-          tracking-[2px]
-          text-gray-500
-          "
-        >
-          <span>Collaborating</span>
-
-          <span
-            className="
-            text-white 
-            text-xs
-            "
-          >
-            {data?.listings.length || 0}
-          </span>
-
-          <span>Listings</span>
-        </div>
       </div>
 
-      {/* Latest Listing */}
-      <div
-        className="
-        mt-5 
-        border 
-        border-[#3e3014]
-        rounded-xl 
-        p-3 sm:p-4 
-        bg-[#0d0d0d]
-        "
-      >
-        <p
-          className="
-          text-[9px]
-          uppercase 
-          tracking-[3px] 
-          text-gray-500
-          "
-        >
-          Recent Placement
+      {/* Extra details */}
+      <div className="mt-4 flex flex-col gap-2 border-t border-[#3e3014] pt-3 text-xs text-gray-400">
+        {user?.brokerage && (
+          <div className="flex min-w-0 items-center gap-2">
+            <Building2
+              size={12}
+              className="shrink-0 text-[#c9a227]"
+            />
+
+            <span className="truncate text-[11px]">
+              {user.brokerage}
+            </span>
+          </div>
+        )}
+
+        {user?.licenseNumber && (
+          <div className="flex min-w-0 items-center gap-2">
+            <BadgeCheck
+              size={12}
+              className="shrink-0 text-[#c9a227]"
+            />
+
+            <span className="truncate text-[11px] tracking-wide">
+              License · {user.licenseNumber}
+            </span>
+          </div>
+        )}
+
+        {joinDate && (
+          <div className="flex min-w-0 items-center gap-2">
+            <CalendarDays
+              size={12}
+              className="shrink-0 text-[#c9a227]"
+            />
+
+            <span className="truncate text-[11px]">
+              Joined {joinDate}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Marketing channels */}
+      {channels.length > 0 && (
+        <div className="mt-3 flex items-start gap-2">
+          <Megaphone
+            size={12}
+            className="mt-0.5 shrink-0 text-[#c9a227]"
+          />
+
+          <div className="flex flex-wrap gap-1.5">
+            {channels.slice(0, 4).map((channel, index) => (
+              <span
+                key={`${channel}-${index}`}
+                className="rounded-full border border-[#3e3014] px-2 py-0.5 text-[9px] uppercase tracking-wider text-gray-400"
+              >
+                {channel}
+              </span>
+            ))}
+
+            {channels.length > 4 && (
+              <span className="rounded-full border border-[#3e3014] px-2 py-0.5 text-[9px] text-gray-500">
+                +{channels.length - 4}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Bio */}
+      {user?.bio && (
+        <p className="mt-3 line-clamp-2 text-[11px] leading-relaxed text-gray-500">
+          {user.bio}
         </p>
+      )}
 
-        <div
-          className="
-          flex 
-          justify-between 
-          items-center 
-          gap-3
-          mt-3
-          "
-        >
-          <p
-            className="
-            text-white 
-            text-xs sm:text-sm
-            font-lato
-            line-clamp-1
-            "
-          >
-            {latestListing?.listing_title}
-          </p>
-
-          <p
-            className="
-            text-[#c9a227]
-            text-xs sm:text-sm
-            font-medium
-            font-playfair
-            whitespace-nowrap
-            "
-          >
-            {latestListing?.listing_price} EUR
-          </p>
-        </div>
-      </div>
+      {/* Equal-height card spacer */}
+      <div className="flex-1" />
 
       {/* Contact */}
-      <div
-        className="
-        flex 
-        items-center 
-        gap-3 
-        mt-5
-        "
-      >
-        <a
-          href={`mailto:${user?.email}`}
-          className="
-          w-9 h-9 
-          rounded-full 
-          border border-[#5c4518]
-          flex 
-          items-center 
-          justify-center
-          text-gray-400
-          hover:text-[#c9a227]
-          transition
-          "
-        >
-          <Mail size={15} />
-        </a>
+      <div className="mt-5 flex items-center gap-2 sm:gap-3">
+        {user?.email ? (
+          <a
+            href={`mailto:${user.email}`}
+            aria-label={`Email ${userName}`}
+            title={`Email ${userName}`}
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-[#5c4518] text-gray-400 transition hover:border-[#c9a227] hover:text-[#c9a227] sm:h-9 sm:w-9"
+          >
+            <Mail size={14} />
+          </a>
+        ) : (
+          <button
+            type="button"
+            disabled
+            aria-label="Email unavailable"
+            title="Email unavailable"
+            className="flex h-8 w-8 cursor-not-allowed items-center justify-center rounded-full border border-[#5c4518] text-gray-600 opacity-50 sm:h-9 sm:w-9"
+          >
+            <Mail size={14} />
+          </button>
+        )}
 
-        <a
-          href={`tel:${user?.phone}`}
-          className="
-          w-9 h-9 
-          rounded-full 
-          border border-[#5c4518]
-          flex 
-          items-center 
-          justify-center
-          text-gray-400
-          hover:text-[#c9a227]
-          transition
-          "
-        >
-          <Phone size={15} />
-        </a>
-        <NetworkProfileDialog profile={user} user={data}/>
+        {user?.phone ? (
+          <a
+            href={`tel:${user.phone}`}
+            aria-label={`Call ${userName}`}
+            title={`Call ${userName}`}
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-[#5c4518] text-gray-400 transition hover:border-[#c9a227] hover:text-[#c9a227] sm:h-9 sm:w-9"
+          >
+            <Phone size={14} />
+          </a>
+        ) : (
+          <button
+            type="button"
+            disabled
+            aria-label="Phone unavailable"
+            title="Phone unavailable"
+            className="flex h-8 w-8 cursor-not-allowed items-center justify-center rounded-full border border-[#5c4518] text-gray-600 opacity-50 sm:h-9 sm:w-9"
+          >
+            <Phone size={14} />
+          </button>
+        )}
+
+        <NetworkProfileDialog
+          profile={user}
+          user={user}
+        />
       </div>
     </div>
   );

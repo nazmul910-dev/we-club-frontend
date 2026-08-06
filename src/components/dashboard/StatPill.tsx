@@ -9,7 +9,7 @@ export function StatPill({
 }: StatPillProps) {
   return (
     <div className="text-right">
-      <div className="text-3xl font-display text-white">
+      <div className="text-3xl font-display text-center text-white">
         {value}
       </div>
 

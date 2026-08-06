@@ -1,55 +1,54 @@
-'use client';
+"use client";
 
-import { FormEvent, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '@/lib/redux/store/hook';
+import { FormEvent, useState } from "react";
+import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
 import {
   prevStep,
   RegistrationFormData,
   updateField,
-} from '@/lib/features/auth/authSlice';
-import { registerUser } from '@/lib/features/auth/authApi';
+} from "@/lib/features/auth/authSlice";
+import { registerUser } from "@/lib/features/auth/authApi";
+import CountrySelect from "./CountrySelect";
 
 const ROLE_OPTIONS = [
-  { value: 'associate', label: 'Associate' },
-  { value: 'ceo', label: 'CEO' },
-  { value: 'ceo_partner', label: 'CEO Partner' },
-  { value: 'partner', label: 'Partner' },
-  { value: 'ambassador', label: 'Ambassador' },
-  { value: 'we_club_member', label: 'WE Club Member' },
+  { value: "associate", label: "Associate" },
+  { value: "ceo", label: "CEO" },
+  { value: "ceo_partner", label: "CEO Partner" },
+  { value: "partner", label: "Partner" },
+  { value: "ambassador", label: "Ambassador" },
+  { value: "we_club_member", label: "WE Club Member" },
 ];
 
 const inputClass =
-  'w-full rounded-xl border border-amber-400/20 bg-transparent px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none transition-all focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20';
+  "w-full rounded-xl border border-amber-400/20 bg-transparent px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none transition-all focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20";
 
 const labelClass =
-  'mb-2 block text-xs font-medium uppercase tracking-wider text-white/60';
+  "mb-2 block text-xs font-medium uppercase tracking-wider text-white/60";
 
 export default function DetailsStep() {
   const dispatch = useAppDispatch();
 
-  const formData = useAppSelector(
-    (state) => state.registration.formData
-  );
+  const formData = useAppSelector((state) => state.registration.formData);
 
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = <K extends keyof RegistrationFormData>(
     field: K,
-    value: RegistrationFormData[K]
+    value: RegistrationFormData[K],
   ) => {
     dispatch(
       updateField({
         field,
         value,
-      })
+      }),
     );
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    setError('');
+    setError("");
 
     if (
       !formData.fullName ||
@@ -57,7 +56,7 @@ export default function DetailsStep() {
       !formData.password ||
       !formData.role
     ) {
-      setError('Please fill all required fields.');
+      setError("Please fill all required fields.");
       return;
     }
 
@@ -72,10 +71,7 @@ export default function DetailsStep() {
 
       alert(result.data.message);
     } catch (err: any) {
-      setError(
-        err ??
-          'Registration failed. Please try again.'
-      );
+      setError(err ?? "Registration failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -91,11 +87,11 @@ export default function DetailsStep() {
         <p className="mt-2 text-center text-sm text-white/50">
           Selected Access :
           <span className="ml-1 text-amber-400">
-            {formData.accessTo === 'we_command_center'
-              ? 'We Command Center'
-              : formData.accessTo === 'invictus'
-              ? 'Invictus'
-              : 'We Command Center + Invictus'}
+            {formData.accessTo === "we_command_center"
+              ? "We Command Center"
+              : formData.accessTo === "invictus"
+                ? "Invictus"
+                : "We Command Center + Invictus"}
           </span>
         </p>
       </div>
@@ -107,9 +103,7 @@ export default function DetailsStep() {
           <input
             className={inputClass}
             value={formData.fullName}
-            onChange={(e) =>
-              handleChange('fullName', e.target.value)
-            }
+            onChange={(e) => handleChange("fullName", e.target.value)}
             placeholder="John Doe"
           />
         </div>
@@ -122,9 +116,7 @@ export default function DetailsStep() {
             autoComplete="email"
             className={inputClass}
             value={formData.email}
-            onChange={(e) =>
-              handleChange('email', e.target.value)
-            }
+            onChange={(e) => handleChange("email", e.target.value)}
             placeholder="john@example.com"
           />
         </div>
@@ -137,9 +129,7 @@ export default function DetailsStep() {
             autoComplete="new-password"
             className={inputClass}
             value={formData.password}
-            onChange={(e) =>
-              handleChange('password', e.target.value)
-            }
+            onChange={(e) => handleChange("password", e.target.value)}
             placeholder="Enter your password"
           />
         </div>
@@ -152,8 +142,8 @@ export default function DetailsStep() {
             value={formData.role}
             onChange={(e) =>
               handleChange(
-                'role',
-                e.target.value as RegistrationFormData['role']
+                "role",
+                e.target.value as RegistrationFormData["role"],
               )
             }
           >
@@ -162,11 +152,7 @@ export default function DetailsStep() {
             </option>
 
             {ROLE_OPTIONS.map((role) => (
-              <option
-                key={role.value}
-                value={role.value}
-                className="bg-black"
-              >
+              <option key={role.value} value={role.value} className="bg-black">
                 {role.label}
               </option>
             ))}
@@ -179,9 +165,7 @@ export default function DetailsStep() {
           <input
             className={inputClass}
             value={formData.licenseNumber}
-            onChange={(e) =>
-              handleChange('licenseNumber', e.target.value)
-            }
+            onChange={(e) => handleChange("licenseNumber", e.target.value)}
             placeholder="LIC-123"
           />
         </div>
@@ -206,9 +190,7 @@ export default function DetailsStep() {
             type="tel"
             className={inputClass}
             value={formData.phone}
-            onChange={(e) =>
-              handleChange('phone', e.target.value)
-            }
+            onChange={(e) => handleChange("phone", e.target.value)}
             placeholder="+8801700000000"
           />
         </div>
@@ -219,14 +201,12 @@ export default function DetailsStep() {
           <input
             className={inputClass}
             value={formData.city}
-            onChange={(e) =>
-              handleChange('city', e.target.value)
-            }
+            onChange={(e) => handleChange("city", e.target.value)}
             placeholder="City"
           />
         </div>
 
-        <div>
+        {/* <div>
           <label className={labelClass}>Country</label>
 
           <input
@@ -236,6 +216,14 @@ export default function DetailsStep() {
               handleChange('country', e.target.value)
             }
             placeholder="Enter your country"
+          />
+        </div> */}
+        <div>
+          <label className={labelClass}>Country</label>
+
+          <CountrySelect
+            value={formData.country}
+            onChange={(value) => handleChange("country", value)}
           />
         </div>
 
@@ -287,7 +275,7 @@ export default function DetailsStep() {
           disabled={isLoading}
           className="rounded-xl cursor-pointer bg-amber-400 px-8 py-3 font-semibold text-black transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isLoading ? 'Creating Account...' : 'Create Account'}
+          {isLoading ? "Creating Account..." : "Create Account"}
         </button>
       </div>
     </form>
