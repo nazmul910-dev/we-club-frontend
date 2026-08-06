@@ -111,7 +111,7 @@ Edit Profile
 
 <button
 onClick={close}
-className="text-white"
+className="text-white cursor-pointer"
 >
 
 <X/>
@@ -181,8 +181,9 @@ className="
 mt-6
 w-full
 bg-[#C9A962]
-text-black
+text-white
 py-3
+cursor-pointer hover:bg-[#C9A962]/90 transition duration-300
 rounded-md
 uppercase
 tracking-widest

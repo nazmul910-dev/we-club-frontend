@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAppDispatch } from "@/lib/redux/store/hook";
 import { loginUser } from "@/lib/features/auth/authApi";
 
-import { Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 
 const inputClass =
@@ -83,6 +83,18 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="absolute top-5 left-5">
+        <div className="flex ">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="cursor-pointer group    text-white flex justify-center items-center gap-x-1 "
+        >
+          <ArrowLeft size={18} className="text-amber-400 group-hover:-translate-x-1 duration-300"/>
+          <p className="group-hover:text-amber-400 duration-300">Back</p>
+        </button>
+      </div>
+      </div>
       <div>
         <h2 className="text-center text-3xl font-semibold text-amber-400">
           Welcome Back

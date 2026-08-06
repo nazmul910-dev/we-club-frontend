@@ -81,6 +81,8 @@ export function ChartAreaDefault() {
     return rest[period];
   }, [period]);
 
+  console.log("currentData", currentData);
+
   return (
     <Card className="bg-transparent px-0">
       <CardHeader className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">

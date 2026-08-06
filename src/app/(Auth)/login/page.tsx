@@ -1,10 +1,22 @@
 'use client';
 
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import LoginForm from '@/components/Auth/login/LoginForm';
 import Image from 'next/image';
 import BgImage from "@/assets/Login/login-bg.jpg";
+import { getStoredUser } from '@/lib/utils/auth';
 
 export default function LoginPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const stored = getStoredUser();
+    if (stored) {
+      router.replace('/dashboard');
+    }
+  }, [router]);
+
   return (
     <section className="relative flex min-h-screen items-center justify-center bg-black overflow-hidden">
       <Image

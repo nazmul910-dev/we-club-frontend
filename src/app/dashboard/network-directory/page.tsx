@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
-import { promotersApi } from "@/lib/features/promoters/promotersApi";
+import { getAllUsers } from "@/lib/features/users/usersApi";
 
 import NetworkHeader from "@/components/Network/NetworkHeader";
 import NetworkSearch from "@/components/Network/NetworkSearch";
@@ -19,11 +19,7 @@ const SEARCH_DEBOUNCE_MS = 300;
 export default function NetworkDirectoryPage() {
   const dispatch = useAppDispatch();
 
-  const {
-    items: promoters,
-    meta,
-    loading,
-  } = useAppSelector((state) => state.promoters);
+  const { users, meta, loading } = useAppSelector((state) => state.users);
 
   const [search, setSearch] = useState("");
   const [layout, setLayout] = useState<"grid" | "list">("grid");
@@ -33,33 +29,37 @@ export default function NetworkDirectoryPage() {
     setPage(1);
   }, [search]);
 
- 
-
   useEffect(() => {
     const timer = setTimeout(() => {
       dispatch(
-        promotersApi.getPromoters({
+        getAllUsers({
           page,
           limit: PAGE_SIZE,
           ...(search.trim() && { search: search.trim() }),
-        })
+          approvalStatus: "approved",
+        } as any)
       );
     }, SEARCH_DEBOUNCE_MS);
 
     return () => clearTimeout(timer);
   }, [dispatch, page, search]);
 
+  // backend filter na kaj korle extra safety hisebe frontend eo filter kora hocche
+  const approvedUsers = (users ?? []).filter(
+    (u: any) => u.approvalStatus === "approved"
+  );
+
   return (
     <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 flex flex-col gap-8 bg-[#0a0a0a] min-h-[calc(100vh-4rem)]">
       <div className="">
         <NetworkHeader />
 
-        <div className="mt-8">
+        <div className="">
           <NetworkSearch value={search} onChange={setSearch} />
         </div>
 
         <NetworkToolbar
-          count={meta?.total ?? promoters.length}
+          count={ approvedUsers.length}
           layout={layout}
           setLayout={setLayout}
         />
@@ -70,32 +70,26 @@ export default function NetworkDirectoryPage() {
               <NetworkCardSkeleton key={index} />
             ))}
           </div>
-        ) : promoters.length === 0 ? (
+        ) : approvedUsers.length === 0 ? (
           <div className="rounded-xl border border-[#5c4518] py-20 text-center">
             <p className="text-gray-400">No network members found.</p>
           </div>
         ) : layout === "grid" ? (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {promoters.map((promoter) => (
-              <NetworkCard
-                key={promoter._id}
-                data={promoter}
-              />
+            {approvedUsers.map((user: any) => (
+              <NetworkCard key={user._id} user={user} />
             ))}
           </div>
         ) : (
           <div className="space-y-4">
-            {promoters.map((promoter) => (
-              <NetworkListItem
-                key={promoter._id}
-                data={promoter}
-              />
+            {approvedUsers.map((user: any) => (
+              <NetworkListItem key={user._id} user={user} />
             ))}
           </div>
         )}
 
         {meta && meta.totalPage > 1 && !loading && (
-          <div className="mt-8">
+          <div className="">
             <PaginationControl
               currentPage={meta.page}
               totalPages={meta.totalPage}
