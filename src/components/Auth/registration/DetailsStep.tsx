@@ -191,7 +191,7 @@ export default function DetailsStep() {
             className={inputClass}
             value={formData.phone}
             onChange={(e) => handleChange("phone", e.target.value)}
-            placeholder="+8801700000000"
+            placeholder="Enter your phone number"
           />
         </div>
 
@@ -202,7 +202,7 @@ export default function DetailsStep() {
             className={inputClass}
             value={formData.city}
             onChange={(e) => handleChange("city", e.target.value)}
-            placeholder="City"
+            placeholder="Enter your city"
           />
         </div>
 
