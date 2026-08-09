@@ -18,6 +18,8 @@ import {
   Network,
   Megaphone,
   Globe,
+  CreditCard,
+  Tag,
 } from "lucide-react";
 import {
   Dialog,
@@ -40,6 +42,16 @@ const MENU_ITEMS = [
     label: "Management",
     href: "/dashboard/manager-management",
     icon: ShieldUser,
+  },
+  {
+    label: "Registration Payments",
+    href: "/dashboard/registration-payments",
+    icon: CreditCard,
+  },
+  {
+    label: "Discount Codes",
+    href: "/dashboard/discount-management",
+    icon: Tag,
   },
   {
     label: "Manage Logo",
@@ -147,12 +159,22 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
 
           {MENU_ITEMS.filter((item) => {
             if (item.href === "/dashboard/users-management") {
-              return userRole === "admin" || userRole === "manager" || userRole === "founder";
+              return (
+                userRole === "admin" ||
+                userRole === "manager" ||
+                userRole === "founder"
+              );
             }
             if (item.href === "/dashboard/manager-management") {
               return userRole === "founder" || userRole === "manager";
             }
             if (item.href === "/dashboard/manage-logo") {
+              return userRole === "founder" || userRole === "manager";
+            }
+            if (item.href === "/dashboard/registration-payments") {
+              return userRole === "founder" || userRole === "manager";
+            }
+            if (item.href === "/dashboard/discount-management") {
               return userRole === "founder" || userRole === "manager";
             }
             return true;
