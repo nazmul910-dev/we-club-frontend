@@ -30,6 +30,7 @@ export interface RegistrationFormData {
   password: string;
   role: UserRole | "";
   accessTo: AccessTo | "";
+  membershipDurationMonths: 3 | 6 | 12 | "";
   licenseNumber: string;
   brokerage: string;
   phone: string;
@@ -57,6 +58,7 @@ const initialFormData: RegistrationFormData = {
   password: "",
   role: "",
   accessTo: "",
+  membershipDurationMonths:"",
   licenseNumber: "",
   brokerage: "",
   phone: "",

@@ -37,6 +37,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { RowAction, RowActionsMenu } from "./RowActionMenu";
 import RowSkeleton from "../ui/row-skeleton";
 import ConfirmDialog from "../common/ConfirmDialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
 
 interface MyPromoteRequestsSectionProps {
   mySentPromoteRequests: any[];
@@ -75,8 +81,7 @@ export function MyPromoteRequestsSection({
   const [rejectionReason, setRejectionReason] = useState("");
 
   const isResponding =
-    Boolean(termsRequest?._id) &&
-    respondingId === termsRequest?._id;
+    Boolean(termsRequest?._id) && respondingId === termsRequest?._id;
 
   const openCancelConfirm = (id: string) => {
     setCancelId(id);
@@ -99,10 +104,7 @@ export function MyPromoteRequestsSection({
 
       setCancelId(null);
     } catch (error: any) {
-      toast.error(
-        error?.message ??
-          "Failed to cancel promote request",
-      );
+      toast.error(error?.message ?? "Failed to cancel promote request");
     } finally {
       setConfirming(false);
     }
@@ -111,13 +113,9 @@ export function MyPromoteRequestsSection({
   const openTermsDialog = (request: any) => {
     setTermsRequest(request);
 
-    setPromoterWebsiteUrl(
-      request.promoter_website_url ?? "",
-    );
+    setPromoterWebsiteUrl(request.promoter_website_url ?? "");
 
-    setMarketingDocumentUrl(
-      request.marketing_document_url ?? "",
-    );
+    setMarketingDocumentUrl(request.marketing_document_url ?? "");
 
     setRejectionReason("");
   };
@@ -140,9 +138,7 @@ export function MyPromoteRequestsSection({
     }
   };
 
-  const handleTermsDecision = async (
-    decision: "accepted" | "rejected",
-  ) => {
+  const handleTermsDecision = async (decision: "accepted" | "rejected") => {
     if (!termsRequest) return;
 
     const websiteUrl = promoterWebsiteUrl.trim();
@@ -151,16 +147,12 @@ export function MyPromoteRequestsSection({
 
     if (decision === "accepted") {
       if (!isValidUrl(websiteUrl)) {
-        toast.error(
-          "Please provide a valid website URL",
-        );
+        toast.error("Please provide a valid website URL");
         return;
       }
 
       if (!isValidUrl(documentUrl)) {
-        toast.error(
-          "Please provide a valid marketing document URL",
-        );
+        toast.error("Please provide a valid marketing document URL");
         return;
       }
     }
@@ -196,21 +188,14 @@ export function MyPromoteRequestsSection({
       await onRespondToOwnerTerms(payload);
 
       if (decision === "accepted") {
-        toast.success(
-          "Terms accepted. Your promotion is now active.",
-        );
+        toast.success("Terms accepted. Your promotion is now active.");
       } else {
-        toast.success(
-          "Owner terms rejected successfully",
-        );
+        toast.success("Owner terms rejected successfully");
       }
 
       resetTermsDialog();
     } catch (error: any) {
-      toast.error(
-        error?.message ??
-          "Failed to respond to owner terms",
-      );
+      toast.error(error?.message ?? "Failed to respond to owner terms");
     }
   };
 
@@ -229,30 +214,21 @@ export function MyPromoteRequestsSection({
 
     try {
       await toast.promise(
-        dispatch(
-          downloadListingAssets(
-            request.listing_id._id,
-          ),
-        ).unwrap(),
+        dispatch(downloadListingAssets(request.listing_id._id)).unwrap(),
         {
           loading: "Preparing download...",
 
           success: (blob) => {
             downloadZip(
               blob,
-              `${
-                request.listing_id.ref_code ??
-                "listing"
-              }-assets.zip`,
+              `${request.listing_id.ref_code ?? "listing"}-assets.zip`,
             );
 
             return "Download started successfully";
           },
 
           error: (error) => {
-            return typeof error === "string"
-              ? error
-              : "Download failed";
+            return typeof error === "string" ? error : "Download failed";
           },
         },
       );
@@ -337,42 +313,27 @@ export function MyPromoteRequestsSection({
                * শুধু owner decision দেওয়ার আগে
                * pending request cancel করা যাবে।
                */
-              if (
-                request.status === "pending" &&
-                canManageRequest(request)
-              ) {
+              if (request.status === "pending" && canManageRequest(request)) {
                 actions.push({
                   label: "Cancel request",
                   icon: <XCircle size={14} />,
-                  onClick: () =>
-                    openCancelConfirm(request._id),
+                  onClick: () => openCancelConfirm(request._id),
                   variant: "warning",
                 });
               }
 
               const canRespondToTerms =
-                Boolean(
-                  request.workflow
-                    ?.can_accept_owner_terms,
-                ) ||
-                Boolean(
-                  request.workflow
-                    ?.can_reject_owner_terms,
-                ) ||
+                Boolean(request.workflow?.can_accept_owner_terms) ||
+                Boolean(request.workflow?.can_reject_owner_terms) ||
                 (request.status === "owner_approved" &&
-                  request.promoter_agreement_status ===
-                    "pending");
+                  request.promoter_agreement_status === "pending");
 
               const isFinalApproved =
                 request.status === "approved" &&
-                request.promoter_agreement_status ===
-                  "accepted";
+                request.promoter_agreement_status === "accepted";
 
               return (
-                <tr
-                  key={request._id}
-                  className="hover:bg-white/[0.02]"
-                >
+                <tr key={request._id} className="hover:bg-white/[0.02]">
                   <td className="px-4 py-3 text-sm text-white">
                     {request.listing_id?.title ||
                       request.listing_id?.ref_code ||
@@ -380,43 +341,31 @@ export function MyPromoteRequestsSection({
                   </td>
 
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-white">
-                    {formatCompactNumber(
-                      request.listing_id?.price?.amount,
-                    ) ?? "-"}{" "}
-                    {request.listing_id?.price
-                      ?.currency ?? ""}
+                    {formatCompactNumber(request.listing_id?.price?.amount) ??
+                      "-"}{" "}
+                    {request.listing_id?.price?.currency ?? ""}
                   </td>
 
-                  <td className="px-4 py-3">
-                    {statusBadge(request.status)}
-                  </td>
+                  <td className="px-4 py-3">{statusBadge(request.status)}</td>
 
                   <td className="px-4 py-3">
                     <OwnerPermissionStatus
                       request={request}
                       canRespond={canRespondToTerms}
-                      onEdit={() =>
-                        openTermsDialog(request)
-                      }
+                      onEdit={() => openTermsDialog(request)}
                     />
                   </td>
 
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-white">
-                    {formatTier(
-                      request.selected_tier,
-                    )}
+                    {formatTier(request.selected_tier)}
                   </td>
 
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-white">
-                    {request.confirmed_commission_pct !==
-                      undefined &&
-                    request.confirmed_commission_pct !==
-                      null
+                    {request.confirmed_commission_pct !== undefined &&
+                    request.confirmed_commission_pct !== null
                       ? `${request.confirmed_commission_pct}%`
-                      : request.proposed_commission_pct !==
-                            undefined &&
-                          request.proposed_commission_pct !==
-                            null
+                      : request.proposed_commission_pct !== undefined &&
+                          request.proposed_commission_pct !== null
                         ? `${request.proposed_commission_pct}% proposed`
                         : "-"}
                   </td>
@@ -427,9 +376,7 @@ export function MyPromoteRequestsSection({
 
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-center">
-                      <RowActionsMenu
-                        actions={actions}
-                      />
+                      <RowActionsMenu actions={actions} />
                     </div>
                   </td>
 
@@ -437,9 +384,7 @@ export function MyPromoteRequestsSection({
                     <button
                       type="button"
                       disabled={!isFinalApproved}
-                      onClick={() =>
-                        handleDownload(request)
-                      }
+                      onClick={() => handleDownload(request)}
                       className={`inline-flex items-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition ${
                         isFinalApproved
                           ? "cursor-pointer bg-amber-400 text-black hover:bg-amber-300"
@@ -453,21 +398,27 @@ export function MyPromoteRequestsSection({
 
                   <td className="px-4 py-3">
                     {isFinalApproved ? (
-                      <Link
-                        href={
-                          request.access_url ||
-                          `/promote-request/public/${request._id}`
-                        }
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group relative inline-flex items-center justify-center rounded-lg bg-green-500/10 p-3 text-green-400 transition hover:bg-green-500/20"
-                      >
-                        <Share2 size={16} />
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <Link
+                              href={
+                                request.access_url ||
+                                `/promote-request/public/${request._id}`
+                              }
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="group relative inline-flex items-center justify-center rounded-lg bg-green-500/10 p-3 text-green-400 transition hover:bg-green-500/20"
+                            >
+                              <Share2 size={16} />
+                            </Link>
+                          </TooltipTrigger>
 
-                        <span className="pointer-events-none absolute -bottom-10 z-20 hidden whitespace-nowrap rounded-md bg-black px-3 py-1 text-xs text-white group-hover:block">
-                          View Public Page
-                        </span>
-                      </Link>
+                          <TooltipContent className="max-w-55 border-white/10 bg-[#1a1a1a] text-center text-xs text-white">
+                            View Public Page
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     ) : (
                       <button
                         type="button"
@@ -517,9 +468,8 @@ export function MyPromoteRequestsSection({
             </DialogTitle>
 
             <DialogDescription className="text-white/60">
-              Review the selected tier and confirmed
-              commission before accepting or rejecting
-              the promotion terms.
+              Review the selected tier and confirmed commission before accepting
+              or rejecting the promotion terms.
             </DialogDescription>
           </DialogHeader>
 
@@ -532,9 +482,7 @@ export function MyPromoteRequestsSection({
                   </p>
 
                   <p className="mt-1 font-medium text-white">
-                    {formatTier(
-                      termsRequest.selected_tier,
-                    )}
+                    {formatTier(termsRequest.selected_tier)}
                   </p>
                 </div>
 
@@ -550,7 +498,7 @@ export function MyPromoteRequestsSection({
                   </p>
                 </div> */}
               </div>
-{/* 
+              {/* 
               <div className="space-y-2">
                 <Label htmlFor="promoterWebsiteUrl">
                   New website URL
@@ -621,10 +569,8 @@ export function MyPromoteRequestsSection({
               </div> */}
 
               <div className="rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-xs leading-5 text-red-200">
-                Important: If you reject these terms,
-                you will permanently lose the ability to
-                send another promotion request for this
-                listing.
+                Important: If you reject these terms, you will permanently lose
+                the ability to send another promotion request for this listing.
               </div>
             </div>
           )}
@@ -642,43 +588,30 @@ export function MyPromoteRequestsSection({
             <button
               type="button"
               disabled={isResponding}
-              onClick={() =>
-                handleTermsDecision("rejected")
-              }
+              onClick={() => handleTermsDecision("rejected")}
               className="inline-flex items-center cursor-pointer justify-center gap-2 rounded-lg bg-red-500/15 px-4 py-2 text-sm font-medium text-red-300 transition hover:bg-red-500/25 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isResponding ? (
-                <Loader2
-                  size={16}
-                  className="animate-spin"
-                />
+                <Loader2 size={16} className="animate-spin" />
               ) : (
                 <XCircle size={16} />
               )}
-
               Reject Terms
             </button>
 
             <button
               type="button"
               disabled={isResponding}
-              onClick={() =>
-                handleTermsDecision("accepted")
-              }
+              onClick={() => handleTermsDecision("accepted")}
               className="inline-flex items-center cursor-pointer justify-center gap-2 rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-black transition hover:bg-green-400 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isResponding ? (
-                <Loader2
-                  size={16}
-                  className="animate-spin"
-                />
+                <Loader2 size={16} className="animate-spin" />
               ) : (
                 <CheckCircle2 size={16} />
               )}
 
-              {isResponding
-                ? "Processing..."
-                : "Accept & Activate"}
+              {isResponding ? "Processing..." : "Accept & Activate"}
             </button>
           </DialogFooter>
         </DialogContent>
@@ -770,11 +703,7 @@ function OwnerPermissionStatus({
     );
   }
 
-  return (
-    <span className="text-sm text-white/40">
-      Not available
-    </span>
-  );
+  return <span className="text-sm text-white/40">Not available</span>;
 }
 
 function formatTier(tier?: string | null) {
