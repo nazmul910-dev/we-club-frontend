@@ -24,6 +24,43 @@ export interface RolePricingPlan {
   totalFirstPaymentFormatted: string;
 }
 
+export interface UpgradePlanOption {
+  durationMonths: 3 | 6 | 12;
+  pricing: RolePricingPlan;
+}
+
+export interface MyUpgradePlansData {
+  role: string;
+  accessTo: string;
+  membershipAccessStatus: string;
+  expiredAt?: string;
+  plans: UpgradePlanOption[];
+}
+
+
+interface MyUpgradePlansResponse {
+  success: boolean;
+  message: string;
+  data: MyUpgradePlansData;
+}
+
+interface UpgradeCheckoutResponse {
+  success: boolean;
+  message: string;
+  data: {
+    checkoutUrl: string;
+    sessionId: string;
+    role: string;
+    accessTo: string;
+    durationMonths: number;
+    pricing: RolePricingPlan;
+    originalPricing: RolePricingPlan;
+    discount: unknown;
+  };
+}
+
+
+
 export interface RegistrationPaymentUser {
   fullName: string;
   email: string;
@@ -102,6 +139,14 @@ interface PaymentState {
   isDetailsLoading: boolean;
   detailsError: string | null;
 
+  upgradePlans: MyUpgradePlansData | null,
+  isUpgradePlansLoading: boolean,
+  upgradePlansError: string | null,
+
+  upgradeCheckoutUrl: string | null,
+  isUpgradeCheckoutLoading: boolean,
+  upgradeCheckoutError: string | null,
+
   checkoutUrl: string | null;
   isCheckoutLoading: boolean;
   checkoutError: string | null;
@@ -119,6 +164,14 @@ const initialState: PaymentState = {
   isDetailsLoading: false,
   detailsError: null,
 
+  upgradePlans:null,
+  isUpgradePlansLoading:false,
+  upgradePlansError:null,
+
+  upgradeCheckoutUrl:null,
+  isUpgradeCheckoutLoading:false,
+  upgradeCheckoutError:null,
+
   checkoutUrl: null,
   isCheckoutLoading: false,
   checkoutError: null,
@@ -130,6 +183,53 @@ const initialState: PaymentState = {
   sendingLinkId: null,
   sendLinkError: null,
 };
+
+export const fetchMyUpgradePlans = createAsyncThunk<
+  MyUpgradePlansData,
+  void,
+  { rejectValue: string }
+>("payment/fetchMyUpgradePlans", async (_, { rejectWithValue }) => {
+  try {
+    const res = await api.get<MyUpgradePlansResponse>("/payments/upgrade/plans");
+
+    return res.data.data;
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to load upgrade plans"
+      );
+    }
+
+    return rejectWithValue("Unexpected error");
+  }
+});
+
+export const createUpgradeCheckout = createAsyncThunk<
+  string,
+  { durationMonths: 3 | 6 | 12; discountCode?: string },
+  { rejectValue: string }
+>(
+  "payment/createUpgradeCheckout",
+  async ({ durationMonths, discountCode }, { rejectWithValue }) => {
+    try {
+      const res = await api.post<UpgradeCheckoutResponse>("/payments/upgrade", {
+        durationMonths,
+        discountCode,
+      });
+
+      return res.data.data.checkoutUrl;
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        return rejectWithValue(
+          err.response?.data?.message || "Failed to start upgrade checkout"
+        );
+      }
+
+      return rejectWithValue("Unexpected error");
+    }
+  }
+);
+
 
 export const fetchRegistrationPaymentDetails = createAsyncThunk<
   RegistrationPaymentDetails,
@@ -245,6 +345,10 @@ const paymentSlice = createSlice({
     setSendLinkError: (state, action: PayloadAction<string | null>) => {
       state.sendLinkError = action.payload;
     },
+
+     resetUpgradeCheckoutError: (state) => {
+      state.upgradeCheckoutError = null;
+    },
   },
 
   extraReducers: (builder) => {
@@ -306,6 +410,31 @@ const paymentSlice = createSlice({
       .addCase(sendRegistrationPaymentLink.rejected, (state, action) => {
         state.sendingLinkId = null;
         state.sendLinkError = action.payload ?? "Failed to send payment link";
+      })
+      .addCase(fetchMyUpgradePlans.pending, (state) => {
+        state.isUpgradePlansLoading = true;
+        state.upgradePlansError = null;
+      })
+      .addCase(fetchMyUpgradePlans.fulfilled, (state, action) => {
+        state.isUpgradePlansLoading = false;
+        state.upgradePlans = action.payload;
+      })
+      .addCase(fetchMyUpgradePlans.rejected, (state, action) => {
+        state.isUpgradePlansLoading = false;
+        state.upgradePlansError = action.payload ?? "Failed to load upgrade plans";
+      })
+
+      .addCase(createUpgradeCheckout.pending, (state) => {
+        state.isUpgradeCheckoutLoading = true;
+        state.upgradeCheckoutError = null;
+      })
+      .addCase(createUpgradeCheckout.fulfilled, (state, action) => {
+        state.isUpgradeCheckoutLoading = false;
+        state.upgradeCheckoutUrl = action.payload;
+      })
+      .addCase(createUpgradeCheckout.rejected, (state, action) => {
+        state.isUpgradeCheckoutLoading = false;
+        state.upgradeCheckoutError = action.payload ?? "Upgrade checkout failed";
       });
   },
 });

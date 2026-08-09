@@ -20,6 +20,7 @@ import {
   Globe,
   CreditCard,
   Tag,
+  RefreshCcw,
 } from "lucide-react";
 import {
   Dialog,
@@ -73,6 +74,12 @@ const MENU_ITEMS = [
     label: "Ledger",
     href: "/dashboard/commission-ledger",
     icon: FileText,
+  },
+  {
+    label:"Plan",
+    href:"/dashboard/upgrade-plan",
+    icon:RefreshCcw
+
   },
   { label: "Academy", href: "/dashboard/academy", icon: GraduationCap },
   { label: "Profile", href: "/dashboard/profile", icon: CircleUserRound },
