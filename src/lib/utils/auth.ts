@@ -20,6 +20,7 @@ export interface DecodedUser {
   email: string;
   role: UserRole;
   accessTo?: AccessTo;
+  membershipAccessStatus?: "pending" | "active" | "expired"; 
   exp: number;
   iat: number;
 }
