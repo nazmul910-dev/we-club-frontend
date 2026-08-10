@@ -13,9 +13,7 @@ interface Props {
 
 export default function DiscountTable({ discounts, loading }: Props) {
   const [sendTarget, setSendTarget] = useState<IDiscountCode | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<IDiscountCode | null>(
-    null
-  );
+  const [deleteTarget, setDeleteTarget] = useState<IDiscountCode | null>(null);
 
   if (loading) {
     return (
@@ -63,10 +61,10 @@ export default function DiscountTable({ discounts, loading }: Props) {
             )}
 
             {discounts.map((discount) => {
-              const isUsed = (discount.usedCount ?? 0) >= 1;
+              const maxRedemptions = discount.maxRedemptions ?? 20;
+              const isUsed = (discount.usedCount ?? 0) >= maxRedemptions;
               const isExpired =
-                discount.expiresAt &&
-                new Date(discount.expiresAt) < new Date();
+                discount.expiresAt && new Date(discount.expiresAt) < new Date();
 
               const status = isUsed
                 ? "used"
@@ -121,7 +119,12 @@ export default function DiscountTable({ discounts, loading }: Props) {
                   </td>
 
                   <td className="px-6 py-5">
-                    <div
+                    {discount.isActive && (
+                      <span className="inline-flex items-center rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1 text-xs font-medium uppercase text-green-400">
+                        Active
+                      </span>
+                    )}
+                    {/* <div
                       className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs uppercase ${
                         status === "active"
                           ? "border-green-500/30 bg-green-500/10 text-green-400"
@@ -136,7 +139,7 @@ export default function DiscountTable({ discounts, loading }: Props) {
                         <XCircle size={12} />
                       )}
                       {status}
-                    </div>
+                    </div> */}
                   </td>
 
                   <td className="px-6 py-5">
@@ -144,7 +147,7 @@ export default function DiscountTable({ discounts, loading }: Props) {
                       <button
                         type="button"
                         onClick={() => setSendTarget(discount)}
-                        disabled={status !== "active"}
+                        disabled={discount.usedCount == discount.maxRedemptions}
                         title="Send to email"
                         className="rounded-lg cursor-pointer border border-yellow-500/30 bg-yellow-500/10 p-2 text-yellow-400 transition hover:bg-yellow-500/20 disabled:cursor-not-allowed disabled:opacity-30"
                       >
