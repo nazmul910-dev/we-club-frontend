@@ -101,8 +101,8 @@ export function ChartAreaDefault() {
 
 ${
   period === item
-    ? "bg-[#D6B35B] text-black"
-    : "bg-neutral-900 text-white hover:bg-neutral-800"
+    ? "bg-[#D6B35B] text-black cursor-pointer"
+    : "bg-neutral-900 text-white hover:bg-neutral-800 cursor-pointer"
 }
 
 `}

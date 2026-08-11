@@ -117,3 +117,8 @@ export interface Commission {
   created_at: string;
   updated_at: string;
 }
+
+export interface CommissionTotal {
+  total_final_commission: number;
+  total_commissions: number;
+}

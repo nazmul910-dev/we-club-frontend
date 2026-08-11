@@ -52,7 +52,7 @@ export default function CommissionModal({ commission, type, close }: Props) {
         const result = await dispatch(
           confirmCommission({
             id: commission._id,
-            final_commission_amount: Number(finalCommission),
+            final_commission_pct: Number(finalCommission),
             deal_closed_at: formatDealClosedAt(dealClosedAt),
             note,
           }),
