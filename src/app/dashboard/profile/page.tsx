@@ -2,7 +2,10 @@
 
 import { useEffect } from "react";
 
-import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
+import {
+  useAppDispatch,
+  useAppSelector,
+} from "@/lib/redux/store/hook";
 
 import { getMyProfile } from "@/lib/features/profile/profileApi";
 
@@ -12,12 +15,13 @@ import ProfileParticulars from "@/components/profile/profile-particulars";
 import ProfileStanding from "@/components/profile/profile-standing";
 import ProfileBio from "@/components/profile/profile-bio";
 import ProfilePageSkeleton from "@/components/profile/ProfilePageSkeleton";
+import ProfileSocialLinks from "@/components/profile/profile-social-links";
 
 export default function ProfilePage() {
   const dispatch = useAppDispatch();
 
   const { profile, loading } = useAppSelector(
-    (state) => state.profile
+    (state) => state.profile,
   );
 
   useEffect(() => {
@@ -40,10 +44,17 @@ export default function ProfilePage() {
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_300px]">
           <div>
             <ProfileParticulars profile={profile} />
+
             <ProfileBio profile={profile} />
           </div>
 
-          <ProfileStanding profile={profile} />
+          <div className="space-y-6">
+            <ProfileStanding profile={profile} />
+
+            <ProfileSocialLinks
+              profile={profile}
+            />
+          </div>
         </div>
       </div>
     </div>

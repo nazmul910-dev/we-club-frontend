@@ -77,7 +77,6 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
       href: "/dashboard/users-management",
       icon: Users,
       show:
-        userRole === "admin" ||
         userRole === "manager" ||
         userRole === "founder",
     },

@@ -81,7 +81,11 @@ text-sm
 
           <Info title="License" value={user.licenseNumber} />
 
-          <Info title="Brokerage" value={user.brokerage} />
+          <Info title="Account Status" value={user.accountStatus} />
+          <Info title="Approval Status" value={user.approvalStatus} />
+          <Info title="Licens Status" value={user.licenseVerificationStatus} />
+          <Info title="Payment Status" value={user.paymentStatus} />
+          <Info title="Subscription Status" value={user.subscriptionStatus} />
         </div>
       </div>
     </div>

@@ -56,7 +56,7 @@ export default function UserTabs({
 
             onClick={() => setActive(tab.value)}
 
-            className={`px-5 py-2 rounded-full text-xs uppercase tracking-widest whitespace-nowrap transition ${
+            className={`px-5 py-2 cursor-pointer rounded-full text-xs uppercase tracking-widest whitespace-nowrap transition ${
               active === tab.value
                 ? "bg-white text-black"
                 : "text-white/50 hover:text-white hover:bg-white/5"
