@@ -53,6 +53,7 @@ gap-5
           <ProfileField label="Title" value={profile.role} />
 
           <ProfileField label="Email" value={profile.email} />
+          <ProfileField label="License Number" value={profile.licenseNumber} />
 
           <ProfileField
             label="Phone"

@@ -26,7 +26,7 @@ const DURATION_OPTIONS: { value: 3 | 6 | 12; label: string }[] = [
   { value: 12, label: "12 Months" },
 ];
 
-const PAID_ROLES = ["associate", "partner", "ambassador", "ceo", "ceo_partner"];
+const PAID_ROLES = ["associate", "partner", "ambassador", "ceo", "ceo_partner","we_club_member"];
 const CEO_ROLES = ["ceo", "ceo_partner"];
 
 const inputClass =

@@ -114,7 +114,7 @@ export default function LogoUploadModal({ existingLogo }: LogoUploadModalProps) 
       }}
     >
       <DialogTrigger>
-        <div className="h-11 rounded-xl flex justify-center items-center bg-[#c9a84c] px-5 text-sm font-bold text-black shadow-lg transition hover:bg-[#c9a125]">
+        <div className="h-11 rounded-xl cursor-pointer flex justify-center items-center bg-[#c9a84c] px-5 text-sm font-bold text-black shadow-lg transition hover:bg-[#c9a125]">
           {isChangeMode ? (
             <RefreshCw className="mr-2 h-4 w-4" />
           ) : (

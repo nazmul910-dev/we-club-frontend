@@ -55,6 +55,22 @@ const SEARCH_MENU_ITEMS = [
     label: "My Profile",
     href: "/dashboard/profile",
   },
+  {
+    label: "Manage Logo",
+    href: "/dashboard/manage-logo",
+  },
+  {
+    label: "Payment Link",
+    href: "/dashboard/registration-payments",
+  },
+  {
+    label: "Discount Codes",
+    href: "/dashboard/discount-management",
+  },
+  {
+    label: "Plan",
+    href: "/dashboard/upgrade-plan",
+  },
 ];
 
 export default function Topbar({ setIsOpen }: Props) {
@@ -74,11 +90,20 @@ export default function Topbar({ setIsOpen }: Props) {
   const searchItems = React.useMemo(() => {
     return SEARCH_MENU_ITEMS.filter((item) => {
       if (item.href === "/dashboard/users-management") {
-        return userRole === "admin" || userRole === "manager";
+        return userRole === "founder" || userRole === "manager";
+      }
+      if (item.href === "/dashboard/manage-logo") {
+        return userRole === "founder";
+      }
+      if (item.href === "/dashboard/discount-management") {
+        return userRole === "founder" || userRole === "manager";
+      }
+      if (item.href === "/dashboard/registration-payments") {
+        return userRole === "founder" || userRole === "manager";
       }
 
       if (item.href === "/dashboard/manager-management") {
-        return userRole === "admin";
+        return userRole === "founder";
       }
 
       return true;

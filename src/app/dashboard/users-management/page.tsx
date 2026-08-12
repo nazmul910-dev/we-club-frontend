@@ -14,6 +14,8 @@ import { PaginationControl } from "@/components/ui/PaginationControll";
 export default function UsersManagementPage() {
   const dispatch = useAppDispatch();
 
+
+
   const users = useAppSelector((state) => state.users.users);
   const loading = useAppSelector((state) => state.users.loading);
   const meta = useAppSelector((state) => state.users.meta);
@@ -27,7 +29,7 @@ export default function UsersManagementPage() {
     dispatch(getAllUsers({ page, limit }));
   }, [dispatch, page, limit]);
 
-  if (currentUser && !["admin", "manager", "founder"].includes(currentUser.role)) {
+  if (currentUser && !["manager", "founder"].includes(currentUser.role)) {
     redirect("/dashboard");
   }
 
