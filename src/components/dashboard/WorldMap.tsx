@@ -38,27 +38,27 @@ export default function WorldMapCard({
 
     if (!container) return;
 
-const updateMapWidth = () => {
-  const availableWidth = container.clientWidth;
+    const updateMapWidth = () => {
+      const availableWidth = container.clientWidth;
 
-  if (!availableWidth) return;
+      if (!availableWidth) return;
 
-  const isLargeScreen = window.innerWidth >= 1280;
+      const isLargeScreen = window.innerWidth >= 1280;
 
-  const viewportLimit = isLargeScreen
-    ? Math.min(window.innerHeight * 0.92, 980)
-    : Math.min(window.innerWidth, window.innerHeight) * 0.75;
+      const viewportLimit = isLargeScreen
+        ? Math.min(window.innerHeight * 0.92, 980)
+        : Math.min(window.innerWidth, window.innerHeight) * 0.75;
 
-  const nextWidth = Math.floor(
-    Math.min(availableWidth, viewportLimit),
-  );
+      const nextWidth = Math.floor(
+        Math.min(availableWidth, viewportLimit),
+      );
 
-  setMapWidth((previousWidth) =>
-    previousWidth === nextWidth
-      ? previousWidth
-      : nextWidth,
-  );
-};
+      setMapWidth((previousWidth) =>
+        previousWidth === nextWidth
+          ? previousWidth
+          : nextWidth,
+      );
+    };
 
     updateMapWidth();
 
@@ -73,21 +73,29 @@ const updateMapWidth = () => {
     };
   }, []);
 
+  // ---- Country-level highlight style ----
+  // Active country (user thake) -> strong, clearly visible gold fill
+  // Inactive country -> same subtle dark theme as before (image 1 look)
   const countryStyle = useCallback(
     (context: CountryContext<number>): CSSProperties => {
       const hasVisitor = context.countryValue !== undefined;
 
       return {
-        fill: hasVisitor ? "#C7A343" : "#8A702F",
-        fillOpacity: hasVisitor ? 0.5 : 0.22,
+        fill: hasVisitor ? "#8A702F" : "#8A702F",
+        fillOpacity: hasVisitor ? 0.35 : 0.02,
 
-        stroke: "#D6B75C",
-        strokeWidth: 0.8,
-        strokeOpacity: hasVisitor ? 0.95 : 0.72,
+        stroke: hasVisitor ? "#F6E2A0" : "#D6B75C",
+        strokeWidth: hasVisitor ? 1.1 : 0.8,
+        strokeOpacity: hasVisitor ? 1 : 0.6,
+
+        filter: hasVisitor
+          ? "drop-shadow(0 0 6px rgba(228,185,58,0.55))"
+          : "none",
 
         vectorEffect: "non-scaling-stroke",
-        cursor: "default",
-        transition: "fill-opacity 180ms ease, stroke-opacity 180ms ease",
+        cursor: hasVisitor ? "pointer" : "default",
+        transition:
+          "fill-opacity 180ms ease, stroke-opacity 180ms ease, filter 180ms ease",
       };
     },
     [],
@@ -136,7 +144,6 @@ const updateMapWidth = () => {
         className="relative z-10 w-full"
       >
         {mapWidth > 0 && (
-
           <div
             className="relative mx-auto"
             style={{
@@ -146,12 +153,31 @@ const updateMapWidth = () => {
             <WorldMap
               size={mapWidth}
               data={mapData}
-              color="#C7A343"
+              color="#E4B93A"
               borderColor="#D6B75C"
               backgroundColor="transparent"
               strokeOpacity={0.75}
               styleFunction={countryStyle}
-              richInteraction={false}
+              richInteraction
+              tooltipTextFunction={(context: CountryContext<number>) => {
+                const marker = markers.find(
+                  (m) =>
+                    m.country.toLowerCase() ===
+                    context.countryName?.toLowerCase(),
+                );
+
+                if (context.countryValue === undefined) {
+                  return context.countryName ?? "";
+                }
+
+                return `${context.countryName} — ${
+                  marker?.count ?? context.countryValue
+                } ${
+                  (marker?.count ?? context.countryValue) === 1
+                    ? "viewer"
+                    : "viewers"
+                }`;
+              }}
               containerClassName="
                 !w-full
                 [&_figure]:!m-0

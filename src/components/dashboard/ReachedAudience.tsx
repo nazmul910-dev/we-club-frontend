@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { ArrowUpRight } from "lucide-react";
+import type { DataItem, ISOCode } from "react-svg-worldmap";
 
 import WorldMapCard, {
   type CountryMarker,
@@ -22,6 +23,7 @@ import { getAllUsers } from "@/lib/features/users/usersApi";
 import {
   coordsToPosition,
   getCountryCoordinates,
+  getCountryIsoCode,
 } from "@/data/countryCoordinates";
 
 import type { IUser } from "@/types/user-managemetn";
@@ -62,20 +64,23 @@ export default function ReachedAudience() {
     };
   }, [dispatch]);
 
-  const markers = useMemo<CountryMarker[]>(() => {
-    const countryCountMap = new Map<string, number>();
+  // country name -> user count, built once from users list
+  const countryCountMap = useMemo(() => {
+    const map = new Map<string, number>();
 
     users.forEach((user) => {
       const country = user.country?.trim();
 
       if (!country) return;
 
-      countryCountMap.set(
-        country,
-        (countryCountMap.get(country) ?? 0) + 1,
-      );
+      map.set(country, (map.get(country) ?? 0) + 1);
     });
 
+    return map;
+  }, [users]);
+
+  // dot marker positions (lat/lng -> % left/top on the SVG)
+  const markers = useMemo<CountryMarker[]>(() => {
     const countryMarkers: CountryMarker[] = [];
 
     countryCountMap.forEach((count, country) => {
@@ -97,7 +102,26 @@ export default function ReachedAudience() {
     });
 
     return countryMarkers;
-  }, [users]);
+  }, [countryCountMap]);
+
+  // ISO alpha-2 codes + values -> this is what react-svg-worldmap
+  // actually reads to decide which country shape gets highlighted.
+  const mapData = useMemo<DataItem<number>[]>(() => {
+    const data: DataItem<number>[] = [];
+
+    countryCountMap.forEach((count, country) => {
+      const isoCode = getCountryIsoCode(country);
+
+      if (!isoCode) return;
+
+      data.push({
+        country: isoCode as ISOCode,
+        value: count,
+      });
+    });
+
+    return data;
+  }, [countryCountMap]);
 
   const totalCountries = markers.length;
 
@@ -167,7 +191,7 @@ export default function ReachedAudience() {
       </div>
 
       {!loading && (
-        <WorldMapCard markers={markers} />
+        <WorldMapCard markers={markers} mapData={mapData} />
       )}
     </div>
   );
