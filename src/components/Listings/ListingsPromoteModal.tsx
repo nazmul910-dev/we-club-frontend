@@ -36,7 +36,7 @@ import { MARKETING_CHANNELS, promoteRequestSchema, PromoteRequestValues } from "
 
 
 const fieldClass =
-  "h-11 rounded-lg border-white/10 bg-white/[0.04] text-white placeholder:text-white/30 " +
+  "h-11 rounded-lg border-white/10 bg-white/[0.04] text-white px-2 placeholder:text-white/30 " +
   "backdrop-blur-sm transition-colors focus-visible:border-gold/60 " +
   "focus-visible:ring-2 focus-visible:ring-gold/30 focus-visible:ring-offset-0";
 
@@ -263,7 +263,7 @@ const ListingsPromoteModal = ({
                                     toggleChannel(channel.value, field.value)
                                   )
                                 }
-                                className={`rounded-full border px-3.5 py-1.5 text-[11px] tracking-wide uppercase transition-colors ${
+                                className={`rounded-full cursor-pointer border px-3.5 py-1.5 text-[11px] tracking-wide uppercase transition-colors ${
                                   active
                                     ? "border-gold bg-gold/15 text-gold"
                                     : "border-white/15 bg-white/[0.03] text-white/60 hover:border-white/30"
@@ -313,14 +313,14 @@ const ListingsPromoteModal = ({
                     variant="outline"
                     onClick={() => setIsOpen(false)}
                     disabled={submitting}
-                    className="rounded-full border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                    className="rounded-full cursor-pointer border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white"
                   >
                     Cancel
                   </Button>
                   <Button
                     type="submit"
                     disabled={submitting}
-                    className="rounded-full bg-gold text-primary-foreground hover:brightness-110"
+                    className="rounded-full cursor-pointer bg-gold text-primary-foreground hover:bg-amber-400 duration-300 ease-in-out"
                   >
                     {submitting ? "Sending..." : "Send Request"}
                   </Button>

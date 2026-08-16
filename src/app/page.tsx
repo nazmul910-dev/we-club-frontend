@@ -42,35 +42,7 @@ export default function Home() {
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:mt-10 sm:flex-row sm:gap-4">
             <Link href="/login" className="w-full sm:w-auto">
               <button
-                className="
-                group
-                flex
-                w-full
-                cursor-pointer
-                items-center
-                justify-center
-                gap-2
-                rounded-xl
-                bg-amber-400
-                px-6
-                py-3
-                text-sm
-                font-semibold
-                text-black
-                shadow-lg
-                shadow-amber-500/10
-                transition-all
-                duration-300
-                hover:scale-[1.03]
-                hover:bg-amber-300
-                hover:shadow-amber-400/30
-                active:scale-95
-                sm:w-auto
-                sm:px-8
-                sm:py-3.5
-                sm:text-base
-                "
-              >
+                className="group flex w-full cursor-pointer items-center justify-center gap-2  rounded-xl  bg-amber-400 px-6 py-3 text-sm font-semibold text-black shadow-lg   shadow-amber-500/10 transition-all duration-300 hover:scale-[1.03]  hover:bg-amber-300  hover:shadow-amber-400/30 active:scale-95 sm:w-auto sm:px-8 sm:py-3.5 sm:text-base " >
                 Login
                 <ArrowRight
                   size={18}
@@ -113,7 +85,7 @@ export default function Home() {
                 Create Account
                 <ArrowRight
                   size={18}
-                  className="translate-x-0 opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100"
+                  className="translate-x-0 transition-all duration-300 group-hover:translate-x-1 "
                 />
               </button>
             </Link>

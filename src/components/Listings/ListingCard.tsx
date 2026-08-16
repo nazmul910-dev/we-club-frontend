@@ -18,6 +18,7 @@ import { AppDispatch, RootState } from "@/lib/redux/store/store";
 import { DEFAULT_STATUS_STYLE, STATUS_STYLES } from "@/styles/listingsStyles";
 import { ListingDetailsModal } from "./ListingsDetailsModal";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { formatCompactNumber } from "@/lib/utils/format-number";
 
 type PromoteState =
   | "available"
@@ -93,12 +94,21 @@ function ListingCardInner({ property }: { property: any }) {
             {property.status}
           </span>
         </div>
-
+         {
+          property.status === "sold" && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+              <span className=" -rotate-45 font-lato text-[40px] md:text-[30px] lg:text-[50px] uppercase text-white">  
+              sold
+              </span>
+            </div>
+          )
+        }
+         
         {/* Price Overlay */}
         <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-[#0A0A0A] via-[#0A0A0A]/70 to-transparent p-4 pt-12">
-          <div className="text-meta text-white/50">Asking</div>
+          {/* <div className="text-meta text-white/50">Asking</div> */}
           <div className="mt-0.5 font-display text-white text-2xl">
-            {property.price.amount} {property.price.currency}
+            {formatCompactNumber(property.price.amount)} {property.price.currency}
           </div>
         </div>
       </div>
@@ -111,14 +121,14 @@ function ListingCardInner({ property }: { property: any }) {
 
         <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
           <MapPin className="h-3.5 w-3.5" />
-          {property.location?.city}, {property.location?.state},{" "}
-          {property.location?.region}
+          {property.location?.city}, {property.location?.region},{" "}
+          {property.location?.country}
         </p>
 
         <div className="mt-4 flex items-center gap-5 font-ui text-[11px] text-foreground/80">
           <span className="flex items-center gap-1.5 text-white/70">
             <Bed className="h-3.5 w-3.5 text-gold" />
-            {property.bedrooms}
+            {property.bedrooms} {property.location?.region}
           </span>
           <span className="flex items-center gap-1.5 text-white/70">
             <Bath className="h-3.5 w-3.5 text-gold" />
@@ -126,7 +136,7 @@ function ListingCardInner({ property }: { property: any }) {
           </span>
           <span className="flex items-center gap-1.5 text-white/70">
             <Maximize2 className="h-3.5 w-3.5 text-gold" />
-            {property.area_sqm}
+            {property?.area_sqm?.value} {property?.area_sqm?.unit}
           </span>
         </div>
 

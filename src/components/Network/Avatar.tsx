@@ -6,7 +6,7 @@ interface AvatarProps {
 
 export default function Avatar({
   image,
-  name,
+  name, 
 }: AvatarProps) {
 
 

@@ -20,6 +20,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
+import { formatCompactNumber } from "@/lib/utils/format-number";
 
 export const description = "A simple area chart";
 
@@ -69,19 +70,18 @@ export function ChartAreaDefault() {
 
   const { average, totalViews, growth, ...rest } = listingViewsAnalytics;
 
-  console.log("resting data", rest);
+
 
   useEffect(() => {
     dispatch(getLisitngViewsAnalytics());
   }, [dispatch]);
 
-  console.log("anaalaa:", listingViewsAnalytics);
-
-  console.log(growth)
 
   const currentData = useMemo(() => {
     return rest[period];
   }, [period]);
+
+  console.log("currentData", currentData);
 
   return (
     <Card className="bg-transparent px-0">
@@ -101,8 +101,8 @@ export function ChartAreaDefault() {
 
 ${
   period === item
-    ? "bg-[#D6B35B] text-black"
-    : "bg-neutral-900 text-white hover:bg-neutral-800"
+    ? "bg-[#D6B35B] text-black cursor-pointer"
+    : "bg-neutral-900 text-white hover:bg-neutral-800 cursor-pointer"
 }
 
 `}
@@ -164,7 +164,7 @@ ${
           <div>
             <p className="text-xs text-neutral-500">Total Views</p>
 
-            <h3 className="mt-1 text-2xl font-bold text-white">{totalViews}</h3>
+            <h3 className="mt-1 text-2xl font-bold text-white"> {formatCompactNumber(totalViews)}</h3>
           </div>
 
           <div>

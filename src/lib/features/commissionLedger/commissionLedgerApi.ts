@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import api from "@/lib/api/api";
-import type { Commission } from "./types";
+import type { Commission, CommissionTotal } from "./types";
 
 interface ApiResponse<T> {
   meta: null;
@@ -9,81 +9,90 @@ interface ApiResponse<T> {
   data: T;
 }
 
-
 interface ListQueryParams {
   page?: number;
   limit?: number;
   [key: string]: any;
 }
 
-/* =========================================
-   Get My Commission
-========================================= */
-
 export const getMyCommissions = createAsyncThunk<
   ApiResponse<Commission[]>,
- ListQueryParams | void,
+  ListQueryParams | void,
+  { rejectValue: string }
+>("commission/getMyCommissions", async (params = {}, { rejectWithValue }) => {
+  try {
+    const res = await api.get("/commission/my", { params });
+    return res.data as ApiResponse<Commission[]>;
+  } catch (err: any) {
+    return rejectWithValue(
+      err?.response?.data?.message ?? "Failed to fetch commissions",
+    );
+  }
+});
+
+export const getTotalMyCommssions = createAsyncThunk<
+  ApiResponse<CommissionTotal>,
+  void,
   { rejectValue: string }
 >(
-  "commission/getMyCommissions",
-  async ( params = {}, { rejectWithValue }) => {
+  "commission/getTotalMyCommissions",
+  async (_, { rejectWithValue }) => {
     try {
-      const res = await api.get("/commission/my", {params});
-      return res.data as ApiResponse<Commission[]>;
+      const res = await api.get(
+        "/commission/my/total",
+      );
+
+      return res.data as ApiResponse<CommissionTotal>;
     } catch (err: any) {
       return rejectWithValue(
         err?.response?.data?.message ??
-          "Failed to fetch commissions"
+          "Failed to fetch my total commission",
       );
     }
-  }
+  },
 );
 
+export const getTotalAdminCommssions = createAsyncThunk<
+  ApiResponse<CommissionTotal>,
+  void,
+  { rejectValue: string }
+>(
+  "commission/getTotalAdminCommissions",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get(
+        "/commission/admin/total",
+      );
 
-// const getMyCommissions = createAsyncThunk
-//   CommissionsApiResponse,
-//   PaginationParams | void
-// >("commissions/my", async (params = {}, { rejectWithValue }) => {
-//   try {
-//     const res = await api.get("/commissions/my", { params }); // ← forward params as axios config
-//     return res.data;
-//   } catch (err: any) {
-//     return rejectWithValue(err?.response?.data?.message ?? "Failed to fetch commissions");
-//   }
-// });
-
-/* =========================================
-   Get All Commission
-========================================= */
-
+      return res.data as ApiResponse<CommissionTotal>;
+    } catch (err: any) {
+      return rejectWithValue(
+        err?.response?.data?.message ??
+          "Failed to fetch total commissions",
+      );
+    }
+  },
+);
 export const getAllCommissions = createAsyncThunk<
   ApiResponse<Commission[]>,
   ListQueryParams | void,
   { rejectValue: string }
->(
-  "commission/getAllCommissions",
-  async (params ={}, { rejectWithValue }) => {
-    try {
-      const res = await api.get("/commission/admin/all", {params});
-      return res.data as ApiResponse<Commission[]>;
-    } catch (err: any) {
-      return rejectWithValue(
-        err?.response?.data?.message ??
-          "Failed to fetch commissions"
-      );
-    }
+>("commission/getAllCommissions", async (params = {}, { rejectWithValue }) => {
+  try {
+    const res = await api.get("/commission/admin/all", { params });
+    return res.data as ApiResponse<Commission[]>;
+  } catch (err: any) {
+    return rejectWithValue(
+      err?.response?.data?.message ?? "Failed to fetch commissions",
+    );
   }
-);
-
-/* =========================================
-   Confirm Commission
-========================================= */
+});
 
 export const confirmCommission = createAsyncThunk<
   ApiResponse<Commission>,
   {
     id: string;
-    final_commission_amount: number;
+    final_commission_pct: number;
     deal_closed_at: string;
     note: string;
   },
@@ -91,39 +100,123 @@ export const confirmCommission = createAsyncThunk<
 >(
   "commission/confirmCommission",
   async (
-    {
-      id,
-      final_commission_amount,
-      deal_closed_at,
-      note,
-    },
-    { rejectWithValue }
+    { id, final_commission_pct, deal_closed_at, note },
+    { rejectWithValue },
   ) => {
     try {
-      const res = await api.patch(
-        `/commission/${id}/confirm`,
-        {
-          final_commission_amount,
-          deal_closed_at,
-          note,
-        }
-      );
+      const res = await api.patch(`/commission/${id}/confirm`, {
+        final_commission_pct,
+        deal_closed_at,
+        note,
+      });
 
       return res.data as ApiResponse<Commission>;
     } catch (err: any) {
       return rejectWithValue(
-        err?.response?.data?.message ??
-          "Failed to confirm commission"
+        err?.response?.data?.message ?? "Failed to confirm commission",
       );
     }
-  }
+  },
 );
 
-/* =========================================
-   Mark Paid
-========================================= */
-
 export const markPaid = createAsyncThunk<
+  ApiResponse<Commission>,
+  {
+    id: string;
+    payment_method?:
+      | "bank_transfer"
+      | "stripe"
+      | "helcim"
+      | "cash"
+      | "check"
+      | "other"
+      | undefined;
+  },
+  { rejectValue: string }
+>(
+  "commission/markPaid",
+  async ({ id, payment_method }, { rejectWithValue }) => {
+    try {
+      const res = await api.patch(`/commission/${id}/mark-paid`, {
+        ...(payment_method && { payment_method }),
+      });
+
+      return res.data as ApiResponse<Commission>;
+    } catch (err: any) {
+      return rejectWithValue(
+        err?.response?.data?.message ?? "Failed to mark commission as paid",
+      );
+    }
+  },
+);
+
+export const confirmReceived = createAsyncThunk<
+  ApiResponse<Commission>,
+  string,
+  { rejectValue: string }
+>("commission/confirmReceived", async (id, { rejectWithValue }) => {
+  try {
+    const res = await api.patch(`/commission/${id}/confirm-received`, {});
+
+    return res.data as ApiResponse<Commission>;
+  } catch (err: any) {
+    return rejectWithValue(
+      err?.response?.data?.message ?? "Failed to confirm receipt",
+    );
+  }
+});
+
+export const disputeCommission = createAsyncThunk<
+  ApiResponse<Commission>,
+  {
+    id: string;
+    reason: string;
+  },
+  { rejectValue: string }
+>(
+  "commission/disputeCommission",
+  async ({ id, reason }, { rejectWithValue }) => {
+    try {
+      const res = await api.patch(`/commission/${id}/dispute`, {
+        reason,
+      });
+
+      return res.data as ApiResponse<Commission>;
+    } catch (err: any) {
+      return rejectWithValue(
+        err?.response?.data?.message ?? "Failed to dispute commission",
+      );
+    }
+  },
+);
+
+export const resolveDispute = createAsyncThunk<
+  ApiResponse<Commission>,
+  {
+    id: string;
+    final_status: "confirmed" | "paid" | "cancelled";
+    resolution_note: string;
+  },
+  { rejectValue: string }
+>(
+  "commission/resolveDispute",
+  async ({ id, final_status, resolution_note }, { rejectWithValue }) => {
+    try {
+      const res = await api.patch(`/commission/admin/${id}/resolve-dispute`, {
+        final_status,
+        resolution_note,
+      });
+
+      return res.data as ApiResponse<Commission>;
+    } catch (err: any) {
+      return rejectWithValue(
+        err?.response?.data?.message ?? "Failed to resolve dispute",
+      );
+    }
+  },
+);
+
+export const sendCommissionPayment = createAsyncThunk<
   ApiResponse<Commission>,
   {
     id: string;
@@ -137,131 +230,19 @@ export const markPaid = createAsyncThunk<
   },
   { rejectValue: string }
 >(
-  "commission/markPaid",
+  "commission/sendCommissionPayment",
+
   async ({ id, payment_method }, { rejectWithValue }) => {
     try {
-      const res = await api.patch(
-        `/commission/${id}/mark-paid`,
-        {
-          payment_method,
-        }
-      );
+      const res = await api.patch(`/commission/${id}/send-payment`, {
+        payment_method,
+      });
 
       return res.data as ApiResponse<Commission>;
     } catch (err: any) {
       return rejectWithValue(
-        err?.response?.data?.message ??
-          "Failed to mark commission as paid"
+        err?.response?.data?.message ?? "Failed to send payment",
       );
     }
-  }
-);
-
-/* =========================================
-   Confirm Received
-========================================= */
-
-export const confirmReceived = createAsyncThunk<
-  ApiResponse<Commission>,
-  string,
-  { rejectValue: string }
->(
-  "commission/confirmReceived",
-  async (id, { rejectWithValue }) => {
-    try {
-      const res = await api.patch(
-        `/commission/${id}/confirm-received`,
-        {}
-      );
-
-      return res.data as ApiResponse<Commission>;
-    } catch (err: any) {
-      return rejectWithValue(
-        err?.response?.data?.message ??
-          "Failed to confirm receipt"
-      );
-    }
-  }
-);
-
-/* =========================================
-   Dispute
-========================================= */
-
-export const disputeCommission = createAsyncThunk<
-  ApiResponse<Commission>,
-  {
-    id: string;
-    reason: string;
   },
-  { rejectValue: string }
->(
-  "commission/disputeCommission",
-  async (
-    {
-      id,
-      reason,
-    },
-    { rejectWithValue }
-  ) => {
-    try {
-      const res = await api.patch(
-        `/commission/${id}/dispute`,
-        {
-          reason,
-        }
-      );
-
-      return res.data as ApiResponse<Commission>;
-    } catch (err: any) {
-      return rejectWithValue(
-        err?.response?.data?.message ??
-          "Failed to dispute commission"
-      );
-    }
-  }
-);
-
-/* =========================================
-   Resolve Dispute
-========================================= */
-
-export const resolveDispute = createAsyncThunk<
-  ApiResponse<Commission>,
-  {
-    id: string;
-    final_status:
-      | "confirmed"
-      | "paid"
-      | "cancelled";
-    resolution_note: string;
-  },
-  { rejectValue: string }
->(
-  "commission/resolveDispute",
-  async (
-    {
-      id,
-      final_status,
-      resolution_note,
-    },
-    { rejectWithValue }
-  ) => {
-    try {
-      const res = await api.patch(
-        `/commission/admin/${id}/resolve-dispute`,
-        {
-          final_status,
-          resolution_note,
-        }
-      );
-
-      return res.data as ApiResponse<Commission>;
-    } catch (err: any) {
-      return rejectWithValue(
-        err?.response?.data?.message ??
-          "Failed to resolve dispute"
-      );
-    }
-  }
 );

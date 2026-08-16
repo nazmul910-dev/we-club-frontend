@@ -1,47 +1,40 @@
-
-
-export default function UserHeader(){
-
-return(
-
-<div className="
+export default function UserHeader() {
+  return (
+    <div
+      className="
 mb-8
-">
-
-<p className="
+"
+    >
+      <p
+        className="
 text-xs
 tracking-[5px]
-text-yellow-500
+text-eyebrow
 uppercase
-">
-USER MANAGEMENT
-</p>
+"
+      >
+        USER MANAGEMENT
+      </p>
 
-
-<h1
-className="
+      <h1
+        className="
 text-4xl
 font-serif
 text-white
 mt-3
 "
->
-Users Directory
-</h1>
+      >
+        Users Directory
+      </h1>
 
-
-<p
-className="
+      <p
+        className="
 text-white/40
 mt-2
 "
->
-Manage approval, verification and account access.
-</p>
-
-
-</div>
-
-)
-
+      >
+        Manage approval, verification and account access.
+      </p>
+    </div>
+  );
 }

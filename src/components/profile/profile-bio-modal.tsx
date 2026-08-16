@@ -111,7 +111,7 @@ Edit Biography
 
 <button
 onClick={close}
-className="text-white"
+className="text-white cursor-pointer"
 >
 
 <X/>
@@ -158,8 +158,9 @@ className="
 mt-5
 w-full
 bg-[#C9A962]
-text-black
+text-white
 py-3
+cursor-pointer hover:bg-[#C9A962]/90 transition duration-300
 rounded-md
 text-xs
 tracking-widest

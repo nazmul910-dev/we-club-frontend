@@ -1,33 +1,19 @@
 "use client";
 
-
 import { IUser } from "@/types/user-managemetn";
 
+interface Props {
+  user: IUser | null;
 
-interface Props{
-
-user:IUser|null;
-
-close:()=>void;
-
+  close: () => void;
 }
 
+export default function UserDetailsModal({ user, close }: Props) {
+  if (!user) return null;
 
-
-export default function UserDetailsModal({
-user,
-close
-}:Props){
-
-
-if(!user) return null;
-
-
-
-return(
-
-<div
-className="
+  return (
+    <div
+      className="
 fixed
 inset-0
 bg-black/70
@@ -36,11 +22,9 @@ items-center
 justify-center
 z-50
 "
->
-
-
-<div
-className="
+    >
+      <div
+        className="
 w-full
 max-w-lg
 bg-[#111]
@@ -49,120 +33,91 @@ border-yellow-500/20
 rounded-2xl
 p-6
 "
->
-
-
-<div className="
+      >
+        <div
+          className="
 flex
 justify-between
-">
-
-<h2
-className="
+"
+        >
+          <h2
+            className="
 text-2xl
 text-yellow-400
 font-serif
 "
->
-User Details
-</h2>
+          >
+            User Details
+          </h2>
 
-
-<button
-onClick={close}
-className="
-text-white/50
+          <button
+            onClick={close}
+            className="
+text-white px-2 hover:bg-red-700 duration-500 cursor-pointer bg-red-500
 "
->
-✕
-</button>
+          >
+            ✕
+          </button>
+        </div>
 
-
-</div>
-
-
-
-<div className="
+        <div
+          className="
 mt-6
 space-y-3
 text-sm
 "
->
+        >
+          <Info title="Name" value={user.fullName} />
 
+          <Info title="Email" value={user.email} />
 
-<Info title="Name" value={user.fullName}/>
+          <Info title="Role" value={user.role} />
 
-<Info title="Email" value={user.email}/>
+          <Info title="Access" value={user.accessTo} />
 
-<Info title="Role" value={user.role}/>
+          <Info title="Phone" value={user.phone} />
 
-<Info title="Access" value={user.accessTo}/>
+          <Info title="Country" value={user.country} />
 
-<Info title="Phone" value={user.phone}/>
+          <Info title="License" value={user.licenseNumber} />
 
-<Info title="Country" value={user.country}/>
-
-<Info title="License" value={user.licenseNumber}/>
-
-<Info title="Brokerage" value={user.brokerage}/>
-
-
-</div>
-
-
-
-</div>
-
-
-</div>
-
-
-)
-
+          <Info title="Account Status" value={user.accountStatus} />
+          <Info title="Approval Status" value={user.approvalStatus} />
+          <Info title="Licens Status" value={user.licenseVerificationStatus} />
+          <Info title="Payment Status" value={user.paymentStatus} />
+          <Info title="Subscription Status" value={user.subscriptionStatus} />
+        </div>
+      </div>
+    </div>
+  );
 }
 
-
-
-function Info({
-title,
-value
-}:{
-title:string;
-value:string;
-}){
-
-
-return(
-
-<div
-className="
+function Info({ title, value }: { title: string; value: string }) {
+  return (
+    <div
+      className="
 flex
 justify-between
 border-b
 border-white/10
 pb-2
 "
->
-
-<span
-className="
+    >
+      <span
+        className="
 text-white/40
 "
->
-{title}
-</span>
+      >
+        {title}
+      </span>
 
-<span
-className="
+      <span
+        className="
 text-white
 "
->
-{value || "-"}
-</span>
-
-
-</div>
-
-)
-
+      >
+        {value || "-"}
+      </span>
+    </div>
+  );
 }

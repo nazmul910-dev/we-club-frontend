@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import {  ITopPromoter} from "@/lib/features/dashboard/dashboardTypes";
+import { formatCompactNumber } from "@/lib/utils/format-number";
 
 interface PromoterRowProps {
   promoter: ITopPromoter;
@@ -91,7 +92,7 @@ export default function PromoterRow({
 
         <div className="text-right">
           <p className=" text-xl text-white">
-            {promoter.totalViews.toLocaleString()}
+            {formatCompactNumber(promoter.totalViews.toLocaleString())}
           </p>
 
           <p

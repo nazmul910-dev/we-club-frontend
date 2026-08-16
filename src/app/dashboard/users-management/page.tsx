@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { redirect } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
@@ -8,58 +8,47 @@ import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
 import { getAllUsers } from "@/lib/features/users/usersApi";
 
 import UserHeader from "@/components/Admin/UsersManagement/UsersHeader";
-
 import UsersTable from "@/components/Admin/UsersManagement/UsersTable";
+import { PaginationControl } from "@/components/ui/PaginationControll";
 
 export default function UsersManagementPage() {
   const dispatch = useAppDispatch();
 
-  const users = useAppSelector((state) => state.users.users);
 
+
+  const users = useAppSelector((state) => state.users.users);
   const loading = useAppSelector((state) => state.users.loading);
+  const meta = useAppSelector((state) => state.users.meta);
 
   const currentUser = useAppSelector((state) => state.authUser?.user);
 
-  useEffect(() => {
-    dispatch(getAllUsers());
-  }, [dispatch]);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
 
-  if (currentUser && !["admin", "manager"].includes(currentUser.role)) {
+  useEffect(() => {
+    dispatch(getAllUsers({ page, limit }));
+  }, [dispatch, page, limit]);
+
+  if (currentUser && !["manager", "founder"].includes(currentUser.role)) {
     redirect("/dashboard");
   }
 
-  // if(loading){
-
-  // return(
-
-  // <div className="
-  // text-white
-  // p-10
-  // "
-  //       >
-  //         Loading users...
-  //       </div>
-  //     );
-  //   }
-
   return (
-    <div
-      className="
-min-h-screen
-w-full
-bg-[#090909]
-px-6
-py-10
-"
-    >
-      <div
-        className="
-
-"
-      >
+    <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 flex flex-col gap-8 bg-[#0a0a0a] min-h-[calc(100vh-4rem)]">
+      <div className="flex flex-col gap-6">
         <UserHeader />
 
         <UsersTable users={users} loading={loading} />
+
+        {meta && meta.totalPage > 1 && (
+          <div className="mt-4">
+            <PaginationControl
+              currentPage={page}
+              totalPages={meta.totalPage}
+              onPageChange={(nextPage) => setPage(nextPage)}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

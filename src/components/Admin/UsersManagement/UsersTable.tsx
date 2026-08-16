@@ -11,6 +11,8 @@ import {
   updateApprovalStatus,
   updateLicenseStatus,
   updateAccountStatus,
+  deleteUser as deleteUserThunk,
+  getAllUsers,
 } from "@/lib/features/users/usersApi";
 
 import UserDetailsModal from "./UserDetailsModal";
@@ -24,8 +26,10 @@ interface Props {
   loading?: boolean;
 }
 
-export default function UsersTable({ users , loading}: Props) {
+export default function UsersTable({ users, loading }: Props) {
   const dispatch = useAppDispatch();
+
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   const [selected, setSelected] = useState<IUser | null>(null);
 
@@ -155,35 +159,44 @@ export default function UsersTable({ users , loading}: Props) {
                     </div>
                   </td>
 
-                  <td className="px-6 py-5 text-center">
+                  <td className="px-6  py-5 text-center">
                     <StatusDropdown
-                      onApproval={(status) =>
-                        dispatch(
+                      open={openDropdown === user._id}
+                      onOpenChange={(open) =>
+                        setOpenDropdown(open ? user._id : null)
+                      }
+                      userId={user._id}
+                      deleteUser={async (id) => {
+                        await dispatch(deleteUserThunk({ id })).unwrap();
+                        await dispatch(getAllUsers());
+                      }}
+                      approvalStatus={user.approvalStatus}
+                      licenseVerificationStatus={user.licenseVerificationStatus}
+                      accountStatus={user.accountStatus}
+                      onApproval={async (status) => {
+                        await dispatch(
                           updateApprovalStatus({
                             id: user._id,
-
                             approvalStatus: status as any,
                           }),
-                        )
-                      }
-                      onLicense={(status) =>
-                        dispatch(
+                        ).unwrap();
+                      }}
+                      onLicense={async (status) => {
+                        await dispatch(
                           updateLicenseStatus({
                             id: user._id,
-
                             licenseVerificationStatus: status as any,
                           }),
-                        )
-                      }
-                      onAccount={(status) =>
-                        dispatch(
+                        ).unwrap();
+                      }}
+                      onAccount={async (status) => {
+                        await dispatch(
                           updateAccountStatus({
                             id: user._id,
-
                             accountStatus: status as any,
                           }),
-                        )
-                      }
+                        ).unwrap();
+                      }}
                     />
                   </td>
                 </tr>

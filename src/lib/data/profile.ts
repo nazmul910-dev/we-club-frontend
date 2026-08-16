@@ -62,7 +62,7 @@ export async function getProfile(userId: string): Promise<UserProfile> {
     standing: {
       tenure: "3 years",
       totalIntroductions: 148,
-      lifetimeCommission: "€2.84M",
+      lifetimeCommission: "$2.84M",
       discretionScore: "A+",
     },
   };

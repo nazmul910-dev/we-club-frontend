@@ -55,7 +55,7 @@ onClick={()=>dispatch(changeTab(tab))}
 
 className={`
 uppercase
-text-xs
+text-xs cursor-pointer
 tracking-[3px]
 transition
 

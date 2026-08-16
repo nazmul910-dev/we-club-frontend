@@ -19,7 +19,7 @@ export interface SignupResponse {
   };
 }
 
-export type SignupPayload = Omit<RegistrationFormData, 'discountCode'> & {
+export type SignupPayload = Omit<RegistrationFormData, "discountCode"> & {
   discountCode?: string;
 };
 
@@ -37,19 +37,15 @@ export interface ForgotPasswordPayload {
   email: string;
 }
 
-
 export interface ResetPasswordPayload {
   newPassword: string;
-  token:string;
+  token: string;
 }
-
-
 
 export interface ChangePasswordPayload {
   oldPassword: string;
   newPassword: string;
 }
-
 
 export interface LoginPayload {
   email: string;
@@ -60,202 +56,122 @@ export const registerUser = createAsyncThunk<
   SignupResponse,
   SignupPayload,
   { rejectValue: string }
->(
-  "auth/register",
-  async (payload, { rejectWithValue }) => {
-    try {
-      const res = await api.post<SignupResponse>(
-        "/auth/signup",
-        payload
+>("auth/register", async (payload, { rejectWithValue }) => {
+  try {
+    const res = await api.post<SignupResponse>("/auth/signup", payload);
+
+    return res.data;
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      return rejectWithValue(
+        err.response?.data?.message || "Registration failed",
       );
-
-      return res.data;
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        return rejectWithValue(
-          err.response?.data?.message || "Registration failed"
-        );
-      }
-
-      return rejectWithValue("Unexpected error");
     }
+
+    return rejectWithValue("Unexpected error");
   }
-);
+});
 
 export const loginUser = createAsyncThunk<
   LoginResponse,
   LoginPayload,
   { rejectValue: string }
->(
-  "auth/login",
-  async (payload, { rejectWithValue, dispatch }) => {
-    try {
-      const res = await api.post<LoginResponse>(
-        "/auth/login",
-        payload
-      );
+>("auth/login", async (payload, { rejectWithValue, dispatch }) => {
+  try {
+    const res = await api.post<LoginResponse>("/auth/login", payload);
 
-      if (res.data.data.token) {
-        localStorage.setItem("token", res.data.data.token);
-        if (res.data.data.refreshToken) {
-          localStorage.setItem("refreshToken", res.data.data.refreshToken);
-        }
-
-        const decoded = decodeToken(res.data.data.token);
-        if (decoded) {
-          dispatch(setUser(decoded));
-        }
+    if (res.data.data.token) {
+      localStorage.setItem("token", res.data.data.token);
+      if (res.data.data.refreshToken) {
+        localStorage.setItem("refreshToken", res.data.data.refreshToken);
       }
 
-      return res.data;
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        return rejectWithValue(
-          err.response?.data?.message || "Login failed"
-        );
+      const decoded = decodeToken(res.data.data.token);
+      if (decoded) {
+        dispatch(setUser(decoded));
       }
-
-      return rejectWithValue("Unexpected error");
     }
+
+    return res.data;
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      return rejectWithValue(err.response?.data?.message || "Login failed");
+    }
+
+    return rejectWithValue("Unexpected error");
   }
-);
-
-
-
-
-
+});
 
 export const forgotPassword = createAsyncThunk<
   any,
   ForgotPasswordPayload,
-  { rejectValue:string }
+  { rejectValue: string }
+>("auth/forgotPassword", async (payload, { rejectWithValue }) => {
+  try {
+    const res = await api.post("/auth/forget-password", payload);
+
+    return res.data;
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      return rejectWithValue(err.response?.data?.message || "Failed");
+    }
+
+    return rejectWithValue("Something went wrong");
+  }
+});
+
+export const resetPassword = createAsyncThunk<
+  any,
+  ResetPasswordPayload,
+  { rejectValue: string }
 >(
-  "auth/forgotPassword",
-  async(payload,{rejectWithValue})=>{
+  "auth/resetPassword",
 
-    try{
-
+  async (payload, { rejectWithValue }) => {
+    try {
       const res = await api.post(
-        "/auth/forget-password",
-        payload
+        "/auth/reset-password",
+
+        {
+          newPassword: payload.newPassword,
+        },
+
+        {
+          headers: {
+            Authorization: `Bearer ${payload.token}`,
+          },
+        },
       );
 
       return res.data;
-
-    }catch(err){
-
-      if(axios.isAxiosError(err)){
-        return rejectWithValue(
-          err.response?.data?.message || "Failed"
-        );
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        return rejectWithValue(err.response?.data?.message || "Failed");
       }
 
       return rejectWithValue("Something went wrong");
-
     }
-
-  }
+  },
 );
-
-
-
-export const resetPassword = createAsyncThunk<
-any,
-ResetPasswordPayload,
-{rejectValue:string}
->(
-
-"auth/resetPassword",
-
-async(payload,{rejectWithValue})=>{
-
-
-try{
-
-
-const res = await api.post(
-
-"/auth/reset-password",
-
-{
-newPassword: payload.newPassword
-},
-
-{
-
-headers:{
-
-Authorization:`Bearer ${payload.token}`
-
-}
-
-}
-
-);
-
-
-return res.data;
-
-
-
-}catch(err){
-
-
-if(axios.isAxiosError(err)){
-
-return rejectWithValue(
-err.response?.data?.message || "Failed"
-)
-
-}
-
-
-return rejectWithValue(
-"Something went wrong"
-)
-
-
-}
-
-
-}
-
-);
-
-
 
 export const changePassword = createAsyncThunk<
-any,
-ChangePasswordPayload,
-{rejectValue:string}
+  any,
+  ChangePasswordPayload,
+  { rejectValue: string }
 >(
-"auth/changePassword",
+  "auth/changePassword",
 
-async(payload,{rejectWithValue})=>{
+  async (payload, { rejectWithValue }) => {
+    try {
+      const res = await api.post("/auth/change-password", payload);
 
-try{
+      return res.data;
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        return rejectWithValue(err.response?.data?.message || "Failed");
+      }
 
-const res = await api.post(
-"/auth/change-password",
-payload
+      return rejectWithValue("Something went wrong");
+    }
+  },
 );
-
-return res.data;
-
-
-}catch(err){
-
-if(axios.isAxiosError(err)){
-return rejectWithValue(
-err.response?.data?.message || "Failed"
-)
-}
-
-return rejectWithValue("Something went wrong")
-
-}
-
-}
-
-);
-

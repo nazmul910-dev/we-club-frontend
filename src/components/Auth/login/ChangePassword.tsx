@@ -7,6 +7,9 @@ import { useAppDispatch } from "@/lib/redux/store/hook";
 import { changePassword } from "@/lib/features/auth/authApi";
 import BgImage from "@/assets/Login/login-bg.jpg";
 import { toast } from "sonner";
+import { ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
+
 
 const inputClass =
   "w-full rounded-xl border border-amber-400/20 bg-transparent px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none transition-all focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20";
@@ -16,7 +19,7 @@ const labelClass =
 
 export default function ChangePassword() {
   const dispatch = useAppDispatch();
-
+ const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -76,6 +79,18 @@ export default function ChangePassword() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="absolute top-5 left-5">
+        <div className="flex ">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="cursor-pointer group    text-white flex justify-center items-center gap-x-1 "
+        >
+          <ArrowLeft size={18} className="text-amber-400 group-hover:-translate-x-1 duration-300"/>
+          <p className="group-hover:text-amber-400 duration-300">Back</p>
+        </button>
+      </div>
+      </div>
       <div>
         <h2 className="text-center text-3xl font-semibold text-amber-400">
           Change Password

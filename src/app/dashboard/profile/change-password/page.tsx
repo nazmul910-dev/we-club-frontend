@@ -7,13 +7,13 @@ import BgImage from "@/assets/Login/login-bg.jpg";
 import ChangePassword from "@/components/Auth/login/ChangePassword";
 
 
+
+
 export default function ChangePasswordPage() {
 
-
-return (
-
-<section
-className="
+  return (
+    <section
+      className="
 relative
 flex
 items-center
@@ -22,15 +22,9 @@ h-[80vh]
 overflow-hidden
 px-5
 "
->
-
-
-
-
-
-
-<div
-className="
+    >
+      <div
+        className="
 absolute
 top-0
 left-1/2
@@ -41,14 +35,10 @@ rounded-full
 bg-yellow-500/10
 blur-[180px]
 "
-/>
+      />
 
-
-
-
-
-<div
-className="
+      <div
+        className="
 relative
 z-10
 w-full
@@ -62,18 +52,9 @@ p-8
 md:p-10
 shadow-2xl
 "
->
-
-
-<ChangePassword/>
-
-
-</div>
-
-
-
-</section>
-
-);
-
+      >
+        <ChangePassword />
+      </div>
+    </section>
+  );
 }

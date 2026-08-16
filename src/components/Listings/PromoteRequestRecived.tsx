@@ -2,20 +2,34 @@
 
 import { statusBadge } from "@/components/Listings/StatusBadge";
 import { formatDate } from "@/lib/utils/Helpers";
-import { XCircle, Trash2 } from "lucide-react";
-import { RowAction, RowActionsMenu } from "./RowActionMenu";
-import RowSkeleton from "../ui/row-skeleton";
+import {
+  CheckCircle2,
+  Clock3,
+  Trash2,
+  XCircle,
+} from "lucide-react";
 
+import {
+  RowAction,
+  RowActionsMenu,
+} from "./RowActionMenu";
+
+import RowSkeleton from "../ui/row-skeleton";
+import PromoteRequestDetailsModal from "./UserDetailsModal";
 
 interface PromoteRequestsReceivedSectionProps {
   promoteRequests: any[];
   promoteRequestsLoading: boolean;
   promoteRequestsError: string | null;
-  isRequester: (request: any) => boolean;
-  canManageRequest: (request: any) => boolean;
-  canApproveRejectRequest: (request: any) => boolean;
-  canDeleteRequest: (request: any) => boolean;
-  onCancel: (id: string) => void;
+
+  canApproveRejectRequest: (
+    request: any,
+  ) => boolean;
+
+  canDeleteRequest: (
+    request: any,
+  ) => boolean;
+
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
   onDelete: (id: string) => void;
@@ -25,17 +39,14 @@ export function PromoteRequestsReceivedSection({
   promoteRequests,
   promoteRequestsLoading,
   promoteRequestsError,
-  isRequester,
-  canManageRequest,
   canApproveRejectRequest,
   canDeleteRequest,
-  onCancel,
   onApprove,
   onReject,
   onDelete,
 }: PromoteRequestsReceivedSectionProps) {
   if (promoteRequestsLoading) {
-    return <RowSkeleton/>;
+    return <RowSkeleton />;
   }
 
   if (promoteRequestsError) {
@@ -47,7 +58,11 @@ export function PromoteRequestsReceivedSection({
   }
 
   if (promoteRequests.length === 0) {
-    return <div className="text-muted-foreground">No promote requests received.</div>;
+    return (
+      <div className="text-muted-foreground">
+        No promote requests received.
+      </div>
+    );
   }
 
   return (
@@ -55,83 +70,233 @@ export function PromoteRequestsReceivedSection({
       <table className="min-w-full divide-y divide-white/5">
         <thead className="bg-[#0b0b0b]">
           <tr className="text-left">
-            <th className="px-4 py-3 text-xs text-muted-foreground uppercase tracking-wider">
+            <th className="px-4 py-3 text-xs uppercase tracking-wider text-muted-foreground">
               Listing
             </th>
-            <th className="px-4 py-3 text-xs text-muted-foreground uppercase tracking-wider">
+
+            <th className="px-4 py-3 text-xs uppercase tracking-wider text-muted-foreground">
               Requester
             </th>
-            <th className="px-4 py-3 text-xs text-muted-foreground uppercase tracking-wider">
-              Status
+
+            <th className="px-4 py-3 text-xs uppercase tracking-wider text-muted-foreground">
+              Request Status
             </th>
-            <th className="px-4 py-3 text-xs text-muted-foreground uppercase tracking-wider">
+
+            <th className="px-4 py-3 text-xs uppercase tracking-wider text-muted-foreground">
+              Promoter Response
+            </th>
+
+            <th className="px-4 py-3 text-xs uppercase tracking-wider text-muted-foreground">
+              Tier
+            </th>
+
+            <th className="px-4 py-3 text-xs uppercase tracking-wider text-muted-foreground">
+              Commission
+            </th>
+
+            <th className="px-4 py-3 text-xs uppercase tracking-wider text-muted-foreground">
               Requested
             </th>
-            <th className="px-4 py-3 text-xs text-muted-foreground uppercase tracking-wider">
+
+            <th className="px-4 py-3 text-xs uppercase tracking-wider text-muted-foreground">
               Actions
             </th>
           </tr>
         </thead>
-        <tbody className="bg-transparent divide-y divide-white/6">
-          {promoteRequests.map((r: any) => (
-            <tr key={r._id} className="hover:bg-white/2">
-              <td className="px-4 py-3 text-sm text-white">
-                {r.listing_id?.title || r.listing_id?.ref_code}
-              </td>
-              <td className="px-4 py-3 text-sm text-white">
-                {r.requester?.email || r.requester?.user_id}
-              </td>
-              <td className="px-4 py-3">{statusBadge(r.status)}</td>
-              <td className="px-4 py-3 text-sm text-white">
-                {formatDate(r.requested_at)}
-              </td>
-                
-             <td className="px-4 py-3">
-                {(() => {
-                  const actions: RowAction[] = [];
- 
-                  if (canManageRequest(r) && isRequester(r)) {
-                    actions.push({
-                      label: "Cancel",
-                      icon: <XCircle size={14} />,
-                      onClick: () => onCancel(r._id),
-                      variant: "warning",
-                    });
-                  }
- 
-                  if (canApproveRejectRequest(r)) {
-                    actions.push({
-                      label: "Approve",
-                      onClick: () => onApprove(r._id),
-                      variant: "success",
-                    });
-                    actions.push({
-                      label: "Reject",
-                      onClick: () => onReject(r._id),
-                      variant: "danger",
-                    });
-                  }
- 
-                  if (canDeleteRequest(r)) {
-                    actions.push({
-                      label: "Delete",
-                      icon: <Trash2 size={14} />,
-                      onClick: () => onDelete(r._id),
-                      variant: "danger",
-                    });
-                  }
- 
-                  return (
-                    <div className="flex justify-end pr-2">
-                      <RowActionsMenu actions={actions} />
-                    </div>
-                  );
-                })()}
-              </td>
-            </tr>
-          ))}
+
+        <tbody className="divide-y divide-white/5 bg-transparent">
+          {promoteRequests.map((request: any) => {
+            const actions: RowAction[] = [];
+
+            if (
+              request.status === "pending" &&
+              canApproveRejectRequest(request)
+            ) {
+              actions.push({
+                label: "Approve",
+                onClick: () =>
+                  onApprove(request._id),
+                variant: "success",
+              });
+
+              actions.push({
+                label: "Reject",
+                icon: <XCircle size={14} />,
+                onClick: () =>
+                  onReject(request._id),
+                variant: "danger",
+              });
+            }
+
+            if (canDeleteRequest(request)) {
+              actions.push({
+                label: "Delete",
+                icon: <Trash2 size={14} />,
+                onClick: () =>
+                  onDelete(request._id),
+                variant: "danger",
+              });
+            }
+
+            return (
+              <tr
+                key={request._id}
+                className="hover:bg-white/[0.02]"
+              >
+                <td className="px-4 py-3 text-sm text-white">
+                  {request.listing_id?.title ||
+                    request.listing_id?.ref_code ||
+                    "-"}
+                </td>
+
+                <td className="px-4 py-3 text-sm text-white">
+                  <PromoteRequestDetailsModal
+                    request={request}
+                  />
+                </td>
+
+                <td className="px-4 py-3">
+                  {statusBadge(request.status)}
+                </td>
+
+                <td className="px-4 py-3">
+                  <PromoterResponseStatus
+                    request={request}
+                  />
+                </td>
+
+                <td className="px-4 py-3 text-sm text-white">
+                  {request.selected_tier
+                    ? formatTier(
+                        request.selected_tier,
+                      )
+                    : "-"}
+                </td>
+
+                <td className="px-4 py-3 text-sm text-white">
+                  {request.confirmed_commission_pct !==
+                    undefined &&
+                  request.confirmed_commission_pct !==
+                    null
+                    ? `${request.confirmed_commission_pct}%`
+                    : request.proposed_commission_pct !==
+                          undefined &&
+                        request.proposed_commission_pct !==
+                          null
+                      ? `${request.proposed_commission_pct}% proposed`
+                      : "-"}
+                </td>
+
+                <td className="px-4 py-3 text-sm text-white">
+                  {formatDate(
+                    request.requested_at,
+                  )}
+                </td>
+
+                <td className="px-4 py-3">
+                  <div className="flex justify-end pr-2">
+                    <RowActionsMenu
+                      actions={actions}
+                    />
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
   );
+}
+
+function PromoterResponseStatus({
+  request,
+}: {
+  request: any;
+}) {
+
+  if (request.status === "pending") {
+    return (
+      <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-yellow-300">
+        <Clock3 size={14} />
+        Waiting for your decision
+      </span>
+    );
+  }
+
+  if (
+    request.status === "owner_approved" &&
+    request.promoter_agreement_status ===
+      "pending"
+  ) {
+    return (
+      <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-blue-300">
+        <Clock3 size={14} />
+        Waiting for promoter response
+      </span>
+    );
+  }
+
+  if (
+    request.status === "approved" &&
+    request.promoter_agreement_status ===
+      "accepted"
+  ) {
+    return (
+      <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-green-300">
+        <CheckCircle2 size={14} />
+        Promoter accepted
+      </span>
+    );
+  }
+
+
+  if (
+    request.status ===
+      "promoter_rejected" ||
+    request.promoter_agreement_status ===
+      "rejected"
+  ) {
+    return (
+      <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-red-300">
+        <XCircle size={14} />
+        Promoter rejected
+      </span>
+    );
+  }
+
+
+  if (request.status === "rejected") {
+    return (
+      <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-red-300">
+        <XCircle size={14} />
+        Rejected by owner
+      </span>
+    );
+  }
+
+  if (request.status === "cancelled") {
+    return (
+      <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-zinc-400">
+        <XCircle size={14} />
+        Cancelled by requester
+      </span>
+    );
+  }
+
+  return (
+    <span className="text-sm text-white/40">
+      Not available
+    </span>
+  );
+}
+
+function formatTier(tier: string) {
+  const labels: Record<string, string> = {
+    tier_1: "Tier 1",
+    tier_2: "Tier 2",
+    tier_3: "Tier 3",
+  };
+
+  return labels[tier] ?? tier;
 }

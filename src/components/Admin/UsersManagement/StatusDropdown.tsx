@@ -1,127 +1,203 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef } from "react";
 import { MoreVertical } from "lucide-react";
+import { toast } from "sonner";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useAppSelector } from "@/lib/redux/store/hook";
 
 interface Props {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 
-  onApproval:(status:string)=>void;
-
-  onLicense:(status:string)=>void;
-
-  onAccount:(status:string)=>void;
-
+  approvalStatus?: string;
+  licenseVerificationStatus?: string;
+  accountStatus?: string;
+  userId: string;
+  deleteUser: (id: string) => Promise<void>;
+  onApproval: (status: string) => Promise<any>;
+  onLicense: (status: string) => Promise<any>;
+  onAccount: (status: string) => Promise<any>;
 }
 
-
-
 export default function StatusDropdown({
+  open,
+  deleteUser,
+  onOpenChange,
+  approvalStatus,
+  licenseVerificationStatus,
+  accountStatus,
+  userId,
   onApproval,
   onLicense,
-  onAccount
-}:Props){
+  onAccount,
+}: Props) {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const currentUserRole = useAppSelector((state) => state.authUser?.user?.role);
+  const isAdmin = currentUserRole === "admin";
+  const isManager = currentUserRole === "manager";
+  const isFounder = currentUserRole === "founder";
 
 
-  const [open,setOpen]=useState(false);
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(e.target as Node)
+      ) {
+        onOpenChange(false);
+      }
+    }
 
+    if (open) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
 
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [open, onOpenChange]);
+
+  const isApproved = approvalStatus === "approved";
+  const isRejectedApproval = approvalStatus === "rejected";
+
+  const isVerified = licenseVerificationStatus === "verified";
+  const handleDeleteUser = async () => {
+    try {
+      await deleteUser(userId);
+      toast.success("User deleted successfully.");
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to delete user.");
+    }
+  };
+  const isActive = accountStatus === "active";
+  const isSuspended = accountStatus === "suspended";
 
   return (
-
-    <div className="relative">
-
-
-      <button
+    <DropdownMenu open={open} onOpenChange={onOpenChange}>
+      <DropdownMenuTrigger
         type="button"
-        onClick={()=>setOpen(!open)}
-        className="p-2 rounded-lg text-yellow-400 hover:bg-yellow-500/10 transition"
+        className="rounded-lg p-2 cursor-pointer text-yellow-400 transition hover:bg-yellow-500/10"
       >
+        <MoreVertical size={20} />
+      </DropdownMenuTrigger>
 
-        <MoreVertical size={20}/>
+      <DropdownMenuContent
+        align="end"
+        sideOffset={8}
+        className="w-56 border border-yellow-500/20 bg-[#111]"
+      >
+        {isFounder && (
+          <DropdownMenuItem
+            disabled={isApproved}
+            className="text-green-400 focus:text-green-400 data-disabled:opacity-40"
+            onClick={async () => {
+              if (isApproved) return;
 
-      </button>
+              try {
+                await onApproval("approved");
+                toast.success("User approved successfully.");
+              } catch (e: any) {
+                toast.error(e?.message || "Failed to approve user.");
+              }
+            }}
+          >
+            Approve User
+          </DropdownMenuItem>
+        )}
 
+        {(isAdmin || isManager || isFounder) && (
+          <DropdownMenuItem
+            disabled={isRejectedApproval}
+            className="text-red-400 focus:text-red-400 data-disabled:opacity-40"
+            onClick={async () => {
+              if (isRejectedApproval) return;
 
+              try {
+                await onApproval("rejected");
+                toast.success("User rejected successfully.");
+              } catch (e: any) {
+                toast.error(e?.message || "Failed to reject user.");
+              }
+            }}
+          >
+            Reject User
+          </DropdownMenuItem>
+        )}
 
-      {
-        open && (
+        {(isManager || isAdmin) && (
+          <DropdownMenuItem
+            disabled={isVerified}
+            className="text-green-400 focus:text-green-400 data-disabled:opacity-40"
+            onClick={async () => {
+              if (isVerified) return;
 
-          <div className="absolute right-0 top-10 z-50 w-52 bg-[#111] border border-yellow-500/20 rounded-xl shadow-xl p-2">
+              try {
+                await onLicense("verified");
+                toast.success("License verified successfully.");
+              } catch (e: any) {
+                toast.error(e?.message || "Failed to verify license.");
+              }
+            }}
+          >
+            Verify License
+          </DropdownMenuItem>
+        )}
 
+        {(isManager || isAdmin) && (
+          <DropdownMenuItem
+            disabled={isActive}
+            className="text-yellow-400 focus:text-yellow-400 data-disabled:opacity-40"
+            onClick={async () => {
+              if (isActive) return;
 
-            <button
-              type="button"
-              onClick={()=>{
-                onApproval("approved");
-                setOpen(false);
-              }}
-              className="w-full text-left px-3 py-2 rounded-lg text-sm text-white hover:bg-white/10 transition"
-            >
-              Approve User
-            </button>
+              try {
+                await onAccount("active");
+                toast.success("Account activated successfully.");
+              } catch (e: any) {
+                toast.error(e?.message || "Failed to activate account.");
+              }
+            }}
+          >
+            Activate Account
+          </DropdownMenuItem>
+        )}
 
+        {(isAdmin || isManager || isFounder) && (
+          <DropdownMenuItem
+            disabled={isSuspended}
+            className="text-red-400 focus:text-red-400 data-disabled:opacity-40"
+            onClick={async () => {
+              if (isSuspended) return;
 
-
-            <button
-              type="button"
-              onClick={()=>{
-                onApproval("rejected");
-                setOpen(false);
-              }}
-              className="w-full text-left px-3 py-2 rounded-lg text-sm text-red-400 hover:bg-white/10 transition"
-            >
-              Reject User
-            </button>
-
-
-
-            <button
-              type="button"
-              onClick={()=>{
-                onLicense("verified");
-                setOpen(false);
-              }}
-              className="w-full text-left px-3 py-2 rounded-lg text-sm text-green-400 hover:bg-white/10 transition"
-            >
-              Verify License
-            </button>
-
-
-
-            <button
-              type="button"
-              onClick={()=>{
-                onAccount("active");
-                setOpen(false);
-              }}
-              className="w-full text-left px-3 py-2 rounded-lg text-sm text-yellow-400 hover:bg-white/10 transition"
-            >
-              Activate Account
-            </button>
-
-
-
-            <button
-              type="button"
-              onClick={()=>{
-                onAccount("suspended");
-                setOpen(false);
-              }}
-              className="w-full text-left px-3 py-2 rounded-lg text-sm text-red-400 hover:bg-white/10 transition"
-            >
-              Suspend Account
-            </button>
-
-
-          </div>
-
-        )
-      }
-
-
-    </div>
-
+              try {
+                await onAccount("suspended");
+                toast.success("Account suspended successfully.");
+              } catch (e: any) {
+                toast.error(e?.message || "Failed to suspend account.");
+              }
+            }}
+          >
+            Suspend Account
+          </DropdownMenuItem>
+        )}
+        {isFounder && (
+          <DropdownMenuItem
+            className="text-red-400 focus:text-red-400 data-disabled:opacity-40"
+            onClick={async () => {
+              await handleDeleteUser();
+            }}
+          >
+            Delete User
+          </DropdownMenuItem>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
-
 }

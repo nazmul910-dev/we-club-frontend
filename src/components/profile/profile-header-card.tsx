@@ -109,7 +109,7 @@ p-1
 
 >
 
-<Pencil size={12}/>
+<Pencil size={12} className="cursor-pointer" />
 
 </button>
 

@@ -47,7 +47,7 @@ interface ListingsState {
 }
 
 const initialState: ListingsState = {
-  items: [],
+  items: [], 
   meta: null,
   loading: false,
   error: null,

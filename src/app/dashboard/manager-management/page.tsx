@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
-import { Loader2, Users } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Users } from "lucide-react";
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { getManagers } from "@/lib/features/addManager/ManagerApi";
 import { setActiveTab } from "@/lib/features/addManager/addManagerSlice";
-import { Manager } from "@/lib/features/addManager/managerTypes";
+import {
+  Manager,
+  VISIBLE_ROLES_BY_CURRENT_ROLE,
+} from "@/lib/features/addManager/managerTypes";
 
 import AddManagerModal from "@/components/Admin/managerManagement/AddManagerModal";
 import ManagerRowActions from "@/components/Admin/managerManagement/ManagerRowActions";
@@ -21,9 +24,8 @@ import {
   TableRow,
 } from "@/components/ui/Table";
 import { Badge } from "@/components/ui/Badge";
-import RowSkeleton from "@/components/ui/row-skeleton";
 import { ManagersTableSkeleton } from "@/components/ui/manager-table-skeleton";
-
+import { PaginationControl } from "@/components/ui/PaginationControll";
 
 const TABS = [
   { value: "all", label: "All" },
@@ -60,8 +62,14 @@ const formatAccess = (value: string) => {
       return "Invictus";
     case "both":
       return "Both";
+    case "admin":
+      return "Admin";
     case "manager":
       return "Manager";
+    case "super_admin":
+      return "Super Admin Support";
+    case "community_manager":
+      return "Community Manager";
     default:
       return value;
   }
@@ -69,61 +77,72 @@ const formatAccess = (value: string) => {
 
 export default function ManagerManagement() {
   const dispatch = useAppDispatch();
-  const { managers, loading, error, activeTab } = useAppSelector(
+  const { managers, loading, error, activeTab, meta } = useAppSelector(
     (state) => state.manager
   );
 
+  const currentUserRole = useAppSelector((state) => state.authUser?.user?.role) as
+    | string
+    | undefined;
 
+  const canDelete = currentUserRole === "founder";
 
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+
+  const visibleRoles = useMemo(() => {
+    if (!currentUserRole) return [];
+    return VISIBLE_ROLES_BY_CURRENT_ROLE[currentUserRole] ?? [];
+  }, [currentUserRole]);
+
+  useEffect(() => {
+    dispatch(getManagers({ status: activeTab, page, limit }));
+  }, [dispatch, activeTab, page, limit]);
 
 
   useEffect(() => {
-    dispatch(getManagers(activeTab));
-  }, [dispatch, activeTab]);
+    setPage(1);
+  }, [activeTab]);
 
   const filteredManagers = useMemo(() => {
-    if (activeTab === "active") {
-      return managers.filter((m) => m.accountStatus === "active");
-    }
-    if (activeTab === "suspended") {
-      return managers.filter((m) => m.accountStatus === "suspended");
-    }
-    return managers;
-  }, [managers, activeTab]);
+    const sourceManagers = Array.isArray(managers) ? managers : [];
 
+    let result = sourceManagers;
 
-  console.log(loading)
+    if (visibleRoles.length > 0) {
+      result = result.filter((m) => visibleRoles.includes(m.role as any));
+    } else {
+      result = [];
+    }
+
+    return result;
+  }, [managers, visibleRoles]);
 
   return (
-    <div className="space-y-8 w-full">
-      {/* Header */}
+    <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 flex flex-col gap-8 bg-[#0a0a0a] min-h-[calc(100vh-4rem)]">
       <div className="w-full space-y-6 md:space-y-0 md:flex md:items-center justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#cdae53]">
-            Manager Management
+            Admin Management
           </p>
-
           <h1 className="mt-2 font-playfair text-4xl font-medium text-white">
-            Manager Directory
+            Admin Directory
           </h1>
-
           <p className="mt-2 text-sm text-neutral-400">
-            Manage access, roles and account status of all managers.
+            {currentUserRole === "founder"
+              ? "Manage access, roles and account status of all admins."
+              : "Manage Admin, Super Admin and Community Manager accounts."}
           </p>
         </div>
 
         <AddManagerModal />
       </div>
 
-      {/* Main Card */}
       <div className="w-full overflow-hidden rounded-2xl border border-neutral-800 bg-[#0B0B0B] shadow-xl">
-        {/* Tabs */}
         <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-5">
           <Tabs
             value={activeTab}
-            onValueChange={(value) =>
-              dispatch(setActiveTab(value as typeof activeTab))
-            }
+            onValueChange={(value) => dispatch(setActiveTab(value as typeof activeTab))}
           >
             <TabsList className="h-11 rounded-full border border-neutral-800 bg-transparent p-1">
               {TABS.map((tab) => (
@@ -137,40 +156,47 @@ export default function ManagerManagement() {
               ))}
             </TabsList>
           </Tabs>
+
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-neutral-400">Per page</label>
+            <select
+              value={limit}
+              onChange={(event) => {
+                setLimit(Number(event.target.value));
+                setPage(1);
+              }}
+              className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-white outline-none"
+            >
+              {[10, 20, 50].map((value) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
-              {
-                loading && (
-                  <ManagersTableSkeleton/>
-                )
-              }
+        {loading && <ManagersTableSkeleton />}
 
-
-        {/* Error */}
         {error && (
-          <div className="flex h-72 items-center justify-center text-red-400">
-            {error}
-          </div>
+          <div className="flex h-72 items-center justify-center text-red-400">{error}</div>
         )}
 
-        {/* Empty */}
         {!loading && !error && filteredManagers.length === 0 && (
           <div className="flex h-72 flex-col items-center justify-center gap-3 text-neutral-500">
             <Users className="h-10 w-10 text-neutral-700" />
-            <p>No managers found.</p>
+            <p>No accounts found.</p>
           </div>
         )}
 
-        {/* Table: same table, just wrapped so it scrolls sideways on small screens */}
         {!loading && !error && filteredManagers.length > 0 && (
           <div className="overflow-x-auto">
-            <Table className="min-w-[720px]">
+            <Table className="min-w-180">
               <TableHeader>
                 <TableRow className="border-neutral-800 bg-neutral-900/40 hover:bg-transparent">
                   <TableHead className="text-xs uppercase tracking-wider text-neutral-500">
                     User
                   </TableHead>
-
                   <TableHead className="text-xs uppercase tracking-wider text-neutral-500">
                     Access
                   </TableHead>
@@ -180,7 +206,6 @@ export default function ManagerManagement() {
                   <TableHead className="text-xs uppercase tracking-wider text-neutral-500">
                     Status
                   </TableHead>
-
                   <TableHead className="text-right text-xs uppercase tracking-wider text-neutral-500">
                     Action
                   </TableHead>
@@ -193,7 +218,6 @@ export default function ManagerManagement() {
                     key={manager._id}
                     className="border-neutral-800 transition hover:bg-neutral-900/70"
                   >
-                    {/* USER: avatar + name + email */}
                     <TableCell>
                       <div className="flex items-center gap-3">
                         {manager.profileImage ? (
@@ -208,19 +232,15 @@ export default function ManagerManagement() {
                             {getInitials(manager.fullName)}
                           </div>
                         )}
-
                         <div className="flex flex-col">
                           <span className="text-sm font-semibold text-white">
                             {manager.fullName}
                           </span>
-                          <span className="text-xs text-neutral-500">
-                            {manager.email}
-                          </span>
+                          <span className="text-xs text-neutral-500">{manager.email}</span>
                         </div>
                       </div>
                     </TableCell>
 
-                    {/* Access */}
                     <TableCell>
                       <Badge
                         variant="outline"
@@ -230,7 +250,6 @@ export default function ManagerManagement() {
                       </Badge>
                     </TableCell>
 
-                    {/* Role */}
                     <TableCell>
                       <Badge
                         variant="outline"
@@ -240,7 +259,6 @@ export default function ManagerManagement() {
                       </Badge>
                     </TableCell>
 
-                    {/* STATUS */}
                     <TableCell>
                       <Badge
                         variant="outline"
@@ -252,14 +270,24 @@ export default function ManagerManagement() {
                       </Badge>
                     </TableCell>
 
-                    {/* ACTION */}
                     <TableCell className="text-right">
-                      <ManagerRowActions manager={manager} />
+                      <ManagerRowActions manager={manager} canDelete={canDelete} />
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
+          </div>
+        )}
+
+
+        {!loading && !error && meta && meta.totalPage > 1 && (
+          <div className="flex justify-center border-t border-neutral-800 px-6 py-5">
+            <PaginationControl
+              currentPage={page}
+              totalPages={meta.totalPage}
+              onPageChange={(nextPage) => setPage(nextPage)}
+            />
           </div>
         )}
       </div>

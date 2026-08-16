@@ -19,7 +19,7 @@ export async function updateProfile(
     // Simulated latency so the client-side "Saving..." state has something
     // to show while wired to a real backend.
     await new Promise((resolve) => setTimeout(resolve, 400));
-    console.log("[updateProfile]", userId, particulars);
+
     return { success: true };
   } catch (error) {
     console.error("[updateProfile] failed", error);

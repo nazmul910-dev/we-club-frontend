@@ -11,7 +11,10 @@ export type UserRole =
   | "ambassador"
   | "we_club_member"
   | "admin"
-  | "manager";
+  | "manager"
+  | "founder"
+  | "super_admin"
+  | "community_manager";
 
 export interface SocialLinks {
   linkedin?: string;
@@ -27,6 +30,7 @@ export interface RegistrationFormData {
   password: string;
   role: UserRole | "";
   accessTo: AccessTo | "";
+  membershipDurationMonths: 3 | 6 | 12 | "";
   licenseNumber: string;
   brokerage: string;
   phone: string;
@@ -54,6 +58,7 @@ const initialFormData: RegistrationFormData = {
   password: "",
   role: "",
   accessTo: "",
+  membershipDurationMonths:"",
   licenseNumber: "",
   brokerage: "",
   phone: "",

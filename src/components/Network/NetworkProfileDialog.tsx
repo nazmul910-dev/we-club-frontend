@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { promotersApi } from "@/lib/features/promoters/promotersApi";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/lib/redux/store/store";
+import Avatar from "./Avatar";
 
 const NetworkProfileDialog = ({ profile, user } : {profile : any, user : any}) => {
 
@@ -23,7 +24,7 @@ const NetworkProfileDialog = ({ profile, user } : {profile : any, user : any}) =
 
 
     const dispatch = useDispatch<AppDispatch>();
-    console.log("user from the " , user)
+
   const TIER_LABELS: Record<string, string> = {
     tier_1: "Tier 1 · Full Marketing + Website",
     tier_2: "Tier 2 · Full Marketing",
@@ -59,6 +60,7 @@ useEffect(() => {
       rounded-full
       border border-[#5c4518]
       flex
+      cursor-pointer
       items-center
       justify-center
       text-gray-400
@@ -76,7 +78,8 @@ useEffect(() => {
         <div className="flex flex-col text-left  gap-4 pb-4 border-b border-gold-soft">
           
           <div className="min-w-0">
-            <img src={profile.profileImage} height={60} width={60} className="rounded-full overflow-hidden"/>
+            {/* <img src={profile.profileImage} height={60} width={60} className="rounded-full overflow-hidden"/> */}
+            <Avatar image={profile.profileImage} name={profile.fullName} />
            
           </div>
           <div
@@ -113,7 +116,7 @@ useEffect(() => {
           <div className="space-y-0 divide-y divide-gold-soft">
             {/* Contact */}
             <div className="space-y-2.5 py-3">
-              <p className="font-ui text-[9px] tracking-widest uppercase text-gold/60 mb-3">
+              <p className="font-ui text-[9px] tracking-widest uppercase text-gold mb-3">
                 Contact
               </p>
 
@@ -142,7 +145,7 @@ useEffect(() => {
             {/* Professional */}
             {(profile.licenseNumber || profile.brokerage) && (
               <div className="space-y-2.5 py-3">
-                <p className="font-ui text-[9px] tracking-widest uppercase text-gold/60 mb-3">
+                <p className="font-ui text-[9px] tracking-widest uppercase text-gold mb-3">
                   Professional
                 </p>
 
@@ -169,7 +172,7 @@ useEffect(() => {
             {profile.marketingChannels &&
               profile.marketingChannels.length > 0 && (
                 <div className="space-y-2 py-3">
-                  <p className="font-ui text-[9px] tracking-widest uppercase text-gold/60 mb-3">
+                  <p className="font-ui text-[9px] tracking-widest uppercase text-gold mb-3">
                     Marketing Channels
                   </p>
                   <div className="flex items-start gap-3 text-sm text-white/80">
@@ -191,7 +194,7 @@ useEffect(() => {
             {/* Bio */}
             {profile.bio && (
               <div className="py-3">
-                <p className="font-ui text-[9px] tracking-widest uppercase text-gold/60 mb-2">
+                <p className="font-ui text-[9px] tracking-widest uppercase text-gold mb-2">
                   Bio
                 </p>
                 <p className="text-sm text-white/70 leading-relaxed">

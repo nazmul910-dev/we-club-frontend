@@ -1,0 +1,92 @@
+import { useEffect, useRef, useCallback } from "react";
+import { io, Socket } from "socket.io-client";
+import { useDispatch, useSelector } from "react-redux";
+
+// adjust path to your real store file
+import {
+  messageReceived,
+  typingUpdated,
+  presenceListSet,
+  presenceUpdated,
+} from "@/lib/features/chat/chatSlice";
+import { Message } from "@/types/chat";
+import { AppDispatch, RootState } from "@/lib/redux/store/store";
+
+const SOCKET_URL =
+  process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5000";
+
+export const useSocket = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.authUser.isAuthenticated,
+  );
+  const socketRef = useRef<Socket | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    
+    // console.log(
+    //   "useSocket effect: isAuthenticated =",
+    //   isAuthenticated,
+    //   "| token exists =",
+    //   !!token,
+    // );
+
+    if (!isAuthenticated) return;
+    if (!token) return;
+
+    const socket = io(SOCKET_URL, {
+      auth: { token },
+    });
+    socketRef.current = socket;
+
+    socket.on("connect", () => {
+      console.log("Socket connected:", socket.id);
+    });
+
+    socket.on("connect_error", (err) => {
+      console.error("Socket connect_error:", err.message);
+    });
+
+    socket.on("message:new", (message: Message) => {
+      dispatch(messageReceived(message));
+    });
+
+    socket.on(
+      "typing:update",
+      (payload: { userId: string; fullName: string; typing: boolean }) => {
+        dispatch(typingUpdated(payload));
+      },
+    );
+
+    socket.on("presence:list", (userIds: string[]) => {
+      dispatch(presenceListSet(userIds));
+    });
+
+    socket.on(
+      "presence:update",
+      (payload: { userId: string; online: boolean }) => {
+        dispatch(presenceUpdated(payload));
+      },
+    );
+
+    return () => {
+      socket.disconnect();
+      socketRef.current = null;
+    };
+  }, [isAuthenticated, dispatch]);
+
+  const sendMessage = useCallback((content: string) => {
+    socketRef.current?.emit("message:send", content);
+  }, []);
+
+  const startTyping = useCallback(() => {
+    socketRef.current?.emit("typing:start");
+  }, []);
+
+  const stopTyping = useCallback(() => {
+    socketRef.current?.emit("typing:stop");
+  }, []);
+
+  return { sendMessage, startTyping, stopTyping };
+};

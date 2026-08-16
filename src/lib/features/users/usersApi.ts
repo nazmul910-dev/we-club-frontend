@@ -4,292 +4,190 @@ import axios from "axios";
 import api from "@/lib/api/api";
 
 import {
-IUser,
-ApprovalStatus,
-AccountStatus,
-LicenseVerificationStatus
+  IUser,
+  ApprovalStatus,
+  AccountStatus,
+  LicenseVerificationStatus,
 } from "@/types/user-managemetn";
 
+interface UsersResponse {
+  success: boolean;
 
+  message: string;
 
-interface UsersResponse{
-
-success:boolean;
-
-message:string;
-
-data:IUser[];
-
+  data: IUser[];
 }
 
-
-
+interface GetAllUsersParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  role?: string;
+}
 
 // GET ALL USERS
 
 export const getAllUsers = createAsyncThunk<
-IUser[],
-void,
-{rejectValue:string}
+  { users: IUser[]; meta: { page: number; limit: number; total: number; totalPage: number } },
+  GetAllUsersParams | void,
+  { rejectValue: string }
 >(
+  "users/getAllUsers",
 
-"users/getAll",
+  async (params, { rejectWithValue }) => {
+    try {
+      const res = await api.get("/users", {
+        params: {
+          page: params?.page ?? 1,
+          limit: params?.limit ?? 10,
+          ...(params?.search ? { search: params.search } : {}),
+          ...(params?.role ? { role: params.role } : {}),
+        },
+      });
 
-async(_, {rejectWithValue})=>{
-
-
-try{
-
-
-const res = await api.get<UsersResponse>(
-"/users"
+      return {
+        users: res.data.data.data,
+        meta: res.data.data.meta,
+      };
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        return rejectWithValue(err.response?.data?.message || "Failed");
+      }
+      return rejectWithValue("Something went wrong");
+    }
+  }
 );
-
-
-return res.data.data;
-
-
-
-}catch(error){
-
-
-if(axios.isAxiosError(error)){
-
-return rejectWithValue(
-error.response?.data?.message ||
-"Failed to load users"
-)
-
-}
-
-
-return rejectWithValue(
-"Something went wrong"
-);
-
-
-}
-
-
-}
-
-);
-
-
-
-
 
 // UPDATE APPROVAL STATUS
 
-
-export const updateApprovalStatus =
-createAsyncThunk<
-
-IUser,
-
-{
-id:string;
-approvalStatus:ApprovalStatus;
-rejectedReason?:string;
-
-},
-
-{
-rejectValue:string
-}
-
+export const updateApprovalStatus = createAsyncThunk<
+  IUser,
+  {
+    id: string;
+    approvalStatus: ApprovalStatus;
+    rejectedReason?: string;
+  },
+  {
+    rejectValue: string;
+  }
 >(
+  "users/updateApproval",
 
+  async (payload, { rejectWithValue }) => {
+    try {
+      const res = await api.patch(
+        `/admin/users/${payload.id}/approval-status`,
+        {
+          approvalStatus: payload.approvalStatus,
+          rejectedReason:
+            payload.approvalStatus === "rejected"
+              ? "Admin not satisfied"
+              : undefined,
+        },
+      );
 
-"users/updateApproval",
+      return res.data.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        return rejectWithValue(
+          error.response?.data?.message || "Approval update failed",
+        );
+      }
 
-async(payload,{rejectWithValue})=>{
-
-
-try{
-
-
-const res = await api.patch(
-`/admin/users/${payload.id}/approval-status`,
-{
-approvalStatus:payload.approvalStatus,
-rejectedReason:payload.rejectedReason
-}
+      return rejectWithValue("Something went wrong");
+    }
+  },
 );
-
-
-return res.data.data;
-
-
-
-}catch(error){
-
-
-if(axios.isAxiosError(error)){
-
-return rejectWithValue(
-error.response?.data?.message ||
-"Approval update failed"
-)
-
-}
-
-
-return rejectWithValue(
-"Something went wrong"
-)
-
-
-}
-
-
-}
-
-);
-
-
-
-
 
 // UPDATE LICENSE
 
-
-export const updateLicenseStatus =
-createAsyncThunk<
-
-IUser,
-
-{
-id:string;
-licenseVerificationStatus:LicenseVerificationStatus
-},
-
-{
-rejectValue:string
-}
-
+export const updateLicenseStatus = createAsyncThunk<
+  IUser,
+  {
+    id: string;
+    licenseVerificationStatus: LicenseVerificationStatus;
+  },
+  {
+    rejectValue: string;
+  }
 >(
+  "users/updateLicense",
 
+  async (payload, { rejectWithValue }) => {
+    try {
+      const res = await api.patch(
+        `/admin/users/${payload.id}/license-verification-status`,
 
-"users/updateLicense",
+        {
+          licenseVerificationStatus: payload.licenseVerificationStatus,
+        },
+      );
 
-async(payload,{rejectWithValue})=>{
+      return res.data.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        return rejectWithValue(
+          error.response?.data?.message || "License update failed",
+        );
+      }
 
-
-try{
-
-
-const res = await api.patch(
-
-`/admin/users/${payload.id}/license-verification-status`,
-
-{
-licenseVerificationStatus:
-payload.licenseVerificationStatus
-}
-
+      return rejectWithValue("Something went wrong");
+    }
+  },
 );
-
-
-return res.data.data;
-
-
-
-}catch(error){
-
-
-if(axios.isAxiosError(error)){
-
-return rejectWithValue(
-error.response?.data?.message ||
-"License update failed"
-)
-
-}
-
-
-return rejectWithValue(
-"Something went wrong"
-)
-
-}
-
-
-}
-
-);
-
-
-
-
-
-
 
 // UPDATE ACCOUNT STATUS
 
-
-export const updateAccountStatus =
-createAsyncThunk<
-
-IUser,
-
-{
-id:string;
-accountStatus:AccountStatus
-},
-
-{
-rejectValue:string
-}
-
+export const updateAccountStatus = createAsyncThunk<
+  IUser,
+  {
+    id: string;
+    accountStatus: AccountStatus;
+  },
+  {
+    rejectValue: string;
+  }
 >(
+  "users/updateAccount",
+  async (payload, { rejectWithValue }) => {
+    try {
+      const res = await api.patch(
+        `/admin/users/${payload.id}/account-status`,
+        {
+          accountStatus: payload.accountStatus,
+        },
+      );
+      return res.data.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        return rejectWithValue(
+          error.response?.data?.message || "Account update failed",
+        );
+      }
 
-
-"users/updateAccount",
-
-
-async(payload,{rejectWithValue})=>{
-
-
-try{
-
-
-const res = await api.patch(
-
-`/admin/users/${payload.id}/account-status`,
-
-{
-accountStatus:payload.accountStatus
-}
-
+      return rejectWithValue("Something went wrong");
+    }
+  },
 );
 
 
-return res.data.data;
-
-
-
-}catch(error){
-
-
-if(axios.isAxiosError(error)){
-
-return rejectWithValue(
-error.response?.data?.message ||
-"Account update failed"
-)
-
-}
-
-
-return rejectWithValue(
-"Something went wrong"
-)
-
-
-}
-
-
-}
-
+export const deleteUser = createAsyncThunk<
+  IUser,
+  { id: string },
+  { rejectValue: string }
+>(
+  "users/delete",
+  async (payload, { rejectWithValue }) => {
+    try {
+      const res = await api.delete(`/admin/users/${payload.id}`);
+      return res.data.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        return rejectWithValue(
+          error.response?.data?.message || "Failed to delete user",
+        );
+      }
+      return rejectWithValue("Something went wrong");
+    }
+  },
 );
