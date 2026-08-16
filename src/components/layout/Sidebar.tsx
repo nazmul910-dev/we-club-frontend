@@ -134,18 +134,39 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     },
   ];
 
-  const accountItems = [
-    {
-      label: "Plan",
-      href: "/dashboard/upgrade-plan",
-      icon: RefreshCcw,
-    },
-    {
-      label: "Profile",
-      href: "/dashboard/profile",
-      icon: CircleUserRound,
-    },
-  ];
+  const PLAN_ROLES = [
+  "ceo",
+  "associate",
+  "ceo_partner",
+  "ambassador",
+  "partner",
+  "we_club_member",
+];
+
+const PROFILE_ROLES = [
+  ...PLAN_ROLES,
+  "admin",
+  "community_manager",
+  "founder",
+  "manager",
+  "super_admin",
+];
+
+
+const accountItems = [
+  {
+    label: "Plan",
+    href: "/dashboard/upgrade-plan",
+    icon: RefreshCcw,
+    show: userRole ? PLAN_ROLES.includes(userRole) : false,
+  },
+  {
+    label: "Profile",
+    href: "/dashboard/profile",
+    icon: CircleUserRound,
+    show: userRole ? PROFILE_ROLES.includes(userRole) : false,
+  },
+].filter((item) => item.show);
 
 
 
