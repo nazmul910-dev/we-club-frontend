@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import ChatHeader from "@/components/chat/chat-header";
@@ -12,11 +12,17 @@ import {
   fetchMessageHistory,
 } from "@/lib/features/chat/chatSlice";
 import { AppDispatch, RootState } from "@/lib/redux/store/store";
+import { ReplyTo } from "@/types/chat";
 
 export default function GroupChatPage() {
   const dispatch = useDispatch<AppDispatch>();
   const room = useSelector((state: RootState) => state.chat.room);
-  const { sendMessage, startTyping, stopTyping } = useSocket();
+  const { sendMessage, deleteMessage, startTyping, stopTyping } = useSocket();
+
+  // reply-to state: holds the message the user is replying to (null = no active reply)
+  const [replyingTo, setReplyingTo] = useState<
+    (ReplyTo & { id: string }) | null
+  >(null);
 
   useEffect(() => {
     dispatch(fetchGeneralRoom());
@@ -28,17 +34,41 @@ export default function GroupChatPage() {
     }
   }, [dispatch, room?._id]);
 
+  const handleSend = useCallback(
+    (content: string, replyTo?: string | null) => {
+      sendMessage(content, replyTo);
+    },
+    [sendMessage],
+  );
+
+  const handleReply = useCallback((msg: ReplyTo & { id: string }) => {
+    setReplyingTo(msg);
+  }, []);
+
+  const handleCancelReply = useCallback(() => {
+    setReplyingTo(null);
+  }, []);
+
+  const handleDelete = useCallback(
+    (messageId: string) => {
+      deleteMessage(messageId);
+    },
+    [deleteMessage],
+  );
+
   return (
     <div className="h-screen bg-zinc-950 flex justify-center p-6">
       <div className="w-full max-w-5xl rounded-2xl border border-zinc-800 bg-black flex flex-col overflow-hidden">
         <ChatHeader />
 
-        <MessageList />
+        <MessageList onReply={handleReply} onDelete={handleDelete} />
 
         <MessageInput
-          onSend={sendMessage}
+          onSend={handleSend}
           onTypingStart={startTyping}
           onTypingStop={stopTyping}
+          replyingTo={replyingTo}
+          onCancelReply={handleCancelReply}
         />
       </div>
     </div>

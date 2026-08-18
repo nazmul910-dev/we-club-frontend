@@ -83,7 +83,7 @@ useEffect(() => {
            
           </div>
           <div
-            className="inline-flex   font-ui font-medium text-gold "
+            className="inline-flex   font-ui font-medium text-gold"
            
           >
             {profile.fullName}

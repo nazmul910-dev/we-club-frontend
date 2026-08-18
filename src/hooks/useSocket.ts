@@ -2,9 +2,9 @@ import { useEffect, useRef, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
 import { useDispatch, useSelector } from "react-redux";
 
-// adjust path to your real store file
 import {
   messageReceived,
+  messageDeleted,
   typingUpdated,
   presenceListSet,
   presenceUpdated,
@@ -24,13 +24,6 @@ export const useSocket = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    
-    // console.log(
-    //   "useSocket effect: isAuthenticated =",
-    //   isAuthenticated,
-    //   "| token exists =",
-    //   !!token,
-    // );
 
     if (!isAuthenticated) return;
     if (!token) return;
@@ -51,6 +44,14 @@ export const useSocket = () => {
     socket.on("message:new", (message: Message) => {
       dispatch(messageReceived(message));
     });
+
+    // patch the deleted message in the store — no re-fetch needed
+    socket.on(
+      "message:deleted",
+      (payload: { messageId: string; content: string }) => {
+        dispatch(messageDeleted(payload));
+      },
+    );
 
     socket.on(
       "typing:update",
@@ -76,8 +77,15 @@ export const useSocket = () => {
     };
   }, [isAuthenticated, dispatch]);
 
-  const sendMessage = useCallback((content: string) => {
-    socketRef.current?.emit("message:send", content);
+  const sendMessage = useCallback(
+    (content: string, replyTo?: string | null) => {
+      socketRef.current?.emit("message:send", { content, replyTo: replyTo ?? null });
+    },
+    [],
+  );
+
+  const deleteMessage = useCallback((messageId: string) => {
+    socketRef.current?.emit("message:delete", messageId);
   }, []);
 
   const startTyping = useCallback(() => {
@@ -88,5 +96,5 @@ export const useSocket = () => {
     socketRef.current?.emit("typing:stop");
   }, []);
 
-  return { sendMessage, startTyping, stopTyping };
+  return { sendMessage, deleteMessage, startTyping, stopTyping };
 };
