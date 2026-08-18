@@ -23,6 +23,7 @@ interface GetAllUsersParams {
   limit?: number;
   search?: string;
   role?: string;
+  approvalStatus? : string
 }
 
 // GET ALL USERS
@@ -35,6 +36,9 @@ export const getAllUsers = createAsyncThunk<
   "users/getAllUsers",
 
   async (params, { rejectWithValue }) => {
+
+    
+
     try {
       const res = await api.get("/users", {
         params: {
@@ -42,6 +46,7 @@ export const getAllUsers = createAsyncThunk<
           limit: params?.limit ?? 10,
           ...(params?.search ? { search: params.search } : {}),
           ...(params?.role ? { role: params.role } : {}),
+          ...(params?.approvalStatus ? { approvalStatus: params.approvalStatus } : {}),
         },
       });
 

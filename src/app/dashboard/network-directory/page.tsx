@@ -13,41 +13,58 @@ import NetworkListItem from "@/components/Network/NetworkListItem";
 import { NetworkCardSkeleton } from "@/components/Network/NetworkCardSkeleton";
 import { PaginationControl } from "@/components/ui/PaginationControll";
 
-const PAGE_SIZE = 24;
+const PAGE_SIZE = 9;
 const SEARCH_DEBOUNCE_MS = 300;
 
 export default function NetworkDirectoryPage() {
   const dispatch = useAppDispatch();
 
   const { users, meta, loading } = useAppSelector((state) => state.users);
-
-  const [search, setSearch] = useState("");
+const [search, setSearch] = useState("");
   const [layout, setLayout] = useState<"grid" | "list">("grid");
   const [page, setPage] = useState(1);
+  const [limit,setLimit] = useState(9);
 
   useEffect(() => {
     setPage(1);
   }, [search]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      dispatch(
-        getAllUsers({
-          page,
-          limit: PAGE_SIZE,
-          ...(search.trim() && { search: search.trim() }),
-          approvalStatus: "approved",
-        } as any)
-      );
-    }, SEARCH_DEBOUNCE_MS);
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     dispatch(
+  //       getAllUsers({
+  //         page,
+  //         limit: PAGE_SIZE,
+  //         ...(search.trim() && { search: search.trim() }),
+  //         approvalStatus: "approved",
+  //       } as any)
+  //     );
+  //   }, SEARCH_DEBOUNCE_MS);
 
-    return () => clearTimeout(timer);
-  }, [dispatch, page, search]);
+   useEffect(() => {
+  dispatch(
+    getAllUsers({
+      page,
+      limit,
+      search, // এখন এটা plain string হিসেবেই যাবে
+      approvalStatus: "approved", // আলাদা field হিসেবে
+    })
+  );
+}, [dispatch, page, limit, search]);
+
+console.log(users);
+
+  //   return () => clearTimeout(timer);
+  // }, [dispatch, page, search]);
 
   // backend filter na kaj korle extra safety hisebe frontend eo filter kora hocche
-  const approvedUsers = (users ?? []).filter(
-    (u: any) => u.approvalStatus === "approved"
-  );
+  // const approvedUsers = (users ?? []).filter(
+  //   (u: any) => u.approvalStatus === "approved"
+  // );
+
+  
+
+
 
   return (
     <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 flex flex-col gap-8 bg-[#0a0a0a] min-h-[calc(100vh-4rem)]">
@@ -59,7 +76,7 @@ export default function NetworkDirectoryPage() {
         </div>
 
         <NetworkToolbar
-          count={ approvedUsers.length}
+          count={ meta?.total!}
           layout={layout}
           setLayout={setLayout}
         />
@@ -70,19 +87,19 @@ export default function NetworkDirectoryPage() {
               <NetworkCardSkeleton key={index} />
             ))}
           </div>
-        ) : approvedUsers.length === 0 ? (
+        ) : users.length === 0 ? (
           <div className="rounded-xl border border-[#5c4518] py-20 text-center">
             <p className="text-gray-400">No network members found.</p>
           </div>
         ) : layout === "grid" ? (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {approvedUsers.map((user: any) => (
+            {users.map((user: any) => (
               <NetworkCard key={user._id} user={user} />
             ))}
           </div>
         ) : (
           <div className="space-y-4">
-            {approvedUsers.map((user: any) => (
+            {users.map((user: any) => (
               <NetworkListItem key={user._id} user={user} />
             ))}
           </div>

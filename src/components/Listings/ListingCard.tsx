@@ -183,22 +183,18 @@ function ListingCardInner({ property }: { property: any }) {
 
           {/* NOTE: relies on a <TooltipProvider> mounted once higher up the
               tree (e.g. root layout) — see note below the component. */}
-          <Tooltip>
+          {/* <Tooltip>
             <TooltipTrigger
               className={`${iconButtonClass} w-8 h-8 aspect-square flex-nowrap opacity-40 cursor-not-allowed hover:border-gold-soft hover:text-white/80`}
             >
-              {/* Disabled native buttons often don't reliably fire the
-                  hover/focus events Tooltip depends on — wrapping in a
-                  span keeps the tooltip working while the button stays
-                  genuinely non-interactive, matching the disabled-promote
-                  pattern used elsewhere. */}
+              
 
               <Share2 className="h-3.5 w-3.5" />
             </TooltipTrigger>
             <TooltipContent className="bg-[#1a1a1a] text-center border-white/10 text-white text-xs max-w-[220px]">
               Sharing this listing isn't available right now.
             </TooltipContent>
-          </Tooltip>
+          </Tooltip> */}
         </div>
       </div>
     </article>
