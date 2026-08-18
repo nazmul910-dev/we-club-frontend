@@ -12,12 +12,21 @@ export interface Room {
   createdBy: string;
 }
 
+export interface ReplyTo {
+  _id: string;
+  content: string;
+  isDeleted?: boolean;
+  sender: { fullName: string };
+}
+
 export interface Message {
   _id: string;
   room: string;
   sender: ChatUser;
   content: string;
   createdAt: string;
+  isDeleted?: boolean;
+  replyTo?: ReplyTo | null;
 }
 
 export interface TypingUser {

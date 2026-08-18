@@ -70,6 +70,19 @@ const chatSlice = createSlice({
       );
     },
 
+    messageDeleted: (
+      state,
+      action: PayloadAction<{ messageId: string; content: string }>,
+    ) => {
+      const msg = state.messages.find(
+        (m) => m._id === action.payload.messageId,
+      );
+      if (msg) {
+        msg.isDeleted = true;
+        msg.content = action.payload.content; // "This message was deleted"
+      }
+    },
+
     typingUpdated: (
       state,
       action: PayloadAction<{
@@ -141,6 +154,7 @@ const chatSlice = createSlice({
 
 export const {
   messageReceived,
+  messageDeleted,
   typingUpdated,
   presenceListSet,
   presenceUpdated,
