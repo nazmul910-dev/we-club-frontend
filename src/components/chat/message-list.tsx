@@ -27,6 +27,7 @@ export default function MessageList({ onReply, onDelete }: Props) {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages.length, typingUsers.length]);
 
+
   return (
     <ScrollArea className="min-h-0 flex-1">
       <div className="space-y-5 p-6">
