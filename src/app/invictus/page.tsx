@@ -22,18 +22,13 @@ export default function InvictusCampusPage() {
   return (
     <>
       <div className="w-full max-w-5xl mx-auto px-4 py-8 md:px-8 md:py-10 space-y-8">
-        {/* Welcome Hero Banner */}
         <InvictusHeroBanner />
 
-        {/* The Flagship Program Section */}
         <InvictusChallengeCard />
 
-        {/* The Campus Directory Grid */}
         <InvictusCampusSection />
 
-        {/* Mobile/Tablet Only Section for Sessions & Mentor (Hidden on XL where Right Sidebar is active) */}
         <div className="xl:hidden grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-          {/* Command Center Card (Mobile) */}
           <div className="rounded-2xl border border-[#DECDB0] bg-[#FAF6EE] p-5 text-center shadow-xs space-y-3">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#DECDB0] bg-white shadow-2xs">
               <span className="font-playfair text-base font-bold italic text-[#9E7B28]">

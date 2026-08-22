@@ -14,20 +14,13 @@ export default function InvictusLayout({
   return (
     <AuthGuard allowedAccessTo={["invictus", "both"]}>
       <div className="min-h-screen bg-[#FAF8F5] text-[#2C241B] flex flex-col">
-        {/* Full-width Top Navbar (Above Left and Right sidebars) */}
         <InvictusNavbar setMobileSidebarOpen={setSidebarOpen} />
-
-        {/* Content Body with Left Sidebar, Main Content, and Right Sidebar */}
         <div className="flex flex-1 relative w-full">
-          {/* Left Navigation Sidebar */}
           <InvictusLeftSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
 
-          {/* Main Content Area */}
-          <main className="flex-1 w-full lg:pl-64 xl:pr-80 min-w-0 bg-[#FAF8F5]">
+          <main className="flex-1 w-full pt-20 lg:pl-64 xl:pr-80 min-w-0 bg-[#FAF8F5]">
             {children}
           </main>
-
-          {/* Right Sidebar with Widgets (Desktop) */}
           <InvictusRightSidebar />
         </div>
       </div>
