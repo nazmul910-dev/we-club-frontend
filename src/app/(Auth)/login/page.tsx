@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import LoginForm from '@/components/Auth/login/LoginForm';
 import Image from 'next/image';
 import BgImage from "@/assets/Login/login-bg.jpg";
-import { getStoredUser } from '@/lib/utils/auth';
+import { getStoredUser, getDefaultRedirect } from '@/lib/utils/auth';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,7 +13,7 @@ export default function LoginPage() {
   useEffect(() => {
     const stored = getStoredUser();
     if (stored) {
-      router.replace('/dashboard');
+      router.replace(getDefaultRedirect(stored));
     }
   }, [router]);
 

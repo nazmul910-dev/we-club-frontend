@@ -62,6 +62,24 @@ export function getInitials(fullName?: string): string {
   return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
 }
 
+export function getDefaultRedirect(user?: DecodedUser | null): string {
+  if (user?.accessTo === "invictus") {
+    return "/invictus";
+  }
+  // If "both", "we_command_center", or default -> go to dashboard
+  return "/dashboard";
+}
+
+export function hasAccessTo(
+  userAccess?: AccessTo,
+  allowedAccessTo?: AccessTo[]
+): boolean {
+  if (!allowedAccessTo || allowedAccessTo.length === 0) return true;
+  if (userAccess === "both") return true;
+  const effectiveAccess: AccessTo = userAccess || "we_command_center";
+  return allowedAccessTo.includes(effectiveAccess);
+}
+
 // "ceo_partner" -> "Ceo Partner"
 export function formatLabel(value?: string): string {
   if (!value) return "";
