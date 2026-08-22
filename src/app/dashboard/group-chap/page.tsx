@@ -57,7 +57,7 @@ export default function GroupChatPage() {
   );
 
   return (
-    <div className="h-screen bg-zinc-950 flex justify-center p-6">
+    <div className="h-[calc(100vh-160px)] bg-zinc-950 flex justify-center p-6">
       <div className="w-full max-w-5xl rounded-2xl border border-zinc-800 bg-black flex flex-col overflow-hidden">
         <ChatHeader />
 

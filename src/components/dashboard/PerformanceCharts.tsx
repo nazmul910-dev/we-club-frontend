@@ -81,7 +81,7 @@ export function ChartAreaDefault() {
     return rest[period];
   }, [period]);
 
-  console.log("currentData", currentData);
+  
 
   return (
     <Card className="bg-transparent px-0">
