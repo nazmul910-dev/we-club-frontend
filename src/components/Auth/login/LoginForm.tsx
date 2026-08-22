@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAppDispatch } from "@/lib/redux/store/hook";
 import { loginUser } from "@/lib/features/auth/authApi";
+import { decodeToken, getDefaultRedirect } from "@/lib/utils/auth";
 
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
@@ -59,8 +60,11 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     toast.promise(loginPromise, {
       loading: "Signing in...",
 
-      success: () => {
-        router.push("/dashboard");
+      success: (data) => {
+        const token = data?.data?.token || (typeof window !== "undefined" ? localStorage.getItem("token") : null);
+        const decoded = token ? decodeToken(token) : null;
+        const redirectUrl = getDefaultRedirect(decoded);
+        router.push(redirectUrl);
         return "Login successful!";
       },
 

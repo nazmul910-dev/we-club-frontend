@@ -61,6 +61,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const showSwitchButton = accessTo === "both";
 
   const [logoutModal, setLogoutModal] = useState(false);
+  const [switchModal, setSwitchModal] = useState(false);
 
   const [openMenu, setOpenMenu] = useState<
     "management" | "business" | "account" | null
@@ -520,11 +521,12 @@ const accountItems = [
               <button
                 type="button"
                 title="Switch Platform"
+                onClick={() => setSwitchModal(true)}
                 className="flex h-10 w-full cursor-pointer items-center gap-3 rounded-xl border border-[#3A3120] px-3 font-montserrat text-[11px] uppercase tracking-wider text-[#CDAE53] transition hover:bg-[#1A1610]"
               >
                 <ArrowLeftRight size={16} />
 
-                <span>Switch Platform</span>
+                <span>Switch to Invictus</span>
               </button>
             )}
 
@@ -543,6 +545,41 @@ const accountItems = [
           </div>
         </div>
       </aside>
+
+      {/* Switch Platform Modal */}
+      <Dialog open={switchModal} onOpenChange={setSwitchModal}>
+        <DialogContent className="max-w-md rounded-2xl border border-[#3A3120] bg-[#0B0B0B] text-white shadow-2xl">
+          <DialogHeader>
+            <DialogTitle className="font-playfair text-2xl font-bold text-[#CDAE53]">
+              Switch to Invictus Academy
+            </DialogTitle>
+            <DialogDescription className="text-neutral-400">
+              Are you sure you want to switch to the Invictus Academy platform?
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="mt-4 gap-3 sm:justify-end">
+            <button
+              type="button"
+              onClick={() => setSwitchModal(false)}
+              className="h-11 cursor-pointer rounded-xl border border-neutral-700 px-6 font-semibold text-white transition hover:bg-neutral-800"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setSwitchModal(false);
+                router.push("/invictus");
+              }}
+              className="h-11 cursor-pointer rounded-xl bg-[#CDAE53] px-6 font-semibold text-black transition hover:bg-[#b89a42]"
+            >
+              Yes, Switch
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Logout Modal */}
       <Dialog

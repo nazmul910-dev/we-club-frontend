@@ -10,7 +10,7 @@ export default function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <AuthGuard>
+    <AuthGuard allowedAccessTo={["we_command_center", "both"]}>
       <main className="flex min-h-screen bg-[#0A0A0A]">
         <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
         <div className="flex min-h-screen flex-1 flex-col lg:pl-64 xl:pl-0 xl:ml-64 w-full">
