@@ -39,9 +39,9 @@ export default function ChatHeader() {
             {room?.name ?? "Loading..."}
           </h2>
 
-          <p className="text-sm text-green-600">
-            {onlineCount} {onlineCount === 1 ? "" : "s"} online
-          </p>
+          {onlineCount && <p className="text-sm text-green-600">
+            {onlineCount}  online
+          </p>}
         </div>
 
       </div>
