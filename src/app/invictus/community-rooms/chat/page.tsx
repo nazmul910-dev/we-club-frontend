@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "next/navigation";
 
@@ -15,6 +15,7 @@ import {
 import { fetchCurrentUserProfile } from "@/lib/features/auth/authUserSlice";
 import { AppDispatch, RootState } from "@/lib/redux/store/store";
 import { ReplyTo } from "@/types/chat";
+import { RichTextEditorHandle } from "@/components/ui/rich-text-editor";
 
 export default function GroupChatPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -23,6 +24,7 @@ export default function GroupChatPage() {
   const profile = useSelector((state: RootState) => state.authUser.profile);
   const tokenUser = useSelector((state: RootState) => state.authUser.user);
   const selectedCountry = searchParams.get("countryName") || undefined;
+  const editorRef = useRef<RichTextEditorHandle>(null);
   const canChooseAnyRoom =
     profile?.role === "founder" ||
     profile?.role === "admin" ||
@@ -68,6 +70,12 @@ export default function GroupChatPage() {
     setReplyingTo(msg);
   }, []);
 
+  useEffect(() => {
+    if (replyingTo) {
+      requestAnimationFrame(() => editorRef.current?.focus());
+    }
+  }, [replyingTo]);
+
   const handleCancelReply = useCallback(() => {
     setReplyingTo(null);
   }, []);
@@ -79,12 +87,14 @@ export default function GroupChatPage() {
     [deleteMessage],
   );
 
+ 
+
   return (
-    <div className="h-[calc(100vh-160px)] bg-zinc-950 flex justify-center p-6">
-      <div className="w-full max-w-5xl rounded-2xl border border-zinc-800 bg-black flex flex-col overflow-hidden">
+    <div className="h-[calc(100vh-160px)] flex justify-center p-6">
+      <div className="w-full max-w-5xl rounded-2xl border  flex flex-col overflow-hidden">
         <ChatHeader />
 
-        <MessageList onReply={handleReply} onDelete={handleDelete} />
+        <MessageList onReply={handleReply} onDelete={handleDelete}  />
 
         <MessageInput
           onSend={handleSend}
@@ -92,6 +102,8 @@ export default function GroupChatPage() {
           onTypingStop={stopTyping}
           replyingTo={replyingTo}
           onCancelReply={handleCancelReply}
+          
+          editorRef={editorRef}
         />
       </div>
     </div>

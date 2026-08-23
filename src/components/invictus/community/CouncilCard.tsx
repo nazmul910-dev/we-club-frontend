@@ -12,7 +12,7 @@ export function CouncilCard({ name, href = "#", delay = 0 }: CouncilCardProps) {
     <a
       // href={href}
       style={{ animationDelay: `${delay}ms` }}
-      className="group relative isolate block animate-rise overflow-hidden border border-[#ecdfb8] bg-[radial-gradient(ellipse_340px_200px_at_50%_-20%,rgba(201,154,68,.16),transparent_65%)] bg-dark px-7 pb-8 pt-9 text-center transition-all duration-500 ease-out hover:-translate-y-1.5 hover:border-gold-bright/50 hover:shadow-vault rounded-xl cursor-not-allowed"
+      className="group relative isolate block animate-rise overflow-hidden border border-[#ecdfb8] bg-[radial-gradient(ellipse_340px_200px_at_50%_-20%,rgba(201,154,68,.16),transparent_65%)] bg-dark px-7 pb-8 pt-9 text-center transition-all duration-500 ease-out hover:-translate-y-1.5 hover:border-gold-bright/50 shadow-2xs hover:shadow-vault rounded-xl cursor-not-allowed"
     >
       {/* corner brackets — real elements instead of ::before/::after so no external CSS is needed */}
       <span className="pointer-events-none absolute left-2.5 top-2.5 h-3.5 w-3.5 border-l border-t border-gold-bright/50 opacity-0 transition-opacity duration-[450ms] group-hover:opacity-100" />

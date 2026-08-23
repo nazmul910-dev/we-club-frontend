@@ -29,7 +29,7 @@ export function RoomCard({
       onClick={(event) => {
         if (disabled) event.preventDefault();
       }}
-      className={`group relative isolate block animate-rise overflow-hidden border border-[#ecdfb8] bg-gradient-to-br from-cream to-cream-deep px-6 pb-7 pt-8 text-center shadow-card transition-all duration-[450ms] ease-out rounded-xl bg-white  shadow-2xs ${
+      className={`group relative  block animate-rise overflow-hidden border border-[#ecdfb8] bg-gradient-to-br from-cream to-cream-deep px-6 pb-7 pt-8 text-center transition-all duration-[450ms] ease-out rounded-xl bg-white  shadow-2xs ${
         disabled
           ? "cursor-not-allowed opacity-60"
           : "hover:-translate-y-1.5 hover:border-gold hover:shadow-card-hover"
