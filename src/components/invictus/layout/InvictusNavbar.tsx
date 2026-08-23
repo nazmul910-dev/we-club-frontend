@@ -175,7 +175,7 @@ const isInvictusPage = pathname.startsWith("/invictus");
                 <DropdownMenuSeparator className="my-2 bg-[#EAE4D7]" />
 
                 <DropdownMenuItem
-                  onClick={() => router.push("/dashboard/profile")}
+                  onClick={() => router.push("/invictus/my-profile")}
                   className="flex cursor-pointer gap-3 rounded-xl py-2 font-montserrat text-xs hover:bg-[#F3EBD8]"
                 >
                   <User size={15} className="text-[#947124]" />

@@ -4,10 +4,13 @@ import { InstagramIcon, LinkedInIcon, WebsiteIcon } from "@/components/invictus/
 import { ProfileCard } from "@/components/invictus/profiles/profileCard";
 import { useRouter } from "next/navigation";
 
+import ceo1 from "@/assets/Invictus/Home/sof.png"
+import ceo2 from "@/assets/Invictus/Home/sof1.png"
+
 const ceos = [
   {
     slug: "sofia-marchetti",
-    imageSrc: "/images/sofia-marchetti.jpg",
+    imageSrc: ceo1,
     imageAlt: "Sofia Marchetti",
     kicker: "CEO Profile",
     name: "Sofia Marchetti",
@@ -21,7 +24,7 @@ const ceos = [
   },
   {
     slug: "carlos-vega",
-    imageSrc: "/images/carlos-vega.jpg",
+    imageSrc: ceo2,
     imageAlt: "Carlos Vega",
     kicker: "CEO Profile",
     name: "Carlos Vega",

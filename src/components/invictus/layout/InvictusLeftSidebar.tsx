@@ -121,7 +121,7 @@ export default function InvictusLeftSidebar({
 
     {
       label: "MY PROFILE",
-      href: "/dashboard/profile",
+      href: "/invictus/my-profile",
       icon: UserCircle,
     },
   ];
@@ -131,23 +131,25 @@ export default function InvictusLeftSidebar({
       label: "CEO PROFILES",
       href: "/invictus/ceo-profiles",
       icon: UserCheck,
-      roles: [
-        "ceo",
-        "ceo_partner",
-        "founder",
-        "super_admin",
-        "admin",
-        "manager",
-      ],
+      // roles: [
+      //   "ceo",
+      //   "ceo_partner",
+      //   "founder",
+      //   "super_admin",
+      //   "admin",
+      //   "manager",
+      // ],
     },
 
     {
       label: "FOUNDERS PROFILES",
       href: "/invictus/founders-profiles",
       icon: Users,
-      roles: ["founder", "super_admin", "admin", "manager"],
+      // roles: ["founder", "super_admin", "admin", "manager"],
     },
   ];
+
+  
 
   const serviceItems = [
     {

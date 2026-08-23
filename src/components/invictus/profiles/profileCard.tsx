@@ -11,7 +11,7 @@ export type ProfileCardProps = {
   /** Which page this card is rendered on. Controls the footer content —
    *  founders get a plain social row, CEOs get the same row plus a CTA. */
   variant: "founder" | "ceo";
-  imageSrc: string;
+  imageSrc: any;
   imageAlt: string;
   /** Small kicker label above the name, e.g. "Founder" or "CEO Profile". */
   kicker: string;
@@ -58,7 +58,7 @@ export function ProfileCard({
           </span>
         )} */}
         <div className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-black/25 via-transparent to-transparent" />
-        <img
+        <Image
           src={imageSrc}
           alt={imageAlt}
           className="object-cover h-full  max-h-100 grayscale-[28%] contrast-[1.02] transition-all duration-[1100ms] ease-[cubic-bezier(.16,.84,.34,1)] group-hover:scale-[1.07] group-hover:grayscale-0"
@@ -104,14 +104,14 @@ export function ProfileCard({
               </div>
             )}
 
-            {variant === "ceo" && (
+            {/* {variant === "ceo" && (
               <button
                 onClick={onCtaClick}
                 className="cta-wipe relative overflow-hidden whitespace-nowrap border border-ink px-[1.15em] py-[0.68em] text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-ink transition-colors duration-[400ms] hover:text-paper"
               >
                 <span className="relative z-[1]">{ctaLabel}</span>
               </button>
-            )}
+            )} */}
           </div>
         )}
       </div>

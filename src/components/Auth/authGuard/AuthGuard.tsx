@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
+
 import {
   getStoredUser,
   UserRole,
@@ -10,6 +12,7 @@ import {
   hasAccessTo,
   getDefaultRedirect,
 } from "@/lib/utils/auth";
+
 import { setUser, logout } from "@/lib/features/auth/authUserSlice";
 
 interface AuthGuardProps {
@@ -24,8 +27,11 @@ export default function AuthGuard({
   allowedAccessTo,
 }: AuthGuardProps) {
   const dispatch = useAppDispatch();
+
   const router = useRouter();
+
   const user = useAppSelector((state) => state.authUser.user);
+
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
@@ -33,27 +39,33 @@ export default function AuthGuard({
 
     if (!stored) {
       dispatch(logout());
+
       router.replace("/login");
+
       return;
     }
 
-    // Check accessTo restriction
+    // Access To Check
+
     if (
       allowedAccessTo &&
       allowedAccessTo.length > 0 &&
       !hasAccessTo(stored.accessTo, allowedAccessTo)
     ) {
       router.replace(getDefaultRedirect(stored));
+
       return;
     }
 
-    // Check role restriction
+    // Role Check
+
     if (
       allowedRoles &&
       allowedRoles.length > 0 &&
       !allowedRoles.includes(stored.role)
     ) {
       router.replace(getDefaultRedirect(stored));
+
       return;
     }
 
@@ -66,12 +78,19 @@ export default function AuthGuard({
 
   if (checking) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] text-[#CDAE53] text-sm font-montserrat">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#CDAE53] border-t-transparent" />
-          <span className="tracking-wider uppercase text-xs text-white/60">
-            Checking authentication...
-          </span>
+      <div className="flex min-h-screen items-center justify-center bg-[#090909]">
+        <div className="relative flex h-28 w-28 items-center justify-center">
+          {/* Outer rotating ring */}
+
+          <div className="absolute h-28 w-28 animate-[spin_2.5s_linear_infinite] rounded-full border-2 border-[#C9A84C]/20 border-t-[#C9A84C]" />
+
+          {/* Inner rotating ring */}
+
+          <div className="absolute h-20 w-20 animate-[spin_1.8s_linear_infinite_reverse] rounded-full border border-[#C9A84C]/40 border-b-[#C9A84C]" />
+
+          {/* Center glow */}
+
+          <div className="h-10 w-10 animate-pulse rounded-full bg-gradient-to-br from-[#C9A84C] to-[#8F6B18] shadow-[0_0_35px_rgba(201,168,76,0.65)]" />
         </div>
       </div>
     );

@@ -12,10 +12,10 @@ import { useRouter } from "next/navigation";
 
 
 const inputClass =
-  "w-full rounded-xl border border-amber-400/20 bg-transparent px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none transition-all focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20";
+  "w-full rounded-xl border border-amber-400/20 bg-transparent px-4 py-3 text-sm placeholder:text-white/30 outline-none transition-all focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20";
 
 const labelClass =
-  "mb-2 block text-xs font-medium uppercase tracking-wider text-white/60";
+  "mb-2 block text-xs font-medium uppercase tracking-wider ";
 
 export default function ChangePassword() {
   const dispatch = useAppDispatch();
@@ -84,7 +84,7 @@ export default function ChangePassword() {
         <button
           type="button"
           onClick={() => router.back()}
-          className="cursor-pointer group    text-white flex justify-center items-center gap-x-1 "
+          className="cursor-pointer group flex justify-center items-center gap-x-1 "
         >
           <ArrowLeft size={18} className="text-amber-400 group-hover:-translate-x-1 duration-300"/>
           <p className="group-hover:text-amber-400 duration-300">Back</p>
@@ -96,7 +96,7 @@ export default function ChangePassword() {
           Change Password
         </h2>
 
-        <p className="mt-2 text-center text-sm text-white/50">
+        <p className="mt-2 text-center text-sm ">
           Update your account password
         </p>
       </div>
@@ -166,7 +166,7 @@ export default function ChangePassword() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-400 px-8 py-3 font-semibold text-black transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-60"
+        className="flex w-full items-center cursor-pointer justify-center gap-2 rounded-xl bg-amber-400 px-8 py-3 font-semibold text-black transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isSubmitting ? (
           <>
