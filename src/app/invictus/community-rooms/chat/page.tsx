@@ -88,9 +88,9 @@ export default function GroupChatPage() {
     messageElement?.scrollIntoView({ behavior: "smooth", block: "center" });
 
     if (messageElement) {
-      messageElement.classList.add("ring-2", "ring-indigo-400");
+      messageElement.classList.add("ring-2", "ring-green-400");
       window.setTimeout(() => {
-        messageElement.classList.remove("ring-2", "ring-indigo-400");
+        messageElement.classList.remove("ring-2", "ring-green-400");
       }, 1200);
     }
   }, []);
