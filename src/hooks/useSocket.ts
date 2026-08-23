@@ -49,6 +49,13 @@ export const useSocket = (countryName?: string, canSwitchRooms = false) => {
       console.error("Socket connect_error:", err.message);
     });
 
+    // backend emits this right before it force-disconnects a bad connection
+    // (e.g. missing/invalid country) — without this listener that disconnect
+    // was completely silent on the client.
+    socket.on("error", (message: string) => {
+      console.error("Socket error:", message);
+    });
+
     socket.on("message:new", (message: Message) => {
       dispatch(messageReceived(message));
     });

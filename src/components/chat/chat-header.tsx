@@ -1,8 +1,6 @@
 import { useSelector } from "react-redux";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Search, MoreVertical } from "lucide-react";
 import { RootState } from "@/lib/redux/store/store";
 import {
   Tooltip,
@@ -39,9 +37,9 @@ export default function ChatHeader() {
             {room?.name ?? "Loading..."}
           </h2>
 
-          {onlineCount && <p className="text-sm text-green-600">
+          <p className="text-sm text-green-600">
             {onlineCount}  online
-          </p>}
+          </p>
         </div>
 
       </div>
