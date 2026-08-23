@@ -201,7 +201,7 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
         attributes: {
           class: cn(
             "relative prose prose-invert prose-sm max-w-none focus:outline-none",
-            "text-zinc-100 text-sm leading-relaxed min-h-[1.5rem]",
+            "text-black text-sm leading-relaxed min-h-[1.5rem]",
             "[&_strong]:font-semibold [&_em]:italic [&_s]:line-through",
             "[&_code]:bg-zinc-700 [&_code]:text-rose-300 [&_code]:rounded",
             "[&_code]:px-1 [&_code]:py-0.5 [&_code]:text-xs [&_code]:font-mono"
@@ -262,7 +262,7 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
       <div
         className={cn(
           "flex flex-col w-full rounded-lg",
-          "bg-zinc-700/40 border border-zinc-600/50",
+          "bg-white border text-black border-zinc-600/50",
           "focus-within:border-zinc-500/70 transition-colors duration-150",
           className
         )}

@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
 import { Message, Room, TypingUser } from "@/types/chat";
-import { getGeneralRoom, getMessageHistory } from "./chatApi";
+import { getCountryRoom, getGeneralRoom, getMessageHistory } from "./chatApi";
 
 interface ChatState {
   room: Room | null;
@@ -35,6 +35,23 @@ export const fetchGeneralRoom = createAsyncThunk<
     if (axios.isAxiosError(err)) {
       return rejectWithValue(
         err.response?.data?.message || "Failed to load room",
+      );
+    }
+    return rejectWithValue("Unexpected error");
+  }
+});
+
+export const fetchCountryRoom = createAsyncThunk<
+  Room,
+  string,
+  { rejectValue: string }
+>("chat/fetchCountryRoom", async (countryName, { rejectWithValue }) => {
+  try {
+    return await getCountryRoom(countryName);
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to load country room",
       );
     }
     return rejectWithValue("Unexpected error");
@@ -136,6 +153,18 @@ const chatSlice = createSlice({
       .addCase(fetchGeneralRoom.rejected, (state, action) => {
         state.isLoadingRoom = false;
         state.error = action.payload ?? "Failed to load room";
+      })
+      .addCase(fetchCountryRoom.pending, (state) => {
+        state.isLoadingRoom = true;
+        state.error = null;
+      })
+      .addCase(fetchCountryRoom.fulfilled, (state, action) => {
+        state.isLoadingRoom = false;
+        state.room = action.payload;
+      })
+      .addCase(fetchCountryRoom.rejected, (state, action) => {
+        state.isLoadingRoom = false;
+        state.error = action.payload ?? "Failed to load country room";
       })
 
       .addCase(fetchMessageHistory.pending, (state) => {

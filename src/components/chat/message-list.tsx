@@ -12,9 +12,16 @@ import { ReplyTo } from "@/types/chat";
 interface Props {
   onReply: (replyTo: ReplyTo & { id: string }) => void;
   onDelete: (messageId: string) => void;
+  onReplyClick: (messageId: string) => void;
+  registerMessageRef: (messageId: string, element: HTMLDivElement | null) => void;
 }
 
-export default function MessageList({ onReply, onDelete }: Props) {
+export default function MessageList({
+  onReply,
+  onDelete,
+  onReplyClick,
+  registerMessageRef,
+}: Props) {
   const messages = useSelector((state: RootState) => state.chat.messages);
   const typingUsers = useSelector((state: RootState) => state.chat.typingUsers);
   const currentUserId = useSelector(
@@ -47,6 +54,8 @@ export default function MessageList({ onReply, onDelete }: Props) {
               })}
               isDeleted={message.isDeleted}
               replyTo={message.replyTo}
+              messageRef={(element) => registerMessageRef(message._id, element)}
+              onReplyClick={() => onReplyClick(message.replyTo?._id ?? "")}
               onReply={() =>
                 onReply({
                   id: message._id,

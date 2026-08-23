@@ -14,6 +14,7 @@ interface Props {
   onTypingStop: () => void;
   replyingTo?: (ReplyTo & { id: string }) | null;
   onCancelReply: () => void;
+  editorRef: React.RefObject<RichTextEditorHandle | null>;
 }
 
 const TYPING_STOP_DELAY = 2000;
@@ -50,8 +51,8 @@ export default function MessageInput({
   onTypingStop,
   replyingTo,
   onCancelReply,
+  editorRef,
 }: Props) {
-  const editorRef = useRef<RichTextEditorHandle>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const emojiContainerRef = useRef<HTMLDivElement>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -97,7 +98,7 @@ export default function MessageInput({
   };
 
   return (
-    <div className="border-t border-zinc-800 px-4 py-3">
+    <div className="border-t border-gray-400 px-4 py-3">
       {/* Reply banner */}
       {replyingTo && (
         <div className="flex items-center gap-3 mb-2 animate-in slide-in-from-bottom-2 duration-150">
@@ -143,10 +144,10 @@ export default function MessageInput({
               onMouseDown={(e) => e.preventDefault()} // keep editor focused
               onClick={() => setShowEmojiPicker((v) => !v)}
               className={cn(
-                "flex h-7 w-7 items-center justify-center rounded transition-colors",
+                "flex h-7 w-7 text-black items-center justify-center rounded transition-colors",
                 showEmojiPicker
-                  ? "bg-indigo-500/20 text-indigo-300"
-                  : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700/50"
+                  ? "bg-white "
+                  : " hover:bg-zinc-700/50"
               )}
               title="Emoji"
             >
