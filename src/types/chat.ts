@@ -10,6 +10,9 @@ export interface Room {
   description?: string;
   members: string[];
   createdBy: string;
+  type?: "general" | "country";
+  countryCode?: string;
+  countryName?: string;
 }
 
 export interface ReplyTo {

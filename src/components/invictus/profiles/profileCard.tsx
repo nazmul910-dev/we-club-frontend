@@ -51,7 +51,7 @@ export function ProfileCard({
       ].join(" ")}
     >
       {/* media */}
-      <div className="relative aspect-[4/3] overflow-hidden bg-black/5">
+      <div className="relative aspect-4/3 overflow-hidden bg-black/5">
         {/* {typeof index === "number" && (
           <span className="absolute left-3.5 top-3.5 z-10 bg-black/40 px-2.5 py-1 font-display text-sm italic text-white backdrop-blur-sm">
             {String(index).padStart(2, "0")}

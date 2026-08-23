@@ -15,7 +15,7 @@ import { AppDispatch, RootState } from "@/lib/redux/store/store";
 const SOCKET_URL =
   process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5000";
 
-export const useSocket = () => {
+export const useSocket = (countryName?: string, canSwitchRooms = false) => {
   const dispatch = useDispatch<AppDispatch>();
   const isAuthenticated = useSelector(
     (state: RootState) => state.authUser.isAuthenticated,
@@ -35,6 +35,14 @@ export const useSocket = () => {
 
     socket.on("connect", () => {
       console.log("Socket connected:", socket.id);
+    });
+
+    let requestedRoom = false;
+    socket.on("room:joined", () => {
+      if (canSwitchRooms && countryName && !requestedRoom) {
+        requestedRoom = true;
+        socket.emit("room:join", countryName);
+      }
     });
 
     socket.on("connect_error", (err) => {
@@ -75,7 +83,7 @@ export const useSocket = () => {
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [isAuthenticated, dispatch]);
+  }, [isAuthenticated, countryName, canSwitchRooms, dispatch]);
 
   const sendMessage = useCallback(
     (content: string, replyTo?: string | null) => {

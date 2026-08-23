@@ -2,22 +2,37 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useSearchParams } from "next/navigation";
 
 import ChatHeader from "@/components/chat/chat-header";
 import MessageInput from "@/components/chat/message-input";
 import MessageList from "@/components/chat/message-list";
 import { useSocket } from "@/hooks/useSocket";
 import {
-  fetchGeneralRoom,
+  fetchCountryRoom,
   fetchMessageHistory,
 } from "@/lib/features/chat/chatSlice";
+import { fetchCurrentUserProfile } from "@/lib/features/auth/authUserSlice";
 import { AppDispatch, RootState } from "@/lib/redux/store/store";
 import { ReplyTo } from "@/types/chat";
 
 export default function GroupChatPage() {
   const dispatch = useDispatch<AppDispatch>();
+  const searchParams = useSearchParams();
   const room = useSelector((state: RootState) => state.chat.room);
-  const { sendMessage, deleteMessage, startTyping, stopTyping } = useSocket();
+  const profile = useSelector((state: RootState) => state.authUser.profile);
+  const tokenUser = useSelector((state: RootState) => state.authUser.user);
+  const selectedCountry = searchParams.get("countryName") || undefined;
+  const canChooseAnyRoom =
+    profile?.role === "founder" ||
+    profile?.role === "admin" ||
+    profile?.role === "manager";
+  const countryName =
+    canChooseAnyRoom ? selectedCountry || profile?.country : profile?.country;
+  const { sendMessage, deleteMessage, startTyping, stopTyping } = useSocket(
+    countryName,
+    canChooseAnyRoom,
+  );
 
   // reply-to state: holds the message the user is replying to (null = no active reply)
   const [replyingTo, setReplyingTo] = useState<
@@ -25,8 +40,16 @@ export default function GroupChatPage() {
   >(null);
 
   useEffect(() => {
-    dispatch(fetchGeneralRoom());
-  }, [dispatch]);
+    if (!profile && tokenUser?.id) {
+      dispatch(fetchCurrentUserProfile(tokenUser.id));
+    }
+  }, [dispatch, profile, tokenUser?.id]);
+
+  useEffect(() => {
+    if (countryName) {
+      dispatch(fetchCountryRoom(countryName));
+    }
+  }, [countryName, dispatch]);
 
   useEffect(() => {
     if (room?._id) {

@@ -7,16 +7,33 @@ export type RoomCardProps = {
   /** "enter" shows a live "Enter room" link; "invitation" shows a locked "By invitation" meta line. */
   status: "enter" | "invitation";
   href?: string;
+  disabled?: boolean;
   /** Stagger delay in ms for the entrance animation. */
   delay?: number;
 };
 
-export function RoomCard({ code, name, status, href = "#", delay = 0 }: RoomCardProps) {
+export function RoomCard({
+  code,
+  name,
+  status,
+  href = "#",
+  disabled = false,
+  delay = 0,
+}: RoomCardProps) {
   return (
     <a
-      href={href}
+      href={disabled ? undefined : href}
+      aria-disabled={disabled}
+      tabIndex={disabled ? -1 : undefined}
       style={{ animationDelay: `${delay}ms` }}
-      className="group relative isolate block animate-rise overflow-hidden border border-[#ecdfb8] bg-gradient-to-br from-cream to-cream-deep px-6 pb-7 pt-8 text-center shadow-card transition-all duration-[450ms] ease-out hover:-translate-y-1.5 hover:border-gold hover:shadow-card-hover rounded-xl bg-[#FAF6EE]"
+      onClick={(event) => {
+        if (disabled) event.preventDefault();
+      }}
+      className={`group relative isolate block animate-rise overflow-hidden border border-[#ecdfb8] bg-gradient-to-br from-cream to-cream-deep px-6 pb-7 pt-8 text-center shadow-card transition-all duration-[450ms] ease-out rounded-xl bg-white  shadow-2xs ${
+        disabled
+          ? "cursor-not-allowed opacity-60"
+          : "hover:-translate-y-1.5 hover:border-gold hover:shadow-card-hover"
+      }`}
     >
       {/* gold bar that slides in from the left on hover */}
       <span className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 bg-gradient-to-r from-gold to-gold-bright transition-transform duration-500 ease-snap group-hover:scale-x-100" />
@@ -27,6 +44,7 @@ export function RoomCard({ code, name, status, href = "#", delay = 0 }: RoomCard
         </div>
       ) : (
         <div className="mx-auto mb-3 flex h-[34px] w-[34px] items-center justify-center rounded-full border-[1.5px] border-gold-deep text-gold-deep">
+
           <GlobeIcon className="h-[17px] w-[17px]" />
         </div>
       )}
