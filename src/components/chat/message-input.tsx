@@ -98,7 +98,7 @@ export default function MessageInput({
   };
 
   return (
-    <div className="border-t border-zinc-800 px-4 py-3">
+    <div className="border-t border-gray-400 px-4 py-3">
       {/* Reply banner */}
       {replyingTo && (
         <div className="flex items-center gap-3 mb-2 animate-in slide-in-from-bottom-2 duration-150">

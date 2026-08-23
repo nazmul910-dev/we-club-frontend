@@ -16,12 +16,13 @@ interface Props {
     replyTo?: ReplyTo | null;
     onReply: () => void;
     onDelete: () => void;
+    messageRef?: React.Ref<HTMLDivElement>;
     /** Optional: jump to the original replied-to message */
     onReplyClick?: () => void;
 }
 
 export default function MessageItem({
-    messageId: _messageId,
+    messageId,
     me,
     name,
     avatar,
@@ -32,6 +33,7 @@ export default function MessageItem({
     onReply,
     onDelete,
     onReplyClick,
+    messageRef,
 }: Props) {
     const [hovered, setHovered] = useState(false);
 
@@ -78,7 +80,6 @@ export default function MessageItem({
                 ${me ? "flex-row-reverse" : ""}
               `}
                         >
-                           
                             <div className="px-3 py-1.5 min-w-0">
                                 <p
                                     className={`text-[11px] font-semibold truncate mb-0.5 ${me ? "text-zinc-300" : "text-indigo-300"}`}
@@ -133,6 +134,7 @@ export default function MessageItem({
                         )}
                         {/* Message bubble */}
                         <div
+                            ref={messageRef}
                             className={`rounded-2xl max-w-[320px] px-4 py-2.5 text-sm leading-relaxed break-words
     ${
         isDeleted

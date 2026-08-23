@@ -18,7 +18,7 @@ export default function ChatHeader() {
   );
 
   return (
-    <div className="border-b border-zinc-800 px-6 py-4 flex justify-between items-center">
+    <div className="border-b border-gray-400 px-6 py-4 flex justify-between items-center">
 
       <div className="flex items-center gap-4">
 
@@ -46,7 +46,7 @@ export default function ChatHeader() {
 
       </div>
 
-      <div className="flex gap-2">
+      {/* <div className="flex gap-2">
 
         <Button variant="ghost" size="icon">
           <Search />
@@ -56,7 +56,7 @@ export default function ChatHeader() {
           <MoreVertical />
         </Button>
 
-      </div>
+      </div> */}
 
     </div>
   );

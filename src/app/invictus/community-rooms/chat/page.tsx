@@ -25,6 +25,7 @@ export default function GroupChatPage() {
   const tokenUser = useSelector((state: RootState) => state.authUser.user);
   const selectedCountry = searchParams.get("countryName") || undefined;
   const editorRef = useRef<RichTextEditorHandle>(null);
+  const messageRefs = useRef(new Map<string, HTMLDivElement>());
   const canChooseAnyRoom =
     profile?.role === "founder" ||
     profile?.role === "admin" ||
@@ -80,6 +81,31 @@ export default function GroupChatPage() {
     setReplyingTo(null);
   }, []);
 
+  const handleReplyClick = useCallback((messageId: string) => {
+    if (!messageId) return;
+
+    const messageElement = messageRefs.current.get(messageId);
+    messageElement?.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    if (messageElement) {
+      messageElement.classList.add("ring-2", "ring-indigo-400");
+      window.setTimeout(() => {
+        messageElement.classList.remove("ring-2", "ring-indigo-400");
+      }, 1200);
+    }
+  }, []);
+
+  const registerMessageRef = useCallback(
+    (messageId: string, element: HTMLDivElement | null) => {
+      if (element) {
+        messageRefs.current.set(messageId, element);
+      } else {
+        messageRefs.current.delete(messageId);
+      }
+    },
+    [],
+  );
+
   const handleDelete = useCallback(
     (messageId: string) => {
       deleteMessage(messageId);
@@ -90,11 +116,16 @@ export default function GroupChatPage() {
  
 
   return (
-    <div className="h-[calc(100vh-160px)] flex justify-center p-6">
+    <div className="h-[calc(100vh-60px)] flex justify-center p-6">
       <div className="w-full max-w-5xl rounded-2xl border  flex flex-col overflow-hidden">
         <ChatHeader />
 
-        <MessageList onReply={handleReply} onDelete={handleDelete}  />
+        <MessageList
+          onReply={handleReply}
+          onDelete={handleDelete}
+          onReplyClick={handleReplyClick}
+          registerMessageRef={registerMessageRef}
+        />
 
         <MessageInput
           onSend={handleSend}
