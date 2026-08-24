@@ -6,11 +6,7 @@ import BgImage from "@/assets/Login/login-bg.jpg";
 
 import ChangePassword from "@/components/Auth/login/ChangePassword";
 
-
-
-
 export default function ChangePasswordPage() {
-
   return (
     <section
       className="
@@ -39,6 +35,7 @@ blur-[180px]
 
       <div
         className="
+        text-white
 relative
 z-10
 w-full

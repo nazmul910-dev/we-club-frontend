@@ -80,7 +80,9 @@ const chatSlice = createSlice({
   initialState,
   reducers: {
     messageReceived: (state, action: PayloadAction<Message>) => {
-      state.messages.push(action.payload);
+      if (!state.messages.some((message) => message._id === action.payload._id)) {
+        state.messages.push(action.payload);
+      }
       // if the sender was shown as typing, clear it now that their message arrived
       state.typingUsers = state.typingUsers.filter(
         (t) => t.userId !== action.payload.sender._id,
@@ -172,7 +174,21 @@ const chatSlice = createSlice({
       })
       .addCase(fetchMessageHistory.fulfilled, (state, action) => {
         state.isLoadingHistory = false;
-        state.messages = action.payload;
+        const liveMessages = state.messages.filter(
+          (message) => message.room === action.meta.arg,
+        );
+        const messagesById = new Map(
+          [...action.payload, ...liveMessages].map((message) => [
+            message._id,
+            message,
+          ]),
+        );
+
+        state.messages = Array.from(messagesById.values()).sort(
+          (first, second) =>
+            new Date(first.createdAt).getTime() -
+            new Date(second.createdAt).getTime(),
+        );
       })
       .addCase(fetchMessageHistory.rejected, (state, action) => {
         state.isLoadingHistory = false;

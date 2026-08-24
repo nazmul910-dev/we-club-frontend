@@ -1,9 +1,13 @@
 import { InstagramIcon, LinkedInIcon } from "@/components/invictus/profiles/icons";
 import { ProfileCard } from "@/components/invictus/profiles/profileCard";
 
+import adam from "@/assets/Invictus/Home/adam.jpg"
+import founder1 from "@/assets/Invictus/Home/sof1.png"
+import founder2 from "@/assets/Invictus/Home/sof.png"
+
 const founders = [
   {
-    imageSrc: "/images/adam-koubi.jpg",
+    imageSrc: adam,
     imageAlt: "Adam Koubi",
     kicker: "Founder",
     name: "Adam Koubi",
@@ -12,7 +16,7 @@ const founders = [
     socials: [{ label: "LinkedIn", href: "#", icon: <LinkedInIcon /> }],
   },
   {
-    imageSrc: "/images/isabelle-laurent.jpg",
+    imageSrc: founder2,
     imageAlt: "Isabelle Laurent",
     kicker: "Founder",
     name: "Isabelle Laurent",
@@ -24,7 +28,7 @@ const founders = [
     ],
   },
   {
-    imageSrc: "/images/marcus-whitfield.jpg",
+    imageSrc: founder1,
     imageAlt: "Marcus Whitfield",
     kicker: "Founding Partner",
     name: "Marcus Whitfield",

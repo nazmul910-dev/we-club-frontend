@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { ExternalLink, Calendar, Video, Sparkles } from "lucide-react";
 import {
   Dialog,
@@ -11,6 +12,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+
+import adam from "@/assets/Invictus/Home/adam.jpg"
+import tour from "@/assets/Invictus/Navbar/tour.jpg"
+
 
 export default function InvictusRightSidebar() {
   const router = useRouter();
@@ -92,8 +97,8 @@ export default function InvictusRightSidebar() {
 
         <div className="flex flex-col items-center space-y-1.5">
           <div className="h-14 w-14 overflow-hidden rounded-full border-2 border-[#9E7B28] shadow-xs">
-            <img
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80"
+            <Image
+              src={adam}
               alt="Mentor Adam Koubi"
               className="h-full w-full object-cover"
             />
@@ -130,8 +135,8 @@ export default function InvictusRightSidebar() {
           onClick={() => router.push("/invictus/retreats")}
           className="group relative overflow-hidden rounded-xl border border-[#DECDB0] bg-black/90 aspect-video flex items-end p-3 cursor-pointer"
         >
-          <img
-            src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=500&auto=format&fit=crop&q=80"
+          <Image
+            src={tour}
             alt="Marrakech Retreat"
             className="absolute inset-0 h-full w-full object-cover opacity-75 group-hover:scale-105 transition duration-500"
           />

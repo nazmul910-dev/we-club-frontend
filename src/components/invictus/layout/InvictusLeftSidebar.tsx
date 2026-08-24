@@ -121,7 +121,7 @@ export default function InvictusLeftSidebar({
 
     {
       label: "MY PROFILE",
-      href: "/dashboard/profile",
+      href: "/invictus/my-profile",
       icon: UserCircle,
     },
   ];
@@ -131,23 +131,25 @@ export default function InvictusLeftSidebar({
       label: "CEO PROFILES",
       href: "/invictus/ceo-profiles",
       icon: UserCheck,
-      roles: [
-        "ceo",
-        "ceo_partner",
-        "founder",
-        "super_admin",
-        "admin",
-        "manager",
-      ],
+      // roles: [
+      //   "ceo",
+      //   "ceo_partner",
+      //   "founder",
+      //   "super_admin",
+      //   "admin",
+      //   "manager",
+      // ],
     },
 
     {
       label: "FOUNDERS PROFILES",
       href: "/invictus/founders-profiles",
       icon: Users,
-      roles: ["founder", "super_admin", "admin", "manager"],
+      // roles: ["founder", "super_admin", "admin", "manager"],
     },
   ];
+
+  
 
   const serviceItems = [
     {
@@ -262,7 +264,7 @@ export default function InvictusLeftSidebar({
           <div className="mb-3">
             <button
               onClick={() => setPeopleOpen(!peopleOpen)}
-              className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 transition-all ${isPeopleActive ? "bg-[#F3EBD8] text-[#947124]" : "text-[#5C5348] hover:bg-[#F6F1E7]"}`}
+              className={`flex w-full items-center justify-between cursor-pointer rounded-xl px-3 py-2.5 transition-all ${isPeopleActive ? "bg-[#F3EBD8] text-[#947124]" : "text-[#5C5348] hover:bg-[#F6F1E7]"}`}
             >
               <div className="flex items-center gap-3">
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#F3EEE4]">
@@ -307,7 +309,7 @@ export default function InvictusLeftSidebar({
           <div className="mb-3">
             <button
               onClick={() => setServicesOpen(!servicesOpen)}
-              className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 transition-all ${isServiceActive ? "bg-[#F3EBD8] text-[#947124]" : "text-[#5C5348] hover:bg-[#F6F1E7]"}`}
+              className={`flex w-full items-center justify-between cursor-pointer rounded-xl px-3 py-2.5 transition-all ${isServiceActive ? "bg-[#F3EBD8] text-[#947124]" : "text-[#5C5348] hover:bg-[#F6F1E7]"}`}
             >
               <div className="flex items-center gap-3">
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#F3EEE4]">

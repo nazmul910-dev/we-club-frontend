@@ -82,6 +82,7 @@ export default function MessageInput({
 
   const handleSend = () => {
     const text = editorRef.current?.getText()?.trim();
+    
     if (!text) return;
     const html = editorRef.current?.getHTML() ?? text;
     onSend(html, replyingTo?.id ?? null);
@@ -89,6 +90,8 @@ export default function MessageInput({
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     onTypingStop();
     onCancelReply();
+    console.log("text", text)
+    
   };
 
   const handleEmojiSelect = (emoji: string) => {
