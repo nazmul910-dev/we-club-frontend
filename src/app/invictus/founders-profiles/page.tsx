@@ -40,7 +40,7 @@ const founders = [
 
 export default function FoundersPage() {
   return (
-    <main className="mx-auto max-w-[1180px] px-[6vw] py-[6vw] sm:px-8">
+    <main className="mx-auto max-w-[1180px] px-[6vw]  sm:px-8">
       <div className="mb-16 text-center">
         <div className="mb-4 inline-flex items-center gap-2 text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-gold-deep before:h-px before:w-[26px] before:bg-gold after:h-px after:w-[26px] after:bg-gold">
           Founders Profiles

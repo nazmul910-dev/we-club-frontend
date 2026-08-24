@@ -14,6 +14,8 @@ import chatReducer from "@/lib/features/chat/chatSlice";
 import logoReducer from "@/lib/features/logo/logoSlice"
 import paymentReducer from "@/lib/features/payment/paymentSlice"
 import discountReducer from "@/lib/features/discountFounder/discountSlice";
+import leaderboardReducer from "@/lib/features/leaderboard/leaderboardSlice";
+import retreatReducer from "@/lib/features/retreat/retreatSlice";
 
 export const store = configureStore({
   reducer: {
@@ -31,7 +33,9 @@ export const store = configureStore({
     chat : chatReducer,
     logo:logoReducer,
     payment:paymentReducer,
-    discount:discountReducer
+    discount:discountReducer,
+    leaderboard: leaderboardReducer,
+    retreat: retreatReducer,
   }, 
 
 });

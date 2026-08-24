@@ -42,7 +42,7 @@ export default function CommunityRoomsPage() {
   }, [dispatch, isProfileLoading, profile, tokenUser?.id]);
 
   return (
-    <main className="mx-auto max-w-[1180px]  pb-[9vw] pt-[6vw]">
+    <main className="mx-auto max-w-[1180px]  pb-[9vw] ">
       {/* page head */}
       <div className="mb-[4.6rem]">
         <div className="mb-4 inline-flex items-center gap-2 text-[0.7rem] font-semibold uppercase tracking-[0.28em] text-gold-deep">

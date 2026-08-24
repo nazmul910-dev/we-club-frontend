@@ -1,9 +1,16 @@
+"use client";
+
+import { useEffect } from "react";
 import { ClimbIcon, StreakIcon, TrophyIcon } from "@/components/invictus/profiles/icons";
 import { LeaderboardTable, LedgerColumn } from "@/components/leaderboard/LeaderboardTable";
 import { PersonCell, StreakPill, TerritoryCell } from "@/components/leaderboard/PersonCell";
 import { RankBadge } from "@/components/leaderboard/RankBadge";
 import { StatCard } from "@/components/leaderboard/StatCard";
 import { ShieldIcon } from "lucide-react";
+import { fetchInvictusLeaderboard } from "@/lib/features/leaderboard/leaderboardSlice";
+import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
+import { LeaderboardEntry } from "@/lib/features/leaderboard/leaderboardTypes";
+import { PaginationControl } from "@/components/ui/PaginationControll";
 
 type Referrer = {
   rank: number;
@@ -16,35 +23,12 @@ type Referrer = {
   volume: string;
 };
 
-type InvictusMember = {
-  rank: number;
-  name: string;
-  initials: string;
-  avatarClassName: string;
-  territory: string;
-  modules: number;
-  success: string;
-  streak: string;
-  points: string;
-};
-
 const referrers: Referrer[] = [
   { rank: 1, name: "Adam Koubi", initials: "AK", avatarClassName: "bg-gradient-to-br from-[#5b6b4f] to-[#232e1d]", territory: "France", referrals: 214, sold: 187, volume: "$48.2M" },
   { rank: 2, name: "Sofia Marchetti", initials: "SM", avatarClassName: "bg-gradient-to-br from-[#7a5a45] to-[#2c1f16]", territory: "Italy", referrals: 142, sold: 121, volume: "$31.6M" },
   { rank: 3, name: "Carlos Vega", initials: "CV", avatarClassName: "bg-gradient-to-br from-[#4d6470] to-[#1c262b]", territory: "Mexico", referrals: 118, sold: 96, volume: "$24.9M" },
   { rank: 4, name: "Nathalie Rousseau", initials: "NR", avatarClassName: "bg-gradient-to-br from-[#8a5b6a] to-[#2d1c22]", territory: "France", referrals: 87, sold: 74, volume: "$18.4M" },
   { rank: 5, name: "David Chen", initials: "DC", avatarClassName: "bg-gradient-to-br from-[#5f5a80] to-[#221f31]", territory: "Canada", referrals: 71, sold: 63, volume: "$15.1M" },
-];
-
-const invictus: InvictusMember[] = [
-  { rank: 1, name: "Nathalie Rousseau", initials: "NR", avatarClassName: "bg-gradient-to-br from-[#8a5b6a] to-[#2d1c22]", territory: "France", modules: 18, success: "96%", streak: "42d", points: "2,840" },
-  { rank: 2, name: "David Chen", initials: "DC", avatarClassName: "bg-gradient-to-br from-[#5f5a80] to-[#221f31]", territory: "Canada", modules: 17, success: "92%", streak: "38d", points: "2,710" },
-  { rank: 3, name: "Alexander Marchetti", initials: "AM", avatarClassName: "bg-gradient-to-br from-[#7a5a45] to-[#2c1f16]", territory: "Italy", modules: 16, success: "91%", streak: "35d", points: "2,605" },
-  { rank: 4, name: "Priya Anand", initials: "PA", avatarClassName: "bg-gradient-to-br from-[#4d7066] to-[#1a2723]", territory: "USA", modules: 15, success: "89%", streak: "30d", points: "2,440" },
-  { rank: 5, name: "Luis Ortega", initials: "LO", avatarClassName: "bg-gradient-to-br from-[#4d6470] to-[#1c262b]", territory: "Mexico", modules: 15, success: "87%", streak: "28d", points: "2,380" },
-  { rank: 6, name: "Sofia Almeida", initials: "SA", avatarClassName: "bg-gradient-to-br from-[#8a6a45] to-[#2c2016]", territory: "Portugal", modules: 14, success: "88%", streak: "26d", points: "2,295" },
-  { rank: 7, name: "Hannah Weiss", initials: "HW", avatarClassName: "bg-gradient-to-br from-[#5b6b4f] to-[#232e1d]", territory: "Spain", modules: 13, success: "85%", streak: "22d", points: "2,110" },
-  { rank: 8, name: "Youssef Bennani", initials: "YB", avatarClassName: "bg-gradient-to-br from-[#7a5a45] to-[#2c1f16]", territory: "Canada", modules: 12, success: "84%", streak: "19d", points: "1,990" },
 ];
 
 const referrerColumns: LedgerColumn<Referrer>[] = [
@@ -56,19 +40,63 @@ const referrerColumns: LedgerColumn<Referrer>[] = [
   { key: "volume", label: "Volume", align: "right", render: (r) => <span className="font-display font-medium text-gold-deep">{r.volume}</span> },
 ];
 
-const invictusColumns: LedgerColumn<InvictusMember>[] = [
-  { key: "rank", label: "Rank", width: "w-14", render: (m) => <RankBadge rank={m.rank} /> },
-  { key: "member", label: "Member", render: (m) => <PersonCell name={m.name} initials={m.initials} avatarClassName={m.avatarClassName} /> },
-  { key: "territory", label: "Territory", render: (m) => <TerritoryCell territory={m.territory} /> },
-  { key: "modules", label: "Modules", align: "right", render: (m) => <span className="font-display font-medium text-ink">{m.modules}</span> },
-  { key: "success", label: "Success", align: "right", render: (m) => <span className="font-display font-medium text-ink">{m.success}</span> },
-  { key: "streak", label: "Streak", align: "right", render: (m) => <StreakPill value={m.streak} /> },
-  { key: "points", label: "Points", align: "right", render: (m) => <span className="font-display font-medium text-gold-deep">{m.points}</span> },
+const avatarClasses = [
+  "bg-gradient-to-br from-[#8a5b6a] to-[#2d1c22]",
+  "bg-gradient-to-br from-[#5f5a80] to-[#221f31]",
+  "bg-gradient-to-br from-[#7a5a45] to-[#2c1f16]",
+  "bg-gradient-to-br from-[#4d7066] to-[#1a2723]",
 ];
 
+const getInitials = (name: string) =>
+  name
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+const invictusColumns: LedgerColumn<LeaderboardEntry>[] = [
+  { key: "rank", label: "Rank", width: "w-14", render: (entry) => <RankBadge rank={entry.rank} /> },
+  {
+    key: "member",
+    label: "Member",
+    render: (entry) => (
+      <PersonCell
+        name={entry.user.fullName}
+        initials={getInitials(entry.user.fullName)}
+        avatarClassName={avatarClasses[(entry.rank - 1) % avatarClasses.length]}
+      />
+    ),
+  },
+  { key: "territory", label: "Territory", render: (entry) => <TerritoryCell territory={entry.user.country ?? "-"} /> },
+  { key: "modules", label: "Modules", align: "right", render: (entry) => <span className="font-display font-medium text-ink">{entry.breakdown?.modules ?? 0}</span> },
+  { key: "success", label: "Success", align: "right", render: (entry) => <span className="font-display font-medium text-ink">{entry.breakdown?.success ?? 0}%</span> },
+  { key: "streak", label: "Streak", align: "right", render: (entry) => <StreakPill value={`${entry.breakdown?.streak ?? 0}d`} /> },
+  { key: "points", label: "Points", align: "right", render: (entry) => <span className="font-display font-medium text-gold-deep">{entry.points.toLocaleString()}</span> },
+];
+
+
+
+
 export default function LeaderboardPage() {
+  const dispatch = useAppDispatch();
+  const entries = useAppSelector((state) => state.leaderboard.entries ?? []);
+  const isLoading = useAppSelector((state) => state.leaderboard.isLoading);
+  const currentPage = useAppSelector((state) => state.leaderboard.currentPage);
+  const totalPages = useAppSelector((state) => state.leaderboard.totalPages);
+
+  useEffect(() => {
+    dispatch(fetchInvictusLeaderboard(1));
+  }, [dispatch]);
+
+  const topPerformer = entries[0];
+  const longestStreak = entries.reduce(
+    (best, entry) => (entry.breakdown?.streak ?? 0) > (best?.breakdown?.streak ?? 0) ? entry : best,
+    topPerformer,
+  );
+
   return (
-    <main className="mx-auto max-w-[1180px] px-5 md:px-0 pb-[8vw]">
+    <main className="mx-auto max-w-[1180px] px-5 md:px-0 ">
       {/* hero */}
       <div className="pb-12 pt-[3.5vw]">
         <div className="mb-[1.1rem] inline-flex items-center gap-2 text-[0.7rem] font-semibold uppercase tracking-[0.3em] text-gold-deep">
@@ -81,28 +109,27 @@ export default function LeaderboardPage() {
           Ranked by modules completed, module success rate, accountability streak, and community contribution.
         </p>
       </div>
-
       {/* stat cards */}
       <div className="mb-[3.6rem] grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard
           icon={<TrophyIcon />}
           label="Top Performer"
-          value="Nathalie R."
-          sub={<><span className="font-semibold text-gold-deep">96%</span> success rate</>}
+          value={isLoading ? "Loading..." : topPerformer?.user.fullName ?? "-"}
+          sub={<><span className="font-semibold text-gold-deep">{topPerformer?.breakdown?.success ?? 0}%</span> success rate</>}
           delay={20}
         />
         <StatCard
           icon={<StreakIcon />}
           label="Longest Streak"
-          value="42 days"
-          sub="Nathalie Rousseau"
+          value={`${longestStreak?.breakdown?.streak ?? 0} days`}
+          sub={longestStreak?.user.fullName ?? "-"}
           delay={90}
         />
         <StatCard
           icon={<ClimbIcon />}
-          label="Fastest Climber"
-          value="+7 ranks"
-          sub="David Chen — this month"
+          label="Highest Points"
+          value={topPerformer?.points.toLocaleString() ?? "0"}
+          sub={topPerformer?.user.fullName ?? "-"}
           delay={160}
         />
       </div>
@@ -126,9 +153,15 @@ export default function LeaderboardPage() {
         tag="Season 03 · Live"
         live
         columns={invictusColumns}
-        rows={invictus}
-        rowKey={(m) => m.name}
+        rows={entries}
+        rowKey={(entry) => entry._id}
         delay={80}
+      />
+      <PaginationControl
+        currentPage={currentPage}
+        totalPages={totalPages}
+        variant="light"
+        onPageChange={(page) => dispatch(fetchInvictusLeaderboard(page))}
       />
     </main>
   );
