@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ArrowLeft, SearchX } from "lucide-react";
+import PageTitle from "@/components/common/PageTitle";
 
 export default function NotFound() {
   const router = useRouter();
@@ -13,9 +14,9 @@ export default function NotFound() {
           <SearchX className="w-10 h-10 text-[#CDAE53]" strokeWidth={1.5} />
         </div>
 
-        <h1 className="text-7xl font-semibold tracking-tight text-white">
+        <PageTitle className="text-7xl font-semibold tracking-tight text-white">
           404
-        </h1>
+        </PageTitle>
 
         <h2 className="mt-3 text-xl font-medium text-white">
           Page not found

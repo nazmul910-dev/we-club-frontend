@@ -8,6 +8,7 @@ import { RetreatCta } from "@/components/retreat/RetreatCta";
 import { RetreatGallery } from "@/components/retreat/RetreatGallery";
 import { RetreatMetaRow } from "@/components/retreat/RetreatMetaRow";
 import { RetreatVideo } from "@/components/retreat/RetreatVideo";
+import PageContainer from "@/components/common/PageContainer";
 import {
     createRetreatBooking,
     fetchMyRetreatBookings,
@@ -107,8 +108,6 @@ export default function RetreatPage() {
         [myBookings, nextBatch],
     );
 
-    
-
     const bookingStatus =
         existingBooking?.status === "waitlisted" ||
         existingBooking?.status === "invited" ||
@@ -117,28 +116,27 @@ export default function RetreatPage() {
             ? existingBooking.status
             : null;
 
-
     if (isLoading && retreats.length === 0) {
         return (
-            <main className="mx-auto max-w-[1180px] px-5 py-20 text-center text-ink-soft">
+            <PageContainer variant="invictus" as="main" className="py-20 text-center text-ink-soft">
                 Loading retreats...
-            </main>
+            </PageContainer>
         );
     }
 
     if (error) {
         return (
-            <main className="mx-auto max-w-[1180px] px-5 py-20 text-center text-red-700">
+            <PageContainer variant="invictus" as="main" className="py-20 text-center text-red-700">
                 {error}
-            </main>
+            </PageContainer>
         );
     }
 
     if (!nextRetreat || !nextBatch) {
         return (
-            <main className="mx-auto max-w-[1180px] px-5 py-20 text-center text-ink-soft">
+            <PageContainer variant="invictus" as="main" className="py-20 text-center text-ink-soft">
                 No upcoming retreats are available.
-            </main>
+            </PageContainer>
         );
     }
 
@@ -148,7 +146,7 @@ export default function RetreatPage() {
         : bookingError;
 
     return (
-        <main className="mx-auto max-w-[1180px] ">
+        <PageContainer variant="invictus" as="main">
             <RetreatCollectionHero />
             <RetreatMetaRow retreat={nextRetreat} schedule={schedule} />
             <RetreatVideo
@@ -200,14 +198,14 @@ export default function RetreatPage() {
                             return (
                                 <article
                                     key={location._id}
-                                    className="border-t border-line pt-8"
+                                    className="border-line pt-8 bg-[#FAF6EE] border border-[#DECDB0] p-8 rounded-2xl shadow-2xs"
                                 >
                                     <RetreatMetaRow
                                         retreat={location}
                                         schedule={getSchedule(previousBatch)}
                                         isPrevious={true}
                                     />
-                                    <h3 className="mb-2 font-display text-xl font-medium text-ink">
+                                    <h3 className="mb-2 font-display text-3xl font-medium text-ink">
                                         {location.title}
                                     </h3>
                                     <p className="mb-6 max-w-[700px] text-sm leading-7 text-ink-soft">
@@ -224,6 +222,6 @@ export default function RetreatPage() {
                     </div>
                 </section>
             )}
-        </main>
+        </PageContainer>
     );
 }

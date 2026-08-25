@@ -35,7 +35,7 @@ export function LeaderboardTable<T>({
   return (
     <div
       style={{ animationDelay: `${delay}ms` }}
-      className="mb-9 animate-rise border border-line bg-paper-raised  shadow-panel"
+      className="mb-9 animate-rise border border-[#DECDB0] bg-paper-raised  shadow-panel rounded-2xl overflow-hidden"
     >
       {/* head */}
       <div className="flex flex-wrap items-end justify-between gap-2.5 border-b border-line px-7 pb-5 pt-7">
@@ -65,7 +65,7 @@ export function LeaderboardTable<T>({
       </div>
 
       {/* table */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto ">
         <table className="w-full min-w-[640px] border-collapse">
           <thead>
             <tr>
@@ -82,10 +82,20 @@ export function LeaderboardTable<T>({
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
+            {rows.map((row, index) => {
+              const rowColor =
+                index === 0
+                  ? "bg-[#FAF6EE]"
+                  : index === 1
+                    ? "bg-[#FAF6EE]/60"
+                    : index === 2
+                      ? "bg-[#FAF6EE]/45"
+                      : "bg-transparent";
+
+              return (
               <tr
                 key={rowKey(row)}
-                className="group relative border-b border-line transition-colors duration-300 last:border-b-0 hover:bg-gradient-to-r hover:from-gold-tint hover:to-transparent"
+                className={`group relative border-b border-line transition-colors duration-300 last:border-b-0 ${rowColor} hover:bg-gradient-to-r hover:from-gold-tint hover:to-transparent`}
               >
                 {columns.map((col, i) => (
                   <td
@@ -101,7 +111,8 @@ export function LeaderboardTable<T>({
                   </td>
                 ))}
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useAppSelector } from "@/lib/redux/store/hook";
+import PageTitle from "@/components/common/PageTitle";
 
 export default function InvictusHeroBanner() {
   const profile = useAppSelector((state) => state.authUser.profile);
@@ -14,13 +15,16 @@ export default function InvictusHeroBanner() {
           WELCOME TO THE CAMPUS
         </p>
 
-        <h1 className="font-playfair text-2xl md:text-4xl text-[#241D15] font-normal leading-snug">
+        <PageTitle
+          fontFamily="font-playfair"
+          className="text-2xl md:text-4xl text-[#241D15] font-normal leading-snug"
+        >
           Welcome back to the{" "}
           <span className="font-playfair italic font-medium text-[#9E7B28]">
             INVICTUS
           </span>{" "}
           Academy, <span className="italic">{firstName}</span>.
-        </h1>
+        </PageTitle>
 
         <p className="font-playfair italic text-base md:text-xl text-[#6B5F50] leading-relaxed pt-1">
           Your 3.0 version is waiting for you —{" "}

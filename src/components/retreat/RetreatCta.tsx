@@ -98,7 +98,7 @@ export function RetreatCta({
     // console.log("Status", status, "booking status", bookingStatus)
 
     return (
-        <div className="relative overflow-hidden border border-[#2a251c] bg-[radial-gradient(ellipse_600px_300px_at_50%_-30%,rgba(201,154,68,.14),transparent_65%)] bg-dark px-8 py-12 text-center shadow-2xs border-[#DECDB0] rounded-2xl">
+        <div className="relative overflow-hidden border border-[#2a251c] bg-[radial-gradient(ellipse_600px_300px_at_50%_-30%,rgba(201,154,68,.14),transparent_65%)] bg-dark px-8 py-12 text-center shadow-2xs border-[#DECDB0] rounded-2xl mt-14">
             <div className="mb-3 text-[0.64rem] font-bold uppercase tracking-[0.24em] text-gold-bright">
                 By Invitation · Waiting List
             </div>

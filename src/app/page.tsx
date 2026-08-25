@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ShieldCheck, Users, Crown } from "lucide-react";
+import PageTitle from "@/components/common/PageTitle";
 
 import BgImage from "@/assets/Login/login-bg.jpg";
 
@@ -26,12 +27,15 @@ export default function Home() {
             WE Club Network
           </div>
 
-          <h1 className="font-playfair text-3xl font-bold leading-tight text-white sm:text-4xl md:text-6xl">
+          <PageTitle
+            variant="hero"
+            fontFamily="font-playfair"
+          >
             Build Your
             <span className="block text-amber-400">
               Luxury Real Estate Network
             </span>
-          </h1>
+          </PageTitle>
 
           <p className="mx-auto mt-4 max-w-2xl font-montserrat text-sm leading-7 text-white/65 sm:mt-6 sm:text-base sm:leading-8 md:text-lg">
             Join an exclusive community of real estate professionals,

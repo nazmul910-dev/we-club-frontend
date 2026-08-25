@@ -5,8 +5,15 @@ import ProfileParticulars from "./profile-particulars";
 import ProfileBio from "./profile-bio";
 import ProfileSocialLinks from "./profile-social-links";
 import ProfilePageSkeleton from "./profile-page-skeleton";
+import PageHeader from "@/components/common/PageHeader";
 
-export default function ProfilePage({ profile, loading }: any) {
+
+interface props {
+  profile: any;
+  loading: boolean;
+}
+
+export default function ProfilePage({ profile, loading }: props) {
   if (loading || !profile) {
     return <ProfilePageSkeleton />;
   }
@@ -14,17 +21,15 @@ export default function ProfilePage({ profile, loading }: any) {
   return (
     <div className="min-h-screen bg-[#F8F6F1] px-6 py-10">
       <div className="max-w-6xl mx-auto">
-        <div className="mb-10">
-          <p className="text-[11px] tracking-[5px] uppercase text-[#C9A962]">
-            ACCOUNT · PRIVATE
-          </p>
-
-          <h1 className="mt-3 text-5xl font-serif text-[#111]">My Profile</h1>
-
-          <p className="mt-3 text-[#777]">
-            The face you present to the network.
-          </p>
-        </div>
+        <PageHeader
+          variant="invictus"
+          className="mb-10"
+          eyebrow="ACCOUNT · PRIVATE"
+          title="My Profile"
+          description="The face you present to the network."
+          fontFamily="font-serif"
+          titleClassName="text-5xl text-[#111]"
+        />
 
         <ProfileHeader profile={profile} />
 

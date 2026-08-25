@@ -1,50 +1,14 @@
-export default function CommissionHeader(){
+import PageHeader from "@/components/common/PageHeader";
 
-
-return(
-
-<div className="mb-8">
-
-
-<p className="
-text-[#C9A962]
-text-xs
-tracking-[4px]
-uppercase
-">
-
-Ledger · Confidential
-
-</p>
-
-
-
-<h1 className="
-mt-3
-font-playfair
-text-4xl
-text-white
-">
-
-Commission Ledger
-
-</h1>
-
-
-
-<p className="
-mt-2
-text-[#777]
-text-sm
-">
-
-Every introduction, every settlement, every shilling accounted for.
-
-</p>
-
-
-</div>
-
-)
-
+export default function CommissionHeader() {
+  return (
+    <PageHeader
+      className="mb-8"
+      eyebrow="Ledger · Confidential"
+      title="Commission Ledger"
+      description="Every introduction, every settlement, every shilling accounted for."
+      fontFamily="font-playfair"
+      titleClassName="text-4xl"
+    />
+  );
 }

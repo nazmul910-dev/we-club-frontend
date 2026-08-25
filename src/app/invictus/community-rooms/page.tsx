@@ -5,6 +5,8 @@ import { CouncilCard } from "@/components/invictus/community/CouncilCard";
 import { RoomCard } from "@/components/invictus/community/RoomCard";
 import { fetchCurrentUserProfile } from "@/lib/features/auth/authUserSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
+import PageContainer from "@/components/common/PageContainer";
+import PageHeader from "@/components/common/PageHeader";
 
 const focusGroups = [
   { code: "CA", countryName: "Canada", name: "World Élite Canada — Focus Group & Referrals", status: "enter" as const },
@@ -42,19 +44,19 @@ export default function CommunityRoomsPage() {
   }, [dispatch, isProfileLoading, profile, tokenUser?.id]);
 
   return (
-    <main className="mx-auto max-w-[1180px]  pb-[9vw] ">
+    <PageContainer variant="invictus" as="main">
       {/* page head */}
       <div className="mb-[4.6rem]">
-        <div className="mb-4 inline-flex items-center gap-2 text-[0.7rem] font-semibold uppercase tracking-[0.28em] text-gold-deep">
-          Community Rooms
-        </div>
-        <h1 className="font-display text-[clamp(2.2rem,4.4vw,3.6rem)] font-medium tracking-[-0.01em]">
-          Where the work happens.
-        </h1>
+        <PageHeader
+          variant="invictus"
+          eyebrow="Community Rooms"
+          title="Where the work happens."
+          titleClassName="text-[clamp(2.2rem,4.4vw,3.6rem)]"
+        />
       </div>
 
       {/* focus groups */}
-      <section className="mb-[5.5rem] bg-[#FAF6EE] p-10 rounded-2xl border border-[#DECDB0]">
+      <section className="mb-[5.5rem]  p-10 rounded-2xl border border-[#DECDB0]">
         <div className="mb-7 flex flex-col">
           <span className="text-[0.66rem] font-semibold uppercase tracking-[0.24em] text-gold-deep">
             Focus Groups
@@ -95,6 +97,6 @@ export default function CommunityRoomsPage() {
           ))}
         </div>
       </section>
-    </main>
+    </PageContainer>
   );
 }

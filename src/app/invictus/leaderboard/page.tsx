@@ -11,6 +11,9 @@ import { fetchInvictusLeaderboard } from "@/lib/features/leaderboard/leaderboard
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
 import { LeaderboardEntry } from "@/lib/features/leaderboard/leaderboardTypes";
 import { PaginationControl } from "@/components/ui/PaginationControll";
+import PageContainer from "@/components/common/PageContainer";
+import PageHeader from "@/components/common/PageHeader";
+import { getInitials } from "@/lib/utils/Helpers";
 
 type Referrer = {
   rank: number;
@@ -47,14 +50,6 @@ const avatarClasses = [
   "bg-gradient-to-br from-[#4d7066] to-[#1a2723]",
 ];
 
-const getInitials = (name: string) =>
-  name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-
 const invictusColumns: LedgerColumn<LeaderboardEntry>[] = [
   { key: "rank", label: "Rank", width: "w-14", render: (entry) => <RankBadge rank={entry.rank} /> },
   {
@@ -75,9 +70,6 @@ const invictusColumns: LedgerColumn<LeaderboardEntry>[] = [
   { key: "points", label: "Points", align: "right", render: (entry) => <span className="font-display font-medium text-gold-deep">{entry.points.toLocaleString()}</span> },
 ];
 
-
-
-
 export default function LeaderboardPage() {
   const dispatch = useAppDispatch();
   const entries = useAppSelector((state) => state.leaderboard.entries ?? []);
@@ -96,19 +88,18 @@ export default function LeaderboardPage() {
   );
 
   return (
-    <main className="mx-auto max-w-[1180px] px-5 md:px-0 ">
+    <PageContainer variant="invictus" as="main">
       {/* hero */}
       <div className="pb-12 pt-[3.5vw]">
-        <div className="mb-[1.1rem] inline-flex items-center gap-2 text-[0.7rem] font-semibold uppercase tracking-[0.3em] text-gold-deep">
-          Leaderboard
-        </div>
-        <h1 className="mb-3 font-display text-[clamp(2.2rem,4.6vw,3.6rem)] font-medium tracking-[-0.015em]">
-          The ones who show up.
-        </h1>
-        <p className="max-w-[520px] text-[0.92rem] leading-relaxed text-ink-soft">
-          Ranked by modules completed, module success rate, accountability streak, and community contribution.
-        </p>
+        <PageHeader
+          variant="invictus"
+          eyebrow="Leaderboard"
+          title="The ones who show up."
+          description="Ranked by modules completed, module success rate, accountability streak, and community contribution."
+          titleClassName="text-[clamp(2.2rem,4.6vw,3.6rem)]"
+        />
       </div>
+
       {/* stat cards */}
       <div className="mb-[3.6rem] grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard
@@ -163,6 +154,6 @@ export default function LeaderboardPage() {
         variant="light"
         onPageChange={(page) => dispatch(fetchInvictusLeaderboard(page))}
       />
-    </main>
+    </PageContainer>
   );
 }

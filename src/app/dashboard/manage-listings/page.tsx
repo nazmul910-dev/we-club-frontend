@@ -37,6 +37,9 @@ import {
 } from "@/lib/utils/Helpers";
 
 import { PaginationControl } from "@/components/ui/PaginationControll";
+import PageContainer from "@/components/common/PageContainer";
+import PageHeader from "@/components/common/PageHeader";
+import SectionCard from "@/components/common/SectionCard";
 
 export default function ManageListingsPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -487,18 +490,12 @@ export default function ManageListingsPage() {
   ]);
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] w-full flex-1 flex-col gap-8 bg-[#0a0a0a] px-4 py-6 md:px-8">
-      <div className="flex w-full flex-wrap items-end justify-between gap-4">
-        <div>
-          <div className="text-eyebrow mb-2">
-            Listings
-          </div>
-
-          <h1 className="font-playfair text-3xl text-white md:text-4xl">
-            Manage Listings
-          </h1>
-        </div>
-      </div>
+    <PageContainer variant="dashboard">
+      <PageHeader
+        eyebrow="Listings"
+        title="Manage Listings"
+        fontFamily="font-playfair"
+      />
 
       <div className="scrollbar-hide w-full overflow-x-auto">
         <Tabs
@@ -546,7 +543,7 @@ export default function ManageListingsPage() {
             value="my-listings"
             className="w-full"
           >
-            <section className="rounded-2xl border border-gold-soft/30 bg-[#0f0f0f]/60 p-6">
+            <SectionCard variant="dark">
               <h2 className="mb-4 font-playfair text-xl font-semibold text-white">
                 My Listings
               </h2>
@@ -591,13 +588,13 @@ export default function ManageListingsPage() {
                   }
                 />
               </div>
-            </section>
+            </SectionCard>
           </TabsContent>
 
           {/* All Listings Admin */}
           {isAdminOrManager && (
             <TabsContent value="all-listings">
-              <section className="rounded-2xl border border-gold-soft/30 bg-[#0f0f0f]/60 p-6">
+              <SectionCard variant="dark">
                 <div className="mb-4 flex items-center justify-between">
                   <h2 className="font-playfair text-xl font-semibold text-white">
                     All Listings
@@ -645,13 +642,13 @@ export default function ManageListingsPage() {
                     onPageChange={setPage}
                   />
                 </div>
-              </section>
+              </SectionCard>
             </TabsContent>
           )}
 
           {/* Received Promote Requests */}
           <TabsContent value="received">
-            <section className="rounded-2xl border border-gold-soft/30 bg-[#0f0f0f]/60 p-6">
+            <SectionCard variant="dark">
               <h2 className="mb-4 font-playfair text-xl font-semibold text-white">
                 Promote Requests Received
               </h2>
@@ -698,12 +695,12 @@ export default function ManageListingsPage() {
                   }
                 />
               </div>
-            </section>
+            </SectionCard>
           </TabsContent>
 
           {/* My Sent Promote Requests */}
           <TabsContent value="sent">
-            <section className="rounded-2xl border border-gold-soft/30 bg-[#0f0f0f]/60 p-6">
+            <SectionCard variant="dark">
               <h2 className="mb-4 font-playfair text-xl font-semibold text-white">
                 My Promote Requests
               </h2>
@@ -747,7 +744,7 @@ export default function ManageListingsPage() {
                   }
                 />
               </div>
-            </section>
+            </SectionCard>
           </TabsContent>
         </Tabs>
       </div>
@@ -771,6 +768,6 @@ export default function ManageListingsPage() {
           isConfirming
         }
       />
-    </div>
+    </PageContainer>
   );
 }

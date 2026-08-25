@@ -9,7 +9,7 @@ export function RetreatGallery({ title, images }: RetreatGalleryProps) {
   if (images.length === 0) return null;
 
   return (
-    <div className="pb-12">
+    <div className="">
       <div className="mb-5 flex items-center gap-3">
         <span className="text-[0.66rem] font-semibold uppercase tracking-[0.24em] text-gold-deep">
           {title} Gallery

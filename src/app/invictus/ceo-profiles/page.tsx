@@ -3,9 +3,11 @@
 import { InstagramIcon, LinkedInIcon, WebsiteIcon } from "@/components/invictus/profiles/icons";
 import { ProfileCard } from "@/components/invictus/profiles/profileCard";
 import { useRouter } from "next/navigation";
+import PageContainer from "@/components/common/PageContainer";
+import PageHeader from "@/components/common/PageHeader";
 
-import ceo1 from "@/assets/Invictus/Home/sof.png"
-import ceo2 from "@/assets/Invictus/Home/sof1.png"
+import ceo1 from "@/assets/Invictus/Home/sof.png";
+import ceo2 from "@/assets/Invictus/Home/sof1.png";
 
 const ceos = [
   {
@@ -42,27 +44,20 @@ export default function CeoProfilesPage() {
   const router = useRouter();
 
   return (
-    <main className="mx-auto max-w-[1180px] px-[6vw] pt-[6vw] sm:px-8">
+    <PageContainer variant="invictus" as="main">
       <div className="mb-16 text-center">
-        <div className="mb-4 inline-flex items-center gap-2 text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-gold-deep before:h-px before:w-[26px] before:bg-gold after:h-px after:w-[26px] after:bg-gold">
-          CEO Profiles
-        </div>
-        <h1 className="mb-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-          Learn from the CEOs who&apos;ve done it.
-        </h1>
-        <p className="mx-auto max-w-[520px] text-ink-soft">
-          Each CEO curates a library organized by the disciplines that built them. Open a profile to explore.
-        </p>
-
-
+        <PageHeader
+          variant="invictus"
+          className="flex-col items-center text-center"
+          eyebrow="CEO Profiles"
+          title="Learn from the CEOs who've done it."
+          description="Each CEO curates a library organized by the disciplines that built them. Open a profile to explore."
+          titleClassName="text-4xl sm:text-5xl"
+        />
       </div>
 
-  
-
-      <div className="grid grid-cols-1 gap-9 md:grid-cols-2  ">
-        
+      <div className="grid grid-cols-1 gap-9 md:grid-cols-2">
         {ceos.map(({ slug, ...c }) => (
-            
           <ProfileCard
             key={c.name}
             variant="ceo"
@@ -72,6 +67,6 @@ export default function CeoProfilesPage() {
           />
         ))}
       </div>
-    </main>
+    </PageContainer>
   );
 }
