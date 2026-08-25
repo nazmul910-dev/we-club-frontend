@@ -17,6 +17,7 @@ import discountReducer from "@/lib/features/discountFounder/discountSlice";
 import academyReducer from "@/lib/features/invictus/academy/academySlice";
 
 import pillarReducer from "@/lib/features/invictus/academy/pillar/pillarSlice";
+import courseReducer from "@/lib/features/invictus/academy/course/courseSlice";
 
 export const store = configureStore({
   reducer: {
@@ -36,7 +37,8 @@ export const store = configureStore({
     payment: paymentReducer,
     discount: discountReducer,
     academy: academyReducer,
-    pillar: pillarReducer
+    pillar: pillarReducer,
+    course: courseReducer
   },
 });
 

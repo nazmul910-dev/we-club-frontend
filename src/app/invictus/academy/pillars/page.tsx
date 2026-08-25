@@ -34,7 +34,7 @@ export default function PillarsPage() {
   const canCreateMore = pillars.length < MAX_PILLARS;
 
   return (
-    <div className="mx-auto max-w-[1180px] px-[6vw] py-[6vw] sm:px-8">
+    <div className="mx-auto max-w-[1180px] px-[6vw] py-[2vw] sm:px-8">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm uppercase tracking-[3px] text-[#B08A3E]">Invictus Academy</p>
