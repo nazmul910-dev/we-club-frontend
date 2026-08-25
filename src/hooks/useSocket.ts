@@ -34,7 +34,7 @@ export const useSocket = (countryName?: string, canSwitchRooms = false) => {
     socketRef.current = socket;
 
     socket.on("connect", () => {
-      console.log("Socket connected:", socket.id);
+      // console.log("Socket connected:", socket.id); 
     });
 
     let requestedRoom = false;

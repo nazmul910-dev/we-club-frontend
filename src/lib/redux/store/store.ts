@@ -11,9 +11,12 @@ import dashboardReducer from "@/lib/features/dashboard/dashboardSlice";
 import promotersReducer from "@/lib/features/promoters/promotersSlice";
 import managerReducer from "@/lib/features/addManager/addManagerSlice";
 import chatReducer from "@/lib/features/chat/chatSlice";
-import logoReducer from "@/lib/features/logo/logoSlice"
-import paymentReducer from "@/lib/features/payment/paymentSlice"
+import logoReducer from "@/lib/features/logo/logoSlice";
+import paymentReducer from "@/lib/features/payment/paymentSlice";
 import discountReducer from "@/lib/features/discountFounder/discountSlice";
+import academyReducer from "@/lib/features/invictus/academy/academySlice";
+
+import pillarReducer from "@/lib/features/invictus/academy/pillar/pillarSlice";
 
 export const store = configureStore({
   reducer: {
@@ -26,14 +29,15 @@ export const store = configureStore({
     users: usersReducer,
     listingAssets: listingAssetsReducer,
     dashboard: dashboardReducer,
-    promoters : promotersReducer,
+    promoters: promotersReducer,
     manager: managerReducer,
-    chat : chatReducer,
-    logo:logoReducer,
-    payment:paymentReducer,
-    discount:discountReducer
-  }, 
-
+    chat: chatReducer,
+    logo: logoReducer,
+    payment: paymentReducer,
+    discount: discountReducer,
+    academy: academyReducer,
+    pillar: pillarReducer
+  },
 });
 
 export type RootState = ReturnType<typeof store.getState>;
