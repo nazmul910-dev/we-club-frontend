@@ -1,51 +1,67 @@
 import api from "@/lib/api/api";
 
+import type {
+  ChallengePillar,
+  CreatePillarPayload,
+  UpdatePillarPayload,
+} from "./pillarTypes";
+
+export type ApiEnvelope<T> = {
+  success: boolean;
+  message: string;
+  data: T;
+};
+
+const BASE = "/invictus/challenge-pillars";
+
 export const pillarApi = {
-  getAll: async () => {
-    const res = await api.get("/invictus/challenge-pillars");
-
+  getAll: async (
+    includeArchived = false,
+  ): Promise<ApiEnvelope<ChallengePillar[]>> => {
+    const res = await api.get(BASE, {
+      params: includeArchived ? { includeArchived: "true" } : undefined,
+    });
     return res.data;
   },
 
-  getById: async (id: string) => {
-    const res = await api.get(`/invictus/challenge-pillars/${id}`);
-
+  getBySlug: async (slug: string): Promise<ApiEnvelope<ChallengePillar>> => {
+    const res = await api.get(`${BASE}/${slug}`);
     return res.data;
   },
 
-  create: async (data: any) => {
-    const res = await api.post("/invictus/challenge-pillars", data);
-
+  create: async (
+    data: CreatePillarPayload,
+  ): Promise<ApiEnvelope<ChallengePillar>> => {
+    const res = await api.post(BASE, data);
     return res.data;
   },
 
-  update: async (id: string, data: any) => {
-    const res = await api.patch(`/invictus/challenge-pillars/${id}`, data);
-
+  update: async (
+    id: string,
+    data: UpdatePillarPayload,
+  ): Promise<ApiEnvelope<ChallengePillar>> => {
+    const res = await api.patch(`${BASE}/${id}`, data);
     return res.data;
   },
 
-  publish: async (id: string) => {
-    const res = await api.patch(`/invictus/challenge-pillars/${id}/publish`);
-
+  publish: async (id: string): Promise<ApiEnvelope<ChallengePillar>> => {
+    const res = await api.patch(`${BASE}/${id}/publish`);
     return res.data;
   },
 
-  draft: async (id: string) => {
-    const res = await api.patch(`/invictus/challenge-pillars/${id}/draft`);
-
+  draft: async (id: string): Promise<ApiEnvelope<ChallengePillar>> => {
+    const res = await api.patch(`${BASE}/${id}/draft`);
     return res.data;
   },
 
-  archive: async (id: string) => {
-    const res = await api.patch(`/invictus/challenge-pillars/${id}/archive`);
-
+  // ব্যাকএন্ডে হার্ড ডিলিট নেই — archive-ই soft-delete
+  archive: async (id: string): Promise<ApiEnvelope<ChallengePillar>> => {
+    const res = await api.patch(`${BASE}/${id}/archive`);
     return res.data;
   },
 
-  delete: async (id: string) => {
-    const res = await api.delete(`/invictus/challenge-pillars/${id}`);
-
+  seedDefaults: async (): Promise<ApiEnvelope<ChallengePillar[]>> => {
+    const res = await api.post(`${BASE}/seed-defaults`);
     return res.data;
   },
 };

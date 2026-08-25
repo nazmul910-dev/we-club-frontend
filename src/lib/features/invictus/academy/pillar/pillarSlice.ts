@@ -1,237 +1,177 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit";
 
 import { pillarApi } from "./pillarApi";
 
+import type {
+  ChallengePillar,
+  CreatePillarPayload,
+  UpdatePillarPayload,
+} from "./pillarTypes";
+
 interface PillarState {
-  pillars: any[];
-
-  selectedPillar: any | null;
-
+  pillars: ChallengePillar[];
+  selectedPillar: ChallengePillar | null;
   loading: boolean;
-
+  actionLoading: boolean;
   error: string | null;
 }
 
 const initialState: PillarState = {
   pillars: [],
-
   selectedPillar: null,
-
   loading: false,
-
+  actionLoading: false,
   error: null,
 };
 
-// GET ALL
-
 export const fetchPillars = createAsyncThunk(
   "pillar/getAll",
-
-  async () => {
-    return await pillarApi.getAll();
+  async (includeArchived: boolean = true) => {
+    const res = await pillarApi.getAll(includeArchived);
+    return res.data;
   },
 );
 
-// GET SINGLE
-
-export const fetchSinglePillar = createAsyncThunk(
-  "pillar/getSingle",
-
-  async (id: string) => {
-    return await pillarApi.getById(id);
+export const fetchPillarBySlug = createAsyncThunk(
+  "pillar/getBySlug",
+  async (slug: string) => {
+    const res = await pillarApi.getBySlug(slug);
+    return res.data;
   },
 );
-
-// CREATE
 
 export const createPillar = createAsyncThunk(
   "pillar/create",
-
-  async (data: any) => {
-    return await pillarApi.create(data);
+  async (data: CreatePillarPayload) => {
+    const res = await pillarApi.create(data);
+    return res.data;
   },
 );
-
-// UPDATE
 
 export const updatePillar = createAsyncThunk(
   "pillar/update",
-
-  async ({ id, data }: { id: string; data: any }) => {
-    return await pillarApi.update(id, data);
+  async ({ id, data }: { id: string; data: UpdatePillarPayload }) => {
+    const res = await pillarApi.update(id, data);
+    return res.data;
   },
 );
-
-// PUBLISH
 
 export const publishPillar = createAsyncThunk(
   "pillar/publish",
-
   async (id: string) => {
-    return await pillarApi.publish(id);
+    const res = await pillarApi.publish(id);
+    return res.data;
   },
 );
-
-// DRAFT
 
 export const draftPillar = createAsyncThunk(
   "pillar/draft",
-
   async (id: string) => {
-    return await pillarApi.draft(id);
+    const res = await pillarApi.draft(id);
+    return res.data;
   },
 );
-
-// ARCHIVE
 
 export const archivePillar = createAsyncThunk(
   "pillar/archive",
-
   async (id: string) => {
-    return await pillarApi.archive(id);
+    const res = await pillarApi.archive(id);
+    return res.data;
   },
 );
 
-// DELETE
-
-export const deletePillar = createAsyncThunk(
-  "pillar/delete",
-
-  async (id: string) => {
-    await pillarApi.delete(id);
-
-    return id;
+export const seedDefaultPillars = createAsyncThunk(
+  "pillar/seedDefaults",
+  async () => {
+    const res = await pillarApi.seedDefaults();
+    return res.data;
   },
 );
+
+const upsertPillar = (state: PillarState, updated: ChallengePillar) => {
+  const index = state.pillars.findIndex((item) => item._id === updated._id);
+  if (index !== -1) {
+    state.pillars[index] = updated;
+  } else {
+    state.pillars.push(updated);
+  }
+  if (state.selectedPillar?._id === updated._id) {
+    state.selectedPillar = updated;
+  }
+};
 
 const pillarSlice = createSlice({
   name: "pillar",
-
   initialState,
-
   reducers: {
     clearSelectedPillar: (state) => {
       state.selectedPillar = null;
     },
+    clearPillarError: (state) => {
+      state.error = null;
+    },
   },
-
   extraReducers: (builder) => {
     builder
-
-      .addCase(
-        fetchPillars.pending,
-
-        (state) => {
-          state.loading = true;
-        },
-      )
-
+      .addCase(fetchPillars.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(
         fetchPillars.fulfilled,
-
-        (state, action) => {
+        (state, action: PayloadAction<ChallengePillar[]>) => {
           state.loading = false;
-
-          state.pillars = action.payload.data || action.payload;
+          state.pillars = action.payload || [];
         },
       )
-
-      .addCase(
-        fetchPillars.rejected,
-
-        (state) => {
-          state.loading = false;
-
-          state.error = "Failed loading pillars";
-        },
-      )
-
-      .addCase(
-        fetchSinglePillar.fulfilled,
-
-        (state, action) => {
-          state.selectedPillar = action.payload.data || action.payload;
-        },
-      )
-
-      .addCase(
-        createPillar.fulfilled,
-
-        (state, action) => {
-          state.pillars.push(action.payload.data || action.payload);
-        },
-      )
-
-      .addCase(
-        updatePillar.fulfilled,
-
-        (state, action) => {
-          const updated = action.payload.data || action.payload;
-
-          const index = state.pillars.findIndex(
-            (item) => item._id === updated._id,
-          );
-
-          if (index !== -1) {
-            state.pillars[index] = updated;
-          }
-        },
-      )
-
-      .addCase(
-        publishPillar.fulfilled,
-
-        (state, action) => {
-          const id = action.meta.arg;
-
-          const pillar = state.pillars.find((item) => item._id === id);
-
-          if (pillar) {
-            pillar.status = "published";
-          }
-        },
-      )
-
-      .addCase(
-        draftPillar.fulfilled,
-
-        (state, action) => {
-          const id = action.meta.arg;
-
-          const pillar = state.pillars.find((item) => item._id === id);
-
-          if (pillar) {
-            pillar.status = "draft";
-          }
-        },
-      )
-
-      .addCase(
-        archivePillar.fulfilled,
-
-        (state, action) => {
-          const id = action.meta.arg;
-
-          const pillar = state.pillars.find((item) => item._id === id);
-
-          if (pillar) {
-            pillar.status = "archived";
-          }
-        },
-      )
-
-      .addCase(
-        deletePillar.fulfilled,
-
-        (state, action) => {
-          state.pillars = state.pillars.filter(
-            (item) => item._id !== action.payload,
-          );
-        },
-      );
+      .addCase(fetchPillars.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "Failed loading pillars";
+      })
+      .addCase(fetchPillarBySlug.fulfilled, (state, action) => {
+        state.selectedPillar = action.payload;
+      })
+      .addCase(createPillar.pending, (state) => {
+        state.actionLoading = true;
+        state.error = null;
+      })
+      .addCase(createPillar.fulfilled, (state, action) => {
+        state.actionLoading = false;
+        state.pillars.push(action.payload);
+      })
+      .addCase(createPillar.rejected, (state, action) => {
+        state.actionLoading = false;
+        state.error = action.error.message || "Failed to create pillar";
+      })
+      .addCase(updatePillar.pending, (state) => {
+        state.actionLoading = true;
+        state.error = null;
+      })
+      .addCase(updatePillar.fulfilled, (state, action) => {
+        state.actionLoading = false;
+        upsertPillar(state, action.payload);
+      })
+      .addCase(updatePillar.rejected, (state, action) => {
+        state.actionLoading = false;
+        state.error = action.error.message || "Failed to update pillar";
+      })
+      .addCase(publishPillar.fulfilled, (state, action) => {
+        upsertPillar(state, action.payload);
+      })
+      .addCase(draftPillar.fulfilled, (state, action) => {
+        upsertPillar(state, action.payload);
+      })
+      .addCase(archivePillar.fulfilled, (state, action) => {
+        upsertPillar(state, action.payload);
+      })
+      .addCase(archivePillar.rejected, (state, action) => {
+        state.error = action.error.message || "Failed to archive pillar";
+      })
+      .addCase(seedDefaultPillars.fulfilled, (state, action) => {
+        state.pillars = action.payload || [];
+      });
   },
 });
 
-export const { clearSelectedPillar } = pillarSlice.actions;
-
+export const { clearSelectedPillar, clearPillarError } = pillarSlice.actions;
 export default pillarSlice.reducer;
