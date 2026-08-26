@@ -2,7 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ArrowLeft, Crown } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import PageTitle from "@/components/common/PageTitle";
 
 import BgImage from "@/assets/Login/login-bg.jpg";
 
@@ -23,10 +24,12 @@ export default function NotFound() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(217,158,53,0.15),transparent_60%)]" />
 
       <div className="relative z-10 w-full max-w-lg rounded-2xl border border-amber-500/20 bg-white/[0.03] p-8 text-center backdrop-blur-[6px] sm:rounded-3xl sm:p-14">
-
-        <h1 className="font-playfair text-6xl font-bold leading-none tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40 sm:text-8xl">
+        <PageTitle
+          fontFamily="font-playfair"
+          className="text-6xl font-bold leading-none tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40 sm:text-8xl"
+        >
           404
-        </h1>
+        </PageTitle>
 
         <div className="mx-auto mt-5 h-px w-16 bg-gradient-to-r from-transparent via-amber-400/60 to-transparent sm:mt-6" />
 

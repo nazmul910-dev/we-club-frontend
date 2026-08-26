@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Compass } from "lucide-react";
+import PageTitle from "@/components/common/PageTitle";
 
 export default function NotFound() {
   const router = useRouter();
@@ -13,9 +14,12 @@ export default function NotFound() {
           <Compass className="w-10 h-10 text-[#947124]" strokeWidth={1.5} />
         </div>
 
-        <h1 className="font-playfair text-7xl font-normal tracking-tight text-[#1C1814]">
+        <PageTitle
+          fontFamily="font-playfair"
+          className="text-7xl font-normal tracking-tight text-[#1C1814]"
+        >
           404
-        </h1>
+        </PageTitle>
 
         <h2 className="font-playfair mt-3 text-2xl italic font-medium text-[#9E7B28]">
           Page not found

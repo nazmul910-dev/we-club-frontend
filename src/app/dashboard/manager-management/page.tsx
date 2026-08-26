@@ -26,17 +26,15 @@ import {
 import { Badge } from "@/components/ui/Badge";
 import { ManagersTableSkeleton } from "@/components/ui/manager-table-skeleton";
 import { PaginationControl } from "@/components/ui/PaginationControll";
+import PageContainer from "@/components/common/PageContainer";
+import PageHeader from "@/components/common/PageHeader";
+import { getInitials } from "@/lib/utils/Helpers";
 
 const TABS = [
   { value: "all", label: "All" },
   { value: "active", label: "Active" },
   { value: "suspended", label: "Suspended" },
 ] as const;
-
-const getInitials = (fullName: string) => {
-  const words = fullName.trim().split(/\s+/).slice(0, 2);
-  return words.map((word) => word[0]?.toUpperCase() ?? "").join("");
-};
 
 const statusBadgeClass = (status: Manager["accountStatus"]) => {
   switch (status) {
@@ -99,7 +97,6 @@ export default function ManagerManagement() {
     dispatch(getManagers({ status: activeTab, page, limit }));
   }, [dispatch, activeTab, page, limit]);
 
-
   useEffect(() => {
     setPage(1);
   }, [activeTab]);
@@ -119,24 +116,18 @@ export default function ManagerManagement() {
   }, [managers, visibleRoles]);
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 flex flex-col gap-8 bg-[#0a0a0a] min-h-[calc(100vh-4rem)]">
-      <div className="w-full space-y-6 md:space-y-0 md:flex md:items-center justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#cdae53]">
-            Admin Management
-          </p>
-          <h1 className="mt-2 font-playfair text-4xl font-medium text-white">
-            Admin Directory
-          </h1>
-          <p className="mt-2 text-sm text-neutral-400">
-            {currentUserRole === "founder"
-              ? "Manage access, roles and account status of all admins."
-              : "Manage Admin, Super Admin and Community Manager accounts."}
-          </p>
-        </div>
-
-        <AddManagerModal />
-      </div>
+    <PageContainer variant="dashboard">
+      <PageHeader
+        eyebrow="Admin Management"
+        title="Admin Directory"
+        description={
+          currentUserRole === "founder"
+            ? "Manage access, roles and account status of all admins."
+            : "Manage Admin, Super Admin and Community Manager accounts."
+        }
+        fontFamily="font-playfair"
+        actions={<AddManagerModal />}
+      />
 
       <div className="w-full overflow-hidden rounded-2xl border border-neutral-800 bg-[#0B0B0B] shadow-xl">
         <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-5">
@@ -280,7 +271,6 @@ export default function ManagerManagement() {
           </div>
         )}
 
-
         {!loading && !error && meta && meta.totalPage > 1 && (
           <div className="flex justify-center border-t border-neutral-800 px-6 py-5">
             <PaginationControl
@@ -291,6 +281,6 @@ export default function ManagerManagement() {
           </div>
         )}
       </div>
-    </div>
+    </PageContainer>
   );
 }

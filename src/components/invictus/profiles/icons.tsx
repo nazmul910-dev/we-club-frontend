@@ -54,3 +54,27 @@ export const GlobeIcon = ({ className = "" }: { className?: string }) => (
     <path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9s1.3-6.4 3.8-9z" />
   </svg>
 );
+
+export const TrophyIcon = ({ className = "" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className={className}>
+    <path d="M12 2l2.6 6.6L21 9.3l-5 4.6L17.5 21 12 17.3 6.5 21 8 13.9l-5-4.6 6.4-.7z" />
+  </svg>
+);
+
+export const StreakIcon = ({ className = "" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className={className}>
+    <path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z" />
+  </svg>
+);
+
+export const ClimbIcon = ({ className = "" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className={className}>
+    <path d="M4 19h16M6 15l4-5 3 3 5-7" />
+  </svg>
+);
+
+export const ShieldIcon = ({ className = "" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className={className}>
+    <path d="M12 2 3 7v6c0 5 4 8.5 9 9 5-.5 9-4 9-9V7z" />
+  </svg>
+);

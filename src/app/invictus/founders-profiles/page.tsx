@@ -1,9 +1,11 @@
 import { InstagramIcon, LinkedInIcon } from "@/components/invictus/profiles/icons";
 import { ProfileCard } from "@/components/invictus/profiles/profileCard";
+import PageContainer from "@/components/common/PageContainer";
+import PageHeader from "@/components/common/PageHeader";
 
-import adam from "@/assets/Invictus/Home/adam.jpg"
-import founder1 from "@/assets/Invictus/Home/sof1.png"
-import founder2 from "@/assets/Invictus/Home/sof.png"
+import adam from "@/assets/Invictus/Home/adam.jpg";
+import founder1 from "@/assets/Invictus/Home/sof1.png";
+import founder2 from "@/assets/Invictus/Home/sof.png";
 
 const founders = [
   {
@@ -40,17 +42,16 @@ const founders = [
 
 export default function FoundersPage() {
   return (
-    <main className="mx-auto max-w-[1180px] px-[6vw] py-[6vw] sm:px-8">
+    <PageContainer variant="invictus" as="main">
       <div className="mb-16 text-center">
-        <div className="mb-4 inline-flex items-center gap-2 text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-gold-deep before:h-px before:w-[26px] before:bg-gold after:h-px after:w-[26px] after:bg-gold">
-          Founders Profiles
-        </div>
-        <h1 className="mb-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-          The inspiring Founders in our Council.
-        </h1>
-        <p className="mx-auto max-w-[520px] text-ink-soft">
-          The founding voices whose vision shapes every INVICTUS challenge, every room, every ritual.
-        </p>
+        <PageHeader
+          variant="invictus"
+          className="flex-col items-center text-center"
+          eyebrow="Founders Profiles"
+          title="The inspiring Founders in our Council."
+          description="The founding voices whose vision shapes every INVICTUS challenge, every room, every ritual."
+          titleClassName="text-4xl sm:text-5xl"
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-9 md:grid-cols-2 ">
@@ -58,6 +59,6 @@ export default function FoundersPage() {
           <ProfileCard key={f.name} variant="founder" index={i + 1} {...f} />
         ))}
       </div>
-    </main>
+    </PageContainer>
   );
 }

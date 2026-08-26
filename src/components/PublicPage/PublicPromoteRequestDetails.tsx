@@ -19,6 +19,7 @@ import api from "@/lib/api/api";
 import Logo from "../../../public/assets/world-logo.png"
 import Link from "next/link";
 import { formatCompactNumber } from "@/lib/utils/format-number";
+import PageTitle from "@/components/common/PageTitle";
 
 
 interface PublicPromoteRequestDetailsProps {
@@ -182,9 +183,12 @@ export default function PublicPromoteRequestDetails({
               )}
             </div>
 
-            <h1 className="font-playfair text-4xl leading-[1.1] sm:text-5xl">
+            <PageTitle
+              fontFamily="font-playfair"
+              className="text-4xl leading-[1.1] sm:text-5xl text-[#101214]"
+            >
               {listing?.title}
-            </h1>
+            </PageTitle>
 
             <p className="flex items-center gap-1.5 text-sm text-[#656A6D]">
               <MapPin size={14} />

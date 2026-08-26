@@ -19,6 +19,8 @@ import academyReducer from "@/lib/features/invictus/academy/academySlice";
 import pillarReducer from "@/lib/features/invictus/academy/pillar/pillarSlice";
 import courseReducer from "@/lib/features/invictus/academy/course/courseSlice";
 import videoReducer from "@/lib/features/invictus/academy/video-module/videoSlice";
+import leaderboardReducer from "@/lib/features/leaderboard/leaderboardSlice";
+import retreatReducer from "@/lib/features/retreat/retreatSlice";
 
 export const store = configureStore({
   reducer: {
@@ -40,8 +42,11 @@ export const store = configureStore({
     academy: academyReducer,
     pillar: pillarReducer,
     course: courseReducer,
-    video: videoReducer
-  },
+    video: videoReducer,
+    leaderboard: leaderboardReducer,
+    retreat: retreatReducer,
+  }, 
+
 });
 
 export type RootState = ReturnType<typeof store.getState>;

@@ -14,6 +14,7 @@ interface PaginationControlProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  variant?: "dark" | "light";
 }
 
 // Builds a compact page list with ellipses, e.g.:
@@ -42,10 +43,12 @@ export function PaginationControl({
   currentPage,
   totalPages,
   onPageChange,
+  variant = "dark",
 }: PaginationControlProps) {
   if (totalPages <= 1) return null;
 
   const pages = getPageNumbers(currentPage, totalPages);
+  const isLight = variant === "light";
 
   function go(page: number) {
     if (page < 1 || page > totalPages || page === currentPage) return;
@@ -63,7 +66,11 @@ export function PaginationControl({
               go(currentPage - 1);
             }}
             className={
-              currentPage === 1 ? "pointer-events-none opacity-40 hover:bg-gold" : undefined
+              `${isLight ? "text-ink-soft hover:bg-gold/20" : "text-white"} ${
+                currentPage === 1
+                  ? "pointer-events-none opacity-40"
+                  : ""
+              }`
             }
           />
         </PaginationItem>
@@ -77,7 +84,11 @@ export function PaginationControl({
             <PaginationItem key={page}>
               <PaginationLink
                 href="#"
-                className="text-white rounded-full text-xs h-6 w-6 border-1 border-gold hover:bg-gold "
+                className={`${
+                  isLight ? "text-ink" : "text-white"
+                } rounded-full text-xs h-6 w-6 border border-gold hover:bg-gold ${
+                  isLight && page !== currentPage ? "bg-transparent" : ""
+                }`}
                 isActive={page === currentPage}
                 onClick={(e) => {
                   e.preventDefault();
@@ -98,9 +109,11 @@ export function PaginationControl({
               go(currentPage + 1);
             }}
             className={
-              currentPage === totalPages
-                ? "pointer-events-none opacity-40 hover:bg-gold"
-                : undefined
+              `${isLight ? "text-ink-soft hover:bg-gold/20" : "text-white"} ${
+                currentPage === totalPages
+                  ? "pointer-events-none opacity-40"
+                  : ""
+              }`
             }
           />
         </PaginationItem>
