@@ -8,6 +8,7 @@ import {
   Layers,
   BookOpen,
   Video,
+  FileText,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -61,6 +62,12 @@ export default function AcademyPage() {
       description:"Upload and control module lesson videos.",
       icon:<Video size={26}/>,
       route:"/invictus/academy/manage-videos"
+    },
+    {
+      title:"Manage Resources",
+      description:"Upload downloadable PDFs, worksheets and links.",
+      icon:<FileText size={26}/>,
+      route:"/invictus/academy/manage-resources"
     }
 
   ];

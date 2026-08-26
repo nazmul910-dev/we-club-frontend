@@ -24,6 +24,10 @@ import {
   UserRound,
   Crown,
   GraduationCap,
+  PlayCircle,
+  FolderOpen,
+  ListChecks,
+  ClipboardList,
 } from "lucide-react";
 
 import {
@@ -78,25 +82,43 @@ export default function InvictusLeftSidebar({
   const [servicesOpen, setServicesOpen] = useState(false);
   const [academyOpen, setAcademyOpen] = useState(false);
 
-  const academyItems: NavItem[] = [
-    {
-      label: "MANAGE PILLARS",
-      href: "/invictus/academy/pillars",
-      icon: Flame,
-    },
+const academyItems = [
+  {
+    label: "MANAGE PILLARS",
+    href: "/invictus/academy/pillars",
+    icon: Flame,
+  },
 
-    {
-      label: "MANAGE COURSES",
-      href: "/invictus/academy/courses",
-      icon: ClipboardCheck,
-    },
+  {
+    label: "MANAGE COURSES",
+    href: "/invictus/academy/courses",
+    icon: ClipboardCheck,
+  },
 
-    {
-      label: "MANAGE VIDEOS",
-      href: "/invictus/academy/manage-videos",
-      icon: MessageSquare,
-    },
-  ];
+  {
+    label: "MANAGE VIDEOS",
+    href: "/invictus/academy/manage-videos",
+    icon: PlayCircle,
+  },
+
+  {
+    label: "RESOURCES",
+    href: "/invictus/academy/manage-resources",
+    icon: FolderOpen,
+  },
+
+  {
+    label: "ACTION CHECKLIST",
+    href: "/invictus/academy/manage-actions",
+    icon: ListChecks,
+  },
+
+  {
+    label: "ASSESSMENTS",
+    href: "/invictus/academy/manage-quiz-questions",
+    icon: ClipboardList,
+  },
+];
 
   const mainItems: NavItem[] = [
     {
