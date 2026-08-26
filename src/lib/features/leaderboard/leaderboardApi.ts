@@ -1,8 +1,5 @@
 import api from "@/lib/api/api";
-import {
-  LeaderboardEntry,
-  LeaderboardRecord,
-} from "./leaderboardTypes";
+import { LeaderboardEntry, LeaderboardRecord } from "./leaderboardTypes";
 
 interface PaginatedResponse<T> {
   data: T[];
@@ -12,7 +9,9 @@ interface PaginatedResponse<T> {
   };
 }
 
-export const getActiveInvictusLeaderboard = async (page = 1): Promise<{
+export const getActiveInvictusLeaderboard = async (
+  page = 1,
+): Promise<{
   leaderboard: LeaderboardRecord;
   entries: LeaderboardEntry[];
   currentPage: number;
