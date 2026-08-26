@@ -18,6 +18,7 @@ import academyReducer from "@/lib/features/invictus/academy/academySlice";
 
 import pillarReducer from "@/lib/features/invictus/academy/pillar/pillarSlice";
 import courseReducer from "@/lib/features/invictus/academy/course/courseSlice";
+import videoReducer from "@/lib/features/invictus/academy/video-module/videoSlice";
 
 export const store = configureStore({
   reducer: {
@@ -38,7 +39,8 @@ export const store = configureStore({
     discount: discountReducer,
     academy: academyReducer,
     pillar: pillarReducer,
-    course: courseReducer
+    course: courseReducer,
+    video: videoReducer
   },
 });
 

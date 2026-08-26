@@ -1,13 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import { Upload, Video, Lock, Unlock } from "lucide-react";
+import { Crown, PlayCircle, Plus, Unlock } from "lucide-react";
 
-import UploadVideoModal from "@/components/invictus/academy/videos/UploadVideoModal";
 import AuthGuard from "@/components/Auth/authGuard/AuthGuard";
 
+import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
+import { fetchVideos } from "@/lib/features/invictus/academy/video-module/videoSlice";
+import type { IModuleVideo } from "@/lib/features/invictus/academy/video-module/videoTypes";
 
+import { courseApi } from "@/lib/features/invictus/academy/course/courseApi";
+import type { ICourseModule } from "@/lib/features/invictus/academy/course/courseTypes";
+
+import VideoTable from "@/components/invictus/academy/videos/VideoTable";
+import CreateVideoModal from "@/components/invictus/academy/videos/CreateVideoModal";
+import EditVideoModal from "@/components/invictus/academy/videos/EditVideoModal";
 
 export default function ManageVideosPage() {
   return (
@@ -18,53 +26,154 @@ export default function ManageVideosPage() {
 }
 
 function ManageVideosContent() {
-  const [open, setOpen] = useState(false);
+  const dispatch = useAppDispatch();
+
+  const { videos, loading, error } = useAppSelector((state) => state.video);
+
+  const [courses, setCourses] = useState<ICourseModule[]>([]);
+  const [courseFilter, setCourseFilter] = useState("");
+
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState<IModuleVideo | null>(
+    null,
+  );
+
+  const loadCourses = async () => {
+    try {
+      const res = await courseApi.getCourses();
+      setCourses(res.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    dispatch(fetchVideos({ includeArchived: true }));
+    loadCourses();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch]);
+
+  const filteredVideos = useMemo(() => {
+    if (!courseFilter) return videos;
+    return videos.filter((video) => video.module?._id === courseFilter);
+  }, [videos, courseFilter]);
+
+  const stats = useMemo(() => {
+    const total = videos.length;
+    const free = videos.filter((v) => !v.isPaid).length;
+    const premium = videos.filter((v) => v.isPaid).length;
+    return { total, free, premium };
+  }, [videos]);
 
   return (
-    <div className="min-h-screen bg-[#080808] px-6 py-10 text-white">
-      <div className="flex items-center justify-between rounded-3xl border border-[#C9A84C]/20 bg-[#111] p-8">
+    <div className="mx-auto max-w-[1180px] px-[6vw] py-[2vw] sm:px-8">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="text-sm uppercase tracking-[3px] text-[#C9A84C]">
-            Invictus Academy
+          <p className="text-[11px] tracking-[4px] text-[#B18A3A] font-semibold">
+            INVICTUS ACADEMY
           </p>
 
-          <h1 className="mt-3 text-3xl font-bold">Video Management</h1>
+          <h1 className="mt-3 text-3xl font-semibold text-[#171717]">
+            Module Videos
+          </h1>
 
-          <p className="mt-2 text-gray-400">
-            Upload and manage academy lessons
+          <p className="mt-2 text-sm text-[#8A8175]">
+            Upload and manage lesson videos across course modules
           </p>
         </div>
 
         <button
-          onClick={() => setOpen(true)}
-          className="flex items-center gap-2 rounded-xl bg-[#C9A84C] px-5 py-3 font-semibold text-black"
+          onClick={() => setCreateOpen(true)}
+          className="flex items-center gap-2 rounded-full bg-[#B18A3A] px-5 py-2.5 text-sm text-white transition-all duration-300 cursor-pointer hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(177,138,58,.25)]"
         >
-          <Upload size={18} />
+          <Plus size={16} />
           Upload Video
         </button>
       </div>
 
-      <div className="mt-10 grid gap-6 md:grid-cols-3">
-        <Card icon={<Video />} title="Total Videos" value="24" />
+      {error && (
+        <div className="mt-5 rounded-xl bg-red-50 p-3 text-sm text-red-500">
+          {error}
+        </div>
+      )}
 
-        <Card icon={<Unlock />} title="Free Videos" value="14" />
-
-        <Card icon={<Lock />} title="Premium Videos" value="10" />
+      <div className="mt-8 grid gap-6 md:grid-cols-3">
+        <StatCard
+          icon={<PlayCircle />}
+          title="Total Videos"
+          value={String(stats.total)}
+        />
+        <StatCard
+          icon={<Unlock />}
+          title="Free Videos"
+          value={String(stats.free)}
+        />
+        <StatCard
+          icon={<Crown />}
+          title="Premium Videos"
+          value={String(stats.premium)}
+        />
       </div>
 
-      {open && <UploadVideoModal onClose={() => setOpen(false)} />}
+      <div className="mt-8 flex items-center justify-between">
+        <div className="w-full max-w-xs">
+          <select
+            value={courseFilter}
+            onChange={(e) => setCourseFilter(e.target.value)}
+            className="w-full cursor-pointer rounded-xl border border-[#E8DDCA] bg-white p-3 text-sm"
+          >
+            <option value="">All Courses</option>
+            {courses.map((course) => (
+              <option key={course._id} value={course._id}>
+                {course.title} · {course.pillar?.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="mt-6">
+        {loading ? (
+          <p className="text-sm text-[#8A8175]">Loading videos...</p>
+        ) : (
+          <VideoTable
+            data={filteredVideos}
+            onEdit={(video) => {
+              setSelectedVideo(video);
+              setEditOpen(true);
+            }}
+          />
+        )}
+      </div>
+
+      <CreateVideoModal open={createOpen} onClose={() => setCreateOpen(false)} />
+
+      <EditVideoModal
+        open={editOpen}
+        video={selectedVideo}
+        onClose={() => setEditOpen(false)}
+      />
     </div>
   );
 }
 
-function Card({ icon, title, value }: any) {
+function StatCard({
+  icon,
+  title,
+  value,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  value: string;
+}) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-[#111] p-6">
-      <div className="text-[#C9A84C]">{icon}</div>
+    <div className="rounded-2xl border border-[#E8DDCA] bg-white p-6">
+      <div className="text-[#B18A3A]">{icon}</div>
 
-      <p className="mt-4 text-gray-400">{title}</p>
+      <p className="mt-4 text-[#8A8175]">{title}</p>
 
-      <h2 className="mt-2 text-3xl font-bold">{value}</h2>
+      <h2 className="mt-2 text-3xl font-bold text-[#171717]">{value}</h2>
     </div>
   );
 }

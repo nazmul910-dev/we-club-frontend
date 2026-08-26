@@ -1,253 +1,365 @@
 "use client";
 
-import { Trophy, Flame, Target, ArrowRight } from "lucide-react";
+import {
+  Trophy,
+  Flame,
+  Target,
+  ArrowRight,
+  Layers,
+  BookOpen,
+  Video,
+} from "lucide-react";
+
+import Link from "next/link";
 
 import ModuleCard from "@/components/invictus/academy/modules/ModuleCard";
+
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
 
 import { fetchModules } from "@/lib/features/invictus/academy/academySlice";
+
 import { useEffect } from "react";
 
-// const modules = [
-//   {
-//     id: "1",
-//     title: "Discipline & Mindset",
-//     description:
-//       "Build the foundation of a stronger mindset through daily challenges.",
-//     lessons: 12,
-//     progress: 75,
-//     isPremium: false,
-//   },
-
-//   {
-//     id: "2",
-//     title: "Leadership Mastery",
-//     description: "Develop leadership skills and unlock your full potential.",
-//     lessons: 18,
-//     progress: 40,
-//     isPremium: true,
-//   },
-
-//   {
-//     id: "3",
-//     title: "Peak Performance",
-//     description: "Advanced training modules designed for elite members.",
-//     lessons: 15,
-//     progress: 0,
-//     isPremium: true,
-//   },
-// ];
 
 export default function AcademyPage() {
+
   const dispatch = useAppDispatch();
 
-  const { modules } = useAppSelector((state) => state.academy);
+  const { modules } = useAppSelector(
+    (state) => state.academy
+  );
+
 
   useEffect(() => {
+
     dispatch(fetchModules());
+
   }, [dispatch]);
+
+
+
+  const managementCards = [
+
+    {
+      title:"Manage Pillars",
+      description:"Create and manage academy challenge pillars.",
+      icon:<Layers size={26}/>,
+      route:"/invictus/academy/pillars"
+    },
+
+
+    {
+      title:"Manage Courses",
+      description:"Organize course modules and learning paths.",
+      icon:<BookOpen size={26}/>,
+      route:"/invictus/academy/courses"
+    },
+
+
+    {
+      title:"Manage Videos",
+      description:"Upload and control module lesson videos.",
+      icon:<Video size={26}/>,
+      route:"/invictus/academy/manage-videos"
+    }
+
+  ];
+
+
+
   return (
-    <div
-      className="
-min-h-screen
-bg-[#080808]
-px-6
-py-10
-text-white
-"
-    >
+
+    <div className="min-h-screen bg-[#FAF8F3] text-[#171717] mx-auto max-w-[1180px] px-[6vw] py-[2vw] sm:px-8">
+
+
       {/* HERO */}
 
-      <div
-        className="
-relative
-overflow-hidden
-rounded-3xl
-border
-border-[#C9A84C]/20
-bg-[#111]
-p-10
-"
-      >
-        <div
-          className="
-absolute
-right-0
-top-0
-h-72
-w-72
-rounded-full
-bg-[#C9A84C]/10
-blur-3xl
-"
-        />
+      <div className="relative overflow-hidden rounded-3xl border border-[#E8DDCA] bg-white p-10 shadow-sm">
 
-        <div
-          className="
-relative
-z-10
-"
-        >
-          <p
-            className="
-text-sm
-uppercase
-tracking-[4px]
-text-[#C9A84C]
-"
-          >
-            Invictus Academy
+
+        <div className="absolute right-0 top-0 h-80 w-80 rounded-full bg-[#B18A3A]/10 blur-3xl" />
+
+
+        <div className="relative z-10">
+
+
+          <p className="text-xs uppercase tracking-[5px] text-[#B18A3A]">
+            INVICTUS ACADEMY
           </p>
 
-          <h1
-            className="
-mt-4
-max-w-3xl
-text-4xl
-font-bold
-"
-          >
-            Forge Your Path. Become Invincible.
+
+          <h1 className="mt-4 max-w-3xl text-4xl font-bold text-[#171717]">
+            Forge Your Path.
+            Become Invincible.
           </h1>
 
-          <p
-            className="
-mt-4
-max-w-2xl
-text-gray-400
-"
-          >
-            Access exclusive courses, challenges, and leadership training
-            designed to transform your personal growth journey.
+
+          <p className="mt-4 max-w-2xl text-[#8A8175]">
+            Manage your academy ecosystem,
+            courses, pillars and learning videos
+            from one powerful dashboard.
           </p>
+
+
         </div>
+
+
       </div>
+
+
+
+
 
       {/* STATS */}
 
-      <div
-        className="
-mt-8
-grid
-gap-5
-md:grid-cols-3
-"
-      >
-        <StatCard icon={<Target />} title="Challenges" value="24" />
 
-        <StatCard icon={<Flame />} title="Current Streak" value="12 Days" />
+      <div className="mt-8 grid gap-5 md:grid-cols-3">
 
-        <StatCard icon={<Trophy />} title="Points" value="1240" />
+
+        <StatCard
+          icon={<Target/>}
+          title="Challenges"
+          value="24"
+        />
+
+
+        <StatCard
+          icon={<Flame/>}
+          title="Current Streak"
+          value="12 Days"
+        />
+
+
+        <StatCard
+          icon={<Trophy/>}
+          title="Points"
+          value="1240"
+        />
+
+
       </div>
 
-      {/* MODULES */}
 
-      <div
-        className="
-mt-12
-"
-      >
-        <div
-          className="
-mb-6
-flex
-items-center
-justify-between
-"
-        >
-          <h2
-            className="
-text-2xl
-font-semibold
-"
-          >
+
+
+
+
+      {/* MANAGEMENT */}
+
+
+
+      <div className="mt-12">
+
+
+        <h2 className="mb-6 text-2xl font-semibold text-[#171717]">
+          Academy Management
+        </h2>
+
+
+
+
+        <div className="grid gap-6 md:grid-cols-3">
+
+
+
+          {
+            managementCards.map((card)=>(
+
+
+              <Link
+                key={card.title}
+                href={card.route}
+                className="group rounded-3xl border border-[#E8DDCA] bg-white p-6 transition duration-300 hover:-translate-y-2 hover:border-[#B18A3A]/50 hover:shadow-[0_20px_50px_rgba(177,138,58,.15)]"
+              >
+
+
+
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#F3E9D2] text-[#B18A3A]">
+
+
+                  {card.icon}
+
+
+                </div>
+
+
+
+
+
+                <h3 className="mt-6 text-xl font-semibold text-[#171717]">
+
+                  {card.title}
+
+                </h3>
+
+
+
+
+
+                <p className="mt-3 text-sm text-[#8A8175]">
+
+                  {card.description}
+
+                </p>
+
+
+
+
+
+                <div className="mt-6 flex items-center gap-2 text-sm text-[#B18A3A]">
+
+
+                  Open Dashboard
+
+
+                  <ArrowRight
+                    size={16}
+                    className="transition group-hover:translate-x-1"
+                  />
+
+
+                </div>
+
+
+
+              </Link>
+
+
+            ))
+          }
+
+
+
+        </div>
+
+
+
+      </div>
+
+
+
+
+
+
+      {/* LEARNING MODULES */}
+
+
+
+      <div className="mt-12">
+
+
+
+        <div className="mb-6 flex items-center justify-between">
+
+
+          <h2 className="text-2xl font-semibold text-[#171717]">
+
             Learning Modules
+
           </h2>
 
-          <button
-            className="
-flex
-items-center
-gap-2
-text-sm
-text-[#C9A84C]
-"
-          >
-            View All
-            <ArrowRight size={18} />
-          </button>
+
+
         </div>
 
-        <div
-          className="
-grid
-gap-6
-md:grid-cols-3
-"
-        >
-          {modules.map((item) => (
-            <ModuleCard
-              key={item._id}
-              title={item.title}
-              description={item.description}
-              lessons={item.totalVideos}
-              progress={0}
-              isPremium={item.isPremium}
-              id={item._id}
-            />
-          ))}
+
+
+
+
+        <div className="grid gap-6 md:grid-cols-3">
+
+
+          {
+            modules.map((item)=>(
+
+
+              <ModuleCard
+
+                key={item._id}
+
+                title={item.title}
+
+                description={item.description}
+
+                lessons={item.totalVideos}
+
+                progress={0}
+
+                isPremium={item.isPremium}
+
+                id={item._id}
+
+              />
+
+
+            ))
+          }
+
+
+
         </div>
+
+
+
       </div>
+
+
+
+
     </div>
+
+
   );
+
 }
 
+
+
+
+
+
 function StatCard({
-  icon,
-  title,
-  value,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  value: string;
-}) {
-  return (
-    <div
-      className="
-rounded-2xl
-border
-border-white/10
-bg-[#111]
-p-6
-"
-    >
-      <div
-        className="
-mb-4
-text-[#C9A84C]
-"
-      >
-        {icon}
-      </div>
+ icon,
+ title,
+ value
+}:{
+ icon:React.ReactNode;
+ title:string;
+ value:string;
+}){
 
-      <p
-        className="
-text-sm
-text-gray-400
-"
-      >
-        {title}
-      </p>
 
-      <h3
-        className="
-mt-1
-text-2xl
-font-bold
-"
-      >
-        {value}
-      </h3>
-    </div>
-  );
+return (
+
+<div className="rounded-2xl border border-[#E8DDCA] bg-white p-6 shadow-sm">
+
+
+<div className="mb-4 text-[#B18A3A]">
+
+{icon}
+
+</div>
+
+
+
+<p className="text-sm text-[#8A8175]">
+
+{title}
+
+</p>
+
+
+
+<h3 className="mt-1 text-2xl font-bold text-[#171717]">
+
+{value}
+
+</h3>
+
+
+
+</div>
+
+)
+
 }

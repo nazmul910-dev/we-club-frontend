@@ -23,6 +23,7 @@ import {
   ArrowLeftRight,
   UserRound,
   Crown,
+  GraduationCap,
 } from "lucide-react";
 
 import {
@@ -75,6 +76,27 @@ export default function InvictusLeftSidebar({
 
   const [peopleOpen, setPeopleOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
+  const [academyOpen, setAcademyOpen] = useState(false);
+
+  const academyItems: NavItem[] = [
+    {
+      label: "MANAGE PILLARS",
+      href: "/invictus/academy/pillars",
+      icon: Flame,
+    },
+
+    {
+      label: "MANAGE COURSES",
+      href: "/invictus/academy/courses",
+      icon: ClipboardCheck,
+    },
+
+    {
+      label: "MANAGE VIDEOS",
+      href: "/invictus/academy/manage-videos",
+      icon: MessageSquare,
+    },
+  ];
 
   const mainItems: NavItem[] = [
     {
@@ -149,8 +171,6 @@ export default function InvictusLeftSidebar({
     },
   ];
 
-  
-
   const serviceItems = [
     {
       label: "PARTNERS OFFERS",
@@ -190,11 +210,23 @@ export default function InvictusLeftSidebar({
     pathname.startsWith(item.href),
   );
 
-  useEffect(() => {
-    if (isPeopleActive) setPeopleOpen(true);
+  const isAcademyActive = academyItems.some((item) =>
+    pathname.startsWith(item.href),
+  );
 
-    if (isServiceActive) setServicesOpen(true);
-  }, [isPeopleActive, isServiceActive]);
+  useEffect(() => {
+    if (isPeopleActive) {
+      setPeopleOpen(true);
+    }
+
+    if (isServiceActive) {
+      setServicesOpen(true);
+    }
+
+    if (isAcademyActive) {
+      setAcademyOpen(true);
+    }
+  }, [isPeopleActive, isServiceActive, isAcademyActive]);
 
   const closeSidebar = () => setIsOpen(false);
 
@@ -259,6 +291,62 @@ export default function InvictusLeftSidebar({
                 </Link>
               );
             })}
+          </div>
+          <div className="mb-3">
+            <button
+              onClick={() => setAcademyOpen(!academyOpen)}
+              className={`flex w-full items-center justify-between cursor-pointer rounded-xl px-3 py-2.5 transition-all ${
+                isAcademyActive
+                  ? "bg-[#F3EBD8] text-[#947124]"
+                  : "text-[#5C5348] hover:bg-[#F6F1E7]"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#F3EEE4]">
+                  <GraduationCap size={15} />
+                </div>
+
+                <span className="font-montserrat text-[11px] font-semibold uppercase tracking-wider">
+                  Academy
+                </span>
+              </div>
+
+              <ChevronDown
+                size={15}
+                className={`transition-transform ${
+                  academyOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            <div
+              className={`overflow-hidden transition-all ${
+                academyOpen ? "max-h-80 mt-2" : "max-h-0"
+              }`}
+            >
+              <div className="ml-5 space-y-1 border-l border-[#D9CEBA] pl-3">
+                {academyItems.map(({ label, href, icon: Icon }) => {
+                  const active = pathname.startsWith(href);
+
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      onClick={closeSidebar}
+                      className={`
+flex items-center gap-2 rounded-lg px-3 py-2 
+font-montserrat text-[10px] font-medium uppercase transition
+${active ? "bg-[#F3EBD8] text-[#947124]" : "text-[#6C6357] hover:bg-[#F6F1E7]"}
+`}
+                    >
+                      <Icon size={13} />
+
+                      <span>{label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
           </div>
 
           <div className="mb-3">
