@@ -24,6 +24,7 @@ import retreatReducer from "@/lib/features/retreat/retreatSlice";
 import resourceReducer from "@/lib/features/invictus/academy/resource/resourceSlice";
 import actionReducer from "@/lib/features/invictus/academy/action-module/actionChecklistSlice";
 import quizQuestionReducer from "@/lib/features/invictus/academy/quiz-question/quizQuestionSlice";
+import mentorBookingReducer from "@/lib/features/mentorBooking/mentorBookingSlice"
 
 export const store = configureStore({
   reducer: {
@@ -51,6 +52,7 @@ export const store = configureStore({
     resource: resourceReducer,
     moduleAction: actionReducer,
     quizQuestion: quizQuestionReducer,
+    mentorBooking : mentorBookingReducer
   },
 });
 
