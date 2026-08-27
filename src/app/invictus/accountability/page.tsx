@@ -19,8 +19,9 @@ import {
     selectMyMentor,
     selectUpcomingConfirmedBooking,
 } from "@/lib/features/mentorBooking/mentorBookingSlice";
+import type { IMentorBooking } from "@/lib/features/mentorBooking/mentorBookingTypes";
 
-import { CalendarDays, Check, Clock, Loader2, Video } from "lucide-react";
+import { CalendarDays, Check, Clock, Loader2, PlayCircle, Video } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -87,24 +88,6 @@ function generateTimeSlots(
     return slots;
 }
 
-const mentors = [
-    {
-        name: "Adam Koubi",
-        role: "Lead Mentor",
-        initials: "AK",
-    },
-    {
-        name: "Sofia Marchetti",
-        role: "Co-Mentor",
-        initials: "SM",
-    },
-];
-
-const nextSession = {
-    date: "Thursday, 6:00 PM CET",
-    description: "Fearless group call with Adam Koubi",
-};
-
 const pillars = [
     {
         name: "Fearless Pillar",
@@ -132,21 +115,6 @@ const pillars = [
 
 const overallProgress = 35;
 
-const sessionHistory = [
-    {
-        date: "Mar 28",
-        duration: "60 min",
-        description:
-            "Discussed limiting psychology and next week's prospecting plan.",
-    },
-    {
-        date: "Mar 21",
-        duration: "60 min",
-        description:
-            "First call — set 90-day outcomes and defined the fear list.",
-    },
-];
-
 export default function MyAccountabilityPage() {
     const [journalEntry, setJournalEntry] = useState("");
 
@@ -154,9 +122,14 @@ export default function MyAccountabilityPage() {
     const [selectedDate, setSelectedDate] = useState<Date | undefined>();
     const [selectedTime, setSelectedTime] = useState<Date | undefined>();
 
+    const [recordingOpen, setRecordingOpen] = useState(false);
+    const [activeRecordingBooking, setActiveRecordingBooking] =
+        useState<IMentorBooking | null>(null);
+
     const dispatch = useAppDispatch();
 
     const myMentor = useAppSelector(selectMyMentor);
+    const completedBookings = useAppSelector(selectCompletedMentorBookings);
 
     const {
         myMentor: myMentorStatus,
@@ -236,25 +209,6 @@ export default function MyAccountabilityPage() {
         );
     };
 
-    <Calendar
-        mode="single"
-        selected={selectedDate}
-        onSelect={(date) => {
-            setSelectedDate(date);
-            setSelectedTime(undefined);
-        }}
-        disabled={(date) => {
-            return (
-                date < new Date(new Date().setHours(0, 0, 0, 0)) ||
-                !isDateAvailable(date)
-            );
-        }}
-    />;
-
-    const completedBookings = useAppSelector(selectCompletedMentorBookings);
-
-    console.log("comopleted bookings", completedBookings);
-
     const handleBooking = async () => {
         if (!selectedTime || !primaryMentor) return;
 
@@ -278,6 +232,11 @@ export default function MyAccountabilityPage() {
         } catch (error) {
             console.error("Booking failed:", error);
         }
+    };
+
+    const handleWatchRecap = (booking: IMentorBooking) => {
+        setActiveRecordingBooking(booking);
+        setRecordingOpen(true);
     };
 
     useEffect(() => {
@@ -405,39 +364,6 @@ export default function MyAccountabilityPage() {
                         </button>
                     </SectionCard>
                 )}
-
-                {/* Mentor pairing */}
-                {/* <SectionCard variant="invictus" className="mb-6">
-                    <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#A88A3F]">
-                        Your Mentorship Team
-                    </p>
-                    <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        {mentors.map((mentor) => (
-                            <div
-                                key={mentor.name}
-                                className="flex items-center gap-3 rounded-lg border border-[#EFE6CE] bg-white py-3 min-h-25 px-5 md:px-10"
-                            >
-                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#EFE1BD] font-[family-name:var(--font-display)] text-sm font-semibold text-[#8A6E22]">
-                                    {mentor.initials}
-                                </div>
-                                <div>
-                                    <p className="text-[11px] font-semibold uppercase tracking-wide text-[#9C9284]">
-                                        {mentor.role}
-                                    </p>
-                                    <p className="text-md font-semibold text-[#1C1A16]">
-                                        {mentor.name}
-                                    </p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                    <button
-                        type="button"
-                        className="w-full rounded-md bg-[#C6A34A] px-5 py-3 text-[12px] font-semibold uppercase tracking-[0.08em] text-white transition-colors hover:bg-[#B8923D] cursor-pointer"
-                    >
-                        Book your accountability session — with both mentors
-                    </button>
-                </SectionCard> */}
 
                 {/* Next session */}
                 {isBookingsLoading ? (
@@ -584,33 +510,76 @@ export default function MyAccountabilityPage() {
                     Download my progress report
                 </button>
 
-                {/* Session history */}
+                {/* Session history — real completed bookings, with recap playback */}
                 <SectionHeader variant="invictus" title="Session History" />
                 <section className="mb-10 space-y-3">
-                    {sessionHistory.map((session) => (
-                        <div
-                            key={session.date}
-                            className="flex items-center justify-between gap-4 rounded-xl border border-[#E9E2D2] bg-white p-5"
-                        >
-                            <div>
-                                <p className="mb-1 text-sm font-semibold text-[#1C1A16]">
-                                    {session.date}{" "}
-                                    <span className="font-normal text-[#B0A996]">
-                                        · {session.duration}
-                                    </span>
-                                </p>
-                                <p className="text-sm text-[#8A8375]">
-                                    {session.description}
-                                </p>
-                            </div>
-                            <button
-                                type="button"
-                                className="shrink-0 rounded-md border border-[#E9E2D2] px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-[#8A8375] cursor-pointer transition-colors hover:border-[#DDBB6E] hover:text-[#A88A3F]"
-                            >
-                                Watch session recap
-                            </button>
+                    {isBookingsLoading ? (
+                        <SessionHistorySkeleton />
+                    ) : completedBookings.length === 0 ? (
+                        <div className="rounded-xl border border-[#E9E2D2] bg-white p-5 text-center text-sm text-[#8A8375]">
+                            No completed sessions yet.
                         </div>
-                    ))}
+                    ) : (
+                        completedBookings.map((booking) => {
+                            const hasRecording = Boolean(
+                                booking.recording?.secureUrl,
+                            );
+
+                            const sessionDate = booking.completedAt
+                                ? new Date(booking.completedAt)
+                                : new Date(booking.scheduledStartTime);
+
+                            const mentorNames = [
+                                booking.leadMentor?.fullName,
+                                booking.coMentor?.fullName,
+                            ]
+                                .filter(Boolean)
+                                .join(" & ");
+
+                            return (
+                                <div
+                                    key={booking._id}
+                                    className="flex items-center justify-between gap-4 rounded-xl border border-[#E9E2D2] bg-white p-5"
+                                >
+                                    <div className="min-w-0">
+                                        <p className="mb-1 text-sm font-semibold text-[#1C1A16]">
+                                            {sessionDate.toLocaleDateString(
+                                                undefined,
+                                                {
+                                                    month: "short",
+                                                    day: "numeric",
+                                                },
+                                            )}{" "}
+                                            <span className="font-normal text-[#B0A996]">
+                                                · {booking.durationMinutes} min
+                                            </span>
+                                        </p>
+                                        <p className="truncate text-sm text-[#8A8375]">
+                                            {booking.recordingTitle ??
+                                                booking.sessionTopic ??
+                                                (mentorNames
+                                                    ? `Session with ${mentorNames}`
+                                                    : "Accountability session")}
+                                        </p>
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        disabled={!hasRecording}
+                                        onClick={() =>
+                                            handleWatchRecap(booking)
+                                        }
+                                        className="flex shrink-0 items-center gap-1.5 rounded-md border border-[#E9E2D2] px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-[#8A8375] transition-colors hover:border-[#DDBB6E] hover:text-[#A88A3F] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-[#E9E2D2] disabled:hover:text-[#8A8375]"
+                                    >
+                                        <PlayCircle size={13} />
+                                        {hasRecording
+                                            ? "Watch session recap"
+                                            : "Recording unavailable"}
+                                    </button>
+                                </div>
+                            );
+                        })
+                    )}
                 </section>
 
                 {/* Progress journal */}
@@ -638,8 +607,9 @@ export default function MyAccountabilityPage() {
                     </div>
                 </SectionCard>
 
+                {/* Booking dialog */}
                 <Dialog
-                    open={bookingOpen} //bookingOpen
+                    open={bookingOpen}
                     onOpenChange={(open) => {
                         setBookingOpen(open);
 
@@ -892,6 +862,77 @@ export default function MyAccountabilityPage() {
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
+
+                {/* Recording playback dialog */}
+                <Dialog
+                    open={recordingOpen}
+                    onOpenChange={(open) => {
+                        setRecordingOpen(open);
+
+                        if (!open) {
+                            setActiveRecordingBooking(null);
+                        }
+                    }}
+                >
+                    <DialogContent
+                        className="
+            w-[calc(100%-2rem)]
+            max-w-[820px]
+            overflow-hidden
+            border-[#E9E2D2]
+            bg-[#0B0A08]
+            p-0
+        "
+                    >
+                        <DialogHeader className="space-y-1 p-5 pb-0">
+                            <DialogTitle className="font-[family-name:var(--font-display)] text-lg text-white">
+                                {activeRecordingBooking?.recordingTitle ??
+                                    "Session recap"}
+                            </DialogTitle>
+
+                            <DialogDescription className="text-sm text-[#B0A996]">
+                                {activeRecordingBooking
+                                    ? new Date(
+                                          activeRecordingBooking.completedAt ??
+                                              activeRecordingBooking.scheduledStartTime,
+                                      ).toLocaleDateString(undefined, {
+                                          weekday: "long",
+                                          month: "long",
+                                          day: "numeric",
+                                      })
+                                    : ""}
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        <div className="p-5 pt-4">
+                            {activeRecordingBooking?.recording?.secureUrl ? (
+                                <video
+                                    key={activeRecordingBooking._id}
+                                    controls
+                                    autoPlay
+                                    poster={
+                                        activeRecordingBooking.recording
+                                            .thumbnailUrl
+                                    }
+                                    className="w-full rounded-lg bg-black"
+                                >
+                                    <source
+                                        src={
+                                            activeRecordingBooking.recording
+                                                .secureUrl
+                                        }
+                                    />
+                                    Your browser does not support the video
+                                    tag.
+                                </video>
+                            ) : (
+                                <p className="text-sm text-[#B0A996]">
+                                    Recording unavailable.
+                                </p>
+                            )}
+                        </div>
+                    </DialogContent>
+                </Dialog>
             </PageContainer>
         </div>
     );
@@ -935,5 +976,24 @@ function NextSessionSkeleton() {
 
             <Skeleton className="h-10 w-20 rounded-md bg-[#E9E2D2]" />
         </SectionCard>
+    );
+}
+function SessionHistorySkeleton() {
+    return (
+        <>
+            {[1, 2].map((item) => (
+                <div
+                    key={item}
+                    className="flex items-center justify-between gap-4 rounded-xl border border-[#E9E2D2] bg-white p-5"
+                >
+                    <div className="space-y-2">
+                        <Skeleton className="h-4 w-32 bg-[#E9E2D2]" />
+                        <Skeleton className="h-3 w-56 max-w-full bg-[#E9E2D2]" />
+                    </div>
+
+                    <Skeleton className="h-9 w-32 shrink-0 rounded-md bg-[#E9E2D2]" />
+                </div>
+            ))}
+        </>
     );
 }

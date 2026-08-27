@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import { ICancelMentorBookingPayload, ICreateMentorBookingPayload, IMentorBooking, IMentorBookingQuery, IMyMentorResponse, IPaginatedBookings, ISelectCoMentorPayload, IUpdateMentorBookingPayload } from "./mentorBookingTypes";
+import { ICancelMentorBookingPayload, ICompleteMentorBookingPayload, ICreateMentorBookingPayload, IMentorBooking, IMentorBookingQuery, IMyMentorResponse, IPaginatedBookings, ISelectCoMentorPayload, IUpdateMentorBookingPayload } from "./mentorBookingTypes";
 import { RootState } from "@/lib/redux/store/store";
 import { mentorBookingApi } from "./mentorBookingApi";
 
@@ -24,6 +24,7 @@ interface MentorBookingState {
   cancelStatus: RequestStatus;
   myMentorStatus: RequestStatus;
   selectCoMentorStatus: RequestStatus;
+  completeStatus: RequestStatus;
 
   error: string | null;
 }
@@ -41,6 +42,7 @@ const initialState: MentorBookingState = {
   cancelStatus: "idle",
   myMentorStatus: "idle",
   selectCoMentorStatus: "idle",
+  completeStatus: "idle",
 
   error: null,
 };
@@ -124,6 +126,23 @@ export const cancelMyMentorBooking = createAsyncThunk<
   async ({ id, payload }, { rejectWithValue }) => {
     try {
       return await mentorBookingApi.cancelMyBooking(id, payload);
+    } catch (error) {
+      return rejectWithValue(getErrorMessage(error));
+    }
+  },
+);
+
+// Mentor/admin marks a booking complete — requires a session recording +
+// title (multipart upload, handled inside mentorBookingApi.completeBooking)
+export const completeMentorBooking = createAsyncThunk<
+  IMentorBooking,
+  { id: string; payload: ICompleteMentorBookingPayload },
+  { state: RootState; rejectValue: string }
+>(
+  "mentorBooking/completeBooking",
+  async ({ id, payload }, { rejectWithValue }) => {
+    try {
+      return await mentorBookingApi.completeBooking(id, payload);
     } catch (error) {
       return rejectWithValue(getErrorMessage(error));
     }
@@ -273,6 +292,41 @@ const mentorBookingSlice = createSlice({
         state.error = action.payload ?? "Failed to cancel booking";
       })
 
+      // complete (mentor/admin, with recording) — booking moves out of the
+      // active "bookings" list and into "completedBookings"
+      .addCase(completeMentorBooking.pending, (state) => {
+        state.completeStatus = "loading";
+        state.error = null;
+      })
+      .addCase(
+        completeMentorBooking.fulfilled,
+        (state, action: PayloadAction<IMentorBooking>) => {
+          state.completeStatus = "succeeded";
+
+          state.bookings = state.bookings.filter(
+            (booking) => booking._id !== action.payload._id,
+          );
+
+          const alreadyInCompleted = state.completedBookings.some(
+            (booking) => booking._id === action.payload._id,
+          );
+
+          state.completedBookings = alreadyInCompleted
+            ? state.completedBookings.map((booking) =>
+                booking._id === action.payload._id ? action.payload : booking,
+              )
+            : [action.payload, ...state.completedBookings];
+
+          if (state.selectedBooking?._id === action.payload._id) {
+            state.selectedBooking = action.payload;
+          }
+        },
+      )
+      .addCase(completeMentorBooking.rejected, (state, action) => {
+        state.completeStatus = "failed";
+        state.error = action.payload ?? "Failed to complete booking";
+      })
+
       // my mentor
       .addCase(fetchMyMentor.pending, (state) => {
         state.myMentorStatus = "loading";
@@ -346,6 +400,7 @@ export const selectMentorBookingStatus = (state: RootState) => ({
   cancel: state.mentorBooking.cancelStatus,
   myMentor: state.mentorBooking.myMentorStatus,
   selectCoMentor: state.mentorBooking.selectCoMentorStatus,
+  complete: state.mentorBooking.completeStatus,
 });
 
 // Convenience selector for the "upcoming session" card on the

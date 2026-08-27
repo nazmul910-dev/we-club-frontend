@@ -20,10 +20,18 @@ export interface IUserSummary {
   profileImage?: string;
 }
 
+export interface IMentorshipAvailabilitySlot {
+  day: string;
+  startTime: string;
+  endTime: string;
+  timezone: string;
+}
+
 export interface IMentorshipProfileSummary {
   _id: string;
   bio?: string;
   expertise?: string[];
+  availability?: IMentorshipAvailabilitySlot[];
   profileImage?: string;
   sessionDurationMinutes?: number;
   isPrimaryMentor?: boolean;
@@ -64,11 +72,26 @@ export interface IMentorBooking {
 
   mentorFeedback?: string;
 
+  recordingTitle?: string;
+  recording?: IMentorBookingRecording;
+
   createdBy: IUserSummary;
   updatedBy?: IUserSummary | null;
 
   createdAt: string;
   updatedAt: string;
+}
+
+export interface IMentorBookingRecording {
+  provider: "cloudinary";
+  cloudinaryPublicId: string;
+  cloudinaryAssetId?: string;
+  secureUrl: string;
+  playbackUrl?: string;
+  thumbnailUrl?: string;
+  durationSeconds?: number;
+  format?: string;
+  bytes?: number;
 }
 
 export interface ICreateMentorBookingPayload {
@@ -134,6 +157,14 @@ export interface IMyMentorResponse {
 
 export interface ISelectCoMentorPayload {
   mentorshipProfileId: string;
+}
+
+// PATCH /:id/complete is multipart/form-data — recordingFile is the actual
+// video, sent alongside these text fields. Only mentors/admins call this.
+export interface ICompleteMentorBookingPayload {
+  recordingTitle: string;
+  mentorFeedback?: string;
+  recordingFile: File;
 }
 
 export interface IApiEnvelope<T> {

@@ -2,7 +2,7 @@
 // (the one with baseURL + auth token interceptor already attached).
 
 import api from "@/lib/api/api";
-import { IApiEnvelope, ICancelMentorBookingPayload, ICreateMentorBookingPayload, IMentorBooking, IMentorBookingQuery, IMyMentorResponse, IPaginatedBookings, ISelectCoMentorPayload, IUpdateMentorBookingPayload } from "./mentorBookingTypes";
+import { IApiEnvelope, ICancelMentorBookingPayload, ICompleteMentorBookingPayload, ICreateMentorBookingPayload, IMentorBooking, IMentorBookingQuery, IMyMentorResponse, IPaginatedBookings, ISelectCoMentorPayload, IUpdateMentorBookingPayload } from "./mentorBookingTypes";
 
 
 const BASE_URL = "/invictus/mentor-bookings";
@@ -60,6 +60,27 @@ export const mentorBookingApi = {
     const { data } = await api.patch<IApiEnvelope<IMentorBooking>>(
       `${BASE_URL}/me/${id}/cancel`,
       payload,
+    );
+    return data.data;
+  },
+
+  // PATCH /:id/complete — mentor/admin marks a booking complete.
+  // multipart/form-data: the recording file + title (+ optional feedback).
+  completeBooking: async (
+    id: string,
+    payload: ICompleteMentorBookingPayload,
+  ): Promise<IMentorBooking> => {
+    const formData = new FormData();
+    formData.append("recording", payload.recordingFile);
+    formData.append("recordingTitle", payload.recordingTitle);
+    if (payload.mentorFeedback) {
+      formData.append("mentorFeedback", payload.mentorFeedback);
+    }
+
+    const { data } = await api.patch<IApiEnvelope<IMentorBooking>>(
+      `${BASE_URL}/${id}/complete`,
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } },
     );
     return data.data;
   },
