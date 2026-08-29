@@ -52,7 +52,7 @@ const [search, setSearch] = useState("");
   );
 }, [dispatch, page, limit, search]);
 
-console.log(users);
+// console.log(users);
 
   //   return () => clearTimeout(timer);
   // }, [dispatch, page, search]);

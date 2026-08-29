@@ -90,7 +90,7 @@ export default function MessageInput({
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     onTypingStop();
     onCancelReply();
-    console.log("text", text)
+
     
   };
 
