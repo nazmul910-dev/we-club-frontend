@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -9,27 +9,28 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
 import { Button } from "@/components/ui/button";
-
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-
-import { Plus, Trash2 } from "lucide-react";
-
+import { Input } from "@/components/ui/input";
+import {
+  Plus,
+  Trash2,
+  CheckCircle2,
+  Circle,
+  CheckSquare,
+  Square,
+  HelpCircle,
+  XCircle,
+} from "lucide-react";
 import { useAppDispatch } from "@/lib/redux/store/hook";
-
 import { createQuizQuestion } from "@/lib/features/invictus/academy/quiz-question/quizQuestionSlice";
-
 import {
   QUIZ_QUESTION_TYPES,
   type QuizQuestionType,
 } from "@/lib/features/invictus/academy/quiz-question/quizQuestionTypes";
-
 import { courseApi } from "@/lib/features/invictus/academy/course/courseApi";
-
 import type { ICourseModule } from "@/lib/features/invictus/academy/course/courseTypes";
-import { Input } from "@/components/ui/input";
 
 interface Props {
   open: boolean;
@@ -51,11 +52,8 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
   const dispatch = useAppDispatch();
 
   const [courses, setCourses] = useState<ICourseModule[]>([]);
-
   const [form, setForm] = useState(emptyForm);
-
   const [loading, setLoading] = useState(false);
-
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -67,10 +65,9 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
   const loadCourses = async () => {
     try {
       const res = await courseApi.getCourses();
-
       setCourses(res.data.filter((item) => item.status === "published"));
     } catch (error) {
-      console.log(error);
+      console.error("Failed to load courses:", error);
     }
   };
 
@@ -79,88 +76,144 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
       ...prev,
       [key]: value,
     }));
-
     setErrors((prev) => ({
       ...prev,
       [key]: "",
     }));
   };
 
-  const addOption = () => {
+  const handleTypeChange = (type: QuizQuestionType) => {
     setForm((prev) => ({
       ...prev,
+      questionType: type,
+      options: type === "true_false" ? ["", ""] : prev.options.length >= 2 ? prev.options : ["", ""],
+      correctOptionIndexes: [0],
+      correctBooleanAnswer: true,
+    }));
+    setErrors({});
+  };
 
+  const addOption = () => {
+    if (form.options.length >= 6) {
+      toast.error("Maximum 6 options allowed per question");
+      return;
+    }
+    setForm((prev) => ({
+      ...prev,
       options: [...prev.options, ""],
     }));
   };
 
   const removeOption = (index: number) => {
-    setForm((prev) => ({
-      ...prev,
+    if (form.options.length <= 2) {
+      toast.error("A question requires at least 2 options");
+      return;
+    }
 
-      options: prev.options.filter((_, i) => i !== index),
-    }));
+    setForm((prev) => {
+      const nextOptions = prev.options.filter((_, i) => i !== index);
+      // Adjust correctOptionIndexes
+      let nextCorrect = prev.correctOptionIndexes
+        .filter((i) => i !== index)
+        .map((i) => (i > index ? i - 1 : i));
+
+      if (nextCorrect.length === 0) {
+        nextCorrect = [0];
+      }
+
+      return {
+        ...prev,
+        options: nextOptions,
+        correctOptionIndexes: nextCorrect,
+      };
+    });
   };
 
   const updateOption = (index: number, value: string) => {
     setForm((prev) => ({
       ...prev,
-
       options: prev.options.map((item, i) => (i === index ? value : item)),
     }));
+  };
+
+  const setSingleCorrectOption = (index: number) => {
+    setForm((prev) => ({
+      ...prev,
+      correctOptionIndexes: [index],
+    }));
+    setErrors((prev) => ({ ...prev, correctOptionIndexes: "" }));
+  };
+
+  const toggleMultiCorrectOption = (index: number) => {
+    setForm((prev) => {
+      const current = prev.correctOptionIndexes;
+      const next = current.includes(index)
+        ? current.filter((i) => i !== index)
+        : [...current, index];
+      return {
+        ...prev,
+        correctOptionIndexes: next,
+      };
+    });
+    setErrors((prev) => ({ ...prev, correctOptionIndexes: "" }));
   };
 
   const validate = () => {
     const next: Record<string, string> = {};
 
-    if (!form.moduleId) next.moduleId = "Select module";
-
-    if (!form.question.trim()) next.question = "Question is required";
+    if (!form.moduleId) next.moduleId = "Please select a course module";
+    if (!form.question.trim()) next.question = "Question statement is required";
 
     if (form.questionType !== "true_false") {
-      if (form.options.some((item) => !item.trim()))
-        next.options = "All options are required";
+      if (form.options.some((item) => !item.trim())) {
+        next.options = "All options must have text filled in";
+      }
+      const trimmed = form.options.map((o) => o.trim().toLowerCase());
+      if (new Set(trimmed).size !== form.options.length) {
+        next.options = "All options must be unique";
+      }
+
+      if (!form.correctOptionIndexes || form.correctOptionIndexes.length === 0) {
+        next.correctOptionIndexes = "Please choose at least one correct answer";
+      }
+    }
+
+    if (!form.order || form.order < 1) {
+      next.order = "Order must be at least 1";
     }
 
     setErrors(next);
-
     return Object.keys(next).length === 0;
   };
 
   const reset = () => {
     setForm(emptyForm);
-
     setErrors({});
   };
 
   const handleClose = () => {
     reset();
-
     onClose();
   };
 
   const submit = async () => {
-    if (!validate()) return;
+    if (!validate()) {
+      toast.error("Please fill in all required question fields");
+      return;
+    }
 
     try {
       setLoading(true);
 
       const payload: any = {
         question: form.question.trim(),
-
         questionType: form.questionType,
-
-        explanation: form.explanation,
-
-        order: form.order,
+        explanation: form.explanation.trim() || undefined,
+        order: Number(form.order),
       };
 
-      if (
-        form.questionType === "single_choice" ||
-        form.questionType === "multiple_choice"
-      ) {
-        payload.options = form.options;
-
+      if (form.questionType === "single_choice" || form.questionType === "multiple_choice") {
+        payload.options = form.options.map((o) => o.trim());
         payload.correctOptionIndexes = form.correctOptionIndexes;
       }
 
@@ -171,14 +224,16 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
       await dispatch(
         createQuizQuestion({
           moduleId: form.moduleId,
-
           data: payload,
         }),
       ).unwrap();
 
+      toast.success("Quiz question created successfully!");
       handleClose();
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || error?.message || "Failed to create quiz question";
+      toast.error(msg);
+      setErrors((prev) => ({ ...prev, form: msg }));
     } finally {
       setLoading(false);
     }
@@ -186,145 +241,238 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto rounded-3xl border-[#E7DDCC] bg-white">
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto rounded-3xl border-[#E7DDCC] bg-white p-6 shadow-xl">
         <DialogHeader>
-          <DialogTitle className="text-2xl text-[#1C1A17]">
+          <DialogTitle className="flex items-center gap-2 text-2xl font-semibold text-[#1C1A17]">
+            <HelpCircle className="text-[#B08A3E]" size={24} />
             Add Quiz Question
           </DialogTitle>
+          <p className="text-xs text-[#8A8175]">
+            Configure the question statement, question type, options, and mark the correct answer(s).
+          </p>
         </DialogHeader>
 
-        <div className="space-y-5">
+        <div className="mt-4 space-y-6">
+          {/* Module Selector */}
           <div>
-            <Label>Course Module</Label>
-
+            <Label className="text-xs font-semibold uppercase tracking-wider text-[#8A8175]">Course Module *</Label>
             <select
               value={form.moduleId}
               onChange={(e) => updateField("moduleId", e.target.value)}
-              className="mt-2 w-full rounded-xl border border-[#E7DDCC] p-3"
+              className="mt-1.5 w-full cursor-pointer rounded-xl border border-[#E7DDCC] bg-white p-3 text-sm text-[#1C1A17] transition hover:border-[#B08A3E] focus:border-[#B08A3E] focus:outline-none"
             >
               <option value="">Select Course Module</option>
-
               {courses.map((course) => (
                 <option key={course._id} value={course._id}>
-                  {course.title} · {course.pillar?.name}
+                  {course.title} · {course.pillar?.name || "Module"}
                 </option>
               ))}
             </select>
+            {errors.moduleId && <p className="mt-1 text-xs text-red-500">{errors.moduleId}</p>}
           </div>
 
+          {/* Question Text */}
           <div>
-            <Label>Question</Label>
-
+            <Label className="text-xs font-semibold uppercase tracking-wider text-[#8A8175]">Question Statement *</Label>
             <Textarea
               value={form.question}
               onChange={(e) => updateField("question", e.target.value)}
-              className="mt-2 min-h-[100px]"
-              placeholder="Enter question"
+              className="mt-1.5 min-h-[90px] rounded-xl border-[#E7DDCC] text-sm focus-visible:ring-[#B08A3E]"
+              placeholder="e.g. What is the core principle of Invictus leadership?"
             />
+            {errors.question && <p className="mt-1 text-xs text-red-500">{errors.question}</p>}
           </div>
 
+          {/* Question Type Selection */}
           <div>
-            <Label>Question Type</Label>
-
-            <select
-              value={form.questionType}
-              onChange={(e) =>
-                updateField("questionType", e.target.value as QuizQuestionType)
-              }
-              className="mt-2 w-full rounded-xl border border-[#E7DDCC] p-3"
-            >
-              {QUIZ_QUESTION_TYPES.map((type) => (
-                <option key={type} value={type}>
-                  {type.replace("_", " ").toUpperCase()}
-                </option>
-              ))}
-            </select>
+            <Label className="text-xs font-semibold uppercase tracking-wider text-[#8A8175]">Question Type</Label>
+            <div className="mt-2 grid grid-cols-3 gap-3">
+              {QUIZ_QUESTION_TYPES.map((type) => {
+                const isActive = form.questionType === type;
+                const labels: Record<string, string> = {
+                  single_choice: "Single Choice",
+                  multiple_choice: "Multiple Choice",
+                  true_false: "True / False",
+                };
+                return (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() => handleTypeChange(type)}
+                    className={`cursor-pointer rounded-xl border p-3 text-center text-xs font-medium transition duration-200 hover:-translate-y-0.5 ${
+                      isActive
+                        ? "border-[#B08A3E] bg-[#F3E9D2] text-[#B08A3E] shadow-sm"
+                        : "border-[#E7DDCC] bg-[#FAF8F4] text-[#8A8175] hover:border-[#B08A3E]/60 hover:text-[#1C1A17]"
+                    }`}
+                  >
+                    {labels[type]}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
+          {/* Choice Question Options & Correct Selection */}
           {form.questionType !== "true_false" && (
-            <div>
+            <div className="rounded-2xl border border-[#E7DDCC] bg-[#FAF8F4] p-4">
               <div className="flex items-center justify-between">
-                <Label>Options</Label>
+                <div>
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-[#1C1A17]">
+                    Options & Correct Answer Selection
+                  </Label>
+                  <p className="text-[11px] text-[#8A8175]">
+                    {form.questionType === "single_choice"
+                      ? "Click the radio button on the option that is the correct answer."
+                      : "Check all options that are correct answers for this question."}
+                  </p>
+                </div>
 
                 <button
                   type="button"
                   onClick={addOption}
-                  className="flex cursor-pointer items-center gap-1 text-sm text-[#B08A3E]"
+                  className="flex cursor-pointer items-center gap-1 rounded-lg border border-[#B08A3E] bg-white px-2.5 py-1 text-xs font-medium text-[#B08A3E] transition hover:bg-[#F3E9D2]"
                 >
-                  <Plus size={15} />
-                  Add
+                  <Plus size={14} />
+                  Add Option
                 </button>
               </div>
 
-              <div className="mt-3 space-y-3">
-                {form.options.map((option, index) => (
-                  <div key={index} className="flex gap-2">
-                    <Input
-                      value={option}
-                      onChange={(e) => updateOption(index, e.target.value)}
-                      placeholder={`Option ${index + 1}`}
-                    />
+              {errors.options && <p className="mt-2 text-xs text-red-500">{errors.options}</p>}
+              {errors.correctOptionIndexes && (
+                <p className="mt-2 text-xs text-red-500">{errors.correctOptionIndexes}</p>
+              )}
 
-                    <button
-                      type="button"
-                      onClick={() => removeOption(index)}
-                      className="cursor-pointer text-red-500"
+              <div className="mt-3 space-y-2.5">
+                {form.options.map((option, index) => {
+                  const isCorrect = form.correctOptionIndexes.includes(index);
+                  const isSingle = form.questionType === "single_choice";
+
+                  return (
+                    <div
+                      key={index}
+                      className={`flex items-center gap-3 rounded-xl border p-2.5 transition duration-150 ${
+                        isCorrect
+                          ? "border-[#B08A3E] bg-white shadow-[0_2px_10px_rgba(176,138,62,0.12)]"
+                          : "border-[#E7DDCC] bg-white hover:border-[#D6C6AC]"
+                      }`}
                     >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                ))}
+                      {/* Mark Correct Button / Icon */}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          isSingle ? setSingleCorrectOption(index) : toggleMultiCorrectOption(index)
+                        }
+                        title={isCorrect ? "Marked as correct" : "Click to mark as correct answer"}
+                        className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium transition ${
+                          isCorrect
+                            ? "bg-emerald-100 text-emerald-800"
+                            : "bg-gray-100 text-gray-500 hover:bg-emerald-50 hover:text-emerald-700"
+                        }`}
+                      >
+                        {isSingle ? (
+                          isCorrect ? <CheckCircle2 size={16} className="text-emerald-600" /> : <Circle size={16} />
+                        ) : (
+                          isCorrect ? <CheckSquare size={16} className="text-emerald-600" /> : <Square size={16} />
+                        )}
+                        <span>{isCorrect ? "Correct" : "Mark"}</span>
+                      </button>
+
+                      {/* Option Input */}
+                      <Input
+                        value={option}
+                        onChange={(e) => updateOption(index, e.target.value)}
+                        placeholder={`Option ${index + 1}`}
+                        className="h-9 flex-1 border-none bg-transparent shadow-none focus-visible:ring-0 text-sm"
+                      />
+
+                      {/* Delete Option */}
+                      {form.options.length > 2 && (
+                        <button
+                          type="button"
+                          onClick={() => removeOption(index)}
+                          className="cursor-pointer p-1 text-gray-400 transition hover:text-red-500"
+                          title="Remove option"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
 
+          {/* True / False Selection */}
           {form.questionType === "true_false" && (
-            <div>
-              <Label>Correct Answer</Label>
+            <div className="rounded-2xl border border-[#E7DDCC] bg-[#FAF8F4] p-4">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-[#1C1A17]">
+                Select Correct Boolean Answer
+              </Label>
+              <p className="text-[11px] text-[#8A8175]">Click which statement is the correct answer:</p>
 
-              <select
-                value={String(form.correctBooleanAnswer)}
-                onChange={(e) =>
-                  updateField("correctBooleanAnswer", e.target.value === "true")
-                }
-                className="mt-2 w-full rounded-xl border border-[#E7DDCC] p-3"
-              >
-                <option value="true">True</option>
+              <div className="mt-3 grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => updateField("correctBooleanAnswer", true)}
+                  className={`flex cursor-pointer items-center justify-center gap-2.5 rounded-xl border p-4 font-medium transition duration-200 hover:-translate-y-0.5 ${
+                    form.correctBooleanAnswer === true
+                      ? "border-emerald-500 bg-emerald-50 text-emerald-800 shadow-md ring-2 ring-emerald-500/20"
+                      : "border-[#E7DDCC] bg-white text-[#8A8175] hover:border-emerald-300"
+                  }`}
+                >
+                  <CheckCircle2 size={20} className={form.correctBooleanAnswer === true ? "text-emerald-600" : "text-gray-400"} />
+                  <span>TRUE (Correct)</span>
+                </button>
 
-                <option value="false">False</option>
-              </select>
+                <button
+                  type="button"
+                  onClick={() => updateField("correctBooleanAnswer", false)}
+                  className={`flex cursor-pointer items-center justify-center gap-2.5 rounded-xl border p-4 font-medium transition duration-200 hover:-translate-y-0.5 ${
+                    form.correctBooleanAnswer === false
+                      ? "border-red-500 bg-red-50 text-red-800 shadow-md ring-2 ring-red-500/20"
+                      : "border-[#E7DDCC] bg-white text-[#8A8175] hover:border-red-300"
+                  }`}
+                >
+                  <XCircle size={20} className={form.correctBooleanAnswer === false ? "text-red-600" : "text-gray-400"} />
+                  <span>FALSE (Correct)</span>
+                </button>
+              </div>
             </div>
           )}
 
+          {/* Explanation */}
           <div>
-            <Label>Explanation</Label>
-
+            <Label className="text-xs font-semibold uppercase tracking-wider text-[#8A8175]">Answer Explanation (Optional)</Label>
             <Textarea
               value={form.explanation}
               onChange={(e) => updateField("explanation", e.target.value)}
-              className="mt-2"
-              placeholder="Explain the answer"
+              className="mt-1.5 min-h-[70px] rounded-xl border-[#E7DDCC] text-sm focus-visible:ring-[#B08A3E]"
+              placeholder="Explain why this is the correct answer. Displayed to users upon completing the quiz."
             />
           </div>
 
+          {/* Order */}
           <div>
-            <Label>Order</Label>
-
+            <Label className="text-xs font-semibold uppercase tracking-wider text-[#8A8175]">Display Order</Label>
             <Input
               type="number"
               min={1}
               value={form.order}
               onChange={(e) => updateField("order", Number(e.target.value))}
-              className="mt-2"
+              className="mt-1.5 h-10 w-32 rounded-xl border-[#E7DDCC] text-sm"
             />
+            {errors.order && <p className="mt-1 text-xs text-red-500">{errors.order}</p>}
           </div>
+
+          {errors.form && <p className="text-sm font-medium text-red-500">{errors.form}</p>}
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="mt-6 flex items-center justify-end gap-3 border-t border-[#E7DDCC] pt-4">
           <Button
             variant="outline"
             onClick={handleClose}
-            className="cursor-pointer border-[#E7DDCC]"
+            className="cursor-pointer rounded-xl border-[#E7DDCC] px-5 py-2 text-sm transition hover:bg-[#FAF8F4]"
           >
             Cancel
           </Button>
@@ -332,9 +480,9 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
           <Button
             disabled={loading}
             onClick={submit}
-            className="cursor-pointer bg-[#B08A3E] text-white hover:bg-[#B08A3E]/90"
+            className="cursor-pointer rounded-xl bg-[#B08A3E] px-6 py-2 text-sm font-medium text-white shadow-md transition hover:bg-[#997734] hover:shadow-lg disabled:opacity-50"
           >
-            {loading ? "Saving..." : "Add Question"}
+            {loading ? "Saving Question..." : "Add Question"}
           </Button>
         </DialogFooter>
       </DialogContent>

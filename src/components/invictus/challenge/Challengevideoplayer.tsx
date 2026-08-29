@@ -1,13 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Lock } from "lucide-react";
-import Link from "next/link";
+import { Lock, ShoppingCart } from "lucide-react";
 
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
 import { checkVideoAccess } from "@/lib/features/invictus/academy/video-module/videoSlice";
-import { fetchMyVideoProgress, sendVideoHeartbeat } from "@/lib/features/invictus/videoProgress/videoProgressSlice";
+import {
+  fetchMyVideoProgress,
+  sendVideoHeartbeat,
+} from "@/lib/features/invictus/videoProgress/videoProgressSlice";
 import type { IModuleVideo } from "@/lib/features/invictus/academy/video-module/videoTypes";
+import BuyPillarModal from "@/components/invictus/challenge/BuyPillarModal";
+import { fetchPillarBySlug } from "@/lib/features/invictus/academy/pillar/pillarSlice";
+import type { ChallengePillar } from "@/lib/features/invictus/academy/pillar/pillarTypes";
 
 const HEARTBEAT_INTERVAL_SECONDS = 10;
 
@@ -22,9 +27,13 @@ export default function ChallengeVideoPlayer({ video, pillarSlug }: Props) {
   const segmentStartRef = useRef<number | null>(null);
   const lastHeartbeatRef = useRef<number>(0);
   const [hasResumed, setHasResumed] = useState(false);
+  const [showBuyModal, setShowBuyModal] = useState(false);
 
   const access = useAppSelector((state) => state.video.accessByVideoId[video._id]);
-  const resume = useAppSelector((state) => state.videoProgress.byVideoId[video._id]);
+  const resume = useAppSelector(
+    (state) => state.videoProgress.byVideoId[video._id]
+  );
+  const { selectedPillar } = useAppSelector((state) => state.pillar);
 
   useEffect(() => {
     dispatch(checkVideoAccess(video._id));
@@ -33,6 +42,13 @@ export default function ChallengeVideoPlayer({ video, pillarSlug }: Props) {
     lastHeartbeatRef.current = 0;
     setHasResumed(false);
   }, [dispatch, video._id]);
+
+  // Load the pillar so we can pass it to the BuyPillarModal
+  useEffect(() => {
+    if (!selectedPillar || selectedPillar.slug !== pillarSlug) {
+      dispatch(fetchPillarBySlug(pillarSlug));
+    }
+  }, [dispatch, pillarSlug, selectedPillar]);
 
   const flushHeartbeat = (currentPosition: number) => {
     if (segmentStartRef.current === null) return;
@@ -47,7 +63,7 @@ export default function ChallengeVideoPlayer({ video, pillarSlug }: Props) {
           segmentEndSeconds: currentPosition,
           currentPositionSeconds: currentPosition,
         },
-      }),
+      })
     );
   };
 
@@ -70,7 +86,10 @@ export default function ChallengeVideoPlayer({ video, pillarSlug }: Props) {
       return;
     }
 
-    if (el.currentTime - lastHeartbeatRef.current >= HEARTBEAT_INTERVAL_SECONDS) {
+    if (
+      el.currentTime - lastHeartbeatRef.current >=
+      HEARTBEAT_INTERVAL_SECONDS
+    ) {
       flushHeartbeat(el.currentTime);
       segmentStartRef.current = el.currentTime;
       lastHeartbeatRef.current = el.currentTime;
@@ -91,25 +110,80 @@ export default function ChallengeVideoPlayer({ video, pillarSlug }: Props) {
     segmentStartRef.current = null;
   };
 
+  // Loading state
   if (!access) {
-    return <div className="flex aspect-video w-full items-center justify-center rounded-3xl border border-[#E8DDCA] bg-white text-[#8A8175]">Loading video...</div>;
-  }
-
-  if (!access.canWatch) {
     return (
-      <div className="relative flex aspect-video w-full flex-col items-center justify-center gap-3 rounded-3xl border border-[#E8DDCA] bg-[#171717] text-center text-white">
-        <Lock size={32} className="text-[#C9A84C]" />
-        <p className="text-lg font-semibold">This lesson is part of a paid pillar</p>
-        <p className="max-w-sm text-sm text-white/60">
-          {access.pillar?.title ? `Purchase ${access.pillar.title} to unlock this and every video inside it.` : "Purchase this pillar to unlock this video."}
-        </p>
-        <Link href={`/invictus/invictus-challenge/${pillarSlug}`} className="mt-2 rounded-xl bg-[#C9A84C] px-5 py-2 text-sm font-medium text-[#171717]">
-          View Pillar
-        </Link>
+      <div className="flex aspect-video w-full items-center justify-center rounded-3xl border border-[#E8DDCA] bg-white text-[#8A8175]">
+        Loading video...
       </div>
     );
   }
 
+  // Locked — needs pillar purchase
+  if (!access.canWatch) {
+    const pillarTitle = access.pillar?.title ?? selectedPillar?.title;
+    const priceCents = access.pillar?.priceCents ?? selectedPillar?.priceCents;
+    const currency = access.pillar?.currency ?? selectedPillar?.currency ?? "usd";
+
+    const priceFormatted = priceCents
+      ? new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: currency.toUpperCase(),
+          minimumFractionDigits: 0,
+        }).format(priceCents / 100)
+      : null;
+
+    return (
+      <>
+        <div className="relative flex aspect-video w-full flex-col items-center justify-center gap-4 overflow-hidden rounded-3xl border border-[#2A2A2A] bg-[#0F0F0F] text-center">
+          {/* Background glow effects */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(177,138,58,0.12)_0%,_transparent_70%)]" />
+
+          <div className="relative z-10 flex flex-col items-center gap-4 px-8">
+            {/* Lock icon */}
+            <div className="flex h-16 w-16 items-center justify-center rounded-full border border-[#B18A3A]/40 bg-[#B18A3A]/15">
+              <Lock size={28} className="text-[#C9A84C]" />
+            </div>
+
+            <div className="space-y-1">
+              <p className="text-lg font-bold text-white">
+                Paid Content — Locked
+              </p>
+              <p className="max-w-xs text-sm text-white/55 leading-relaxed">
+                {pillarTitle
+                  ? `This video is part of the ${pillarTitle} pillar.`
+                  : "This lesson is part of a paid pillar."}
+                {priceFormatted
+                  ? ` Unlock full access for ${priceFormatted}.`
+                  : " Purchase the pillar to unlock."}
+              </p>
+            </div>
+
+            {/* Buy button */}
+            {selectedPillar && selectedPillar.isPaid && (
+              <button
+                onClick={() => setShowBuyModal(true)}
+                className="flex cursor-pointer items-center gap-2 rounded-xl bg-[#B18A3A] px-6 py-2.5 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:bg-[#C9A84C] hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0"
+              >
+                <ShoppingCart size={16} />
+                Unlock{priceFormatted ? ` · ${priceFormatted}` : " Now"}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {selectedPillar && selectedPillar.isPaid && (
+          <BuyPillarModal
+            open={showBuyModal}
+            onClose={() => setShowBuyModal(false)}
+            pillar={selectedPillar as ChallengePillar}
+          />
+        )}
+      </>
+    );
+  }
+
+  // Playable
   return (
     <video
       ref={videoRef}

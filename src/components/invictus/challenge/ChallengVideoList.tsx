@@ -27,7 +27,15 @@ export default function ChallengeVideoList({ videos, progressByVideoId, selected
         const isActive = video._id === selectedVideoId;
 
         return (
-          <button key={video._id} onClick={() => onSelect(video)} className={`flex w-full items-center gap-3 rounded-2xl p-3 text-left transition ${isActive ? "bg-[#F3E9D2]" : "hover:bg-[#FAF8F3]"}`}>
+          <button
+            key={video._id}
+            onClick={() => onSelect(video)}
+            className={`flex w-full cursor-pointer items-center gap-3 rounded-2xl p-3 text-left transition duration-150 ${
+              isActive
+                ? "bg-[#F3E9D2] shadow-sm ring-1 ring-[#B18A3A]/40"
+                : "hover:bg-[#FAF8F3] hover:shadow-sm"
+            }`}
+          >
             <span className="text-[#B18A3A]">
               {isCompleted ? <CheckCircle2 size={18} /> : isActive ? <PlayCircle size={18} /> : <Circle size={18} />}
             </span>

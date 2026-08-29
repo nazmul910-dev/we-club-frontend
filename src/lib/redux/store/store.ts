@@ -30,6 +30,7 @@ import progressReducer from "@/lib/features/invictus/academy/progress/progressSl
 import videoProgressReducer from "@/lib/features/invictus/videoProgress/videoProgressSlice";
 import quizAttemptReducer from "@/lib/features/invictus/academy/quiz-attempt/quizAttemptSlice";
 import entitlementReducer from "@/lib/features/invictus/academy/entitlement/entitlementSlice";
+import invictusPaymentReducer from "@/lib/features/invictus/payment/invictusPaymentSlice";
 
 export const store = configureStore({
   reducer: {
@@ -63,6 +64,7 @@ export const store = configureStore({
     videoProgress: videoProgressReducer,
     quizAttempt:quizAttemptReducer,
     entitlement:entitlementReducer,
+    invictusPayment: invictusPaymentReducer,
   },
 });
 

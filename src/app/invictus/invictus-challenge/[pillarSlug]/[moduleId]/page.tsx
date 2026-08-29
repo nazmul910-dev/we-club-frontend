@@ -51,20 +51,33 @@ export default function ModuleChallengePage() {
     dispatch(fetchMyCertificates());
   }, [dispatch, moduleId]);
 
+  useEffect(() => {
+    setSelectedVideo(null);
+  }, [moduleId]);
+
   const moduleVideos = useMemo(
     () =>
       videos
-        .filter(
-          (video) =>
-            video.module._id === moduleId && video.status === "published",
-        )
+        .filter((video) => {
+          const videoModId =
+            typeof video.module === "string"
+              ? video.module
+              : video.module?._id;
+          return videoModId === moduleId && video.status === "published";
+        })
         .sort((a, b) => a.order - b.order),
     [videos, moduleId],
   );
 
   useEffect(() => {
-    if (!selectedVideo && moduleVideos.length > 0) {
-      setSelectedVideo(moduleVideos[0]);
+    if (moduleVideos.length > 0) {
+      const isSelectedInCurrentModule =
+        selectedVideo && moduleVideos.some((v) => v._id === selectedVideo._id);
+      if (!isSelectedInCurrentModule) {
+        setSelectedVideo(moduleVideos[0]);
+      }
+    } else {
+      setSelectedVideo(null);
     }
   }, [moduleVideos, selectedVideo]);
 
@@ -95,7 +108,7 @@ export default function ModuleChallengePage() {
     <div className="min-h-screen bg-[#FAF8F3] text-[#171717] mx-auto max-w-[1180px] px-[6vw] py-[2vw] sm:px-8">
       <Link
         href={`/invictus/invictus-challenge/${pillarSlug}`}
-        className="text-sm text-[#B18A3A]"
+        className="inline-flex cursor-pointer items-center gap-1.5 text-sm font-semibold text-[#B18A3A] transition duration-200 hover:-translate-x-1 hover:text-[#997734]"
       >
         &larr; Back to modules
       </Link>
@@ -120,6 +133,7 @@ export default function ModuleChallengePage() {
             </div>
           ) : selectedVideo ? (
             <ChallengeVideoPlayer
+              key={selectedVideo._id}
               video={selectedVideo}
               pillarSlug={pillarSlug}
             />
@@ -130,7 +144,7 @@ export default function ModuleChallengePage() {
           )}
 
           {selectedVideo && (
-            <div className="rounded-3xl border border-[#E8DDCA] bg-white p-6">
+            <div className="rounded-3xl border border-[#E8DDCA] bg-white p-6 shadow-sm">
               <h2 className="text-xl font-semibold text-[#171717]">
                 {selectedVideo.title}
               </h2>
@@ -143,9 +157,9 @@ export default function ModuleChallengePage() {
           )}
 
           {resources.length > 0 && (
-            <div className="rounded-3xl border border-[#E8DDCA] bg-white p-6">
+            <div className="rounded-3xl border border-[#E8DDCA] bg-white p-6 shadow-sm">
               <h3 className="flex items-center gap-2 text-lg font-semibold text-[#171717]">
-                <FileText size={18} className="text-[#B18A3A]" /> Resources
+                <FileText size={18} className="text-[#B18A3A]" /> Downloadable Resources & Links
               </h3>
               <div className="mt-4 space-y-2">
                 {resources.map((resource) => (
@@ -154,10 +168,13 @@ export default function ModuleChallengePage() {
                     href={resource.secureUrl || resource.externalUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between rounded-xl border border-[#E8DDCA] px-4 py-3 text-sm text-[#171717] hover:border-[#B18A3A]/50"
+                    className="flex cursor-pointer items-center justify-between rounded-xl border border-[#E8DDCA] bg-white px-4 py-3 text-sm text-[#171717] shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-[#B18A3A] hover:shadow-md"
                   >
-                    {resource.title}
-                    <ExternalLink size={14} className="text-[#B18A3A]" />
+                    <span className="font-medium">{resource.title}</span>
+                    <div className="flex items-center gap-1.5 text-xs text-[#B18A3A]">
+                      <span>Open</span>
+                      <ExternalLink size={14} />
+                    </div>
                   </a>
                 ))}
               </div>

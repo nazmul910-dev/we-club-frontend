@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { Lock } from "lucide-react";
+import { Lock, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
@@ -17,15 +17,23 @@ import {
 import { courseApi } from "@/lib/features/invictus/academy/course/courseApi";
 import type { ICourseModule } from "@/lib/features/invictus/academy/course/courseTypes";
 import ChallengeModuleCard from "@/components/invictus/challenge/ChallengeModuleCard";
+import BuyPillarModal from "@/components/invictus/challenge/BuyPillarModal";
 
 export default function PillarChallengePage() {
   const dispatch = useAppDispatch();
   const params = useParams<{ pillarSlug: string }>();
 
-  const { selectedPillar, loading: pillarLoading, error: pillarError } = useAppSelector((state) => state.pillar);
-  const { courses, loading, error: courseError } = useAppSelector((state) => state.course);
+  const { selectedPillar, loading: pillarLoading, error: pillarError } =
+    useAppSelector((state) => state.pillar);
+  const { courses, loading, error: courseError } = useAppSelector(
+    (state) => state.course
+  );
   const { myProgress } = useAppSelector((state) => state.progress);
-  const pillarAccessById = useAppSelector((state) => state.entitlement.pillarAccessById);
+  const pillarAccessById = useAppSelector(
+    (state) => state.entitlement.pillarAccessById
+  );
+
+  const [showBuyModal, setShowBuyModal] = useState(false);
 
   useEffect(() => {
     dispatch(fetchPillarBySlug(params.pillarSlug));
@@ -45,14 +53,18 @@ export default function PillarChallengePage() {
         dispatch(setCourseError(null));
 
         const res = await courseApi.getCoursesByPillar(selectedPillar._id);
-        const payload = Array.isArray(res?.data?.modules) ? res.data.modules : [];
+        const payload = Array.isArray(res?.data?.modules)
+          ? res.data.modules
+          : [];
 
         dispatch(setCourses(payload));
       } catch (err: any) {
         // eslint-disable-next-line no-console
         console.error("Failed to load modules for pillar", selectedPillar._id, err);
         const message =
-          err?.response?.data?.message || err?.message || "Failed to load modules for this pillar";
+          err?.response?.data?.message ||
+          err?.message ||
+          "Failed to load modules for this pillar";
         dispatch(setCourseError(message));
         dispatch(setCourses([]));
       } finally {
@@ -75,8 +87,11 @@ export default function PillarChallengePage() {
     return (
       <div className="min-h-screen bg-[#FAF8F3] px-[6vw] py-[2vw] text-sm">
         <p className="text-red-600">{pillarError || "This pillar is not available."}</p>
-        <Link href="/invictus/invictus-challenge" className="mt-4 inline-block text-sm text-[#B18A3A]">
-          &larr; Back to all pillars
+        <Link
+          href="/invictus/invictus-challenge"
+          className="mt-4 inline-block text-sm text-[#B18A3A]"
+        >
+          ← Back to all pillars
         </Link>
       </div>
     );
@@ -85,14 +100,27 @@ export default function PillarChallengePage() {
   const safeCourses: ICourseModule[] = Array.isArray(courses) ? courses : [];
 
   const hasAccess =
-    !selectedPillar.isPaid || pillarAccessById[selectedPillar._id]?.hasAccess === true;
+    !selectedPillar.isPaid ||
+    pillarAccessById[selectedPillar._id]?.hasAccess === true;
+
   const publishedModules = safeCourses.filter(
-    (course: ICourseModule) => course.status === "published",
+    (course: ICourseModule) => course.status === "published"
   );
+
+  const priceFormatted = selectedPillar.priceCents
+    ? new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: selectedPillar.currency || "usd",
+        minimumFractionDigits: 0,
+      }).format(selectedPillar.priceCents / 100)
+    : null;
 
   return (
     <div className="min-h-screen bg-[#FAF8F3] text-[#171717] mx-auto max-w-[1180px] px-[6vw] py-[2vw] sm:px-8">
       <div className="relative overflow-hidden rounded-3xl border border-[#E8DDCA] bg-white p-10 shadow-sm">
+        {/* Background glow */}
+        <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-[#B18A3A]/8 blur-3xl" />
+
         <div className="relative z-10">
           <p className="text-xs uppercase tracking-[5px] text-[#B18A3A]">
             {selectedPillar.name}
@@ -104,13 +132,51 @@ export default function PillarChallengePage() {
             {selectedPillar.description}
           </p>
 
+          {/* Locked / Paid Banner */}
           {!hasAccess && (
-            <div className="mt-6 flex items-center gap-3 rounded-2xl border border-[#B18A3A]/30 bg-[#F3E9D2] p-4 text-[#171717]">
-              <Lock size={20} className="text-[#B18A3A]" />
-              <span className="text-sm">
-                This pillar is ${(selectedPillar.priceCents / 100).toFixed(2)}.
-                Purchase it to unlock every paid video inside.
-              </span>
+            <div className="mt-6 overflow-hidden rounded-2xl border border-[#B18A3A]/30 bg-gradient-to-r from-[#FAF0DC] to-[#FDF8EE]">
+              <div className="flex flex-col items-start gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#B18A3A]/15">
+                    <Lock size={18} className="text-[#B18A3A]" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-[#171717]">
+                      This pillar requires a purchase
+                    </p>
+                    <p className="text-xs text-[#8A8175] mt-0.5">
+                      Unlock full video access, resources, quiz, and certificate
+                      {priceFormatted ? ` for ${priceFormatted}` : ""}.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowBuyModal(true)}
+                  className="flex cursor-pointer items-center gap-2 rounded-xl bg-[#B18A3A] px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:bg-[#997734] hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0"
+                >
+                  <Lock size={14} />
+                  Unlock{priceFormatted ? ` · ${priceFormatted}` : " Pillar"}
+                  <ArrowRight size={14} />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Already has access badge */}
+          {hasAccess && selectedPillar.isPaid && (
+            <div className="mt-6 inline-flex items-center gap-2 rounded-xl bg-green-50 border border-green-200 px-4 py-2 text-sm font-medium text-green-700">
+              <svg
+                className="h-4 w-4 text-green-600"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              Pillar Unlocked — Full Access
             </div>
           )}
         </div>
@@ -131,7 +197,7 @@ export default function PillarChallengePage() {
           <div className="grid gap-6 md:grid-cols-3">
             {publishedModules.map((courseModule: ICourseModule) => {
               const progress = myProgress.find(
-                (item) => item.module._id === courseModule._id,
+                (item) => item.module._id === courseModule._id
               );
 
               return (
@@ -153,9 +219,18 @@ export default function PillarChallengePage() {
           href="/invictus/invictus-challenge"
           className="text-sm text-[#B18A3A]"
         >
-          &larr; Back to all pillars
+          ← Back to all pillars
         </Link>
       </div>
+
+      {/* Buy Modal */}
+      {selectedPillar.isPaid && !hasAccess && (
+        <BuyPillarModal
+          open={showBuyModal}
+          onClose={() => setShowBuyModal(false)}
+          pillar={selectedPillar}
+        />
+      )}
     </div>
   );
 }

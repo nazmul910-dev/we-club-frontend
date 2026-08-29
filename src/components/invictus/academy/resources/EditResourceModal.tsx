@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { toast } from "sonner";
 
 import { useAppDispatch } from "@/lib/redux/store/hook";
 import { updateResource } from "@/lib/features/invictus/academy/resource/resourceSlice";
@@ -95,12 +96,14 @@ export default function EditResourceModal({ open, onClose, resource }: Props) {
         }),
       ).unwrap();
 
+      toast.success("Module resource updated successfully!");
       onClose();
     } catch (error) {
-      const message = error instanceof Error ? error.message : undefined;
+      const message = error instanceof Error ? error.message : "Resource could not be updated, try again later!";
+      toast.error(message);
       setErrors((prev) => ({
         ...prev,
-        form: message || "Resource could not be updated, try again later!",
+        form: message,
       }));
     } finally {
       setLoading(false);

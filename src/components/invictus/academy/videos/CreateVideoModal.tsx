@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 
 import { UploadCloud, Video as VideoIcon, X } from "lucide-react";
+import { toast } from "sonner";
 
 import { useAppDispatch } from "@/lib/redux/store/hook";
 import { createVideo } from "@/lib/features/invictus/academy/video-module/videoSlice";
@@ -135,13 +136,15 @@ export default function CreateVideoModal({ open, onClose }: Props) {
         createVideo({ moduleId: form.courseId, data: formData }),
       ).unwrap();
 
+      toast.success("Module video uploaded successfully!");
       handleClose();
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : undefined;
+        error instanceof Error ? error.message : "Video could not be uploaded, try again later!";
+      toast.error(message);
       setErrors((prev) => ({
         ...prev,
-        form: message || "Video could not be uploaded, try again later!",
+        form: message,
       }));
     } finally {
       setLoading(false);

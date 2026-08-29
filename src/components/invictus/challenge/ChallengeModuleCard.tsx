@@ -14,7 +14,7 @@ interface Props {
 
 export default function ChallengeModuleCard({ courseModule, pillarSlug, progressPercent, isCompleted }: Props) {
   return (
-    <Link href={`/invictus/invictus-challenge/${pillarSlug}/${courseModule._id}`} className="group rounded-3xl border border-[#E8DDCA] bg-white p-6 transition duration-300 hover:-translate-y-1 hover:border-[#B18A3A]/50 hover:shadow-[0_20px_50px_rgba(177,138,58,.12)]">
+    <Link href={`/invictus/invictus-challenge/${pillarSlug}/${courseModule._id}`} className="group cursor-pointer rounded-3xl border border-[#E8DDCA] bg-white p-6 transition duration-300 hover:-translate-y-1.5 hover:border-[#B18A3A]/50 hover:shadow-[0_20px_50px_rgba(177,138,58,.15)]">
       <div className="flex items-start justify-between">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#F3E9D2] text-[#B18A3A]">
           <PlayCircle size={24} />

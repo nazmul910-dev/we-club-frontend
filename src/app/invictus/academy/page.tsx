@@ -9,6 +9,10 @@ import {
   BookOpen,
   Video,
   FileText,
+  ListChecks,
+  Award,
+  CheckSquare,
+  TrendingUp,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -42,33 +46,60 @@ export default function AcademyPage() {
   const managementCards = [
 
     {
-      title:"Manage Pillars",
-      description:"Create and manage academy challenge pillars.",
-      icon:<Layers size={26}/>,
-      route:"/invictus/academy/pillars"
+      title: "Manage Pillars",
+      description: "Create and configure academy challenge tracks and pricing.",
+      icon: <Layers size={26} />,
+      route: "/invictus/academy/pillars",
     },
 
-
     {
-      title:"Manage Courses",
-      description:"Organize course modules and learning paths.",
-      icon:<BookOpen size={26}/>,
-      route:"/invictus/academy/courses"
+      title: "Manage Courses",
+      description: "Organize course modules and learning progression paths.",
+      icon: <BookOpen size={26} />,
+      route: "/invictus/academy/courses",
     },
 
+    {
+      title: "Manage Videos",
+      description: "Upload, stream, and control module lesson videos.",
+      icon: <Video size={26} />,
+      route: "/invictus/academy/manage-videos",
+    },
 
     {
-      title:"Manage Videos",
-      description:"Upload and control module lesson videos.",
-      icon:<Video size={26}/>,
-      route:"/invictus/academy/manage-videos"
+      title: "Manage Resources",
+      description: "Upload downloadable PDFs, worksheets, and external links.",
+      icon: <FileText size={26} />,
+      route: "/invictus/academy/manage-resources",
     },
+
     {
-      title:"Manage Resources",
-      description:"Upload downloadable PDFs, worksheets and links.",
-      icon:<FileText size={26}/>,
-      route:"/invictus/academy/manage-resources"
-    }
+      title: "Manage Quiz Questions",
+      description: "Set up module quizzes, choice options, and correct answers.",
+      icon: <ListChecks size={26} />,
+      route: "/invictus/academy/manage-quiz-questions",
+    },
+
+    {
+      title: "Manage Certificates",
+      description: "Review member quiz certificates, attach files, and revoke.",
+      icon: <Award size={26} />,
+      route: "/invictus/academy/manage-certificates",
+    },
+
+    {
+      title: "Manage Actions",
+      description: "Define actionable milestones and tasks for each module.",
+      icon: <CheckSquare size={26} />,
+      route: "/invictus/academy/manage-actions",
+    },
+
+    {
+      title: "Manage Progress",
+      description: "Inspect member video watch progress and module completion.",
+      icon: <TrendingUp size={26} />,
+      route: "/invictus/academy/manage-progress",
+    },
 
   ];
 
