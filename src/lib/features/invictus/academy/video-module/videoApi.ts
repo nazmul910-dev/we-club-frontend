@@ -1,6 +1,6 @@
 import api from "@/lib/api/api";
 
-import type { IModuleVideo, IUpdateModuleVideo, IModuleRef } from "./videoTypes";
+import type { IModuleVideo, IUpdateModuleVideo, IModuleRef, IVideoAccessResult } from "./videoTypes";
 
 export type ApiEnvelope<T> = {
   success: boolean;
@@ -70,6 +70,11 @@ export const videoApi = {
   // Archive (soft delete — backend has no hard delete for videos)
   archive: async (id: string): Promise<ApiEnvelope<IModuleVideo>> => {
     const res = await api.patch(`${VIDEO_URL}/${id}/archive`);
+    return res.data;
+  },
+  
+    checkAccess: async (id: string): Promise<ApiEnvelope<IVideoAccessResult>> => {
+    const res = await api.get(`${VIDEO_URL}/${id}/access`);
     return res.data;
   },
 };

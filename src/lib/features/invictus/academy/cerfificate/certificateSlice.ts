@@ -69,6 +69,15 @@ export const fetchMyCertificates = createAsyncThunk(
   },
 );
 
+
+export const issueMyCertificate = createAsyncThunk(
+  "certificate/issueMine",
+  async (moduleId: string) => {
+    const res = await certificateApi.issueMine(moduleId);
+    return res.data;
+  },
+);
+
 const upsertCertificate = (
   state: CertificateState,
   updated: IQuizCertificate,
@@ -166,6 +175,20 @@ const certificateSlice = createSlice({
       .addCase(fetchMyCertificates.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || "Failed loading your certificates";
+      })
+
+      .addCase(issueMyCertificate.pending, (state) => {
+        state.actionLoading = true;
+        state.error = null;
+      })
+      .addCase(issueMyCertificate.fulfilled, (state, action) => {
+        state.actionLoading = false;
+        state.myCertificates.unshift(action.payload);
+        state.selectedCertificate = action.payload;
+      })
+      .addCase(issueMyCertificate.rejected, (state, action) => {
+        state.actionLoading = false;
+        state.error = action.error.message || "Failed to issue certificate";
       });
   },
 });

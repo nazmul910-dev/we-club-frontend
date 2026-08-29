@@ -129,7 +129,7 @@ const academyItems = [
 
     {
       label: "THE INVICTUS CHALLENGE",
-      href: "/invictus/challenge",
+      href: "/invictus/invictus-challenge",
       icon: Flame,
     },
 

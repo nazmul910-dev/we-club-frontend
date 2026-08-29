@@ -27,6 +27,9 @@ import quizQuestionReducer from "@/lib/features/invictus/academy/quiz-question/q
 import mentorBookingReducer from "@/lib/features/mentorBooking/mentorBookingSlice";
 import certificateReducer from "@/lib/features/invictus/academy/cerfificate/certificateSlice";
 import progressReducer from "@/lib/features/invictus/academy/progress/progressSlice";
+import videoProgressReducer from "@/lib/features/invictus/videoProgress/videoProgressSlice";
+import quizAttemptReducer from "@/lib/features/invictus/academy/quiz-attempt/quizAttemptSlice";
+import entitlementReducer from "@/lib/features/invictus/academy/entitlement/entitlementSlice";
 
 export const store = configureStore({
   reducer: {
@@ -57,6 +60,9 @@ export const store = configureStore({
     mentorBooking : mentorBookingReducer,
     certificate: certificateReducer,
     progress: progressReducer,
+    videoProgress: videoProgressReducer,
+    quizAttempt:quizAttemptReducer,
+    entitlement:entitlementReducer,
   },
 });
 
