@@ -1,49 +1,160 @@
 "use client";
 
 import { useEffect } from "react";
+import { useParams } from "next/navigation";
+import { Lock } from "lucide-react";
+import Link from "next/link";
 
-import ChallengePillarCard from "@/components/invictus/challenge/ChallengPillarCard";
-import { checkPillarAccess } from "@/lib/features/invictus/academy/entitlement/entitlementSlice";
-import { fetchPillars } from "@/lib/features/invictus/academy/pillar/pillarSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
+import { fetchPillarBySlug } from "@/lib/features/invictus/academy/pillar/pillarSlice";
+import { checkPillarAccess } from "@/lib/features/invictus/academy/entitlement/entitlementSlice";
+import { fetchMyAllProgress } from "@/lib/features/invictus/academy/progress/progressSlice";
+import {
+  setCourses,
+  setCourseLoading,
+  setCourseError,
+} from "@/lib/features/invictus/academy/course/courseSlice";
+import { courseApi } from "@/lib/features/invictus/academy/course/courseApi";
+import type { ICourseModule } from "@/lib/features/invictus/academy/course/courseTypes";
+import ChallengeModuleCard from "@/components/invictus/challenge/ChallengeModuleCard";
 
 export default function PillarChallengePage() {
   const dispatch = useAppDispatch();
-  const { pillars, loading, error } = useAppSelector((state) => state.pillar);
-  const pillarAccessById = useAppSelector(
-    (state) => state.entitlement.pillarAccessById,
+  const params = useParams<{ pillarSlug: string }>();
+
+  const { selectedPillar, loading: pillarLoading, error: pillarError } = useAppSelector((state) => state.pillar);
+  const { courses, loading, error: courseError } = useAppSelector((state) => state.course);
+  const { myProgress } = useAppSelector((state) => state.progress);
+  const pillarAccessById = useAppSelector((state) => state.entitlement.pillarAccessById);
+
+  useEffect(() => {
+    dispatch(fetchPillarBySlug(params.pillarSlug));
+    dispatch(fetchMyAllProgress());
+  }, [dispatch, params.pillarSlug]);
+
+  useEffect(() => {
+    if (!selectedPillar) return;
+
+    if (selectedPillar.isPaid) {
+      dispatch(checkPillarAccess(selectedPillar._id));
+    }
+
+    const loadCourses = async () => {
+      try {
+        dispatch(setCourseLoading(true));
+        dispatch(setCourseError(null));
+
+        const res = await courseApi.getCoursesByPillar(selectedPillar._id);
+        const payload = Array.isArray(res?.data?.modules) ? res.data.modules : [];
+
+        dispatch(setCourses(payload));
+      } catch (err: any) {
+        // eslint-disable-next-line no-console
+        console.error("Failed to load modules for pillar", selectedPillar._id, err);
+        const message =
+          err?.response?.data?.message || err?.message || "Failed to load modules for this pillar";
+        dispatch(setCourseError(message));
+        dispatch(setCourses([]));
+      } finally {
+        dispatch(setCourseLoading(false));
+      }
+    };
+
+    loadCourses();
+  }, [dispatch, selectedPillar]);
+
+  if (!selectedPillar) {
+    if (pillarLoading) {
+      return (
+        <div className="min-h-screen bg-[#FAF8F3] px-[6vw] py-[2vw] text-sm text-[#8A8175]">
+          Loading pillar...
+        </div>
+      );
+    }
+
+    return (
+      <div className="min-h-screen bg-[#FAF8F3] px-[6vw] py-[2vw] text-sm">
+        <p className="text-red-600">{pillarError || "This pillar is not available."}</p>
+        <Link href="/invictus/invictus-challenge" className="mt-4 inline-block text-sm text-[#B18A3A]">
+          &larr; Back to all pillars
+        </Link>
+      </div>
+    );
+  }
+
+  const safeCourses: ICourseModule[] = Array.isArray(courses) ? courses : [];
+
+  const hasAccess =
+    !selectedPillar.isPaid || pillarAccessById[selectedPillar._id]?.hasAccess === true;
+  const publishedModules = safeCourses.filter(
+    (course: ICourseModule) => course.status === "published",
   );
 
-  useEffect(() => {
-    dispatch(fetchPillars(false));
-  }, [dispatch]);
-
-  useEffect(() => {
-    pillars
-      .filter((pillar) => pillar.isPaid)
-      .forEach((pillar) => dispatch(checkPillarAccess(pillar._id)));
-  }, [dispatch, pillars]);
-
   return (
-    <div className="min-h-screen bg-[#FAF8F3] px-[6vw] py-[2vw] text-[#171717]">
-      <div className="mx-auto max-w-295">
-        <h1 className="mb-8 text-4xl font-bold">Invictus Challenge</h1>
+    <div className="min-h-screen bg-[#FAF8F3] text-[#171717] mx-auto max-w-[1180px] px-[6vw] py-[2vw] sm:px-8">
+      <div className="relative overflow-hidden rounded-3xl border border-[#E8DDCA] bg-white p-10 shadow-sm">
+        <div className="relative z-10">
+          <p className="text-xs uppercase tracking-[5px] text-[#B18A3A]">
+            {selectedPillar.name}
+          </p>
+          <h1 className="mt-4 max-w-3xl text-4xl font-bold text-[#171717]">
+            {selectedPillar.title}
+          </h1>
+          <p className="mt-4 max-w-2xl text-[#8A8175]">
+            {selectedPillar.description}
+          </p>
+
+          {!hasAccess && (
+            <div className="mt-6 flex items-center gap-3 rounded-2xl border border-[#B18A3A]/30 bg-[#F3E9D2] p-4 text-[#171717]">
+              <Lock size={20} className="text-[#B18A3A]" />
+              <span className="text-sm">
+                This pillar is ${(selectedPillar.priceCents / 100).toFixed(2)}.
+                Purchase it to unlock every paid video inside.
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-12">
+        <h2 className="mb-6 text-2xl font-semibold text-[#171717]">Modules</h2>
 
         {loading ? (
-          <p className="text-sm text-[#8A8175]">Loading pillars...</p>
-        ) : error ? (
-          <p className="text-sm text-red-600">Failed to load pillars.</p>
+          <p className="text-sm text-[#8A8175]">Loading modules...</p>
+        ) : courseError ? (
+          <p className="text-sm text-red-600">{courseError}</p>
+        ) : publishedModules.length === 0 ? (
+          <p className="text-sm text-[#8A8175]">
+            No modules are published for this pillar yet.
+          </p>
         ) : (
           <div className="grid gap-6 md:grid-cols-3">
-            {pillars.map((pillar) => (
-              <ChallengePillarCard
-                key={pillar._id}
-                pillar={pillar}
-                hasAccess={pillarAccessById[pillar._id]?.hasAccess === true}
-              />
-            ))}
+            {publishedModules.map((courseModule: ICourseModule) => {
+              const progress = myProgress.find(
+                (item) => item.module._id === courseModule._id,
+              );
+
+              return (
+                <ChallengeModuleCard
+                  key={courseModule._id}
+                  courseModule={courseModule}
+                  pillarSlug={selectedPillar.slug}
+                  progressPercent={progress?.overallCompletionPercent ?? 0}
+                  isCompleted={progress?.isCompleted ?? false}
+                />
+              );
+            })}
           </div>
         )}
+      </div>
+
+      <div className="mt-10">
+        <Link
+          href="/invictus/invictus-challenge"
+          className="text-sm text-[#B18A3A]"
+        >
+          &larr; Back to all pillars
+        </Link>
       </div>
     </div>
   );

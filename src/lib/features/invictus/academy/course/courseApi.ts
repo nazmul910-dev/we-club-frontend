@@ -14,6 +14,20 @@ export type ApiEnvelope<T> = {
   data: T;
 };
 
+export interface IPillarModulesResult {
+  pillar: {
+    _id: string;
+    name?: string;
+    slug?: string;
+    title?: string;
+    isPaid?: boolean;
+    priceCents?: number;
+    currency?: string;
+    status?: string;
+  };
+  modules: ICourseModule[];
+}
+
 const COURSE_URL = "/invictus/course-modules";
 
 export const courseApi = {
@@ -34,10 +48,11 @@ export const courseApi = {
   },
 
   // Get Courses By Pillar
+  // NOTE: backend returns { pillar, modules }, not a bare array
 
   getCoursesByPillar: async (
     pillarId: string,
-  ): Promise<ApiEnvelope<ICourseModule[]>> => {
+  ): Promise<ApiEnvelope<IPillarModulesResult>> => {
     const res = await api.get(`${COURSE_URL}/pillar/${pillarId}`);
 
     return res.data;

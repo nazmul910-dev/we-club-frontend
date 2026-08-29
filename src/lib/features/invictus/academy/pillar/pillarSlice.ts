@@ -128,8 +128,19 @@ const pillarSlice = createSlice({
         state.loading = false;
         state.error = action.error.message || "Failed loading pillars";
       })
+      .addCase(fetchPillarBySlug.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.selectedPillar = null;
+      })
       .addCase(fetchPillarBySlug.fulfilled, (state, action) => {
+        state.loading = false;
         state.selectedPillar = action.payload;
+      })
+      .addCase(fetchPillarBySlug.rejected, (state, action) => {
+        state.loading = false;
+        state.selectedPillar = null;
+        state.error = action.error.message || "Pillar not found or unavailable";
       })
       .addCase(createPillar.pending, (state) => {
         state.actionLoading = true;
