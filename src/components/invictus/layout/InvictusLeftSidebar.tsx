@@ -28,6 +28,8 @@ import {
   FolderOpen,
   ListChecks,
   ClipboardList,
+  Tent,
+  CalendarCheck,
 } from "lucide-react";
 
 import {
@@ -81,6 +83,7 @@ export default function InvictusLeftSidebar({
   const [peopleOpen, setPeopleOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
   const [academyOpen, setAcademyOpen] = useState(false);
+  const [managementOpen, setManagementOpen] = useState(false);
 
 const academyItems = [
   {
@@ -119,6 +122,25 @@ const academyItems = [
     icon: ClipboardList,
   },
 ];
+
+  const managementItems = [
+    {
+      label: "RETREAT BOOKINGS",
+      href: "/invictus/management/retreat-bookings",
+      icon: Tent,
+    },
+    {
+      label: "MENTOR BOOKINGS",
+      href: "/invictus/management/mentor-bookings",
+      icon: CalendarCheck,
+    },
+  ];
+
+  const canManageInvictus =
+    userRole === "founder" ||
+    userRole === "super_admin" ||
+    userRole === "admin" ||
+    userRole === "manager";
 
   const mainItems: NavItem[] = [
     {
@@ -236,6 +258,10 @@ const academyItems = [
     pathname.startsWith(item.href),
   );
 
+  const isManagementActive = managementItems.some((item) =>
+    pathname.startsWith(item.href),
+  );
+
   useEffect(() => {
     if (isPeopleActive) {
       setPeopleOpen(true);
@@ -248,7 +274,11 @@ const academyItems = [
     if (isAcademyActive) {
       setAcademyOpen(true);
     }
-  }, [isPeopleActive, isServiceActive, isAcademyActive]);
+
+    if (isManagementActive) {
+      setManagementOpen(true);
+    }
+  }, [isPeopleActive, isServiceActive, isAcademyActive, isManagementActive]);
 
   const closeSidebar = () => setIsOpen(false);
 
@@ -370,6 +400,64 @@ ${active ? "bg-[#F3EBD8] text-[#947124]" : "text-[#6C6357] hover:bg-[#F6F1E7]"}
               </div>
             </div>
           </div>
+
+          {canManageInvictus && (
+            <div className="mb-3">
+              <button
+                onClick={() => setManagementOpen(!managementOpen)}
+                className={`flex w-full items-center justify-between cursor-pointer rounded-xl px-3 py-2.5 transition-all ${
+                  isManagementActive
+                    ? "bg-[#F3EBD8] text-[#947124]"
+                    : "text-[#5C5348] hover:bg-[#F6F1E7]"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#F3EEE4]">
+                    <Tent size={15} />
+                  </div>
+
+                  <span className="font-montserrat text-[11px] font-semibold uppercase tracking-wider">
+                    Management
+                  </span>
+                </div>
+
+                <ChevronDown
+                  size={15}
+                  className={`transition-transform ${
+                    managementOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              <div
+                className={`overflow-hidden transition-all ${
+                  managementOpen ? "max-h-40 mt-2" : "max-h-0"
+                }`}
+              >
+                <div className="ml-5 space-y-1 border-l border-[#D9CEBA] pl-3">
+                  {managementItems.map(({ label, href, icon: Icon }) => {
+                    const active = pathname.startsWith(href);
+
+                    return (
+                      <Link
+                        key={href}
+                        href={href}
+                        onClick={closeSidebar}
+                        className={`flex items-center gap-2 rounded-lg px-3 py-2 font-montserrat text-[10px] font-medium uppercase transition ${
+                          active
+                            ? "bg-[#F3EBD8] text-[#947124]"
+                            : "text-[#6C6357] hover:bg-[#F6F1E7]"
+                        }`}
+                      >
+                        <Icon size={13} />
+                        <span>{label}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="mb-3">
             <button

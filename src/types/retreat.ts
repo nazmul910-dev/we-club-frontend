@@ -35,6 +35,19 @@ export type RetreatSchedule = {
   seatsTotal?: number;
 };
 
+export type RetreatLocationRef = {
+  _id: string;
+  title: string;
+  slug: string;
+  country: string;
+  city: string;
+  coverImage?: string;
+  tagline?: string;
+  promoVideoUrl?: string;
+  whatsIncluded?: string[];
+  status: string;
+};
+
 export type RetreatBatch = {
   _id: string;
   batchName: string;
@@ -49,6 +62,7 @@ export type RetreatBatch = {
   status: string;
   isFeatured: boolean;
   isActive: boolean;
+  retreatLocation: string | RetreatLocationRef;
 };
 
 export interface RetreatBooking {
