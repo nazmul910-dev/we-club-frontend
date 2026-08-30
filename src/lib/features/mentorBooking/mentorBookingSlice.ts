@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSelector, createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { ICancelMentorBookingPayload, ICompleteMentorBookingPayload, IConfirmMentorBookingPayload, ICreateMentorBookingPayload, IMentorBooking, IMentorBookingQuery, IMyMentorResponse, INoShowMentorBookingPayload, IPaginatedBookings, ISelectCoMentorPayload, IUpdateMentorBookingPayload } from "./mentorBookingTypes";
 import { RootState } from "@/lib/redux/store/store";
@@ -17,6 +17,11 @@ interface MentorBookingState {
   selectedBooking: IMentorBooking | null;
   myMentor: IMyMentorResponse | null;
 
+  // Single source of truth for whichever booking an admin/mentor is
+  // currently viewing — kept in sync by every admin action below, so any
+  // component reading it re-renders immediately on status changes.
+  adminSelectedBooking: IMentorBooking | null;
+
   listStatus: RequestStatus;
   createStatus: RequestStatus;
   singleStatus: RequestStatus;
@@ -26,16 +31,15 @@ interface MentorBookingState {
   selectCoMentorStatus: RequestStatus;
   completeStatus: RequestStatus;
 
-  adminListStatus: RequestStatus;
-  adminSingleStatus: RequestStatus;
-  adminUpdateStatus: RequestStatus;
+  adminFetchSingleStatus: RequestStatus;
   adminConfirmStatus: RequestStatus;
   adminCancelStatus: RequestStatus;
   adminNoShowStatus: RequestStatus;
+  adminCompleteStatus: RequestStatus;
 
   adminBookings: IMentorBooking[];
-
   adminBookingsMeta: IPaginatedBookings["meta"] | null;
+  adminListStatus: RequestStatus;
 
   error: string | null;
 }
@@ -46,6 +50,7 @@ const initialState: MentorBookingState = {
   selectedBooking: null,
   myMentor: null,
   completedBookings: [],
+  adminSelectedBooking: null,
   listStatus: "idle",
   createStatus: "idle",
   singleStatus: "idle",
@@ -55,15 +60,15 @@ const initialState: MentorBookingState = {
   selectCoMentorStatus: "idle",
   completeStatus: "idle",
 
-  adminListStatus: "idle",
-  adminSingleStatus: "idle",
-  adminUpdateStatus: "idle",
+  adminFetchSingleStatus: "idle",
   adminConfirmStatus: "idle",
   adminCancelStatus: "idle",
   adminNoShowStatus: "idle",
+  adminCompleteStatus: "idle",
 
   adminBookings: [],
   adminBookingsMeta: null,
+  adminListStatus: "idle",
 
   error: null,
 };
@@ -86,6 +91,20 @@ const getErrorMessage = (error: unknown): string => {
 };
 
 // ---------------- Thunks ----------------
+
+
+export const fetchAdminMentorBookings = createAsyncThunk<
+  IPaginatedBookings,
+  IMentorBookingQuery | undefined,
+  { state: RootState; rejectValue: string }
+>("mentorBooking/fetchAdminBookings", async (query, { rejectWithValue }) => {
+  try {
+    return await mentorBookingApi.fetchAdminBookings(query);
+  } catch (error) {
+    return rejectWithValue(getErrorMessage(error));
+  }
+});
+
 
 export const createMentorBooking = createAsyncThunk<
   IMentorBooking,
@@ -170,6 +189,86 @@ export const completeMentorBooking = createAsyncThunk<
   },
 );
 
+// ---------------- Admin / mentor-facing thunks ----------------
+// These all write to `adminSelectedBooking`, which is the single source of
+// truth an admin booking-details view should render from — so the status
+// badge, buttons, etc. update immediately after any action succeeds.
+
+export const fetchSingleMentorBookingAdmin = createAsyncThunk<
+  IMentorBooking,
+  string,
+  { state: RootState; rejectValue: string }
+>(
+  "mentorBooking/fetchSingleAdmin",
+  async (id, { rejectWithValue }) => {
+    try {
+      return await mentorBookingApi.fetchSingleBookingAdmin(id);
+    } catch (error) {
+      return rejectWithValue(getErrorMessage(error));
+    }
+  },
+);
+
+export const confirmAdminMentorBooking = createAsyncThunk<
+  IMentorBooking,
+  { id: string; payload: IConfirmMentorBookingPayload },
+  { state: RootState; rejectValue: string }
+>(
+  "mentorBooking/confirmAdmin",
+  async ({ id, payload }, { rejectWithValue }) => {
+    try {
+      return await mentorBookingApi.confirmBooking(id, payload);
+    } catch (error) {
+      return rejectWithValue(getErrorMessage(error));
+    }
+  },
+);
+
+export const cancelAdminMentorBooking = createAsyncThunk<
+  IMentorBooking,
+  { id: string; payload: ICancelMentorBookingPayload },
+  { state: RootState; rejectValue: string }
+>(
+  "mentorBooking/cancelAdmin",
+  async ({ id, payload }, { rejectWithValue }) => {
+    try {
+      return await mentorBookingApi.cancelBooking(id, payload);
+    } catch (error) {
+      return rejectWithValue(getErrorMessage(error));
+    }
+  },
+);
+
+export const markAdminMentorBookingNoShow = createAsyncThunk<
+  IMentorBooking,
+  { id: string; payload: INoShowMentorBookingPayload },
+  { state: RootState; rejectValue: string }
+>(
+  "mentorBooking/markNoShowAdmin",
+  async ({ id, payload }, { rejectWithValue }) => {
+    try {
+      return await mentorBookingApi.markNoShow(id, payload);
+    } catch (error) {
+      return rejectWithValue(getErrorMessage(error));
+    }
+  },
+);
+
+export const completeAdminMentorBooking = createAsyncThunk<
+  IMentorBooking,
+  { id: string; payload: ICompleteMentorBookingPayload },
+  { state: RootState; rejectValue: string }
+>(
+  "mentorBooking/completeAdmin",
+  async ({ id, payload }, { rejectWithValue }) => {
+    try {
+      return await mentorBookingApi.completeBooking(id, payload);
+    } catch (error) {
+      return rejectWithValue(getErrorMessage(error));
+    }
+  },
+);
+
 // The new endpoint: resolves the member's primary mentor + selected
 // co-mentor + next session
 export const fetchMyMentor = createAsyncThunk<
@@ -198,113 +297,6 @@ export const selectCoMentor = createAsyncThunk<
   }
 });
 
-
-
-export const fetchAllMentorBookings = createAsyncThunk<
-  IPaginatedBookings,
-  IMentorBookingQuery | undefined,
-  { state: RootState; rejectValue: string }
->(
-  "mentorBooking/fetchAll",
-  async (query, { rejectWithValue }) => {
-    try {
-      return await mentorBookingApi.fetchAllBookings(query);
-    } catch (error) {
-      return rejectWithValue(getErrorMessage(error));
-    }
-  },
-);
-
-export const fetchAdminMentorBooking = createAsyncThunk<
-  IMentorBooking,
-  string,
-  { state: RootState; rejectValue: string }
->(
-  "mentorBooking/fetchAdminSingle",
-  async (id, { rejectWithValue }) => {
-    try {
-      return await mentorBookingApi.fetchBooking(id);
-    } catch (error) {
-      return rejectWithValue(getErrorMessage(error));
-    }
-  },
-);
-
-export const updateAdminMentorBooking = createAsyncThunk<
-  IMentorBooking,
-  {
-    id: string;
-    payload: IUpdateMentorBookingPayload;
-  },
-  { state: RootState; rejectValue: string }
->(
-  "mentorBooking/adminUpdate",
-  async ({ id, payload }, { rejectWithValue }) => {
-    try {
-      return await mentorBookingApi.updateBooking(id, payload);
-    } catch (error) {
-      return rejectWithValue(getErrorMessage(error));
-    }
-  },
-);
-
-export const confirmAdminMentorBooking = createAsyncThunk<
-  IMentorBooking,
-  {
-    id: string;
-    payload: IConfirmMentorBookingPayload;
-  },
-  { state: RootState; rejectValue: string }
->(
-  "mentorBooking/adminConfirm",
-  async ({ id, payload }, { rejectWithValue }) => {
-    try {
-      return await mentorBookingApi.confirmBooking(id, payload);
-    } catch (error) {
-      return rejectWithValue(getErrorMessage(error));
-    }
-  },
-);
-
-export const cancelAdminMentorBooking = createAsyncThunk<
-  IMentorBooking,
-  {
-    id: string;
-    payload: ICancelMentorBookingPayload;
-  },
-  { state: RootState; rejectValue: string }
->(
-  "mentorBooking/adminCancel",
-  async ({ id, payload }, { rejectWithValue }) => {
-    try {
-      return await mentorBookingApi.cancelBooking(id, payload);
-    } catch (error) {
-      return rejectWithValue(getErrorMessage(error));
-    }
-  },
-);
-
-export const markAdminMentorBookingNoShow = createAsyncThunk<
-  IMentorBooking,
-  {
-    id: string;
-    payload: INoShowMentorBookingPayload;
-  },
-  { state: RootState; rejectValue: string }
->(
-  "mentorBooking/adminNoShow",
-  async ({ id, payload }, { rejectWithValue }) => {
-    try {
-      return await mentorBookingApi.markNoShow(
-        id,
-        payload,
-      );
-    } catch (error) {
-      return rejectWithValue(getErrorMessage(error));
-    }
-  },
-);
-
 // ---------------- Slice ----------------
 
 const mentorBookingSlice = createSlice({
@@ -315,12 +307,29 @@ const mentorBookingSlice = createSlice({
       state.selectedBooking = null;
       state.singleStatus = "idle";
     },
+    clearAdminSelectedBooking(state) {
+      state.adminSelectedBooking = null;
+      state.adminFetchSingleStatus = "idle";
+    },
     clearMentorBookingError(state) {
       state.error = null;
     },
   },
   extraReducers: (builder) => {
     builder
+      .addCase(fetchAdminMentorBookings.pending, (state) => {
+        state.adminListStatus = "loading";
+        state.error = null;
+      })
+      .addCase(fetchAdminMentorBookings.fulfilled, (state, action) => {
+        state.adminListStatus = "succeeded";
+        state.adminBookings = action.payload.data;
+        state.adminBookingsMeta = action.payload.meta;
+      })
+      .addCase(fetchAdminMentorBookings.rejected, (state, action) => {
+        state.adminListStatus = "failed";
+        state.error = action.payload ?? "Failed to load bookings";
+      })
       // create
       .addCase(createMentorBooking.pending, (state) => {
         state.createStatus = "loading";
@@ -455,6 +464,88 @@ const mentorBookingSlice = createSlice({
         state.error = action.payload ?? "Failed to complete booking";
       })
 
+      // ---- admin/mentor actions: all sync adminSelectedBooking ----
+
+      .addCase(fetchSingleMentorBookingAdmin.pending, (state) => {
+        state.adminFetchSingleStatus = "loading";
+        state.error = null;
+      })
+      .addCase(
+        fetchSingleMentorBookingAdmin.fulfilled,
+        (state, action: PayloadAction<IMentorBooking>) => {
+          state.adminFetchSingleStatus = "succeeded";
+          state.adminSelectedBooking = action.payload;
+        },
+      )
+      .addCase(fetchSingleMentorBookingAdmin.rejected, (state, action) => {
+        state.adminFetchSingleStatus = "failed";
+        state.error = action.payload ?? "Failed to load booking";
+      })
+
+      .addCase(confirmAdminMentorBooking.pending, (state) => {
+        state.adminConfirmStatus = "loading";
+        state.error = null;
+      })
+      .addCase(
+        confirmAdminMentorBooking.fulfilled,
+        (state, action: PayloadAction<IMentorBooking>) => {
+          state.adminConfirmStatus = "succeeded";
+          state.adminSelectedBooking = action.payload;
+        },
+      )
+      .addCase(confirmAdminMentorBooking.rejected, (state, action) => {
+        state.adminConfirmStatus = "failed";
+        state.error = action.payload ?? "Failed to confirm booking";
+      })
+
+      .addCase(cancelAdminMentorBooking.pending, (state) => {
+        state.adminCancelStatus = "loading";
+        state.error = null;
+      })
+      .addCase(
+        cancelAdminMentorBooking.fulfilled,
+        (state, action: PayloadAction<IMentorBooking>) => {
+          state.adminCancelStatus = "succeeded";
+          state.adminSelectedBooking = action.payload;
+        },
+      )
+      .addCase(cancelAdminMentorBooking.rejected, (state, action) => {
+        state.adminCancelStatus = "failed";
+        state.error = action.payload ?? "Failed to cancel booking";
+      })
+
+      .addCase(markAdminMentorBookingNoShow.pending, (state) => {
+        state.adminNoShowStatus = "loading";
+        state.error = null;
+      })
+      .addCase(
+        markAdminMentorBookingNoShow.fulfilled,
+        (state, action: PayloadAction<IMentorBooking>) => {
+          state.adminNoShowStatus = "succeeded";
+          state.adminSelectedBooking = action.payload;
+        },
+      )
+      .addCase(markAdminMentorBookingNoShow.rejected, (state, action) => {
+        state.adminNoShowStatus = "failed";
+        state.error = action.payload ?? "Failed to mark booking as no-show";
+      })
+
+      .addCase(completeAdminMentorBooking.pending, (state) => {
+        state.adminCompleteStatus = "loading";
+        state.error = null;
+      })
+      .addCase(
+        completeAdminMentorBooking.fulfilled,
+        (state, action: PayloadAction<IMentorBooking>) => {
+          state.adminCompleteStatus = "succeeded";
+          state.adminSelectedBooking = action.payload;
+        },
+      )
+      .addCase(completeAdminMentorBooking.rejected, (state, action) => {
+        state.adminCompleteStatus = "failed";
+        state.error = action.payload ?? "Failed to complete booking";
+      })
+
       // my mentor
       .addCase(fetchMyMentor.pending, (state) => {
         state.myMentorStatus = "loading";
@@ -483,234 +574,11 @@ const mentorBookingSlice = createSlice({
       .addCase(selectCoMentor.rejected, (state, action) => {
         state.selectCoMentorStatus = "failed";
         state.error = action.payload ?? "Failed to select co-mentor";
-      })
-      .addCase(
-        fetchAllMentorBookings.pending,
-        (state) => {
-          state.adminListStatus = "loading";
-          state.error = null;
-        },
-      )
-      .addCase(
-        fetchAllMentorBookings.fulfilled,
-        (
-          state,
-          action: PayloadAction<IPaginatedBookings>,
-        ) => {
-          state.adminListStatus = "succeeded";
-
-          state.adminBookings = action.payload.data;
-          state.adminBookingsMeta = action.payload.meta;
-        },
-      )
-
-      .addCase(
-        fetchAllMentorBookings.rejected,
-        (state, action) => {
-          state.adminListStatus = "failed";
-          state.error =
-            action.payload ??
-            "Failed to fetch mentor bookings";
-        },
-      )
-      .addCase(
-        fetchAdminMentorBooking.pending,
-        (state) => {
-          state.adminSingleStatus = "loading";
-          state.error = null;
-        },
-      )
-
-      .addCase(
-        fetchAdminMentorBooking.fulfilled,
-        (
-          state,
-          action: PayloadAction<IMentorBooking>,
-        ) => {
-          state.adminSingleStatus = "succeeded";
-          state.selectedBooking = action.payload;
-        },
-      )
-
-      .addCase(
-        fetchAdminMentorBooking.rejected,
-        (state, action) => {
-          state.adminSingleStatus = "failed";
-          state.error =
-            action.payload ??
-            "Failed to load mentor booking";
-        },
-      )
-
-      // ============================================================
-      // ADMIN - UPDATE BOOKING
-      // ============================================================
-
-      .addCase(
-        updateAdminMentorBooking.pending,
-        (state) => {
-          state.adminUpdateStatus = "loading";
-          state.error = null;
-        },
-      )
-
-      .addCase(
-        updateAdminMentorBooking.fulfilled,
-        (
-          state,
-          action: PayloadAction<IMentorBooking>,
-        ) => {
-          state.adminUpdateStatus = "succeeded";
-
-          state.selectedBooking = action.payload;
-
-          state.bookings = state.bookings.map(
-            (booking) =>
-              booking._id === action.payload._id
-                ? action.payload
-                : booking,
-          );
-        },
-      )
-
-      .addCase(
-        updateAdminMentorBooking.rejected,
-        (state, action) => {
-          state.adminUpdateStatus = "failed";
-          state.error =
-            action.payload ??
-            "Failed to update mentor booking";
-        },
-      )
-
-      // ============================================================
-      // ADMIN - CONFIRM BOOKING
-      // ============================================================
-
-      .addCase(
-        confirmAdminMentorBooking.pending,
-        (state) => {
-          state.adminConfirmStatus = "loading";
-          state.error = null;
-        },
-      )
-
-      .addCase(
-        confirmAdminMentorBooking.fulfilled,
-        (
-          state,
-          action: PayloadAction<IMentorBooking>,
-        ) => {
-          state.adminConfirmStatus = "succeeded";
-
-          state.selectedBooking = action.payload;
-
-          state.bookings = state.bookings.map(
-            (booking) =>
-              booking._id === action.payload._id
-                ? action.payload
-                : booking,
-          );
-        },
-      )
-
-      .addCase(
-        confirmAdminMentorBooking.rejected,
-        (state, action) => {
-          state.adminConfirmStatus = "failed";
-          state.error =
-            action.payload ??
-            "Failed to confirm mentor booking";
-        },
-      )
-
-      // ============================================================
-      // ADMIN - CANCEL BOOKING
-      // ============================================================
-
-      .addCase(
-        cancelAdminMentorBooking.pending,
-        (state) => {
-          state.adminCancelStatus = "loading";
-          state.error = null;
-        },
-      )
-
-      .addCase(
-        cancelAdminMentorBooking.fulfilled,
-        (
-          state,
-          action: PayloadAction<IMentorBooking>,
-        ) => {
-          state.adminCancelStatus = "succeeded";
-
-          state.selectedBooking = action.payload;
-
-          state.bookings = state.bookings.map(
-            (booking) =>
-              booking._id === action.payload._id
-                ? action.payload
-                : booking,
-          );
-        },
-      )
-
-      .addCase(
-        cancelAdminMentorBooking.rejected,
-        (state, action) => {
-          state.adminCancelStatus = "failed";
-          state.error =
-            action.payload ??
-            "Failed to cancel mentor booking";
-        },
-      )
-
-      // ============================================================
-      // ADMIN - NO SHOW
-      // ============================================================
-
-      .addCase(
-        markAdminMentorBookingNoShow.pending,
-        (state) => {
-          state.adminNoShowStatus = "loading";
-          state.error = null;
-        },
-      )
-
-      .addCase(
-        markAdminMentorBookingNoShow.fulfilled,
-        (
-          state,
-          action: PayloadAction<IMentorBooking>,
-        ) => {
-          state.adminNoShowStatus = "succeeded";
-
-          state.selectedBooking = action.payload;
-
-          state.bookings = state.bookings.map(
-            (booking) =>
-              booking._id === action.payload._id
-                ? action.payload
-                : booking,
-          );
-        },
-      )
-
-      .addCase(
-        markAdminMentorBookingNoShow.rejected,
-        (state, action) => {
-          state.adminNoShowStatus = "failed";
-          state.error =
-            action.payload ??
-            "Failed to mark booking as no-show";
-        },
-      )
-
-      ;
+      });
   },
 });
 
-export const { clearSelectedMentorBooking, clearMentorBookingError } =
+export const { clearSelectedMentorBooking, clearAdminSelectedBooking, clearMentorBookingError } =
   mentorBookingSlice.actions;
 
 // ---------------- Selectors ----------------
@@ -726,6 +594,9 @@ export const selectMentorBookingsMeta = (state: RootState) =>
 
 export const selectSelectedMentorBooking = (state: RootState) =>
   state.mentorBooking.selectedBooking;
+
+export const selectAdminSelectedBooking = (state: RootState) =>
+  state.mentorBooking.adminSelectedBooking;
 
 export const selectMyMentor = (state: RootState) =>
   state.mentorBooking.myMentor;
@@ -743,39 +614,6 @@ export const selectMyNextSession = (state: RootState) =>
 export const selectMentorBookingError = (state: RootState) =>
   state.mentorBooking.error;
 
-export const selectMentorBookingStatus = (
-  state: RootState,
-) => ({
-  // Member
-  list: state.mentorBooking.listStatus,
-  create: state.mentorBooking.createStatus,
-  single: state.mentorBooking.singleStatus,
-  update: state.mentorBooking.updateStatus,
-  cancel: state.mentorBooking.cancelStatus,
-  myMentor: state.mentorBooking.myMentorStatus,
-  selectCoMentor:
-    state.mentorBooking.selectCoMentorStatus,
-  complete: state.mentorBooking.completeStatus,
-
-  // Admin / Manager
-  adminList:
-    state.mentorBooking.adminListStatus,
-
-  adminSingle:
-    state.mentorBooking.adminSingleStatus,
-
-  adminUpdate:
-    state.mentorBooking.adminUpdateStatus,
-
-  adminConfirm:
-    state.mentorBooking.adminConfirmStatus,
-
-  adminCancel:
-    state.mentorBooking.adminCancelStatus,
-
-  adminNoShow:
-    state.mentorBooking.adminNoShowStatus,
-});
 
 // Convenience selector for the "upcoming session" card on the
 // accountability page: the soonest confirmed, not-yet-started booking.
@@ -799,14 +637,61 @@ export const selectUpcomingConfirmedBooking = (
   return upcoming[0] ?? null;
 };
 
-export const selectAdminMentorBookings = (
-  state: RootState,
-) => state.mentorBooking.adminBookings;
+export const selectAdminMentorBookings = (state: RootState) =>
+  state.mentorBooking.adminBookings;
 
-export const selectAdminMentorBookingsMeta = (
-  state: RootState,
-) => state.mentorBooking.adminBookingsMeta;
+export const selectAdminMentorBookingsMeta = (state: RootState) =>
+  state.mentorBooking.adminBookingsMeta;
 
 
+export const selectMentorBookingStatus = createSelector(
+  [
+    (state: RootState) => state.mentorBooking.listStatus,
+    (state: RootState) => state.mentorBooking.createStatus,
+    (state: RootState) => state.mentorBooking.singleStatus,
+    (state: RootState) => state.mentorBooking.updateStatus,
+    (state: RootState) => state.mentorBooking.cancelStatus,
+    (state: RootState) => state.mentorBooking.myMentorStatus,
+    (state: RootState) => state.mentorBooking.selectCoMentorStatus,
+    (state: RootState) => state.mentorBooking.completeStatus,
+    (state: RootState) => state.mentorBooking.adminListStatus,
+    (state: RootState) => state.mentorBooking.adminFetchSingleStatus,
+    (state: RootState) => state.mentorBooking.adminConfirmStatus,
+    (state: RootState) => state.mentorBooking.adminCancelStatus,
+    (state: RootState) => state.mentorBooking.adminNoShowStatus,
+    (state: RootState) => state.mentorBooking.adminCompleteStatus,
+  ],
+  (
+    list,
+    create,
+    single,
+    update,
+    cancel,
+    myMentor,
+    selectCoMentor,
+    complete,
+    adminList,
+    adminFetchSingle,
+    adminConfirm,
+    adminCancel,
+    adminNoShow,
+    adminComplete,
+  ) => ({
+    list,
+    create,
+    single,
+    update,
+    cancel,
+    myMentor,
+    selectCoMentor,
+    complete,
+    adminList,
+    adminFetchSingle,
+    adminConfirm,
+    adminCancel,
+    adminNoShow,
+    adminComplete,
+  }),
+);
 
 export default mentorBookingSlice.reducer;
