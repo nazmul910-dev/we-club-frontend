@@ -28,6 +28,7 @@ import {
   FolderOpen,
   ListChecks,
   ClipboardList,
+  CalendarClock,
 } from "lucide-react";
 
 import {
@@ -138,6 +139,16 @@ const academyItems = [
     label: "ASSESSMENTS",
     href: "/invictus/academy/manage-quiz-questions",
     icon: ClipboardList,
+    role:[
+      "founder",
+      "manager"
+    ]
+  },
+
+  {
+    label: "MANAGE SESSIONS",
+    href: "/invictus/academy/manage-sessions",
+    icon: CalendarClock,
     role:[
       "founder",
       "manager"
