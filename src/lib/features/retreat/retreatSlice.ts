@@ -586,9 +586,13 @@ export const refundRetreatBookingByAdmin = createAsyncThunk<
 >(
   "retreat/refundAdminBooking",
   async ({ bookingId, ...payload }, { rejectWithValue }) => {
+    console.log("booking details", bookingId, payload)
+
     try {
       return await refundRetreatBookingAdmin(bookingId, payload);
     } catch (error) {
+
+      console.log("error on return ", error)
       return rejectWithValue(
         getErrorMessage(error, "Failed to refund booking"),
       );

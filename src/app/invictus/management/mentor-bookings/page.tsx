@@ -52,6 +52,7 @@ import BookingSkeleton from "@/components/mentorBooking/BookingSkeleton";
 import { formatDate2 } from "@/lib/utils/Helpers";
 import StatusBadge from "@/components/mentorBooking/StatusBadge";
 import BookingDetails from "@/components/mentorBooking/BookingDetails";
+import { PageContainer } from "@/components/common";
 
 const STATUS_LABELS = {
     requested: "Requested",
@@ -173,7 +174,7 @@ export default function AdminMentorBookingsPage() {
     }, [bookings, meta]);
 
     return (
-        <main className="min-h-screen bg-[#FBF9F4] px-4 py-6 sm:px-6 sm:py-8">
+        <PageContainer className="min-h-screen bg-[#FBF9F4] px-4 py-6 sm:px-6 sm:py-8">
             <div className="mx-auto max-w-[1600px] space-y-6 sm:space-y-8">
                 {/* Header */}
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -524,6 +525,6 @@ export default function AdminMentorBookingsPage() {
                         )}
                 </SheetContent>
             </Sheet>
-        </main>
+        </PageContainer>
     );
 }
