@@ -249,19 +249,27 @@ export default function ProfileCertificateModal({
               </div>
 
               <p className="mx-auto mt-3 max-w-lg text-[11px] leading-relaxed text-[#5A534A]">
-                for demonstrating leadership excellence, mastering all lessons & resources, and passing the
-                comprehensive module evaluation with a distinction score of{" "}
+                for demonstrating leadership excellence, mastering all lessons & resources, and passing
+                comprehensive evaluations with a distinction score of{" "}
                 <span className="font-bold text-[#B08A3E]">{certificate.score}%</span> in:
               </p>
 
-              {/* Course Module Badge */}
+              {/* Pillar / Module Badge */}
               <div className="mx-auto mt-2.5 inline-flex items-center gap-2 rounded-xl border border-[#B08A3E]/40 bg-[#F3E9D2]/80 px-6 py-2 shadow-sm">
                 <Sparkles size={14} className="text-[#B08A3E]" />
-                <span className="font-serif text-sm font-bold text-[#1C1A17]">{moduleTitle}</span>
-                <span className="text-[#B08A3E]">·</span>
-                <span className="text-xs font-semibold uppercase tracking-wider text-[#B08A3E]">
-                  {pillarName}
+                <span className="font-serif text-sm font-bold text-[#1C1A17]">
+                  {certificate.pillar?.name
+                    ? `${certificate.pillar.name} Pillar Track`
+                    : certificate.module?.title || "Executive Challenge"}
                 </span>
+                {certificate.module?.title && (
+                  <>
+                    <span className="text-[#B08A3E]">·</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-[#B08A3E]">
+                      {certificate.module.title}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
 

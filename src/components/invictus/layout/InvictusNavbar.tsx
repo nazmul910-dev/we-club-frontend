@@ -39,6 +39,8 @@ import {
   fetchCurrentUserProfile,
 } from "@/lib/features/auth/authUserSlice";
 
+import NotificationDropdown from "@/components/invictus/notifications/NotificationDropdown";
+
 import { clearProfile } from "@/lib/features/profile/profileSlice";
 
 import { getInitials, formatLabel } from "@/lib/utils/auth";
@@ -126,12 +128,8 @@ const isInvictusPage = pathname.startsWith("/invictus");
         <div className="flex items-center gap-3">
            {isInvictusPage && <LanguageSwitch/>}
            
-          <button className="relative flex h-9 w-9 items-center justify-center rounded-full text-[#6B6358] transition hover:bg-[#F3EBD8]">
-            <Bell size={17} />
-
-            <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-[#947124] ring-2 ring-[#FAF8F5]" />
-          </button>
-          <div className="hidden lg:block">
+           <NotificationDropdown />
+           <div className="hidden lg:block">
             <DropdownMenu>
               <DropdownMenuTrigger className="outline-none">
                 <div className="group flex cursor-pointer items-center gap-2 rounded-full border border-transparent p-1 transition hover:border-[#E0D7C4]">

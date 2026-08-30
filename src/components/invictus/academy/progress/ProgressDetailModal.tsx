@@ -34,8 +34,20 @@ export default function ProgressDetailModal({ open, onClose, record }: Props) {
 
   const handleRefresh = async () => {
     try {
+      const userId =
+        typeof record.user === "string" ? record.user : record.user?._id;
+      const moduleId =
+        typeof record.module === "string" ? record.module : record.module?._id;
+
+      if (!userId || !moduleId) {
+        toast.error("Invalid progress record details");
+        return;
+      }
+
       setRefreshing(true);
-      await dispatch(fetchUserModuleProgress({ userId: record.user._id, moduleId: record.module._id })).unwrap();
+      await dispatch(
+        fetchUserModuleProgress({ userId, moduleId }),
+      ).unwrap();
       toast.success("Progress recalculated from the latest activity");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Could not refresh progress, try again";

@@ -74,11 +74,11 @@ export const certificateApi = {
     return res.data;
   },
 
-  // Logged in member: issue my certificate once a module quiz is passed
+  // Logged in member: claim pillar certificate once ALL module quizzes in the pillar are passed
   issueMine: async (
-    moduleId: string,
+    pillarId: string,
   ): Promise<ApiEnvelope<IQuizCertificate>> => {
-    const res = await api.post(`${CERTIFICATE_URL}/module/${moduleId}/issue`);
+    const res = await api.post(`${CERTIFICATE_URL}/pillar/${pillarId}/issue`);
     return res.data;
   },
 

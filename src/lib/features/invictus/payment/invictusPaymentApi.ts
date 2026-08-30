@@ -20,11 +20,13 @@ export const invictusPaymentApi = {
    * POST /invictus/payments/checkout
    */
   createCheckoutSession: async (
-    paymentPlanId: string
+    payload: string | { paymentPlanId?: string; pillarId?: string; discountCode?: string }
   ): Promise<ApiEnvelope<IInvictusCheckoutResponse>> => {
-    const res = await api.post(`${INVICTUS_PAYMENTS_URL}/checkout`, {
-      paymentPlanId,
-    });
+    const body =
+      typeof payload === "string"
+        ? { paymentPlanId: payload }
+        : payload;
+    const res = await api.post(`${INVICTUS_PAYMENTS_URL}/checkout`, body);
     return res.data;
   },
 

@@ -368,7 +368,7 @@ export default function ProfileAcademyProgress({
               <Award size={40} className="mx-auto text-[#B08A3E]/60" />
               <h4 className="mt-4 text-lg font-semibold text-[#1C1A17]">No Certificates Earned Yet</h4>
               <p className="mt-1 text-sm text-[#8A8175]">
-                Score 70% or higher on any module assessment to claim your official Invictus Certificate.
+                Complete all modules and pass assessments across an Invictus Pillar to earn your official Certificate.
               </p>
               <Link
                 href="/invictus/invictus-challenge"
@@ -409,7 +409,7 @@ export default function ProfileAcademyProgress({
                         {cert.pillar?.name || "INVICTUS CHALLENGE"}
                       </span>
                       <h4 className="mt-1 text-lg font-serif font-bold text-[#1C1A17]">
-                        {cert.module?.title || "Course Certificate"}
+                        {cert.pillar?.name ? `${cert.pillar.name} Pillar Certificate` : cert.module?.title || "Course Certificate"}
                       </h4>
                       <p className="mt-2 font-mono text-xs text-[#8A8175]">
                         Certificate ID: {cert.certificateNumber}

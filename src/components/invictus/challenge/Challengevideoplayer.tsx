@@ -9,9 +9,10 @@ import {
   fetchMyVideoProgress,
   sendVideoHeartbeat,
 } from "@/lib/features/invictus/videoProgress/videoProgressSlice";
+import { fetchMyModuleProgress } from "@/lib/features/invictus/academy/progress/progressSlice";
+import { fetchMyModuleVideoProgress } from "@/lib/features/invictus/videoProgress/videoProgressSlice";
 import type { IModuleVideo } from "@/lib/features/invictus/academy/video-module/videoTypes";
 import BuyPillarModal from "@/components/invictus/challenge/BuyPillarModal";
-import { fetchPillarBySlug } from "@/lib/features/invictus/academy/pillar/pillarSlice";
 import type { ChallengePillar } from "@/lib/features/invictus/academy/pillar/pillarTypes";
 
 const HEARTBEAT_INTERVAL_SECONDS = 10;
@@ -19,9 +20,12 @@ const HEARTBEAT_INTERVAL_SECONDS = 10;
 interface Props {
   video: IModuleVideo;
   pillarSlug: string;
+  moduleId?: string;
+  /** Pass the current pillar so the player doesn't re-fetch it (which resets selectedPillar) */
+  pillar?: ChallengePillar | null;
 }
 
-export default function ChallengeVideoPlayer({ video, pillarSlug }: Props) {
+export default function ChallengeVideoPlayer({ video, pillarSlug, moduleId, pillar }: Props) {
   const dispatch = useAppDispatch();
   const videoRef = useRef<HTMLVideoElement>(null);
   const segmentStartRef = useRef<number | null>(null);
@@ -33,7 +37,10 @@ export default function ChallengeVideoPlayer({ video, pillarSlug }: Props) {
   const resume = useAppSelector(
     (state) => state.videoProgress.byVideoId[video._id]
   );
-  const { selectedPillar } = useAppSelector((state) => state.pillar);
+
+  // Use the pillar passed from the parent page — do NOT dispatch fetchPillarBySlug here
+  // as it resets selectedPillar to null in the pillar slice, breaking the parent page.
+  const activePillar = pillar ?? null;
 
   useEffect(() => {
     dispatch(checkVideoAccess(video._id));
@@ -43,19 +50,12 @@ export default function ChallengeVideoPlayer({ video, pillarSlug }: Props) {
     setHasResumed(false);
   }, [dispatch, video._id]);
 
-  // Load the pillar so we can pass it to the BuyPillarModal
-  useEffect(() => {
-    if (!selectedPillar || selectedPillar.slug !== pillarSlug) {
-      dispatch(fetchPillarBySlug(pillarSlug));
-    }
-  }, [dispatch, pillarSlug, selectedPillar]);
-
-  const flushHeartbeat = (currentPosition: number) => {
+  const flushHeartbeat = async (currentPosition: number) => {
     if (segmentStartRef.current === null) return;
     const segmentStart = segmentStartRef.current;
     if (currentPosition <= segmentStart) return;
 
-    dispatch(
+    await dispatch(
       sendVideoHeartbeat({
         videoId: video._id,
         data: {
@@ -65,6 +65,11 @@ export default function ChallengeVideoPlayer({ video, pillarSlug }: Props) {
         },
       })
     );
+
+    if (moduleId) {
+      dispatch(fetchMyModuleProgress(moduleId));
+      dispatch(fetchMyModuleVideoProgress(moduleId));
+    }
   };
 
   const handleLoadedMetadata = () => {
@@ -121,9 +126,9 @@ export default function ChallengeVideoPlayer({ video, pillarSlug }: Props) {
 
   // Locked — needs pillar purchase
   if (!access.canWatch) {
-    const pillarTitle = access.pillar?.title ?? selectedPillar?.title;
-    const priceCents = access.pillar?.priceCents ?? selectedPillar?.priceCents;
-    const currency = access.pillar?.currency ?? selectedPillar?.currency ?? "usd";
+    const pillarTitle = access.pillar?.title ?? activePillar?.title;
+    const priceCents = access.pillar?.priceCents ?? activePillar?.priceCents;
+    const currency = access.pillar?.currency ?? activePillar?.currency ?? "usd";
 
     const priceFormatted = priceCents
       ? new Intl.NumberFormat("en-US", {
@@ -132,6 +137,9 @@ export default function ChallengeVideoPlayer({ video, pillarSlug }: Props) {
           minimumFractionDigits: 0,
         }).format(priceCents / 100)
       : null;
+
+    const effectivePillar = (activePillar ?? access.pillar) as ChallengePillar | undefined;
+    const isPillarPaid = effectivePillar?.isPaid ?? true;
 
     return (
       <>
@@ -160,7 +168,7 @@ export default function ChallengeVideoPlayer({ video, pillarSlug }: Props) {
             </div>
 
             {/* Buy button */}
-            {selectedPillar && selectedPillar.isPaid && (
+            {effectivePillar && isPillarPaid && (
               <button
                 onClick={() => setShowBuyModal(true)}
                 className="flex cursor-pointer items-center gap-2 rounded-xl bg-[#B18A3A] px-6 py-2.5 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:bg-[#C9A84C] hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0"
@@ -172,11 +180,11 @@ export default function ChallengeVideoPlayer({ video, pillarSlug }: Props) {
           </div>
         </div>
 
-        {selectedPillar && selectedPillar.isPaid && (
+        {effectivePillar && isPillarPaid && (
           <BuyPillarModal
             open={showBuyModal}
             onClose={() => setShowBuyModal(false)}
-            pillar={selectedPillar as ChallengePillar}
+            pillar={effectivePillar}
           />
         )}
       </>

@@ -72,8 +72,8 @@ export const fetchMyCertificates = createAsyncThunk(
 
 export const issueMyCertificate = createAsyncThunk(
   "certificate/issueMine",
-  async (moduleId: string) => {
-    const res = await certificateApi.issueMine(moduleId);
+  async (pillarId: string) => {
+    const res = await certificateApi.issueMine(pillarId);
     return res.data;
   },
 );

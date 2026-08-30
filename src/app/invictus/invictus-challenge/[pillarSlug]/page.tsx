@@ -19,13 +19,15 @@ import type { ICourseModule } from "@/lib/features/invictus/academy/course/cours
 import ChallengeModuleCard from "@/components/invictus/challenge/ChallengeModuleCard";
 import BuyPillarModal from "@/components/invictus/challenge/BuyPillarModal";
 
+import { Skeleton } from "@/components/ui/skeleton";
+
 export default function PillarChallengePage() {
   const dispatch = useAppDispatch();
   const params = useParams<{ pillarSlug: string }>();
 
   const { selectedPillar, loading: pillarLoading, error: pillarError } =
     useAppSelector((state) => state.pillar);
-  const { courses, loading, error: courseError } = useAppSelector(
+  const { courses, loading: coursesLoading, error: courseError } = useAppSelector(
     (state) => state.course
   );
   const { myProgress } = useAppSelector((state) => state.progress);
@@ -36,12 +38,16 @@ export default function PillarChallengePage() {
   const [showBuyModal, setShowBuyModal] = useState(false);
 
   useEffect(() => {
+    dispatch(setCourses([]));
     dispatch(fetchPillarBySlug(params.pillarSlug));
     dispatch(fetchMyAllProgress());
   }, [dispatch, params.pillarSlug]);
 
+  const isCurrentPillarLoaded =
+    selectedPillar && selectedPillar.slug === params.pillarSlug;
+
   useEffect(() => {
-    if (!selectedPillar) return;
+    if (!isCurrentPillarLoaded || !selectedPillar) return;
 
     if (selectedPillar.isPaid) {
       dispatch(checkPillarAccess(selectedPillar._id));
@@ -73,23 +79,42 @@ export default function PillarChallengePage() {
     };
 
     loadCourses();
-  }, [dispatch, selectedPillar]);
+  }, [dispatch, isCurrentPillarLoaded, selectedPillar]);
 
-  if (!selectedPillar) {
-    if (pillarLoading) {
+  if (!isCurrentPillarLoaded || !selectedPillar) {
+    if (pillarLoading || !selectedPillar || selectedPillar.slug !== params.pillarSlug) {
       return (
-        <div className="min-h-screen bg-[#FAF8F3] px-[6vw] py-[2vw] text-sm text-[#8A8175]">
-          Loading pillar...
+        <div className="min-h-screen bg-[#FAF8F3] mx-auto max-w-[1180px] px-[6vw] py-[2vw] sm:px-8 space-y-8">
+          <div className="rounded-3xl border border-[#E8DDCA] bg-white p-10 space-y-4">
+            <Skeleton className="h-4 w-32 rounded" />
+            <Skeleton className="h-10 w-2/3 rounded-lg" />
+            <Skeleton className="h-4 w-full max-w-xl rounded" />
+            <Skeleton className="h-4 w-3/4 max-w-md rounded" />
+          </div>
+          <div>
+            <Skeleton className="h-8 w-40 rounded-lg mb-6" />
+            <div className="grid gap-6 md:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="rounded-3xl border border-[#E8DDCA] bg-white p-6 space-y-4">
+                  <Skeleton className="h-12 w-12 rounded-xl" />
+                  <Skeleton className="h-4 w-24 rounded" />
+                  <Skeleton className="h-6 w-3/4 rounded" />
+                  <Skeleton className="h-4 w-full rounded" />
+                  <Skeleton className="h-2 w-full rounded-full" />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       );
     }
 
     return (
-      <div className="min-h-screen bg-[#FAF8F3] px-[6vw] py-[2vw] text-sm">
+      <div className="min-h-screen bg-[#FAF8F3] mx-auto max-w-[1180px] px-[6vw] py-[2vw] sm:px-8">
         <p className="text-red-600">{pillarError || "This pillar is not available."}</p>
         <Link
           href="/invictus/invictus-challenge"
-          className="mt-4 inline-block text-sm text-[#B18A3A]"
+          className="mt-4 inline-block text-sm text-[#B18A3A] font-semibold"
         >
           ← Back to all pillars
         </Link>
@@ -101,7 +126,7 @@ export default function PillarChallengePage() {
 
   const hasAccess =
     !selectedPillar.isPaid ||
-    pillarAccessById[selectedPillar._id]?.hasAccess === true;
+    pillarAccessById?.[selectedPillar._id]?.hasAccess === true;
 
   const publishedModules = safeCourses.filter(
     (course: ICourseModule) => course.status === "published"
@@ -185,8 +210,21 @@ export default function PillarChallengePage() {
       <div className="mt-12">
         <h2 className="mb-6 text-2xl font-semibold text-[#171717]">Modules</h2>
 
-        {loading ? (
-          <p className="text-sm text-[#8A8175]">Loading modules...</p>
+        {coursesLoading ? (
+          <div className="grid gap-6 md:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div
+                key={i}
+                className="rounded-3xl border border-[#E8DDCA] bg-white p-6 space-y-4"
+              >
+                <Skeleton className="h-12 w-12 rounded-xl" />
+                <Skeleton className="h-4 w-24 rounded" />
+                <Skeleton className="h-6 w-3/4 rounded" />
+                <Skeleton className="h-4 w-full rounded" />
+                <Skeleton className="h-2 w-full rounded-full" />
+              </div>
+            ))}
+          </div>
         ) : courseError ? (
           <p className="text-sm text-red-600">{courseError}</p>
         ) : publishedModules.length === 0 ? (
@@ -196,9 +234,13 @@ export default function PillarChallengePage() {
         ) : (
           <div className="grid gap-6 md:grid-cols-3">
             {publishedModules.map((courseModule: ICourseModule) => {
-              const progress = myProgress.find(
-                (item) => item.module._id === courseModule._id
-              );
+              const progress = myProgress.find((item) => {
+                const itemModId =
+                  typeof item?.module === "string"
+                    ? item.module
+                    : item?.module?._id;
+                return itemModId === courseModule._id;
+              });
 
               return (
                 <ChallengeModuleCard
@@ -207,6 +249,8 @@ export default function PillarChallengePage() {
                   pillarSlug={selectedPillar.slug}
                   progressPercent={progress?.overallCompletionPercent ?? 0}
                   isCompleted={progress?.isCompleted ?? false}
+                  isLocked={!hasAccess && selectedPillar.isPaid}
+                  onLockClick={() => setShowBuyModal(true)}
                 />
               );
             })}

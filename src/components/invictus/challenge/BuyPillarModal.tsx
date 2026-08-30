@@ -49,7 +49,7 @@ export default function BuyPillarModal({ open, onClose, pillar }: Props) {
   const { plansByProductType, plansLoading, checkoutLoading, checkoutError } =
     useAppSelector((state) => state.invictusPayment);
 
-  const [selectedPlan, setSelectedPlan] = useState<IPaymentPlan | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<IPaymentPlan | { _id: string; name: string; description?: string; amountCents: number; currency: string; mode: string } | null>(null);
 
   // Fetch pillar payment plans when modal opens
   useEffect(() => {
@@ -66,12 +66,23 @@ export default function BuyPillarModal({ open, onClose, pillar }: Props) {
     (plan) => plan.product === pillar._id
   );
 
-  // Auto-select first plan
+  const directPillarPlan = {
+    _id: "pillar_direct",
+    name: "Full Pillar Access",
+    description: `Complete lifetime access to all modules, videos, quiz, and certificate in ${pillar.title}`,
+    amountCents: pillar.priceCents,
+    currency: pillar.currency || "usd",
+    mode: "one_time",
+  };
+
+  // Auto-select first plan or default direct pillar purchase
   useEffect(() => {
-    if (pillarPlans.length > 0 && !selectedPlan) {
+    if (pillarPlans.length > 0) {
       setSelectedPlan(pillarPlans[0]);
+    } else if (pillar.isPaid && (pillar.priceCents > 0 || pillar.stripePriceId)) {
+      setSelectedPlan(directPillarPlan);
     }
-  }, [pillarPlans, selectedPlan]);
+  }, [pillarPlans.length, pillar._id, pillar.isPaid, pillar.priceCents]);
 
   // Handle checkout error toast
   useEffect(() => {
@@ -82,14 +93,14 @@ export default function BuyPillarModal({ open, onClose, pillar }: Props) {
   }, [checkoutError, dispatch]);
 
   const handlePurchase = async () => {
-    if (!selectedPlan) {
-      toast.error("Please select a payment plan");
-      return;
-    }
-
     try {
+      const payload =
+        selectedPlan && selectedPlan._id !== "pillar_direct"
+          ? { paymentPlanId: selectedPlan._id }
+          : { pillarId: pillar._id };
+
       const result = await dispatch(
-        createInvictusCheckout(selectedPlan._id)
+        createInvictusCheckout(payload)
       ).unwrap();
 
       // Redirect to Stripe Checkout
@@ -175,16 +186,7 @@ export default function BuyPillarModal({ open, onClose, pillar }: Props) {
                 <Loader2 size={16} className="animate-spin" />
                 Loading plans...
               </div>
-            ) : pillarPlans.length === 0 ? (
-              <div className="rounded-xl border border-[#E8DDCA] bg-[#FAF8F3] p-4 text-center">
-                <p className="text-sm text-[#8A8175]">
-                  No payment plans available for this pillar yet.
-                </p>
-                <p className="mt-1 text-xs text-[#B18A3A]">
-                  Please check back soon or contact support.
-                </p>
-              </div>
-            ) : (
+            ) : pillarPlans.length > 0 ? (
               <div className="space-y-2">
                 {pillarPlans.map((plan) => {
                   const isSelected = selectedPlan?._id === plan._id;
@@ -237,6 +239,46 @@ export default function BuyPillarModal({ open, onClose, pillar }: Props) {
                   );
                 })}
               </div>
+            ) : selectedPlan ? (
+              <div className="space-y-2">
+                <button
+                  onClick={() => setSelectedPlan(directPillarPlan)}
+                  className="w-full cursor-pointer rounded-xl border-2 border-[#B18A3A] bg-[#F3E9D2]/60 p-4 text-left transition-all duration-200 shadow-sm"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-[#B18A3A] bg-[#B18A3A] transition-colors">
+                        <div className="h-2 w-2 rounded-full bg-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-[#171717]">
+                          {selectedPlan.name}
+                        </p>
+                        {selectedPlan.description && (
+                          <p className="text-xs text-[#8A8175] mt-0.5">
+                            {selectedPlan.description}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-lg font-bold text-[#171717]">
+                        {formatPrice(selectedPlan.amountCents, selectedPlan.currency)}
+                      </p>
+                      <p className="text-xs text-[#8A8175]">one-time</p>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            ) : (
+              <div className="rounded-xl border border-[#E8DDCA] bg-[#FAF8F3] p-4 text-center">
+                <p className="text-sm text-[#8A8175]">
+                  No payment plans available for this pillar yet.
+                </p>
+                <p className="mt-1 text-xs text-[#B18A3A]">
+                  Please check back soon or contact support.
+                </p>
+              </div>
             )}
           </div>
 
@@ -270,8 +312,8 @@ export default function BuyPillarModal({ open, onClose, pillar }: Props) {
           </Button>
           <Button
             onClick={handlePurchase}
-            disabled={!selectedPlan || checkoutLoading || pillarPlans.length === 0}
-            className="flex-[2] cursor-pointer bg-[#B18A3A] text-white hover:bg-[#997734] transition-all disabled:opacity-60"
+            disabled={!selectedPlan || checkoutLoading}
+            className="flex-[2] cursor-pointer bg-[#B18A3A] text-white hover:bg-[#997734] transition-all disabled:opacity-60 shadow-md"
           >
             {checkoutLoading ? (
               <>

@@ -40,9 +40,12 @@ const initialState: InvictusPaymentState = {
 /** Create a Stripe checkout session → returns `{ checkoutUrl, sessionId }` */
 export const createInvictusCheckout = createAsyncThunk(
   "invictusPayment/createCheckout",
-  async (paymentPlanId: string, { rejectWithValue }) => {
+  async (
+    payload: string | { paymentPlanId?: string; pillarId?: string; discountCode?: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const res = await invictusPaymentApi.createCheckoutSession(paymentPlanId);
+      const res = await invictusPaymentApi.createCheckoutSession(payload);
       return res.data;
     } catch (err: any) {
       return rejectWithValue(
