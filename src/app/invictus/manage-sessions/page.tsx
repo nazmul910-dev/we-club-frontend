@@ -5,6 +5,16 @@ import { CalendarClock, Plus, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import AuthGuard from "@/components/Auth/authGuard/AuthGuard";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { sessionScheduleApi } from "@/lib/features/invictus/sessionSchedule/sessionScheduleApi";
 import type { ISessionScheduleItem } from "@/lib/features/invictus/sessionSchedule/sessionScheduleTypes";
 import CreateSessionModal from "@/components/invictus/academy/sessions/CreateSessionModal";
@@ -19,7 +29,7 @@ const STATUS_STYLE: Record<string, string> = {
 
 export default function ManageSessionsPage() {
   return (
-    <AuthGuard allowedRoles={["founder", "manager", "admin"]}>
+    <AuthGuard allowedRoles={["founder", "manager"]}>
       <ManageSessionsContent />
     </AuthGuard>
   );
@@ -29,6 +39,10 @@ function ManageSessionsContent() {
   const [sessions, setSessions] = useState<ISessionScheduleItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
+  const [cancelSession, setCancelSession] =
+    useState<ISessionScheduleItem | null>(null);
+  const [cancelReason, setCancelReason] = useState("");
+  const [cancelling, setCancelling] = useState(false);
 
   const load = async () => {
     try {
@@ -46,16 +60,27 @@ function ManageSessionsContent() {
     load();
   }, []);
 
-  const handleCancel = async (session: ISessionScheduleItem) => {
-    const reason = window.prompt(`Cancel "${session.title}" — reason?`);
-    if (!reason) return;
+  const handleCancel = (session: ISessionScheduleItem) => {
+    setCancelSession(session);
+    setCancelReason("");
+  };
+
+  const confirmCancel = async () => {
+    if (!cancelSession || !cancelReason.trim()) return;
 
     try {
-      await sessionScheduleApi.cancelSession(session._id, reason);
+      setCancelling(true);
+      await sessionScheduleApi.cancelSession(
+        cancelSession._id,
+        cancelReason.trim(),
+      );
       toast.success("Session cancelled");
-      load();
+      setCancelSession(null);
+      await load();
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "Could not cancel session");
+    } finally {
+      setCancelling(false);
     }
   };
 
@@ -107,9 +132,15 @@ function ManageSessionsContent() {
               <tbody>
                 {sessions.map((s) => (
                   <tr key={s._id} className="border-t border-[#EFE6D6]">
-                    <td className="px-4 py-3 font-medium text-[#1C1A17]">{s.title}</td>
-                    <td className="px-4 py-3 text-[#8A8175]">{s.sessionType}</td>
-                    <td className="px-4 py-3 text-[#8A8175]">{s.host?.fullName}</td>
+                    <td className="px-4 py-3 font-medium text-[#1C1A17]">
+                      {s.title}
+                    </td>
+                    <td className="px-4 py-3 text-[#8A8175]">
+                      {s.sessionType}
+                    </td>
+                    <td className="px-4 py-3 text-[#8A8175]">
+                      {s.host?.fullName}
+                    </td>
                     <td className="px-4 py-3 text-[#8A8175]">
                       {new Date(s.startTime).toLocaleString("en-GB", {
                         day: "2-digit",
@@ -149,6 +180,58 @@ function ManageSessionsContent() {
         onClose={() => setCreateOpen(false)}
         onCreated={load}
       />
+
+      <Dialog
+        open={Boolean(cancelSession)}
+        onOpenChange={(open) => {
+          if (!open && !cancelling) setCancelSession(null);
+        }}
+      >
+        <DialogContent className="max-w-md border-[#E8DDCA] bg-[#FFFCF7] text-[#171717]">
+          <DialogHeader>
+            <DialogTitle className="text-lg text-[#171717]">
+              Cancel session?
+            </DialogTitle>
+            <DialogDescription className="text-[#8A8175]">
+              You are cancelling{" "}
+              <span className="font-semibold text-[#171717]">
+                {cancelSession?.title}
+              </span>
+              . Please provide a reason for attendees.
+            </DialogDescription>
+          </DialogHeader>
+
+          <Textarea
+            value={cancelReason}
+            onChange={(event) => setCancelReason(event.target.value)}
+            placeholder="Enter cancellation reason"
+            aria-label="Cancellation reason"
+            disabled={cancelling}
+            autoFocus
+          />
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setCancelSession(null)}
+              disabled={cancelling}
+              className="cursor-pointer rounded-lg border-[#E8DDCA] text-[#5F574D]"
+            >
+              Keep session
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={confirmCancel}
+              disabled={cancelling || !cancelReason.trim()}
+              className="cursor-pointer rounded-lg bg-red-600 text-white hover:bg-red-700"
+            >
+              {cancelling ? "Cancelling..." : "Cancel session"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

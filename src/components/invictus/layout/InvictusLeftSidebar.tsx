@@ -147,7 +147,7 @@ const academyItems = [
 
   {
     label: "MANAGE SESSIONS",
-    href: "/invictus/academy/manage-sessions",
+    href: "/invictus/manage-sessions",
     icon: CalendarClock,
     role:[
       "founder",
