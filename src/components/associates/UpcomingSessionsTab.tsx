@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import {
   CalendarDays,
   Clock,
+  Clock4,
   Video,
   Check,
   ArrowRight,
@@ -18,13 +19,45 @@ import type {
   ISessionScheduleItem,
 } from "@/lib/features/invictus/sessionSchedule/sessionScheduleTypes";
 import { useSessionCountdown } from "@/hooks/useSessionCountdown";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
-const SESSION_TYPE_CONFIG: Record<string, { label: string; bg: string; text: string }> = {
-  academy_live: { label: "ACADEMY LIVE", bg: "bg-[#F7EFE1]", text: "text-[#8A6D1F]" },
-  mentorship_group: { label: "1:1 MENTORSHIP", bg: "bg-[#EEF5EA]", text: "text-[#2D6A2E]" },
-  retreat_prep: { label: "WORKSHOP / RETREAT", bg: "bg-[#F5EDF8]", text: "text-[#6A2D75]" },
-  community_call: { label: "COMMUNITY CALL", bg: "bg-[#EAF0F8]", text: "text-[#28578E]" },
-  other: { label: "SPECIAL SESSION", bg: "bg-[#FAF6EE]", text: "text-[#9E7B28]" },
+const SESSION_TYPE_CONFIG: Record<
+  string,
+  { label: string; bg: string; text: string }
+> = {
+  academy_live: {
+    label: "ACADEMY LIVE",
+    bg: "bg-[#F7EFE1]",
+    text: "text-[#8A6D1F]",
+  },
+  mentorship_group: {
+    label: "1:1 MENTORSHIP",
+    bg: "bg-[#EEF5EA]",
+    text: "text-[#2D6A2E]",
+  },
+  retreat_prep: {
+    label: "WORKSHOP / RETREAT",
+    bg: "bg-[#F5EDF8]",
+    text: "text-[#6A2D75]",
+  },
+  community_call: {
+    label: "COMMUNITY CALL",
+    bg: "bg-[#EAF0F8]",
+    text: "text-[#28578E]",
+  },
+  other: {
+    label: "SPECIAL SESSION",
+    bg: "bg-[#FAF6EE]",
+    text: "text-[#9E7B28]",
+  },
 };
 
 function SessionCard({
@@ -38,7 +71,14 @@ function SessionCard({
   onRegister: (sessionId: string) => void;
   isRegistering?: boolean;
 }) {
-  const { canJoin, label: countdownLabel } = useSessionCountdown(session.startTime);
+  const { canJoin, label: countdownLabel } = useSessionCountdown(
+    session.startTime,
+  );
+
+  // Expired = endTime has passed
+  const isExpired = session.endTime
+    ? new Date(session.endTime).getTime() < Date.now()
+    : false;
 
   const isRegistered =
     userAttendance &&
@@ -51,11 +91,13 @@ function SessionCard({
   const startDate = new Date(session.startTime);
   const formattedDate = isNaN(startDate.getTime())
     ? "TBD"
-    : startDate.toLocaleDateString("en-US", {
-        weekday: "short",
-        day: "numeric",
-        month: "short",
-      }).toUpperCase();
+    : startDate
+        .toLocaleDateString("en-US", {
+          weekday: "short",
+          day: "numeric",
+          month: "short",
+        })
+        .toUpperCase();
 
   const formattedTime = isNaN(startDate.getTime())
     ? ""
@@ -79,7 +121,13 @@ function SessionCard({
   };
 
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-[#EDE7D8] bg-white p-5 transition-all duration-300 hover:border-[#DDBB6E] hover:shadow-[0_8px_30px_rgba(201,168,76,0.12)]">
+    <div
+      className={`group relative overflow-hidden rounded-2xl border p-5 transition-all duration-300 ${
+        isExpired
+          ? "border-[#E8E2D7] bg-[#F7F5F1] opacity-60"
+          : "border-[#EDE7D8] bg-white hover:border-[#DDBB6E] hover:shadow-[0_8px_30px_rgba(201,168,76,0.12)]"
+      }`}
+    >
       {/* Decorative top-right corner */}
       <div className="absolute right-0 top-0 h-16 w-16 rounded-bl-full bg-[#FAF6EE] transition-colors group-hover:bg-[#F5ECD8]" />
 
@@ -97,7 +145,12 @@ function SessionCard({
             </span>
           </div>
 
-          {session.status === "cancelled" ? (
+          {isExpired ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 border border-gray-200 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+              <Clock4 size={11} />
+              Expired
+            </span>
+          ) : session.status === "cancelled" ? (
             <span className="rounded-full bg-rose-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-600">
               Cancelled
             </span>
@@ -161,12 +214,20 @@ function SessionCard({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-[#F3ECD8] pt-3">
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-medium text-[#8A8375]">
-              {countdownLabel}
+              {isExpired ? "Session has ended" : countdownLabel}
             </span>
           </div>
 
           <div className="flex items-center gap-2">
-            {canJoin && session.status !== "cancelled" ? (
+            {isExpired ? (
+              <button
+                disabled
+                className="flex cursor-not-allowed items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-gray-400 shadow-2xs"
+              >
+                <Clock4 size={13} />
+                Session Ended
+              </button>
+            ) : canJoin && session.status !== "cancelled" ? (
               <button
                 onClick={handleJoin}
                 className="flex cursor-pointer items-center gap-1.5 rounded-lg bg-[#1C1A16] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#DECDB0] shadow-sm transition-all hover:bg-[#332C1E] active:scale-95"
@@ -211,6 +272,8 @@ export default function UpcomingSessionsTab() {
   const [attendances, setAttendances] = useState<ISessionAttendanceItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [registeringId, setRegisteringId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
 
   const loadData = async () => {
     try {
@@ -231,7 +294,10 @@ export default function UpcomingSessionsTab() {
         }
       }
 
-      if (attendancesRes.status === "fulfilled" && Array.isArray(attendancesRes.value)) {
+      if (
+        attendancesRes.status === "fulfilled" &&
+        Array.isArray(attendancesRes.value)
+      ) {
         setAttendances(attendancesRes.value);
       }
     } catch (err) {
@@ -252,7 +318,9 @@ export default function UpcomingSessionsTab() {
       toast.success("Successfully registered for the session!");
       await loadData();
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "Could not register for session");
+      toast.error(
+        err?.response?.data?.message || "Could not register for session",
+      );
     } finally {
       setRegisteringId(null);
     }
@@ -268,6 +336,45 @@ export default function UpcomingSessionsTab() {
     return map;
   }, [attendances]);
 
+  // Sort: active/upcoming first, expired (endTime past) last
+  const sortedSessions = useMemo(() => {
+    const now = Date.now();
+    const active: ISessionScheduleItem[] = [];
+    const expired: ISessionScheduleItem[] = [];
+    sessions.forEach((s) => {
+      const endMs = s.endTime ? new Date(s.endTime).getTime() : Infinity;
+      if (endMs < now) {
+        expired.push(s);
+      } else {
+        active.push(s);
+      }
+    });
+    // Sort active: soonest first; expired: most recent first
+    active.sort(
+      (a, b) =>
+        new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
+    );
+    expired.sort(
+      (a, b) =>
+        new Date(b.startTime).getTime() - new Date(a.startTime).getTime(),
+    );
+    return [...active, ...expired];
+  }, [sessions]);
+
+  const totalPages = Math.ceil(sortedSessions.length / PAGE_SIZE);
+
+  const paginatedSessions = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return sortedSessions.slice(start, start + PAGE_SIZE);
+  }, [sortedSessions, currentPage, PAGE_SIZE]);
+
+  // Reset to page 1 when sessions reload
+  const handlePageChange = (page: number) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <div className="mb-10 space-y-6">
       {/* Header Banner */}
@@ -280,7 +387,8 @@ export default function UpcomingSessionsTab() {
             Upcoming Live Sessions & Calls
           </h2>
           <p className="text-xs text-[#8A8375]">
-            Register for private organization calls, workshops, and 1:1 sessions.
+            Register for private organization calls, workshops, and 1:1
+            sessions.
           </p>
         </div>
       </div>
@@ -292,7 +400,9 @@ export default function UpcomingSessionsTab() {
           <p className="font-[family-name:var(--font-display)] text-sm font-semibold text-[#1C1A16]">
             Loading Upcoming Sessions...
           </p>
-          <p className="text-xs text-[#8A8375] mt-1">Retrieving scheduled events and your registrations.</p>
+          <p className="text-xs text-[#8A8375] mt-1">
+            Retrieving scheduled events and your registrations.
+          </p>
         </div>
       ) : sessions.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#DECDB0] bg-[#FFFDF9] px-6 py-14 text-center">
@@ -303,20 +413,115 @@ export default function UpcomingSessionsTab() {
             No Upcoming Sessions Scheduled
           </h3>
           <p className="mt-1.5 max-w-md text-xs text-[#8A8375]">
-            There are currently no upcoming sessions on the calendar. New live calls and masterclasses will appear here once scheduled.
+            There are currently no upcoming sessions on the calendar. New live
+            calls and masterclasses will appear here once scheduled.
           </p>
         </div>
       ) : (
-        <div className="grid gap-5 md:grid-cols-2">
-          {sessions.map((session) => (
-            <SessionCard
-              key={session._id}
-              session={session}
-              userAttendance={attendanceBySessionId.get(session._id)}
-              onRegister={handleRegister}
-              isRegistering={registeringId === session._id}
-            />
-          ))}
+        <div className="space-y-5">
+          {/* Session count info */}
+          {sortedSessions.length > PAGE_SIZE && (
+            <p className="text-[11px] text-[#8A8375] font-montserrat">
+              Showing {(currentPage - 1) * PAGE_SIZE + 1}–
+              {Math.min(currentPage * PAGE_SIZE, sortedSessions.length)} of{" "}
+              {sortedSessions.length} sessions
+            </p>
+          )}
+
+          {/* Cards */}
+          <div className="grid gap-5">
+            {paginatedSessions.map((session) => (
+              <SessionCard
+                key={session._id}
+                session={session}
+                userAttendance={attendanceBySessionId.get(session._id)}
+                onRegister={handleRegister}
+                isRegistering={registeringId === session._id}
+              />
+            ))}
+          </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <Pagination className="mt-6">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handlePageChange(currentPage - 1);
+                    }}
+                    className={`font-montserrat text-[11px] text-[#9E7B28] border border-[#DECDB0] bg-[#FAF6EE] hover:bg-[#F0E8D5] ${
+                      currentPage === 1
+                        ? "pointer-events-none opacity-40"
+                        : "cursor-pointer"
+                    }`}
+                    text="Prev"
+                  />
+                </PaginationItem>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => {
+                    const isFirst = page === 1;
+                    const isLast = page === totalPages;
+                    const isNearCurrent = Math.abs(page - currentPage) <= 1;
+                    const show = isFirst || isLast || isNearCurrent;
+                    const showEllipsisBefore =
+                      page === currentPage - 2 && currentPage - 2 > 1;
+                    const showEllipsisAfter =
+                      page === currentPage + 2 && currentPage + 2 < totalPages;
+
+                    if (showEllipsisBefore || showEllipsisAfter) {
+                      return (
+                        <PaginationItem key={`ellipsis-${page}`}>
+                          <PaginationEllipsis className="text-[#9E7B28]" />
+                        </PaginationItem>
+                      );
+                    }
+
+                    if (!show) return null;
+
+                    return (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          href="#"
+                          isActive={page === currentPage}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handlePageChange(page);
+                          }}
+                          className={`font-montserrat text-[11px] cursor-pointer ${
+                            page === currentPage
+                              ? "border border-[#9E7B28] bg-[#9E7B28] text-white font-bold"
+                              : "border border-[#DECDB0] bg-[#FAF6EE] text-[#9E7B28] hover:bg-[#F0E8D5]"
+                          }`}
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    );
+                  },
+                )}
+
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handlePageChange(currentPage + 1);
+                    }}
+                    className={`font-montserrat text-[11px] text-[#9E7B28] border border-[#DECDB0] bg-[#FAF6EE] hover:bg-[#F0E8D5] ${
+                      currentPage === totalPages
+                        ? "pointer-events-none opacity-40"
+                        : "cursor-pointer"
+                    }`}
+                    text="Next"
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          )}
         </div>
       )}
     </div>

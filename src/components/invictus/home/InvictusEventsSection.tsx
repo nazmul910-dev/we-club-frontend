@@ -1,9 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { CalendarDays, Clock3, ArrowRight, Loader2 } from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
+import { CalendarDays, Clock3, ArrowRight, Loader2, Check } from "lucide-react";
+import { toast } from "sonner";
 import { sessionScheduleApi } from "@/lib/features/invictus/sessionSchedule/sessionScheduleApi";
-import type { ISessionScheduleItem } from "@/lib/features/invictus/sessionSchedule/sessionScheduleTypes";
+import type {
+  ISessionAttendanceItem,
+  ISessionScheduleItem,
+} from "@/lib/features/invictus/sessionSchedule/sessionScheduleTypes";
 import { useSessionCountdown } from "@/hooks/useSessionCountdown";
 
 const SESSION_TYPE_LABEL: Record<string, string> = {
@@ -14,10 +18,17 @@ const SESSION_TYPE_LABEL: Record<string, string> = {
   other: "SESSION",
 };
 
-function EventCard({ session }: { session: ISessionScheduleItem }) {
+function EventCard({
+  session,
+  isRegistered,
+  onRegisterSuccess,
+}: {
+  session: ISessionScheduleItem;
+  isRegistered: boolean;
+  onRegisterSuccess: (sessionId: string) => void;
+}) {
   const { canJoin, label } = useSessionCountdown(session.startTime);
   const [registering, setRegistering] = useState(false);
-  const [registered, setRegistered] = useState(false);
 
   const dateBadge = new Date(session.startTime)
     .toLocaleDateString("en-US", { weekday: "short", day: "numeric", month: "short" })
@@ -31,13 +42,24 @@ function EventCard({ session }: { session: ISessionScheduleItem }) {
 
   const handleAction = async () => {
     if (canJoin && session.meetingUrl) {
-      window.open(session.meetingUrl, "_blank");
+      window.open(
+        session.meetingUrl.startsWith("http")
+          ? session.meetingUrl
+          : `https://${session.meetingUrl}`,
+        "_blank",
+      );
       return;
     }
+
+    if (isRegistered) return; // Prevent double registration
+
     try {
       setRegistering(true);
       await sessionScheduleApi.registerForSession(session._id);
-      setRegistered(true);
+      toast.success("Successfully registered for session!");
+      onRegisterSuccess(session._id);
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Could not register for session");
     } finally {
       setRegistering(false);
     }
@@ -74,14 +96,30 @@ function EventCard({ session }: { session: ISessionScheduleItem }) {
 
           <button
             onClick={handleAction}
-            disabled={registering || (registered && !canJoin)}
-            className="flex cursor-pointer items-center gap-2 rounded-full bg-[#9E7B28] px-4 py-2 font-montserrat text-[10px] font-bold tracking-widest text-white transition-all duration-300 hover:bg-[#7C5F1E] hover:-translate-y-0.5 hover:shadow-lg active:scale-95 disabled:opacity-60"
+            disabled={registering || (isRegistered && !canJoin)}
+            className={`flex items-center gap-2 rounded-full px-4 py-2 font-montserrat text-[10px] font-bold tracking-widest transition-all duration-300 ${
+              canJoin
+                ? "bg-[#1C1A16] text-[#DECDB0] hover:bg-[#332C1E] cursor-pointer hover:-translate-y-0.5 hover:shadow-lg active:scale-95"
+                : isRegistered
+                  ? "bg-[#FAF0D7] text-[#8A6D1F] border border-[#DECDB0] cursor-not-allowed opacity-90"
+                  : "bg-[#9E7B28] text-white hover:bg-[#7C5F1E] cursor-pointer hover:-translate-y-0.5 hover:shadow-lg active:scale-95 disabled:opacity-60"
+            }`}
           >
             {registering ? (
               <Loader2 size={12} className="animate-spin" />
+            ) : canJoin ? (
+              <>
+                JOIN
+                <ArrowRight size={12} />
+              </>
+            ) : isRegistered ? (
+              <>
+                <Check size={12} className="text-[#8A6D1F]" />
+                REGISTERED
+              </>
             ) : (
               <>
-                {canJoin ? "JOIN" : registered ? "REGISTERED" : "REGISTER"}
+                REGISTER
                 <ArrowRight size={12} />
               </>
             )}
@@ -94,15 +132,60 @@ function EventCard({ session }: { session: ISessionScheduleItem }) {
 
 export default function InvictusEventsSection() {
   const [sessions, setSessions] = useState<ISessionScheduleItem[]>([]);
+  const [attendances, setAttendances] = useState<ISessionAttendanceItem[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [sessionsRes, attendancesRes] = await Promise.allSettled([
+        sessionScheduleApi.getUpcoming(3),
+        sessionScheduleApi.getMyAttendances(),
+      ]);
+
+      if (sessionsRes.status === "fulfilled" && Array.isArray(sessionsRes.value)) {
+        setSessions(sessionsRes.value);
+      }
+
+      if (attendancesRes.status === "fulfilled" && Array.isArray(attendancesRes.value)) {
+        setAttendances(attendancesRes.value);
+      }
+    } catch {
+      setSessions([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    sessionScheduleApi
-      .getUpcoming(3)
-      .then(setSessions)
-      .catch(() => setSessions([]))
-      .finally(() => setLoading(false));
+    loadData();
   }, []);
+
+  const registeredSessionIds = useMemo(() => {
+    const set = new Set<string>();
+    attendances.forEach((att) => {
+      if (
+        att.session?._id &&
+        att.status !== "cancelled" &&
+        att.status !== "no_show"
+      ) {
+        set.add(att.session._id);
+      }
+    });
+    return set;
+  }, [attendances]);
+
+  const handleRegisterSuccess = (sessionId: string) => {
+    setAttendances((prev) => [
+      ...prev,
+      {
+        _id: `temp-${Date.now()}`,
+        session: { _id: sessionId } as any,
+        user: {} as any,
+        status: "registered",
+      },
+    ]);
+  };
 
   if (!loading && sessions.length === 0) return null;
 
@@ -135,7 +218,12 @@ export default function InvictusEventsSection() {
         ) : (
           <div className="grid gap-5 md:grid-cols-3">
             {sessions.map((s) => (
-              <EventCard key={s._id} session={s} />
+              <EventCard
+                key={s._id}
+                session={s}
+                isRegistered={registeredSessionIds.has(s._id)}
+                onRegisterSuccess={handleRegisterSuccess}
+              />
             ))}
           </div>
         )}

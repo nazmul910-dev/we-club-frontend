@@ -12,11 +12,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import api from "@/lib/api/api";
 import { sessionScheduleApi } from "@/lib/features/invictus/sessionSchedule/sessionScheduleApi";
 import type { ISessionScheduleItem } from "@/lib/features/invictus/sessionSchedule/sessionScheduleTypes";
 
 import adam from "@/assets/Invictus/Home/adam.jpg";
 import tour from "@/assets/Invictus/Navbar/tour.jpg";
+import Link from "next/link";
 
 function formatSessionTime(startTime: string, timezone?: string) {
   const d = new Date(startTime);
@@ -30,11 +32,20 @@ function formatSessionTime(startTime: string, timezone?: string) {
   return `${weekday} · ${time}`;
 }
 
+interface LatestRetreatInfo {
+  title: string;
+  dateLabel: string;
+  coverImage?: string;
+}
+
 export default function InvictusRightSidebar() {
   const router = useRouter();
   const [switchModal, setSwitchModal] = useState(false);
   const [sessions, setSessions] = useState<ISessionScheduleItem[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(true);
+  const [latestRetreat, setLatestRetreat] = useState<LatestRetreatInfo | null>(null);
+  const [imageError, setImageError] = useState(false);
+
 
   useEffect(() => {
     sessionScheduleApi
@@ -42,6 +53,59 @@ export default function InvictusRightSidebar() {
       .then((data) => setSessions(data || []))
       .catch(() => setSessions([]))
       .finally(() => setLoadingSessions(false));
+
+    // Fetch latest retreat location
+    api
+      .get("/invictus/retreat-locations", { params: { limit: 1 } })
+      .then((locRes) => {
+        const loc = locRes?.data?.data?.data?.[0] ?? locRes?.data?.data?.[0];
+        if (!loc) return;
+
+        // Try to get the latest batch for this location
+        api
+          .get("/invictus/retreat-batches", {
+            params: { locationId: loc._id, limit: 1 },
+          })
+          .then((batchRes) => {
+            const batch =
+              batchRes?.data?.data?.data?.[0] ?? batchRes?.data?.data?.[0];
+
+            let dateLabel = "Exclusive Retreat";
+            if (batch?.startDate) {
+              const start = new Date(batch.startDate);
+              if (!isNaN(start.getTime())) {
+                const month = start.toLocaleDateString("en-US", {
+                  month: "long",
+                });
+                const year = start.getFullYear();
+                dateLabel = `${month} ${year} · Exclusive`;
+              }
+            } else if (loc.city && loc.country) {
+              dateLabel = `${loc.city}, ${loc.country} · Exclusive`;
+            } else if (loc.tagline) {
+              dateLabel = `${loc.tagline} · Exclusive`;
+            }
+
+            setLatestRetreat({
+              title: loc.title || "Leadership Retreat",
+              dateLabel,
+              coverImage: loc.coverImage || undefined,
+            });
+          })
+          .catch(() => {
+            // No batch — still show location info
+            setLatestRetreat({
+              title: loc.title || "Leadership Retreat",
+              dateLabel: loc.city
+                ? `${loc.city}, ${loc.country} · Exclusive`
+                : "Exclusive Retreat",
+              coverImage: loc.coverImage || undefined,
+            });
+          });
+      })
+      .catch(() => {
+        // leave latestRetreat null → fallback image shows
+      });
   }, []);
 
   return (
@@ -76,8 +140,8 @@ export default function InvictusRightSidebar() {
         </div>
 
         {/* Widget 2: Upcoming General Sessions */}
-        <div
-          onClick={() => router.push("/invictus")}
+        <Link
+          href="/invictus/associates"
           className="group rounded-2xl border border-[#DECDB0] bg-[#FAF6EE] p-4 shadow-xs space-y-3 cursor-pointer transition-all hover:border-[#C9A84C] hover:shadow-sm"
         >
           <div className="flex items-center justify-between">
@@ -131,7 +195,7 @@ export default function InvictusRightSidebar() {
               ))
             )}
           </div>
-        </div>
+        </Link>
 
         {/* Widget 3: Your Mentor */}
         <div className="rounded-2xl border border-[#DECDB0] bg-[#FAF6EE] p-4 text-center shadow-xs space-y-3">
@@ -179,18 +243,27 @@ export default function InvictusRightSidebar() {
             onClick={() => router.push("/invictus/retreats")}
             className="group relative overflow-hidden rounded-xl border border-[#DECDB0] bg-black/90 aspect-video flex items-end p-3 cursor-pointer"
           >
-            <Image
-              src={tour}
-              alt="Marrakech Retreat"
-              loading="eager"
-              className="absolute inset-0 h-full w-full object-cover opacity-75 group-hover:scale-105 transition duration-500"
-            />
+            {latestRetreat?.coverImage && !imageError ? (
+              <img
+                src={latestRetreat.coverImage}
+                alt={latestRetreat.title || "Retreat"}
+                onError={() => setImageError(true)}
+                className="absolute inset-0 h-full w-full object-cover opacity-75 group-hover:scale-105 transition duration-500"
+              />
+            ) : (
+              <Image
+                src={tour}
+                alt={latestRetreat?.title || "Marrakech Retreat"}
+                loading="eager"
+                className="absolute inset-0 h-full w-full object-cover opacity-75 group-hover:scale-105 transition duration-500"
+              />
+            )}
             <div className="relative z-10 text-white">
-              <p className="font-playfair text-xs font-bold">
-                Marrakech Leadership Retreat
+              <p className="font-playfair text-xs font-bold line-clamp-1">
+                {latestRetreat?.title || "Leadership Retreat"}
               </p>
-              <p className="font-montserrat text-[9px] text-white/80">
-                October 2026 · Exclusive
+              <p className="font-montserrat text-[9px] text-white/80 line-clamp-1">
+                {latestRetreat?.dateLabel || "October 2026 · Exclusive"}
               </p>
             </div>
           </div>
