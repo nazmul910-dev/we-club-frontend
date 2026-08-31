@@ -105,3 +105,14 @@ export interface IUpdateModuleVideo {
   pointsReward?: number;
   order?: number;
 }
+
+
+export interface IVideoAccessResult {
+  canWatch: boolean;
+  isLocked: boolean;
+  paymentRequired?: boolean;
+  reason: "free_video" | "pillar_purchase_required" | "pillar_entitlement_active";
+  playbackUrl: string | null;
+  secureUrl?: string | null;
+  pillar?: { _id: string; name?: string; slug?: string; title?: string; priceCents?: number; currency?: string };
+}

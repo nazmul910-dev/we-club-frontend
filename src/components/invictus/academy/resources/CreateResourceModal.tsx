@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 
 import { FileUp, Link2, PlayCircle, UploadCloud, X } from "lucide-react";
+import { toast } from "sonner";
 
 import { useAppDispatch } from "@/lib/redux/store/hook";
 import { createResource } from "@/lib/features/invictus/academy/resource/resourceSlice";
@@ -181,12 +182,14 @@ export default function CreateResourceModal({ open, onClose }: Props) {
         createResource({ moduleId: form.moduleId, data: formData }),
       ).unwrap();
 
+      toast.success("Module resource added successfully!");
       handleClose();
     } catch (error) {
-      const message = error instanceof Error ? error.message : undefined;
+      const message = error instanceof Error ? error.message : "Resource could not be added, try again later!";
+      toast.error(message);
       setErrors((prev) => ({
         ...prev,
-        form: message || "Resource could not be added, try again later!",
+        form: message,
       }));
     } finally {
       setLoading(false);

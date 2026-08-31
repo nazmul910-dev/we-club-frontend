@@ -1,23 +1,37 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit";
 
 import { videoApi } from "./videoApi";
-import type { IModuleVideo, IUpdateModuleVideo } from "./videoTypes";
+import type { IModuleVideo, IUpdateModuleVideo,IVideoAccessResult  } from "./videoTypes";
 
 interface VideoState {
   videos: IModuleVideo[];
   selectedVideo: IModuleVideo | null;
+  accessByVideoId: Record<string, IVideoAccessResult>;
   loading: boolean;
   actionLoading: boolean;
+  accessLoading: boolean;
   error: string | null;
 }
 
 const initialState: VideoState = {
   videos: [],
   selectedVideo: null,
+  accessByVideoId: {},
   loading: false,
   actionLoading: false,
+  accessLoading: false,
   error: null,
 };
+
+
+
+export const checkVideoAccess = createAsyncThunk(
+  "video/checkAccess",
+  async (id: string) => {
+    const res = await videoApi.checkAccess(id);
+    return { id, access: res.data };
+  },
+);
 
 export const fetchVideos = createAsyncThunk(
   "video/getAll",
@@ -179,6 +193,18 @@ const videoSlice = createSlice({
       })
       .addCase(archiveVideo.rejected, (state, action) => {
         state.error = action.error.message || "Failed to archive video";
+      })
+
+      .addCase(checkVideoAccess.pending, (state) => {
+        state.accessLoading = true;
+      })
+      .addCase(checkVideoAccess.fulfilled, (state, action) => {
+        state.accessLoading = false;
+        state.accessByVideoId[action.payload.id] = action.payload.access;
+      })
+      .addCase(checkVideoAccess.rejected, (state, action) => {
+        state.accessLoading = false;
+        state.error = action.error.message || "Failed to check video access";
       });
   },
 });

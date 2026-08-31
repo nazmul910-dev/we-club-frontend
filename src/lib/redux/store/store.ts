@@ -24,7 +24,16 @@ import retreatReducer from "@/lib/features/retreat/retreatSlice";
 import resourceReducer from "@/lib/features/invictus/academy/resource/resourceSlice";
 import actionReducer from "@/lib/features/invictus/academy/action-module/actionChecklistSlice";
 import quizQuestionReducer from "@/lib/features/invictus/academy/quiz-question/quizQuestionSlice";
-import mentorBookingReducer from "@/lib/features/mentorBooking/mentorBookingSlice"
+import mentorBookingReducer from "@/lib/features/mentorBooking/mentorBookingSlice";
+import certificateReducer from "@/lib/features/invictus/academy/cerfificate/certificateSlice";
+import progressReducer from "@/lib/features/invictus/academy/progress/progressSlice";
+import videoProgressReducer from "@/lib/features/invictus/videoProgress/videoProgressSlice";
+import quizAttemptReducer from "@/lib/features/invictus/academy/quiz-attempt/quizAttemptSlice";
+import entitlementReducer from "@/lib/features/invictus/academy/entitlement/entitlementSlice";
+import invictusPaymentReducer from "@/lib/features/invictus/payment/invictusPaymentSlice";
+import notificationReducer from "@/lib/features/invictus/notifications/notificationSlice";
+import onboardingTasksReducer from "@/lib/features/onboardingTasks/onboardingTaskSlice";
+
 
 export const store = configureStore({
   reducer: {
@@ -52,7 +61,15 @@ export const store = configureStore({
     resource: resourceReducer,
     moduleAction: actionReducer,
     quizQuestion: quizQuestionReducer,
-    mentorBooking : mentorBookingReducer
+    mentorBooking : mentorBookingReducer,
+    certificate: certificateReducer,
+    progress: progressReducer,
+    videoProgress: videoProgressReducer,
+    quizAttempt:quizAttemptReducer,
+    entitlement:entitlementReducer,
+    invictusPayment: invictusPaymentReducer,
+    notification: notificationReducer,
+    onboardingTasks: onboardingTasksReducer,
   },
 });
 

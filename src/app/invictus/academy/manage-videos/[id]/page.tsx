@@ -128,7 +128,7 @@ function VideoDetailsContent() {
     }
   };
 
-  console.log("video: ",video)
+
 
   const handleArchive = async () => {
     if (!video) return;

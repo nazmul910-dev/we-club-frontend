@@ -30,6 +30,7 @@ import {
   ClipboardList,
   Tent,
   CalendarCheck,
+  CalendarClock,
 } from "lucide-react";
 
 import {
@@ -69,6 +70,7 @@ export default function InvictusLeftSidebar({
   const profile = useAppSelector((state) => state.authUser.profile);
 
   const userRole = (profile?.role || tokenUser?.role) as UserRole | undefined;
+  const isFounderOrManager = userRole === "founder" || userRole === "manager";
 
   const accessTo = profile?.accessTo || tokenUser?.accessTo;
 
@@ -90,37 +92,77 @@ const academyItems = [
     label: "MANAGE PILLARS",
     href: "/invictus/academy/pillars",
     icon: Flame,
+    role:[
+      "founder",
+      "manager"
+    ]
   },
 
   {
     label: "MANAGE COURSES",
     href: "/invictus/academy/courses",
     icon: ClipboardCheck,
+    role:[
+      "founder",
+      "manager"
+    ]
   },
 
   {
     label: "MANAGE VIDEOS",
     href: "/invictus/academy/manage-videos",
     icon: PlayCircle,
+    role:[
+      "founder",
+      "manager"
+    ]
   },
 
   {
     label: "RESOURCES",
     href: "/invictus/academy/manage-resources",
     icon: FolderOpen,
+    role:[
+      "founder",
+      "manager"
+    ]
   },
 
   {
     label: "ACTION CHECKLIST",
     href: "/invictus/academy/manage-actions",
     icon: ListChecks,
+    role:[
+      "founder",
+      "manager"
+    ]
   },
 
   {
     label: "ASSESSMENTS",
     href: "/invictus/academy/manage-quiz-questions",
     icon: ClipboardList,
+    role:[
+      "founder",
+      "manager"
+    ]
   },
+
+  {
+    label: "MANAGE SESSIONS",
+    href: "/invictus/manage-sessions",
+    icon: CalendarClock,
+    role:[
+      "founder",
+      "manager"
+    ]
+  },
+   {
+      label: "Onboarding Tasks",
+      href: "/invictus/academy/onboarding-tasks",
+      icon: GraduationCap,
+      show: userRole === "founder" || userRole === "manager" || userRole === "admin",
+    },
 ];
 
   const managementItems = [
@@ -156,7 +198,7 @@ const academyItems = [
 
     {
       label: "THE INVICTUS CHALLENGE",
-      href: "/invictus/challenge",
+      href: "/invictus/invictus-challenge",
       icon: Flame,
     },
 
@@ -355,62 +397,64 @@ const academyItems = [
               );
             })}
           </div>
-          <div className="mb-3">
-            <button
-              onClick={() => setAcademyOpen(!academyOpen)}
-              className={`flex w-full items-center justify-between cursor-pointer rounded-xl px-3 py-2.5 transition-all ${
-                isAcademyActive
-                  ? "bg-[#F3EBD8] text-[#947124]"
-                  : "text-[#5C5348] hover:bg-[#F6F1E7]"
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#F3EEE4]">
-                  <GraduationCap size={15} />
+          {isFounderOrManager && (
+            <div className="mb-3">
+              <button
+                onClick={() => setAcademyOpen(!academyOpen)}
+                className={`flex w-full items-center justify-between cursor-pointer rounded-xl px-3 py-2.5 transition-all ${
+                  isAcademyActive
+                    ? "bg-[#F3EBD8] text-[#947124]"
+                    : "text-[#5C5348] hover:bg-[#F6F1E7]"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#F3EEE4]">
+                    <GraduationCap size={15} />
+                  </div>
+
+                  <span className="font-montserrat text-[11px] font-semibold uppercase tracking-wider">
+                    Academy
+                  </span>
                 </div>
 
-                <span className="font-montserrat text-[11px] font-semibold uppercase tracking-wider">
-                  Academy
-                </span>
-              </div>
+                <ChevronDown
+                  size={15}
+                  className={`transition-transform ${
+                    academyOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
 
-              <ChevronDown
-                size={15}
-                className={`transition-transform ${
-                  academyOpen ? "rotate-180" : ""
+              <div
+                className={`overflow-hidden transition-all ${
+                  academyOpen ? "max-h-80 mt-2" : "max-h-0"
                 }`}
-              />
-            </button>
+              >
+                <div className="ml-5 space-y-1 border-l border-[#D9CEBA] pl-3">
+                  {academyItems.map(({ label, href, icon: Icon }) => {
+                    const active = pathname.startsWith(href);
 
-            <div
-              className={`overflow-hidden transition-all ${
-                academyOpen ? "max-h-80 mt-2" : "max-h-0"
-              }`}
-            >
-              <div className="ml-5 space-y-1 border-l border-[#D9CEBA] pl-3">
-                {academyItems.map(({ label, href, icon: Icon }) => {
-                  const active = pathname.startsWith(href);
+                    return (
+                      <Link
+                        key={href}
+                        href={href}
+                        onClick={closeSidebar}
+                        className={`
+  flex items-center gap-2 rounded-lg px-3 py-2 
+  font-montserrat text-[10px] font-medium uppercase transition
+  ${active ? "bg-[#F3EBD8] text-[#947124]" : "text-[#6C6357] hover:bg-[#F6F1E7]"}
+  `}
+                      >
+                        <Icon size={13} />
 
-                  return (
-                    <Link
-                      key={href}
-                      href={href}
-                      onClick={closeSidebar}
-                      className={`
-flex items-center gap-2 rounded-lg px-3 py-2 
-font-montserrat text-[10px] font-medium uppercase transition
-${active ? "bg-[#F3EBD8] text-[#947124]" : "text-[#6C6357] hover:bg-[#F6F1E7]"}
-`}
-                    >
-                      <Icon size={13} />
-
-                      <span>{label}</span>
-                    </Link>
-                  );
-                })}
+                        <span>{label}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {canManageInvictus && (
             <div className="mb-3">

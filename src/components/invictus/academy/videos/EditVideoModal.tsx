@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { toast } from "sonner";
 
 import { useAppDispatch } from "@/lib/redux/store/hook";
 import { updateVideo } from "@/lib/features/invictus/academy/video-module/videoSlice";
@@ -91,13 +92,15 @@ export default function EditVideoModal({ open, onClose, video }: Props) {
         }),
       ).unwrap();
 
+      toast.success("Module video updated successfully!");
       onClose();
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : undefined;
+        error instanceof Error ? error.message : "Video could not be updated, try again later!";
+      toast.error(message);
       setErrors((prev) => ({
         ...prev,
-        form: message || "Video could not be updated, try again later!",
+        form: message,
       }));
     } finally {
       setLoading(false);
