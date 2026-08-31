@@ -64,8 +64,6 @@ const invictusColumns: LedgerColumn<LeaderboardEntry>[] = [
     ),
   },
   { key: "territory", label: "Territory", render: (entry) => <TerritoryCell territory={entry.user.country ?? "-"} /> },
-  { key: "modules", label: "Modules", align: "right", render: (entry) => <span className="font-display font-medium text-ink">{entry.breakdown?.modules ?? 0}</span> },
-  { key: "success", label: "Success", align: "right", render: (entry) => <span className="font-display font-medium text-ink">{entry.breakdown?.success ?? 0}%</span> },
   { key: "streak", label: "Streak", align: "right", render: (entry) => <StreakPill value={`${entry.breakdown?.streak ?? 0}d`} /> },
   { key: "points", label: "Points", align: "right", render: (entry) => <span className="font-display font-medium text-gold-deep">{entry.points.toLocaleString()}</span> },
 ];
@@ -95,7 +93,7 @@ export default function LeaderboardPage() {
           variant="invictus"
           eyebrow="Leaderboard"
           title="The ones who show up."
-          description="Ranked by modules completed, module success rate, accountability streak, and community contribution."
+          description="Ranked by total points earned and accountability streak."
           titleClassName="text-[clamp(2.2rem,4.6vw,3.6rem)]"
         />
       </div>
