@@ -21,7 +21,14 @@ import {
 } from "@/lib/features/mentorBooking/mentorBookingSlice";
 import type { IMentorBooking } from "@/lib/features/mentorBooking/mentorBookingTypes";
 
-import { CalendarDays, Check, Clock, Loader2, PlayCircle, Video } from "lucide-react";
+import {
+    CalendarDays,
+    Check,
+    Clock,
+    Loader2,
+    PlayCircle,
+    Video,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -569,7 +576,7 @@ export default function MyAccountabilityPage() {
                                         onClick={() =>
                                             handleWatchRecap(booking)
                                         }
-                                        className="flex shrink-0 items-center gap-1.5 rounded-md border border-[#E9E2D2] px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-[#8A8375] transition-colors hover:border-[#DDBB6E] hover:text-[#A88A3F] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-[#E9E2D2] disabled:hover:text-[#8A8375]"
+                                        className="cursor-pointer flex shrink-0 items-center gap-1.5 rounded-md border border-[#E9E2D2] px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-[#8A8375] transition-colors hover:border-[#DDBB6E] hover:text-[#A88A3F] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-[#E9E2D2] disabled:hover:text-[#8A8375]"
                                     >
                                         <PlayCircle size={13} />
                                         {hasRecording
@@ -582,7 +589,6 @@ export default function MyAccountabilityPage() {
                     )}
                 </section>
 
-                {/* Progress journal */}
                 <SectionHeader
                     variant="invictus"
                     title="Progress Journal"
@@ -690,9 +696,6 @@ export default function MyAccountabilityPage() {
                                 </div>
                             </div>
 
-                            {/* =========================
-                Available times
-            ========================== */}
                             <div className="min-w-0 rounded-xl border border-[#E9E2D2] bg-white p-4 sm:p-5">
                                 <div className="mb-4 flex items-start gap-2">
                                     <Clock
@@ -790,9 +793,6 @@ export default function MyAccountabilityPage() {
                             </div>
                         </div>
 
-                        {/* =========================
-            Selected session
-        ========================== */}
                         {selectedTime && (
                             <div className="rounded-lg border border-[#EFE6CE] bg-[#FAF6EE] p-3 sm:p-4">
                                 <div className="flex items-start gap-3">
@@ -868,7 +868,6 @@ export default function MyAccountabilityPage() {
                     open={recordingOpen}
                     onOpenChange={(open) => {
                         setRecordingOpen(open);
-
                         if (!open) {
                             setActiveRecordingBooking(null);
                         }
@@ -876,54 +875,63 @@ export default function MyAccountabilityPage() {
                 >
                     <DialogContent
                         className="
-            w-[calc(100%-2rem)]
-            max-w-[820px]
-            overflow-hidden
-            border-[#E9E2D2]
-            bg-[#0B0A08]
-            p-0
-        "
+       w-full
+   
+    max-h-[90vh]
+    overflow-hidden
+    border-[#E9E2D2]
+    bg-[#0B0A08]
+    p-0
+    mx-auto
+    text-white
+ 
+  "
                     >
-                        <DialogHeader className="space-y-1 p-5 pb-0">
-                            <DialogTitle className="font-[family-name:var(--font-display)] text-lg text-white">
-                                {activeRecordingBooking?.recordingTitle ??
-                                    "Session recap"}
-                            </DialogTitle>
+                        {/* Header */}
+                        <div className="w-full max-w-[625px] flex items-start justify-between gap-4 border-b border-white/10 px-5 py-4 pr-12">
+                            <div className="min-w-0 flex-1">
+                                <h2 className="truncate font-[family-name:var(--font-display)] text-lg font-semibold text-white">
+                                    {activeRecordingBooking?.recordingTitle ??
+                                        "Session recap"}
+                                </h2>
 
-                            <DialogDescription className="text-sm text-[#B0A996]">
-                                {activeRecordingBooking
-                                    ? new Date(
-                                          activeRecordingBooking.completedAt ??
-                                              activeRecordingBooking.scheduledStartTime,
-                                      ).toLocaleDateString(undefined, {
-                                          weekday: "long",
-                                          month: "long",
-                                          day: "numeric",
-                                      })
-                                    : ""}
-                            </DialogDescription>
-                        </DialogHeader>
+                                <p className="mt-1 text-sm text-[#B0A996]">
+                                    {activeRecordingBooking
+                                        ? new Date(
+                                              activeRecordingBooking.completedAt ??
+                                                  activeRecordingBooking.scheduledStartTime,
+                                          ).toLocaleDateString(undefined, {
+                                              weekday: "long",
+                                              month: "long",
+                                              day: "numeric",
+                                          })
+                                        : ""}
+                                </p>
+                            </div>
+                        </div>
 
+                        {/* Video */}
                         <div className="p-5 pt-4">
                             {activeRecordingBooking?.recording?.secureUrl ? (
                                 <video
                                     key={activeRecordingBooking._id}
                                     controls
                                     autoPlay
+                                    playsInline
                                     poster={
                                         activeRecordingBooking.recording
                                             .thumbnailUrl
                                     }
-                                    className="w-full rounded-lg bg-black"
+                                    className="aspect-video w-full rounded-lg bg-black object-contain"
                                 >
                                     <source
                                         src={
                                             activeRecordingBooking.recording
                                                 .secureUrl
                                         }
+                                        type="video/mp4"
                                     />
-                                    Your browser does not support the video
-                                    tag.
+                                    Your browser does not support the video tag.
                                 </video>
                             ) : (
                                 <p className="text-sm text-[#B0A996]">

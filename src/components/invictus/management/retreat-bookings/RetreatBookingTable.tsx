@@ -114,7 +114,7 @@ export default function RetreatBookingTable({ data, onAction }: Props) {
                     <Button
                       variant="outline"
                       size="icon"
-                      className="cursor-pointer"
+                      className="cursor-pointer rounded-full aspect-square"
                       title="View details"
                       onClick={() => onAction(booking, "details")}
                     >

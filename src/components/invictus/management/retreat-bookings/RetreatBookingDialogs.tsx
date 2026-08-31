@@ -81,7 +81,7 @@ export default function RetreatBookingDialogs({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto rounded-3xl border-[#E7DDCC] bg-white">
+      <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto rounded-3xl border-[#E7DDCC] bg-white">
         {mode === "invite" && booking && (
           <>
             <DialogHeader>

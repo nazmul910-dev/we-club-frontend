@@ -3,7 +3,19 @@ import { Retreat, RetreatBatch } from "@/types/retreat";
 import {
   CancelRetreatBookingPayload,
   ConfirmRetreatBookingPayload,
+  IApiEnvelope,
+  ICreateRetreatBatchPayload,
+  ICreateRetreatLocationPayload,
   InviteRetreatBookingPayload,
+  IPaginatedRetreatBatches,
+  IPaginatedRetreatLocations,
+  IRetreatBatch,
+  IRetreatBatchQuery,
+  IRetreatLocation,
+  IRetreatLocationQuery,
+  IUpdateRetreatBatchPayload,
+  IUpdateRetreatLocationPayload,
+  LocationFormSubmitPayload,
   PaginatedRetreatBookings,
   RefundRetreatBookingPayload,
   RetreatBooking,
@@ -17,6 +29,183 @@ interface PaginatedResponse<T> {
     totalPages: number;
   };
 }
+
+const LOCATIONS_URL = "/invictus/retreat-locations";
+const BATCHES_URL = "/invictus/retreat-batches";
+
+
+export const retreatLocationApi = {
+  // GET / — list, filterable by status/isActive/isFeatured/search
+  fetchAll: async (
+    query: IRetreatLocationQuery = {},
+  ): Promise<IPaginatedRetreatLocations> => {
+    const { data } = await api.get<
+      IApiEnvelope<IPaginatedRetreatLocations>
+    >(LOCATIONS_URL, { params: query });
+    return data.data;
+  },
+
+  // GET /:idOrSlug
+  fetchOne: async (idOrSlug: string): Promise<IRetreatLocation> => {
+    const { data } = await api.get<IApiEnvelope<IRetreatLocation>>(
+      `${LOCATIONS_URL}/${idOrSlug}`,
+    );
+    return data.data;
+  },
+
+  // POST /
+  create: async (
+    payload: LocationFormSubmitPayload,
+  ): Promise<IRetreatLocation> => {
+    const form = new FormData();
+
+    form.append("title", payload.title);
+    form.append("country", payload.country);
+    form.append("city", payload.city);
+    form.append("description", payload.description);
+
+    if (payload.slug) form.append("slug", payload.slug);
+    if (payload.tagline) form.append("tagline", payload.tagline);
+    if (payload.status) form.append("status", payload.status);
+    if (payload.order !== undefined) form.append("order", String(payload.order));
+    if (payload.isFeatured !== undefined)
+      form.append("isFeatured", String(payload.isFeatured));
+    if (payload.isActive !== undefined)
+      form.append("isActive", String(payload.isActive));
+    if (payload.whatsIncluded?.length)
+      form.append("whatsIncluded", JSON.stringify(payload.whatsIncluded));
+
+    if (payload.coverImageFile) {
+      form.append("coverImage", payload.coverImageFile);
+    }
+    payload.galleryFiles?.forEach((file) => {
+      form.append("gallery", file);
+    });
+    if (payload.promoVideoFile) {
+      form.append("promoVideo", payload.promoVideoFile);
+    }
+
+    const { data } = await api.post<IApiEnvelope<IRetreatLocation>>(
+      LOCATIONS_URL,
+      form,
+    );
+    return data.data;
+  },
+
+  update: async (
+    id: string,
+    payload: IUpdateRetreatLocationPayload,
+  ): Promise<IRetreatLocation> => {
+    const form = new FormData();
+
+    if (payload.title !== undefined) form.append("title", payload.title);
+    if (payload.slug !== undefined) form.append("slug", payload.slug);
+    if (payload.country !== undefined) form.append("country", payload.country);
+    if (payload.city !== undefined) form.append("city", payload.city);
+    if (payload.tagline !== undefined) form.append("tagline", payload.tagline);
+    if (payload.description !== undefined)
+      form.append("description", payload.description);
+
+    if (payload.status !== undefined) form.append("status", payload.status);
+    if (payload.order !== undefined) form.append("order", String(payload.order));
+    if (payload.isFeatured !== undefined)
+      form.append("isFeatured", String(payload.isFeatured));
+    if (payload.isActive !== undefined)
+      form.append("isActive", String(payload.isActive));
+
+    if (payload.whatsIncluded !== undefined) {
+      form.append("whatsIncluded", JSON.stringify(payload.whatsIncluded));
+    }
+
+    if (payload.galleryImages !== undefined) {
+      form.append("galleryImages", JSON.stringify(payload.galleryImages));
+    }
+    if (payload.replaceGallery !== undefined) {
+      form.append("replaceGallery", String(payload.replaceGallery));
+    }
+
+    // Clear without new file
+    if (payload.coverImage === null) {
+      form.append("coverImage", "null");
+    }
+    if (payload.promoVideoUrl === null) {
+      form.append("promoVideoUrl", "null");
+    }
+
+    // New files
+    if (payload.coverImageFile) {
+      form.append("coverImage", payload.coverImageFile);
+    }
+    payload.galleryFiles?.forEach((file) => {
+      form.append("gallery", file);
+    });
+    if (payload.promoVideoFile) {
+      form.append("promoVideo", payload.promoVideoFile);
+    }
+
+    const { data } = await api.patch<IApiEnvelope<IRetreatLocation>>(
+      `${LOCATIONS_URL}/${id}`,
+      form,
+    );
+    return data.data;
+  },
+
+  // DELETE /:id
+  remove: async (id: string): Promise<void> => {
+    await api.delete<IApiEnvelope<null>>(`${LOCATIONS_URL}/${id}`);
+  },
+};
+
+
+export const retreatBatchApi = {
+  // GET / — list, filterable by location/status/date range/search
+  fetchAll: async (
+    query: IRetreatBatchQuery = {},
+  ): Promise<IPaginatedRetreatBatches> => {
+    const { data } = await api.get<IApiEnvelope<IPaginatedRetreatBatches>>(
+      BATCHES_URL,
+      { params: query },
+    );
+    return data.data;
+  },
+
+  // GET /:idOrSlug
+  fetchOne: async (idOrSlug: string): Promise<IRetreatBatch> => {
+    const { data } = await api.get<IApiEnvelope<IRetreatBatch>>(
+      `${BATCHES_URL}/${idOrSlug}`,
+    );
+    return data.data;
+  },
+
+  // POST /
+  create: async (
+    payload: ICreateRetreatBatchPayload,
+  ): Promise<IRetreatBatch> => {
+    const { data } = await api.post<IApiEnvelope<IRetreatBatch>>(
+      BATCHES_URL,
+      payload,
+    );
+    return data.data;
+  },
+
+  // PATCH /:id
+  update: async (
+    id: string,
+    payload: IUpdateRetreatBatchPayload,
+  ): Promise<IRetreatBatch> => {
+    const { data } = await api.patch<IApiEnvelope<IRetreatBatch>>(
+      `${BATCHES_URL}/${id}`,
+      payload,
+    );
+    return data.data;
+  },
+
+  // DELETE /:id
+  remove: async (id: string): Promise<void> => {
+    await api.delete<IApiEnvelope<null>>(`${BATCHES_URL}/${id}`);
+  },
+};
+
 
 export const getFeaturedRetreat = async (): Promise<Retreat> => {
   const response = await api.get<{ data: PaginatedResponse<Retreat> }>(

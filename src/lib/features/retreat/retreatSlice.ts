@@ -1,5 +1,6 @@
 
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
 import api from "@/lib/api/api";
@@ -15,6 +16,8 @@ import {
   inviteRetreatBooking,
   refundRetreatBookingAdmin,
 } from "./retreatApi";
+import { retreatBatchApi, retreatLocationApi } from "./retreatApi";
+
 import type {
   CancelRetreatBookingPayload,
   ConfirmRetreatBookingPayload,
@@ -24,7 +27,22 @@ import type {
   RetreatBooking,
   RetreatBookingQuery,
   RetreatBookingStatusCounts,
+  ICreateRetreatBatchPayload,
+  ICreateRetreatLocationPayload,
+  IPaginatedRetreatBatches,
+  IPaginatedRetreatLocations,
+  IPaginationMeta,
+  IRetreatBatch,
+  IRetreatBatchQuery,
+  IRetreatLocation,
+  IRetreatLocationQuery,
+  IUpdateRetreatBatchPayload,
+  IUpdateRetreatLocationPayload,
+  LocationFormSubmitPayload,
 } from "./retreatTypes";
+import { RootState } from "@/lib/redux/store/store";
+
+type RequestStatus = "idle" | "loading" | "succeeded" | "failed";
 
 interface RetreatWithBatches {
   location: Retreat;
@@ -79,6 +97,26 @@ interface RetreatState {
   adminBookingsError: string | null;
   isAdminActing: boolean;
   adminActionError: string | null;
+
+  locations: IRetreatLocation[];
+  locationsMeta: IPaginationMeta | null;
+  selectedLocation: IRetreatLocation | null;
+
+  batches: IRetreatBatch[];
+  batchesMeta: IPaginationMeta | null;
+  selectedBatch: IRetreatBatch | null;
+
+  locationsListStatus: RequestStatus;
+  locationCreateStatus: RequestStatus;
+  locationUpdateStatus: RequestStatus;
+  locationDeleteStatus: RequestStatus;
+
+  batchesListStatus: RequestStatus;
+  batchCreateStatus: RequestStatus;
+  batchUpdateStatus: RequestStatus;
+  batchDeleteStatus: RequestStatus;
+
+
 }
 
 const initialState: RetreatState = {
@@ -121,6 +159,23 @@ const initialState: RetreatState = {
   adminBookingsError: null,
   isAdminActing: false,
   adminActionError: null,
+  locations: [],
+  locationsMeta: null,
+  selectedLocation: null,
+
+  batches: [],
+  batchesMeta: null,
+  selectedBatch: null,
+
+  locationsListStatus: "idle",
+  locationCreateStatus: "idle",
+  locationUpdateStatus: "idle",
+  locationDeleteStatus: "idle",
+
+  batchesListStatus: "idle",
+  batchCreateStatus: "idle",
+  batchUpdateStatus: "idle",
+  batchDeleteStatus: "idle",
 };
 
 const upsertAdminBooking = (
@@ -135,13 +190,41 @@ const upsertAdminBooking = (
 
 const getErrorMessage = (
   error: unknown,
-  fallback: string,
+  fallback = "Something went wrong. Please try again.",
 ): string => {
-  if (axios.isAxiosError(error)) {
-    return error.response?.data?.message || fallback;
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "response" in error
+  ) {
+    const message = (
+      error as { response?: { data?: { message?: unknown } } }
+    ).response?.data?.message;
+
+    if (typeof message === "string" && message.trim()) {
+      return message;
+    }
+
+    // Zod / validation arrays from your API
+    if (Array.isArray(message) && message.length > 0) {
+      const first = message[0];
+      if (typeof first === "string") return first;
+      if (
+        typeof first === "object" &&
+        first !== null &&
+        "message" in first &&
+        typeof (first as { message: unknown }).message === "string"
+      ) {
+        return (first as { message: string }).message;
+      }
+    }
   }
 
-  return error instanceof Error ? error.message : fallback;
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  return fallback;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -226,6 +309,114 @@ export const fetchRetreatOverview = createAsyncThunk<
 /* -------------------------------------------------------------------------- */
 /* Fetch My Retreat Bookings                                                  */
 /* -------------------------------------------------------------------------- */
+
+
+export const fetchRetreatLocations = createAsyncThunk<
+  IPaginatedRetreatLocations,
+  IRetreatLocationQuery | undefined,
+  { state: RootState; rejectValue: string }
+>("retreat/fetchLocations", async (query, { rejectWithValue }) => {
+  try {
+    return await retreatLocationApi.fetchAll(query);
+  } catch (error) {
+    return rejectWithValue(getErrorMessage(error));
+  }
+});
+
+
+export const createRetreatLocation = createAsyncThunk<
+  IRetreatLocation,
+  LocationFormSubmitPayload,
+  { state: RootState; rejectValue: string }
+>("retreat/createLocation", async (payload, { rejectWithValue }) => {
+  try {
+    return await retreatLocationApi.create(payload);
+  } catch (error) {
+    return rejectWithValue(getErrorMessage(error));
+  }
+});
+
+export const updateRetreatLocation = createAsyncThunk<
+  IRetreatLocation,
+  { id: string; payload: IUpdateRetreatLocationPayload },
+  { state: RootState; rejectValue: string }
+>("retreat/updateLocation", async ({ id, payload }, { rejectWithValue }) => {
+  try {
+    return await retreatLocationApi.update(id, payload);
+  } catch (error) {
+    return rejectWithValue(getErrorMessage(error));
+  }
+});
+
+
+export const deleteRetreatLocation = createAsyncThunk<
+  string,
+  string,
+  { state: RootState; rejectValue: string }
+>("retreat/deleteLocation", async (id, { rejectWithValue }) => {
+  try {
+    await retreatLocationApi.remove(id);
+    return id;
+  } catch (error) {
+    return rejectWithValue(getErrorMessage(error));
+  }
+});
+
+
+export const fetchRetreatBatches = createAsyncThunk<
+  IPaginatedRetreatBatches,
+  IRetreatBatchQuery | undefined,
+  { state: RootState; rejectValue: string }
+>("retreat/fetchBatches", async (query, { rejectWithValue }) => {
+  try {
+    return await retreatBatchApi.fetchAll(query);
+  } catch (error) {
+    return rejectWithValue(getErrorMessage(error));
+  }
+});
+
+
+export const createRetreatBatch = createAsyncThunk<
+  IRetreatBatch,
+  ICreateRetreatBatchPayload,
+  { state: RootState; rejectValue: string }
+>("retreat/createBatch", async (payload, { rejectWithValue }) => {
+  try {
+    return await retreatBatchApi.create(payload);
+  } catch (error) {
+    return rejectWithValue(getErrorMessage(error));
+  }
+});
+
+
+
+export const updateRetreatBatch = createAsyncThunk<
+  IRetreatBatch,
+  { id: string; payload: IUpdateRetreatBatchPayload },
+  { state: RootState; rejectValue: string }
+>("retreat/updateBatch", async ({ id, payload }, { rejectWithValue }) => {
+  try {
+    return await retreatBatchApi.update(id, payload);
+  } catch (error) {
+    return rejectWithValue(getErrorMessage(error));
+  }
+});
+
+
+export const deleteRetreatBatch = createAsyncThunk<
+  string,
+  string,
+  { state: RootState; rejectValue: string }
+>("retreat/deleteBatch", async (id, { rejectWithValue }) => {
+  try {
+    await retreatBatchApi.remove(id);
+    return id;
+  } catch (error) {
+    return rejectWithValue(getErrorMessage(error));
+  }
+});
+
+
 
 export const fetchMyRetreatBookings = createAsyncThunk<
   RetreatBooking[],
@@ -613,12 +804,199 @@ const retreatSlice = createSlice({
     clearAdminActionError: (state) => {
       state.adminActionError = null;
     },
+    clearSelectedRetreatLocation(state) {
+      state.selectedLocation = null;
+    },
+    clearSelectedRetreatBatch(state) {
+      state.selectedBatch = null;
+    },
+    clearRetreatError(state) {
+      state.error = null;
+    },
   },
 
   extraReducers: (builder) => {
     builder
 
       /* ------------------------- Retreat Overview ------------------------ */
+
+
+      // locations: list
+      .addCase(fetchRetreatLocations.pending, (state) => {
+        state.locationsListStatus = "loading";
+        state.error = null;
+      })
+      .addCase(
+        fetchRetreatLocations.fulfilled,
+        (
+          state,
+          action: PayloadAction<IPaginatedRetreatLocations>,
+        ) => {
+          state.locationsListStatus = "succeeded";
+          state.locations = action.payload.data;
+          state.locationsMeta = action.payload.meta;
+        },
+      )
+      .addCase(fetchRetreatLocations.rejected, (state, action) => {
+        state.locationsListStatus = "failed";
+        state.error =
+          action.payload ?? "Failed to load retreat locations";
+      })
+
+      // locations: create
+      .addCase(createRetreatLocation.pending, (state) => {
+        state.locationCreateStatus = "loading";
+        state.error = null;
+      })
+      .addCase(
+        createRetreatLocation.fulfilled,
+        (state, action: PayloadAction<IRetreatLocation>) => {
+          state.locationCreateStatus = "succeeded";
+          state.locations.unshift(action.payload);
+        },
+      )
+      .addCase(createRetreatLocation.rejected, (state, action) => {
+        state.locationCreateStatus = "failed";
+        state.error =
+          action.payload ?? "Failed to create retreat location";
+      })
+
+      // locations: update
+      .addCase(updateRetreatLocation.pending, (state) => {
+        state.locationUpdateStatus = "loading";
+        state.error = null;
+      })
+      .addCase(
+        updateRetreatLocation.fulfilled,
+        (state, action: PayloadAction<IRetreatLocation>) => {
+          state.locationUpdateStatus = "succeeded";
+          state.locations = state.locations.map((location) =>
+            location._id === action.payload._id
+              ? action.payload
+              : location,
+          );
+          if (state.selectedLocation?._id === action.payload._id) {
+            state.selectedLocation = action.payload;
+          }
+        },
+      )
+      .addCase(updateRetreatLocation.rejected, (state, action) => {
+        state.locationUpdateStatus = "failed";
+        state.error =
+          action.payload ?? "Failed to update retreat location";
+      })
+
+      // locations: delete
+      .addCase(deleteRetreatLocation.pending, (state) => {
+        state.locationDeleteStatus = "loading";
+        state.error = null;
+      })
+      .addCase(
+        deleteRetreatLocation.fulfilled,
+        (state, action: PayloadAction<string>) => {
+          state.locationDeleteStatus = "succeeded";
+          state.locations = state.locations.filter(
+            (location) => location._id !== action.payload,
+          );
+          if (state.selectedLocation?._id === action.payload) {
+            state.selectedLocation = null;
+          }
+        },
+      )
+      .addCase(deleteRetreatLocation.rejected, (state, action) => {
+        state.locationDeleteStatus = "failed";
+        state.error =
+          action.payload ?? "Failed to delete retreat location";
+      })
+
+      // batches: list
+      .addCase(fetchRetreatBatches.pending, (state) => {
+        state.batchesListStatus = "loading";
+        state.error = null;
+      })
+      .addCase(
+        fetchRetreatBatches.fulfilled,
+        (
+          state,
+          action: PayloadAction<IPaginatedRetreatBatches>,
+        ) => {
+          state.batchesListStatus = "succeeded";
+          state.batches = action.payload.data;
+          state.batchesMeta = action.payload.meta;
+        },
+      )
+      .addCase(fetchRetreatBatches.rejected, (state, action) => {
+        state.batchesListStatus = "failed";
+        state.error =
+          action.payload ?? "Failed to load retreat batches";
+      })
+
+      // batches: create
+      .addCase(createRetreatBatch.pending, (state) => {
+        state.batchCreateStatus = "loading";
+        state.error = null;
+      })
+      .addCase(
+        createRetreatBatch.fulfilled,
+        (state, action: PayloadAction<IRetreatBatch>) => {
+          state.batchCreateStatus = "succeeded";
+          state.batches.unshift(action.payload);
+        },
+      )
+      .addCase(createRetreatBatch.rejected, (state, action) => {
+        state.batchCreateStatus = "failed";
+        state.error =
+          action.payload ?? "Failed to create retreat batch";
+      })
+
+      // batches: update
+      .addCase(updateRetreatBatch.pending, (state) => {
+        state.batchUpdateStatus = "loading";
+        state.error = null;
+      })
+      .addCase(
+        updateRetreatBatch.fulfilled,
+        (state, action: PayloadAction<IRetreatBatch>) => {
+          state.batchUpdateStatus = "succeeded";
+          state.batches = state.batches.map((batch) =>
+            batch._id === action.payload._id
+              ? action.payload
+              : batch,
+          );
+          if (state.selectedBatch?._id === action.payload._id) {
+            state.selectedBatch = action.payload;
+          }
+        },
+      )
+      .addCase(updateRetreatBatch.rejected, (state, action) => {
+        state.batchUpdateStatus = "failed";
+        state.error =
+          action.payload ?? "Failed to update retreat batch";
+      })
+
+      // batches: delete
+      .addCase(deleteRetreatBatch.pending, (state) => {
+        state.batchDeleteStatus = "loading";
+        state.error = null;
+      })
+      .addCase(
+        deleteRetreatBatch.fulfilled,
+        (state, action: PayloadAction<string>) => {
+          state.batchDeleteStatus = "succeeded";
+          state.batches = state.batches.filter(
+            (batch) => batch._id !== action.payload,
+          );
+          if (state.selectedBatch?._id === action.payload) {
+            state.selectedBatch = null;
+          }
+        },
+      )
+      .addCase(deleteRetreatBatch.rejected, (state, action) => {
+        state.batchDeleteStatus = "failed";
+        state.error =
+          action.payload ?? "Failed to delete retreat batch"
+      })
+
 
       .addCase(
         fetchRetreatOverview.pending,
@@ -985,6 +1363,44 @@ const retreatSlice = createSlice({
 
 export const { clearRetreats, clearAdminActionError } =
   retreatSlice.actions;
+
+// ---------------------------------------------------------------------------
+// Selectors
+// ---------------------------------------------------------------------------
+
+export const selectRetreatLocations = (state: RootState) =>
+  state.retreat.locations;
+
+export const selectRetreatLocationsMeta = (state: RootState) =>
+  state.retreat.locationsMeta;
+
+export const selectRetreatBatches = (state: RootState) =>
+  state.retreat.batches;
+
+export const selectRetreatBatchesMeta = (state: RootState) =>
+  state.retreat.batchesMeta;
+
+export const selectRetreatError = (state: RootState) =>
+  state.retreat.error;
+
+/** Status map used by management page + form dialogs */
+export const selectRetreatStatus = (state: RootState) => ({
+  locationsList: state.retreat.locationsListStatus,
+  locationCreate: state.retreat.locationCreateStatus,
+  locationUpdate: state.retreat.locationUpdateStatus,
+  locationDelete: state.retreat.locationDeleteStatus,
+  batchesList: state.retreat.batchesListStatus,
+  batchCreate: state.retreat.batchCreateStatus,
+  batchUpdate: state.retreat.batchUpdateStatus,
+  batchDelete: state.retreat.batchDeleteStatus,
+});
+
+// Optional but useful
+export const selectSelectedRetreatLocation = (state: RootState) =>
+  state.retreat.selectedLocation;
+
+export const selectSelectedRetreatBatch = (state: RootState) =>
+  state.retreat.selectedBatch;
 
 export default retreatSlice.reducer;
 
