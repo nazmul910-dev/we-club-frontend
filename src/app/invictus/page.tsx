@@ -37,7 +37,7 @@ export default function InvictusCampusPage() {
         <InvictusCampusSection />
         <InvictusEventsSection />
 
-        <InvictusLeaderboardSection />
+        {/* <InvictusLeaderboardSection /> */}
 
         <InvictusFounderSpotlight
           Title="CEO of the Month"
