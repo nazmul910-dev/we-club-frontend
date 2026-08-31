@@ -25,11 +25,14 @@ export type RetreatCtaProps = {
     country: string;
     seatsRemaining?: number;
     onReserve?: () => void;
+    onProceedToCheckout?: () => void;
     isBooking?: boolean;
+    isCheckingOut?: boolean;
     bookingMessage?: string | null;
-    /** The current user's existing booking status for this batch, if any. */
     bookingStatus?: BookingStatus;
 };
+
+const ACTIONABLE_STATUSES: BookingStatus[] = ["invited", "payment_pending"];
 
 const STATUS_COPY: Record<
     Exclude<BookingStatus, null>,
@@ -74,12 +77,17 @@ export function RetreatCta({
     country,
     seatsRemaining,
     onReserve,
+    onProceedToCheckout,
     isBooking = false,
+    isCheckingOut = false,
     bookingMessage,
     bookingStatus = null,
 }: RetreatCtaProps) {
     const [open, setOpen] = useState(false);
     const [wasBooking, setWasBooking] = useState(false);
+
+    const status = bookingStatus ? STATUS_COPY[bookingStatus] : null;
+    const isActionable = ACTIONABLE_STATUSES.includes(bookingStatus);
 
     function handleConfirm() {
         onReserve?.();
@@ -92,8 +100,7 @@ export function RetreatCta({
         setOpen(false);
     }
 
-    const status = bookingStatus ? STATUS_COPY[bookingStatus] : null;
-
+    // const status = bookingStatus ? STATUS_COPY[bookingStatus] : null;
 
     // console.log("Status", status, "booking status", bookingStatus)
 
@@ -113,7 +120,20 @@ export function RetreatCta({
                 waiting list to be contacted when your spot opens in {country}.
             </p>
 
-            {status ? (
+            {isActionable ? (
+                <button
+                    type="button"
+                    onClick={onProceedToCheckout}
+                    disabled={isCheckingOut}
+                    className="border rounded-xl cursor-pointer border-gold-bright/70 bg-gold-bright/10 px-7 py-3 text-[0.7rem] font-bold uppercase tracking-[0.14em] text-gold-bright transition-colors duration-300 hover:bg-gold-bright/20 disabled:opacity-60"
+                >
+                    {isCheckingOut
+                        ? "Redirecting to checkout..."
+                        : bookingStatus === "invited"
+                          ? "Complete your booking →"
+                          : "Resume payment →"}
+                </button>
+            ) : status ? (
                 <div className="inline-flex items-center gap-2 border border-gold-bright/40 bg-gold-bright/10 px-7 py-3 text-[0.7rem] font-bold uppercase tracking-[0.14em] text-gold-bright">
                     <StatusIcon icon={status.icon} />
                     {status.label}
@@ -122,7 +142,6 @@ export function RetreatCta({
                 <AlertDialog
                     open={open}
                     onOpenChange={(next) => !isBooking && setOpen(next)}
-                    
                 >
                     <AlertDialogTrigger asChild>
                         <button

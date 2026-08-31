@@ -16,6 +16,14 @@ export function formatDate(d: string | undefined): string {
   }
 }
 
+export function formatDate2(date: string, timezone?: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: timezone || undefined,
+  }).format(new Date(date));
+}
+
 export function isRequester(request: any, currentUserId: string | null): boolean {
   const requesterId = request?.requester?.user_id;
   const requesterIdString =
@@ -55,4 +63,4 @@ export function getGreeting(): string {
   if (hour >= 12 && hour < 17) return "Good Afternoon";
   if (hour >= 17 && hour < 21) return "Good Evening";
   return "Good Night";
-}
+}

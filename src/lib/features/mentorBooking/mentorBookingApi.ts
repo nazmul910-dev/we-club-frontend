@@ -2,7 +2,7 @@
 // (the one with baseURL + auth token interceptor already attached).
 
 import api from "@/lib/api/api";
-import { IApiEnvelope, ICancelMentorBookingPayload, ICompleteMentorBookingPayload, ICreateMentorBookingPayload, IMentorBooking, IMentorBookingQuery, IMyMentorResponse, IPaginatedBookings, ISelectCoMentorPayload, IUpdateMentorBookingPayload } from "./mentorBookingTypes";
+import { IApiEnvelope, ICancelMentorBookingPayload, ICompleteMentorBookingPayload, IConfirmMentorBookingPayload, ICreateMentorBookingPayload, IMentorBooking, IMentorBookingQuery, IMyMentorResponse, INoShowMentorBookingPayload, IPaginatedBookings, ISelectCoMentorPayload, IUpdateMentorBookingPayload } from "./mentorBookingTypes";
 
 
 const BASE_URL = "/invictus/mentor-bookings";
@@ -64,6 +64,52 @@ export const mentorBookingApi = {
     return data.data;
   },
 
+  // GET /:id — admin/mentor fetches a single booking by id (any status)
+  fetchSingleBookingAdmin: async (id: string): Promise<IMentorBooking> => {
+    const { data } = await api.get<IApiEnvelope<IMentorBooking>>(
+      `${BASE_URL}/${id}`,
+    );
+    return data.data;
+  },
+
+  // PATCH /:id/confirm — mentor/admin confirms a requested booking,
+  // providing the session title + meeting link (notes optional)
+  confirmBooking: async (
+    id: string,
+    payload: IConfirmMentorBookingPayload,
+  ): Promise<IMentorBooking> => {
+    const { data } = await api.patch<IApiEnvelope<IMentorBooking>>(
+      `${BASE_URL}/${id}/confirm`,
+      payload,
+    );
+    return data.data;
+  },
+
+  // PATCH /:id/cancel — mentor/admin cancels a booking (distinct from the
+  // member-scoped /me/:id/cancel)
+  cancelBooking: async (
+    id: string,
+    payload: ICancelMentorBookingPayload,
+  ): Promise<IMentorBooking> => {
+    const { data } = await api.patch<IApiEnvelope<IMentorBooking>>(
+      `${BASE_URL}/${id}/cancel`,
+      payload,
+    );
+    return data.data;
+  },
+
+  // PATCH /:id/no-show — mentor/admin marks a confirmed booking as a no-show
+  markNoShow: async (
+    id: string,
+    payload: INoShowMentorBookingPayload,
+  ): Promise<IMentorBooking> => {
+    const { data } = await api.patch<IApiEnvelope<IMentorBooking>>(
+      `${BASE_URL}/${id}/no-show`,
+      payload,
+    );
+    return data.data;
+  },
+
   // PATCH /:id/complete — mentor/admin marks a booking complete.
   // multipart/form-data: the recording file + title (+ optional feedback).
   completeBooking: async (
@@ -102,6 +148,17 @@ export const mentorBookingApi = {
     const { data } = await api.patch<IApiEnvelope<unknown>>(
       `${MENTORSHIP_PROFILES_URL}/me/co-mentor`,
       payload,
+    );
+    return data.data;
+  },
+
+  // GET / — admin list (all bookings, paginated + filterable)
+  fetchAdminBookings: async (
+    query: IMentorBookingQuery = {},
+  ): Promise<IPaginatedBookings> => {
+    const { data } = await api.get<IApiEnvelope<IPaginatedBookings>>(
+      BASE_URL,
+      { params: query },
     );
     return data.data;
   },

@@ -159,6 +159,17 @@ export interface ISelectCoMentorPayload {
   mentorshipProfileId: string;
 }
 
+export interface IConfirmMentorBookingPayload {
+  sessionTopic: string;
+  meetingUrl: string;
+  notes?: string;
+}
+
+export interface INoShowMentorBookingPayload {
+  noShowBy: NoShowParty;
+  reason?: string;
+}
+
 // PATCH /:id/complete is multipart/form-data — recordingFile is the actual
 // video, sent alongside these text fields. Only mentors/admins call this.
 export interface ICompleteMentorBookingPayload {

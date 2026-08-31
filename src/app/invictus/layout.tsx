@@ -12,7 +12,7 @@ export default function InvictusLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <AuthGuard allowedAccessTo={["invictus", "both"]}>
+    <AuthGuard allowedAccessTo={["invictus", "both"]} >
       <div className="min-h-screen bg-[#FAF8F5] text-[#2C241B] flex flex-col">
         <InvictusNavbar setMobileSidebarOpen={setSidebarOpen} />
         <div className="flex flex-1 relative w-full">
