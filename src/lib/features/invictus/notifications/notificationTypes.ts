@@ -3,7 +3,9 @@ export type NotificationChannel = "in_app" | "email" | "push";
 export interface INotificationItem {
   _id: string;
   recipient: string | { _id: string; fullName?: string; email?: string };
-  actor?: string | { _id: string; fullName?: string; email?: string; profileImage?: string };
+  actor?:
+    | string
+    | { _id: string; fullName?: string; email?: string; profileImage?: string };
   template?: string | { _id: string; templateKey?: string; name?: string };
 
   type: string;
@@ -41,7 +43,7 @@ export interface INotificationsPagination {
 }
 
 export interface INotificationsResponse {
-  notifications: INotificationItem[];
+  data: INotificationItem[];
   meta: INotificationsPagination;
 }
 

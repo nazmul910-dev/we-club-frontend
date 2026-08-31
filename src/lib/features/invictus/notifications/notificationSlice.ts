@@ -1,4 +1,8 @@
-import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import {
+  createAsyncThunk,
+  createSlice,
+  type PayloadAction,
+} from "@reduxjs/toolkit";
 import { notificationApi } from "./notificationApi";
 import type {
   IGetMyNotificationsParams,
@@ -26,16 +30,19 @@ const initialState: NotificationState = {
 
 export const fetchMyNotifications = createAsyncThunk(
   "notification/fetchMyNotifications",
-  async (params: IGetMyNotificationsParams | undefined, { rejectWithValue }) => {
+  async (
+    params: IGetMyNotificationsParams | undefined,
+    { rejectWithValue },
+  ) => {
     try {
       const res = await notificationApi.getMyNotifications(params);
       return res.data;
     } catch (err: any) {
       return rejectWithValue(
-        err?.response?.data?.message || "Failed to fetch notifications"
+        err?.response?.data?.message || "Failed to fetch notifications",
       );
     }
-  }
+  },
 );
 
 export const fetchMyUnreadCount = createAsyncThunk(
@@ -46,10 +53,10 @@ export const fetchMyUnreadCount = createAsyncThunk(
       return res.data;
     } catch (err: any) {
       return rejectWithValue(
-        err?.response?.data?.message || "Failed to fetch unread count"
+        err?.response?.data?.message || "Failed to fetch unread count",
       );
     }
-  }
+  },
 );
 
 export const markAllNotificationsAsRead = createAsyncThunk(
@@ -60,10 +67,10 @@ export const markAllNotificationsAsRead = createAsyncThunk(
       return res.data;
     } catch (err: any) {
       return rejectWithValue(
-        err?.response?.data?.message || "Failed to mark all as read"
+        err?.response?.data?.message || "Failed to mark all as read",
       );
     }
-  }
+  },
 );
 
 export const markNotificationAsRead = createAsyncThunk(
@@ -74,10 +81,10 @@ export const markNotificationAsRead = createAsyncThunk(
       return res.data;
     } catch (err: any) {
       return rejectWithValue(
-        err?.response?.data?.message || "Failed to mark notification as read"
+        err?.response?.data?.message || "Failed to mark notification as read",
       );
     }
-  }
+  },
 );
 
 export const markNotificationAsUnread = createAsyncThunk(
@@ -88,10 +95,10 @@ export const markNotificationAsUnread = createAsyncThunk(
       return res.data;
     } catch (err: any) {
       return rejectWithValue(
-        err?.response?.data?.message || "Failed to mark notification as unread"
+        err?.response?.data?.message || "Failed to mark notification as unread",
       );
     }
-  }
+  },
 );
 
 const notificationSlice = createSlice({
@@ -114,7 +121,7 @@ const notificationSlice = createSlice({
       })
       .addCase(fetchMyNotifications.fulfilled, (state, action) => {
         state.loading = false;
-        state.notifications = action.payload.notifications || [];
+        state.notifications = action.payload.data || [];
         state.meta = action.payload.meta || state.meta;
       })
       .addCase(fetchMyNotifications.rejected, (state, action) => {
