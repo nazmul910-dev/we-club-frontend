@@ -1,61 +1,56 @@
 "use client";
 
-import { useState } from "react";
-import ChecklistRow from "@/components/associates/ChecklistRow";
+import { useEffect, useState } from "react";
+import ChecklistRow, { ChecklistRowItem } from "@/components/associates/ChecklistRow";
 import ExternalLinkIcon from "@/components/associates/ExternalLinkIcon";
 import PageContainer from "@/components/common/PageContainer";
 import PageHeader from "@/components/common/PageHeader";
-
-/* -------------------------------------------------------------------------- */
-/*  Mock data — replace with real data fetched from your backend               */
-/* -------------------------------------------------------------------------- */
+import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
+import {
+  completeMyOnboardingTask,
+  fetchMyOnboardingChecklist,
+} from "@/lib/features/onboardingTasks/onboardingTaskSlice";
 
 const tabs = ["Your First Week", "Upcoming Sessions", "What's Coming Next"] as const;
 
-export type ChecklistItem = {
-  title: string;
-  description: string;
-  status: "complete" | "active" | "upcoming";
-  action?: { label: string; href: string };
-};
-
-export const checklist: ChecklistItem[] = [
-  {
-    title: "Welcome Video",
-    description: "Start here — Adam's personal welcome to the World Élite family.",
-    status: "complete",
-  },
-  {
-    title: "Join the Community Rooms",
-    description: "Introduce yourself in General Discussion and Canada Focus.",
-    status: "complete",
-  },
-  {
-    title: "Set Up Your Command Center Profile",
-    description: "Log in and configure your listing pages, bio, and headshot.",
-    status: "active",
-    action: { label: "Open", href: "#" },
-  },
-  {
-    title: "Download Your First Listing Assets",
-    description: "Templates, brand guide, and social pack.",
-    status: "upcoming",
-    action: { label: "Open", href: "#" },
-  },
-  {
-    title: "Book Your Onboarding Call",
-    description: "30-minute 1:1 with the onboarding team.",
-    status: "upcoming",
-    action: { label: "Book now", href: "#" },
-  },
-];
-
-/* -------------------------------------------------------------------------- */
-/*  Page                                                                       */
-/* -------------------------------------------------------------------------- */
-
 export default function FirstYearPage() {
+  const dispatch = useAppDispatch();
   const [activeTab, setActiveTab] = useState<(typeof tabs)[number]>(tabs[0]);
+
+  const { items, isLoading, completingTaskId } = useAppSelector(
+    (state) => state.onboardingTasks,
+  );
+
+  useEffect(() => {
+    dispatch(fetchMyOnboardingChecklist());
+  }, [dispatch]);
+
+  // First not-yet-completed task is "active" (highlighted, opens now);
+  // everything after it is "upcoming" — same visual rule as the design.
+  const firstIncompleteIndex = items.findIndex((item) => !item.isCompleted);
+
+  const checklist: ChecklistRowItem[] = items.map((item, index) => {
+    const status: ChecklistRowItem["status"] = item.isCompleted
+      ? "complete"
+      : index === firstIncompleteIndex
+        ? "active"
+        : "upcoming";
+
+    return {
+      title: item.title,
+      description: item.description,
+      status,
+      pointsReward: item.pointsReward,
+      action:
+        item.trigger === "manual"
+          ? { label: item.actionLabel ?? "Open", href: item.actionUrl }
+          : undefined,
+    };
+  });
+
+  const handleComplete = (taskId: string) => {
+    dispatch(completeMyOnboardingTask(taskId));
+  };
 
   return (
     <div className="min-h-screen bg-white font-[family-name:var(--font-body)] text-[#1C1A16]">
@@ -95,9 +90,19 @@ export default function FirstYearPage() {
 
         {activeTab === "Your First Week" ? (
           <div className="mb-10 space-y-3">
-            {checklist.map((item, index) => (
-              <ChecklistRow key={item.title} item={item} index={index + 1} />
-            ))}
+            {isLoading && items.length === 0 ? (
+              <p className="px-1 text-sm text-[#B0A996]">Loading your checklist…</p>
+            ) : (
+              items.map((item, index) => (
+                <ChecklistRow
+                  key={item._id}
+                  item={checklist[index]}
+                  index={index + 1}
+                  isSubmitting={completingTaskId === item._id}
+                  onComplete={() => handleComplete(item._id)}
+                />
+              ))
+            )}
           </div>
         ) : (
           <div className="mb-10 rounded-lg border border-[#EDE7D8] px-6 py-12 text-center">
@@ -109,9 +114,7 @@ export default function FirstYearPage() {
           </div>
         )}
 
-        {/* ---------------------------------------------------------------- */}
-        {/* CTA banner                                                      */}
-        {/* ---------------------------------------------------------------- */}
+        {/* CTA banner */}
         <section className="flex flex-col items-start justify-between gap-4 rounded-lg bg-[#FAF6EE] border border-[#DECDB0] shadow-2xs px-6 py-6 sm:flex-row sm:items-center">
           <div>
             <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#4A3B12]">
