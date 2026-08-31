@@ -154,6 +154,12 @@ const academyItems = [
       "manager"
     ]
   },
+   {
+      label: "Onboarding Tasks",
+      href: "/invictus/academy/onboarding-tasks",
+      icon: GraduationCap,
+      show: userRole === "founder" || userRole === "manager" || userRole === "admin",
+    },
 ];
 
   const mainItems: NavItem[] = [
