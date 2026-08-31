@@ -16,7 +16,11 @@ import { toast } from "sonner";
 
 import api from "@/lib/api/api";
 import { sessionScheduleApi } from "@/lib/features/invictus/sessionSchedule/sessionScheduleApi";
-import type { SessionType } from "@/lib/features/invictus/sessionSchedule/sessionScheduleTypes";
+import type {
+  ISessionScheduleItem,
+  SessionStatus,
+  SessionType,
+} from "@/lib/features/invictus/sessionSchedule/sessionScheduleTypes";
 
 interface HostUser {
   _id: string;
@@ -25,9 +29,10 @@ interface HostUser {
 }
 
 interface Props {
+  session: ISessionScheduleItem | null;
   open: boolean;
   onClose: () => void;
-  onCreated: () => void;
+  onUpdated: () => void;
 }
 
 const SESSION_TYPES: { value: SessionType; label: string }[] = [
@@ -38,27 +43,72 @@ const SESSION_TYPES: { value: SessionType; label: string }[] = [
   { value: "other", label: "Other" },
 ];
 
-const emptyForm = {
-  title: "",
-  description: "",
-  sessionType: "academy_live" as SessionType,
-  host: "",
-  startTime: "",
-  endTime: "",
-  timezone: "Europe/Paris",
-  meetingUrl: "",
-  capacity: "",
-};
+const SESSION_STATUSES: { value: SessionStatus; label: string }[] = [
+  { value: "scheduled", label: "Scheduled" },
+  { value: "ongoing", label: "Ongoing" },
+  { value: "completed", label: "Completed" },
+  { value: "postponed", label: "Postponed" },
+];
 
-export default function CreateSessionModal({ open, onClose, onCreated }: Props) {
+// Helper to format ISO date to local datetime-local input string (YYYY-MM-DDTHH:mm)
+function toDatetimeLocal(isoString?: string): string {
+  if (!isoString) return "";
+  const d = new Date(isoString);
+  if (isNaN(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const year = d.getFullYear();
+  const month = pad(d.getMonth() + 1);
+  const day = pad(d.getDate());
+  const hours = pad(d.getHours());
+  const minutes = pad(d.getMinutes());
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+export default function EditSessionModal({
+  session,
+  open,
+  onClose,
+  onUpdated,
+}: Props) {
   const [hosts, setHosts] = useState<HostUser[]>([]);
-  const [form, setForm] = useState(emptyForm);
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    sessionType: "academy_live" as SessionType,
+    host: "",
+    startTime: "",
+    endTime: "",
+    timezone: "Europe/Paris",
+    meetingUrl: "",
+    capacity: "",
+    status: "scheduled" as SessionStatus,
+  });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (open) loadHosts();
+    if (open) {
+      loadHosts();
+    }
   }, [open]);
+
+  useEffect(() => {
+    if (session) {
+      setForm({
+        title: session.title ?? "",
+        description: session.description ?? "",
+        sessionType: session.sessionType ?? "academy_live",
+        host: session.host?._id ?? "",
+        startTime: toDatetimeLocal(session.startTime),
+        endTime: toDatetimeLocal(session.endTime),
+        timezone: session.timezone ?? "Europe/Paris",
+        meetingUrl: session.meetingUrl ?? "",
+        capacity: session.capacity ? String(session.capacity) : "",
+        status: session.status ?? "scheduled",
+      });
+      setErrors({});
+    }
+  }, [session]);
 
   const loadHosts = async () => {
     try {
@@ -89,7 +139,7 @@ export default function CreateSessionModal({ open, onClose, onCreated }: Props) 
     }
   };
 
-  const updateField = (key: keyof typeof emptyForm, value: string) => {
+  const updateField = (key: keyof typeof form, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     setErrors((prev) => ({ ...prev, [key]: "" }));
   };
@@ -113,38 +163,31 @@ export default function CreateSessionModal({ open, onClose, onCreated }: Props) 
     return Object.keys(next).length === 0;
   };
 
-  const resetForm = () => setForm(emptyForm);
-
-  const handleClose = () => {
-    resetForm();
-    setErrors({});
-    onClose();
-  };
-
   const submit = async () => {
-    if (!validate()) return;
+    if (!session || !validate()) return;
 
     try {
       setLoading(true);
 
-      await sessionScheduleApi.createSession({
+      await sessionScheduleApi.updateSession(session._id, {
         title: form.title.trim(),
-        ...(form.description.trim() ? { description: form.description.trim() } : {}),
+        description: form.description.trim() || undefined,
         sessionType: form.sessionType,
         host: form.host,
         startTime: new Date(form.startTime).toISOString(),
         endTime: new Date(form.endTime).toISOString(),
         timezone: form.timezone.trim(),
-        ...(form.meetingUrl.trim() ? { meetingUrl: form.meetingUrl.trim() } : {}),
-        ...(form.capacity ? { capacity: Number(form.capacity) } : {}),
+        meetingUrl: form.meetingUrl.trim() || undefined,
+        capacity: form.capacity ? Number(form.capacity) : undefined,
+        status: form.status,
       });
 
-      toast.success("Session scheduled successfully!");
-      onCreated();
-      handleClose();
+      toast.success("Session updated successfully!");
+      onUpdated();
+      onClose();
     } catch (error: any) {
       const message =
-        error?.response?.data?.message || "Could not schedule session, try again.";
+        error?.response?.data?.message || "Could not update session, try again.";
       toast.error(message);
       setErrors((prev) => ({ ...prev, form: message }));
     } finally {
@@ -153,10 +196,10 @@ export default function CreateSessionModal({ open, onClose, onCreated }: Props) 
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto rounded-3xl border-[#E7DDCC] bg-white">
         <DialogHeader>
-          <DialogTitle className="text-2xl text-[#1C1A17]">Schedule a Session</DialogTitle>
+          <DialogTitle className="text-2xl text-[#1C1A17]">Edit Session</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-5">
@@ -185,7 +228,7 @@ export default function CreateSessionModal({ open, onClose, onCreated }: Props) 
             <div>
               <Label>Session Type</Label>
               <select
-                className="mt-2 w-full cursor-pointer rounded-xl border border-[#E7DDCC] p-3"
+                className="mt-2 w-full cursor-pointer rounded-xl border border-[#E7DDCC] p-3 text-sm"
                 value={form.sessionType}
                 onChange={(e) => updateField("sessionType", e.target.value)}
               >
@@ -200,7 +243,7 @@ export default function CreateSessionModal({ open, onClose, onCreated }: Props) 
             <div>
               <Label>Host</Label>
               <select
-                className="mt-2 w-full cursor-pointer rounded-xl border border-[#E7DDCC] p-3"
+                className="mt-2 w-full cursor-pointer rounded-xl border border-[#E7DDCC] p-3 text-sm"
                 value={form.host}
                 onChange={(e) => updateField("host", e.target.value)}
               >
@@ -243,7 +286,7 @@ export default function CreateSessionModal({ open, onClose, onCreated }: Props) 
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div>
               <Label>Timezone</Label>
               <Input
@@ -263,10 +306,25 @@ export default function CreateSessionModal({ open, onClose, onCreated }: Props) 
                 className="mt-2"
                 type="number"
                 min={1}
-                placeholder="Leave empty for unlimited"
+                placeholder="Unlimited"
                 value={form.capacity}
                 onChange={(e) => updateField("capacity", e.target.value)}
               />
+            </div>
+
+            <div>
+              <Label>Status</Label>
+              <select
+                className="mt-2 w-full cursor-pointer rounded-xl border border-[#E7DDCC] p-3 text-sm"
+                value={form.status}
+                onChange={(e) => updateField("status", e.target.value)}
+              >
+                {SESSION_STATUSES.map((s) => (
+                  <option key={s.value} value={s.value}>
+                    {s.label}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -284,7 +342,11 @@ export default function CreateSessionModal({ open, onClose, onCreated }: Props) 
         </div>
 
         <DialogFooter>
-          <Button variant="outline" className="cursor-pointer border-[#E7DDCC]" onClick={handleClose}>
+          <Button
+            variant="outline"
+            className="cursor-pointer border-[#E7DDCC]"
+            onClick={onClose}
+          >
             Cancel
           </Button>
           <Button
@@ -292,7 +354,7 @@ export default function CreateSessionModal({ open, onClose, onCreated }: Props) 
             className="cursor-pointer bg-[#B08A3E] text-white hover:bg-[#B08A3E]/90"
             onClick={submit}
           >
-            {loading ? "Scheduling..." : "Schedule Session"}
+            {loading ? "Saving Changes..." : "Save Changes"}
           </Button>
         </DialogFooter>
       </DialogContent>

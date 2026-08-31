@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ExternalLink, Calendar, Video, Sparkles } from "lucide-react";
@@ -12,13 +12,37 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { sessionScheduleApi } from "@/lib/features/invictus/sessionSchedule/sessionScheduleApi";
+import type { ISessionScheduleItem } from "@/lib/features/invictus/sessionSchedule/sessionScheduleTypes";
 
 import adam from "@/assets/Invictus/Home/adam.jpg";
 import tour from "@/assets/Invictus/Navbar/tour.jpg";
 
+function formatSessionTime(startTime: string, timezone?: string) {
+  const d = new Date(startTime);
+  if (isNaN(d.getTime())) return "TBD";
+  const weekday = d.toLocaleDateString("en-US", { weekday: "short" });
+  const time = d.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: timezone || undefined,
+  });
+  return `${weekday} · ${time}`;
+}
+
 export default function InvictusRightSidebar() {
   const router = useRouter();
   const [switchModal, setSwitchModal] = useState(false);
+  const [sessions, setSessions] = useState<ISessionScheduleItem[]>([]);
+  const [loadingSessions, setLoadingSessions] = useState(true);
+
+  useEffect(() => {
+    sessionScheduleApi
+      .getUpcoming(3)
+      .then((data) => setSessions(data || []))
+      .catch(() => setSessions([]))
+      .finally(() => setLoadingSessions(false));
+  }, []);
 
   return (
     <>
@@ -52,39 +76,60 @@ export default function InvictusRightSidebar() {
         </div>
 
         {/* Widget 2: Upcoming General Sessions */}
-        <div className="rounded-2xl border border-[#DECDB0] bg-[#FAF6EE] p-4 shadow-xs space-y-3">
-          <h4 className="font-montserrat text-[10px] font-bold tracking-[0.2em] text-[#1C1814] uppercase">
-            UPCOMING GENERAL SESSIONS
-          </h4>
+        <div
+          onClick={() => router.push("/invictus")}
+          className="group rounded-2xl border border-[#DECDB0] bg-[#FAF6EE] p-4 shadow-xs space-y-3 cursor-pointer transition-all hover:border-[#C9A84C] hover:shadow-sm"
+        >
+          <div className="flex items-center justify-between">
+            <h4 className="font-montserrat text-[10px] font-bold tracking-[0.2em] text-[#1C1814] uppercase group-hover:text-[#9E7B28] transition-colors">
+              UPCOMING GENERAL SESSIONS
+            </h4>
+            <Calendar size={13} className="text-[#9E7B28]" />
+          </div>
 
           <div className="space-y-2">
-            <div className="flex items-start gap-3 rounded-xl border border-[#EAE2D2] bg-white p-3 shadow-2xs">
-              <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#FAF4E6] text-[#9E7B28]">
-                <Calendar size={14} />
+            {loadingSessions ? (
+              <p className="font-montserrat text-[11px] text-[#7A7062] py-2">
+                Loading sessions...
+              </p>
+            ) : sessions.length === 0 ? (
+              <div className="flex items-start gap-3 rounded-xl border border-[#EAE2D2] bg-white p-3 shadow-2xs">
+                <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#FAF4E6] text-[#9E7B28]">
+                  <Sparkles size={14} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-montserrat text-xs font-bold text-[#1C1814] truncate">
+                    Coming Soon
+                  </p>
+                  <p className="font-montserrat text-[10px] text-[#7A7062]">
+                    New sessions will be announced soon
+                  </p>
+                </div>
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-montserrat text-xs font-bold text-[#1C1814] truncate">
-                  Thursday Live w/ Adam
-                </p>
-                <p className="font-montserrat text-[10px] text-[#7A7062]">
-                  Thu · 6:00 PM CET
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3 rounded-xl border border-[#EAE2D2] bg-white p-3 shadow-2xs">
-              <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#FAF4E6] text-[#9E7B28]">
-                <Video size={14} />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-montserrat text-xs font-bold text-[#1C1814] truncate">
-                  1:1 w/ Sofia Marchetti
-                </p>
-                <p className="font-montserrat text-[10px] text-[#7A7062]">
-                  Fri · 11:30 AM
-                </p>
-              </div>
-            </div>
+            ) : (
+              sessions.map((session) => (
+                <div
+                  key={session._id}
+                  className="flex items-start gap-3 rounded-xl border border-[#EAE2D2] bg-white p-3 shadow-2xs transition-all group-hover:border-[#DECDB0]"
+                >
+                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#FAF4E6] text-[#9E7B28]">
+                    {session.sessionType === "mentorship_group" ? (
+                      <Video size={14} />
+                    ) : (
+                      <Calendar size={14} />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-montserrat text-xs font-bold text-[#1C1814] truncate">
+                      {session.title}
+                    </p>
+                    <p className="font-montserrat text-[10px] text-[#7A7062]">
+                      {formatSessionTime(session.startTime, session.timezone)}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 

@@ -38,9 +38,28 @@ export const sessionScheduleApi = {
     return res.data.data as ISessionAttendanceItem;
   },
 
+  cancelMyAttendance: async (sessionId: string, reason?: string) => {
+    const res = await api.post(`${ATTENDANCE_BASE}/cancel`, {
+      session: sessionId,
+      ...(reason ? { reason } : {}),
+    });
+    return res.data.data as ISessionAttendanceItem;
+  },
+
   getMyAttendances: async (): Promise<ISessionAttendanceItem[]> => {
     const res = await api.get(`${ATTENDANCE_BASE}/me`);
     return res.data.data as ISessionAttendanceItem[];
+  },
+
+  getSessionAttendees: async (
+    sessionId: string,
+    page = 1,
+    limit = 100,
+  ): Promise<PaginatedResponse<ISessionAttendanceItem>> => {
+    const res = await api.get(ATTENDANCE_BASE, {
+      params: { sessionId, page, limit },
+    });
+    return res.data.data as PaginatedResponse<ISessionAttendanceItem>;
   },
 
   // ---------------------------------------------------------------------

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import ChecklistRow, { ChecklistRowItem } from "@/components/associates/ChecklistRow";
 import ExternalLinkIcon from "@/components/associates/ExternalLinkIcon";
+import UpcomingSessionsTab from "@/components/associates/UpcomingSessionsTab";
 import PageContainer from "@/components/common/PageContainer";
 import PageHeader from "@/components/common/PageHeader";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
@@ -88,7 +89,7 @@ export default function FirstYearPage() {
           })}
         </nav>
 
-        {activeTab === "Your First Week" ? (
+        {activeTab === "Your First Week" && (
           <div className="mb-10 space-y-3">
             {isLoading && items.length === 0 ? (
               <p className="px-1 text-sm text-[#B0A996]">Loading your checklist…</p>
@@ -104,12 +105,14 @@ export default function FirstYearPage() {
               ))
             )}
           </div>
-        ) : (
+        )}
+
+        {activeTab === "Upcoming Sessions" && <UpcomingSessionsTab />}
+
+        {activeTab === "What's Coming Next" && (
           <div className="mb-10 rounded-lg border border-[#EDE7D8] px-6 py-12 text-center">
             <p className="text-sm text-[#B0A996]">
-              {activeTab === "Upcoming Sessions"
-                ? "Your upcoming sessions will appear here once scheduled."
-                : "New milestones unlock as you complete your first week."}
+              New milestones unlock as you complete your first week.
             </p>
           </div>
         )}
