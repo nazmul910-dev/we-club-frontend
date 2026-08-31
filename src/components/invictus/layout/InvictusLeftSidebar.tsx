@@ -125,6 +125,11 @@ const academyItems = [
 
   const managementItems = [
     {
+      label: "RETREAT ",
+      href: "/invictus/management/retreat",
+      icon: Tent,
+    },
+    {
       label: "RETREAT BOOKINGS",
       href: "/invictus/management/retreat-bookings",
       icon: Tent,
@@ -258,6 +263,7 @@ const academyItems = [
     pathname.startsWith(item.href),
   );
 
+  
   const isManagementActive = managementItems.some((item) =>
     pathname.startsWith(item.href),
   );
@@ -279,6 +285,11 @@ const academyItems = [
       setManagementOpen(true);
     }
   }, [isPeopleActive, isServiceActive, isAcademyActive, isManagementActive]);
+
+
+
+
+
 
   const closeSidebar = () => setIsOpen(false);
 
