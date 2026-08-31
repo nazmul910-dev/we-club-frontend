@@ -11,9 +11,29 @@ import dashboardReducer from "@/lib/features/dashboard/dashboardSlice";
 import promotersReducer from "@/lib/features/promoters/promotersSlice";
 import managerReducer from "@/lib/features/addManager/addManagerSlice";
 import chatReducer from "@/lib/features/chat/chatSlice";
-import logoReducer from "@/lib/features/logo/logoSlice"
-import paymentReducer from "@/lib/features/payment/paymentSlice"
+import logoReducer from "@/lib/features/logo/logoSlice";
+import paymentReducer from "@/lib/features/payment/paymentSlice";
 import discountReducer from "@/lib/features/discountFounder/discountSlice";
+import academyReducer from "@/lib/features/invictus/academy/academySlice";
+
+import pillarReducer from "@/lib/features/invictus/academy/pillar/pillarSlice";
+import courseReducer from "@/lib/features/invictus/academy/course/courseSlice";
+import videoReducer from "@/lib/features/invictus/academy/video-module/videoSlice";
+import leaderboardReducer from "@/lib/features/leaderboard/leaderboardSlice";
+import retreatReducer from "@/lib/features/retreat/retreatSlice";
+import resourceReducer from "@/lib/features/invictus/academy/resource/resourceSlice";
+import actionReducer from "@/lib/features/invictus/academy/action-module/actionChecklistSlice";
+import quizQuestionReducer from "@/lib/features/invictus/academy/quiz-question/quizQuestionSlice";
+import mentorBookingReducer from "@/lib/features/mentorBooking/mentorBookingSlice";
+import certificateReducer from "@/lib/features/invictus/academy/cerfificate/certificateSlice";
+import progressReducer from "@/lib/features/invictus/academy/progress/progressSlice";
+import videoProgressReducer from "@/lib/features/invictus/videoProgress/videoProgressSlice";
+import quizAttemptReducer from "@/lib/features/invictus/academy/quiz-attempt/quizAttemptSlice";
+import entitlementReducer from "@/lib/features/invictus/academy/entitlement/entitlementSlice";
+import invictusPaymentReducer from "@/lib/features/invictus/payment/invictusPaymentSlice";
+import notificationReducer from "@/lib/features/invictus/notifications/notificationSlice";
+import onboardingTasksReducer from "@/lib/features/onboardingTasks/onboardingTaskSlice";
+
 
 export const store = configureStore({
   reducer: {
@@ -26,14 +46,31 @@ export const store = configureStore({
     users: usersReducer,
     listingAssets: listingAssetsReducer,
     dashboard: dashboardReducer,
-    promoters : promotersReducer,
+    promoters: promotersReducer,
     manager: managerReducer,
-    chat : chatReducer,
-    logo:logoReducer,
-    payment:paymentReducer,
-    discount:discountReducer
-  }, 
-
+    chat: chatReducer,
+    logo: logoReducer,
+    payment: paymentReducer,
+    discount: discountReducer,
+    academy: academyReducer,
+    pillar: pillarReducer,
+    course: courseReducer,
+    video: videoReducer,
+    leaderboard: leaderboardReducer,
+    retreat: retreatReducer,
+    resource: resourceReducer,
+    moduleAction: actionReducer,
+    quizQuestion: quizQuestionReducer,
+    mentorBooking : mentorBookingReducer,
+    certificate: certificateReducer,
+    progress: progressReducer,
+    videoProgress: videoProgressReducer,
+    quizAttempt:quizAttemptReducer,
+    entitlement:entitlementReducer,
+    invictusPayment: invictusPaymentReducer,
+    notification: notificationReducer,
+    onboardingTasks: onboardingTasksReducer,
+  },
 });
 
 export type RootState = ReturnType<typeof store.getState>;

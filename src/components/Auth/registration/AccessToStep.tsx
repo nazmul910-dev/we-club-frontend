@@ -5,6 +5,7 @@ import { setAccessTo, AccessTo } from "@/lib/features/auth/authSlice";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react"; 
+import PageTitle from "@/components/common/PageTitle";
 
 const OPTIONS: { value: AccessTo; title: string; description: string }[] = [
   {
@@ -31,9 +32,9 @@ export default function AccessToStep() {
 
   return (
     <div>
-      <h1 className="mb-1 text-center text-2xl font-semibold text-amber-400">
+      <PageTitle className="mb-1 text-center text-2xl font-semibold text-amber-400">
         Choose your access
-      </h1>
+      </PageTitle>
       <p className="mb-8 text-center text-sm text-white/50">
         Select the plan you want to register for.
       </p>

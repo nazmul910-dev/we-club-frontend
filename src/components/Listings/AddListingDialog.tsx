@@ -44,6 +44,7 @@ import {
   fieldClass,
   GalleryImagesField,
 } from "./AddListingsUtils";
+import CountrySelect from "../Auth/registration/CountrySelect";
 
 interface AddListingDialogProps {
   onSubmit: (formData: FormData) => Promise<void> | void;
@@ -62,7 +63,7 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
     resolver: zodResolver(listingFormSchema),
     defaultValues: {
       title: "",
-      ref_code: "",
+      // ref_code: "",
       status: "pending",
       bedrooms: 0,
       bathrooms: 0,
@@ -83,10 +84,10 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
     const formData = new FormData();
     formData.append("associate_id", associateId || ""); // fallback to empty string if null
     formData.append("title", values.title);
-    formData.append("ref_code", values.ref_code);
+    // formData.append("ref_code", values.ref_code);
     formData.append("bedrooms", String(values.bedrooms));
     formData.append("bathrooms", String(values.bathrooms));
-    formData.append("area_sqm",JSON.stringify(values.area_sqm));
+    formData.append("area_sqm", JSON.stringify(values.area_sqm));
 
     formData.append(
       "location",
@@ -168,7 +169,7 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-6 pt-1"
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+            <div className="grid grid-cols-1 ">
               <FormField
                 control={form.control}
                 name="title"
@@ -188,7 +189,7 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
                   </FormItem>
                 )}
               />
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name="ref_code"
                 render={({ field }) => (
@@ -206,7 +207,7 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-5">
@@ -285,15 +286,11 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
                                   value={unitField.value}
                                   onValueChange={unitField.onChange}
                                 >
-                                  <SelectTrigger
-                                    className="h-11 rounded-lg border-white/10 px-2 bg-white/[0.04] text-white placeholder:text-white/30  "
-                                  >
+                                  <SelectTrigger className="h-11 rounded-lg border-white/10 px-2 bg-white/[0.04] text-white placeholder:text-white/30  ">
                                     <SelectValue placeholder="Unit" />
                                   </SelectTrigger>
 
-                                  <SelectContent
-                                    className=" bg-[#111]  border-white/10  text-white"
-                                  >
+                                  <SelectContent className=" bg-[#111]  border-white/10  text-white">
                                     <SelectItem value="sqft">sqft</SelectItem>
 
                                     <SelectItem value="sqm">sqm</SelectItem>
@@ -370,10 +367,10 @@ export function AddListingDialog({ onSubmit }: AddListingDialogProps) {
                       Country
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="France"
-                        className={fieldClass}
-                        {...field}
+                      <CountrySelect
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Select country"
                       />
                     </FormControl>
                     <FormMessage />

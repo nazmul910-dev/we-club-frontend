@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
 import { Message, Room, TypingUser } from "@/types/chat";
-import { getGeneralRoom, getMessageHistory } from "./chatApi";
+import { getCountryRoom, getGeneralRoom, getMessageHistory } from "./chatApi";
 
 interface ChatState {
   room: Room | null;
@@ -41,6 +41,23 @@ export const fetchGeneralRoom = createAsyncThunk<
   }
 });
 
+export const fetchCountryRoom = createAsyncThunk<
+  Room,
+  string,
+  { rejectValue: string }
+>("chat/fetchCountryRoom", async (countryName, { rejectWithValue }) => {
+  try {
+    return await getCountryRoom(countryName);
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to load country room",
+      );
+    }
+    return rejectWithValue("Unexpected error");
+  }
+});
+
 export const fetchMessageHistory = createAsyncThunk<
   Message[],
   string,
@@ -63,11 +80,26 @@ const chatSlice = createSlice({
   initialState,
   reducers: {
     messageReceived: (state, action: PayloadAction<Message>) => {
-      state.messages.push(action.payload);
+      if (!state.messages.some((message) => message._id === action.payload._id)) {
+        state.messages.push(action.payload);
+      }
       // if the sender was shown as typing, clear it now that their message arrived
       state.typingUsers = state.typingUsers.filter(
         (t) => t.userId !== action.payload.sender._id,
       );
+    },
+
+    messageDeleted: (
+      state,
+      action: PayloadAction<{ messageId: string; content: string }>,
+    ) => {
+      const msg = state.messages.find(
+        (m) => m._id === action.payload.messageId,
+      );
+      if (msg) {
+        msg.isDeleted = true;
+        msg.content = action.payload.content; // "This message was deleted"
+      }
     },
 
     typingUpdated: (
@@ -124,13 +156,39 @@ const chatSlice = createSlice({
         state.isLoadingRoom = false;
         state.error = action.payload ?? "Failed to load room";
       })
+      .addCase(fetchCountryRoom.pending, (state) => {
+        state.isLoadingRoom = true;
+        state.error = null;
+      })
+      .addCase(fetchCountryRoom.fulfilled, (state, action) => {
+        state.isLoadingRoom = false;
+        state.room = action.payload;
+      })
+      .addCase(fetchCountryRoom.rejected, (state, action) => {
+        state.isLoadingRoom = false;
+        state.error = action.payload ?? "Failed to load country room";
+      })
 
       .addCase(fetchMessageHistory.pending, (state) => {
         state.isLoadingHistory = true;
       })
       .addCase(fetchMessageHistory.fulfilled, (state, action) => {
         state.isLoadingHistory = false;
-        state.messages = action.payload;
+        const liveMessages = state.messages.filter(
+          (message) => message.room === action.meta.arg,
+        );
+        const messagesById = new Map(
+          [...action.payload, ...liveMessages].map((message) => [
+            message._id,
+            message,
+          ]),
+        );
+
+        state.messages = Array.from(messagesById.values()).sort(
+          (first, second) =>
+            new Date(first.createdAt).getTime() -
+            new Date(second.createdAt).getTime(),
+        );
       })
       .addCase(fetchMessageHistory.rejected, (state, action) => {
         state.isLoadingHistory = false;
@@ -141,6 +199,7 @@ const chatSlice = createSlice({
 
 export const {
   messageReceived,
+  messageDeleted,
   typingUpdated,
   presenceListSet,
   presenceUpdated,

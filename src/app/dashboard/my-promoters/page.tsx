@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect,  } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/lib/redux/store/store";
-import { listingsApi, Promoter,  } from "@/lib/features/listings/listingsApi";
+import { listingsApi, Promoter } from "@/lib/features/listings/listingsApi";
 import PromotersCard from "@/components/promoters/PromotersCard";
-
-
+import PageContainer from "@/components/common/PageContainer";
+import PageHeader from "@/components/common/PageHeader";
+import EmptyState from "@/components/common/EmptyState";
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
@@ -39,37 +40,25 @@ export default function MyPromotersPage() {
     error: (state as any).listings?.promotersError as string | null ?? null,
   }));
 
-  // ─── Dialog state ───────────────────────────────────────────────────────────
-
-  // Cache: Map<user_id, PromoterProfile> — avoids re-fetching on repeated clicks
-
-
   useEffect(() => {
     dispatch(listingsApi.getMyPromoters());
   }, [dispatch]);
 
-
   return (
-    <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 flex flex-col gap-8 bg-[#0a0a0a] min-h-[calc(100vh-4rem)]">
-
+    <PageContainer variant="dashboard">
       {/* Header */}
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <div className="text-eyebrow mb-2">Operators · Trusted</div>
-          <h1 className="font-display text-3xl md:text-4xl text-white">
-            My Promoters
-          </h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            The hand-picked operators advancing your inventory across the network.
-          </p>
-        </div>
-
-        {!loading && promoters.length > 0 && (
-          <div className="font-ui text-xs tracking-widest uppercase text-gold border border-gold-soft rounded-full px-3 py-1">
-            {promoters.length} Active
-          </div>
-        )}
-      </div>
+      <PageHeader
+        eyebrow="Operators · Trusted"
+        title="My Promoters"
+        description="The hand-picked operators advancing your inventory across the network."
+        actions={
+          !loading && promoters.length > 0 ? (
+            <div className="font-ui text-xs tracking-widest uppercase text-gold border border-gold-soft rounded-full px-3 py-1">
+              {promoters.length} Active
+            </div>
+          ) : null
+        }
+      />
 
       {/* Error */}
       {error && (
@@ -81,17 +70,18 @@ export default function MyPromotersPage() {
       {/* Loading skeletons */}
       {loading && (
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)}
+          {Array.from({ length: 3 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
         </div>
       )}
 
       {/* Empty state */}
       {!loading && !error && promoters.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-12 text-center border border-gold-soft rounded-lg bg-black/50">
-          <p className="text-white font-montserrat text-xs tracking-wider uppercase">
-            No promoters added yet
-          </p>
-        </div>
+        <EmptyState
+          title="No promoters added yet"
+          description="You currently don't have any operators promoting your properties."
+        />
       )}
 
       {/* Cards */}
@@ -102,8 +92,6 @@ export default function MyPromotersPage() {
           ))}
         </div>
       )}
-
-      
-    </div>
+    </PageContainer>
   );
 }

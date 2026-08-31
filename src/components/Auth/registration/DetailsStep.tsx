@@ -160,7 +160,6 @@ export default function DetailsStep() {
 
                 handleChange("role", nextRole);
 
-                // role বদলালে আগের duration রিসেট করে দাও
                 if (CEO_ROLES.includes(nextRole)) {
                   handleChange("membershipDurationMonths", 12);
                 } else {

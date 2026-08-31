@@ -10,6 +10,16 @@ export interface Room {
   description?: string;
   members: string[];
   createdBy: string;
+  type?: "general" | "country";
+  countryCode?: string;
+  countryName?: string;
+}
+
+export interface ReplyTo {
+  _id: string;
+  content: string;
+  isDeleted?: boolean;
+  sender: { fullName: string };
 }
 
 export interface Message {
@@ -18,6 +28,8 @@ export interface Message {
   sender: ChatUser;
   content: string;
   createdAt: string;
+  isDeleted?: boolean;
+  replyTo?: ReplyTo | null;
 }
 
 export interface TypingUser {

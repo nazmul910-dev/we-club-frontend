@@ -135,7 +135,6 @@ const getMySentPromoteRequests = createAsyncThunk<
   },
 );
 
-// const manageListing =
 
 export const cancelPromoteRequest = createAsyncThunk<
   any,

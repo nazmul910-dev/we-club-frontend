@@ -16,6 +16,14 @@ export function formatDate(d: string | undefined): string {
   }
 }
 
+export function formatDate2(date: string, timezone?: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: timezone || undefined,
+  }).format(new Date(date));
+}
+
 export function isRequester(request: any, currentUserId: string | null): boolean {
   const requesterId = request?.requester?.user_id;
   const requesterIdString =
@@ -37,4 +45,22 @@ export function canApproveRejectRequest(
 
 export function canDeleteRequest(request: any, currentUserId: string | null): boolean {
   return request?.status === "pending" && isRequester(request, currentUserId);
+}
+
+export function getInitials(name?: string | null): string {
+  if (!name) return "";
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? "")
+    .join("");
+}
+
+export function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) return "Good Morning";
+  if (hour >= 12 && hour < 17) return "Good Afternoon";
+  if (hour >= 17 && hour < 21) return "Good Evening";
+  return "Good Night";
 }

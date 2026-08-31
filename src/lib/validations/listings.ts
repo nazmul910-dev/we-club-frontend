@@ -21,7 +21,7 @@ const areaUnitSchema = z.enum(
 export const listingFormSchema = z.object({
   title: z.string().min(2, "Title is required."),
 
-  ref_code: z.string().min(2, "Reference code is required."),
+  // ref_code: z.string().min(2, "Reference code is required."),
 
   status: z.enum(["active", "pending", "sold"], {
     error: "Select a status.",

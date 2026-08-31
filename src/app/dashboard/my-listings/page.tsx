@@ -12,11 +12,13 @@ import FilterListingDialog, {
   DEFAULT_LISTING_FILTERS,
   ListingFilters,
 } from "@/components/Listings/FilterListingDialog";
-import Title from "@/components/ui/title";
+import PageContainer from "@/components/common/PageContainer";
+import PageHeader from "@/components/common/PageHeader";
+import EmptyState from "@/components/common/EmptyState";
 
 export default function MyListingsPage() {
   const dispatch = useDispatch<AppDispatch>();
-  const { items, loading, error } = useSelector((s: RootState) => {
+  const { items, loading } = useSelector((s: RootState) => {
     return s.listings;
   });
   const [filters, setFilters] = useState<ListingFilters>(DEFAULT_LISTING_FILTERS);
@@ -63,44 +65,37 @@ export default function MyListingsPage() {
   }, [filters, items]);
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 flex flex-col gap-8 bg-[#0a0a0a] min-h-[calc(100vh-4rem)]">
+    <PageContainer variant="dashboard">
       {/* Header Section */}
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <Title
-          subtitle="Inventory . Discreet"
-          title="My Listings"
-          description="Properties presented under your name or shared from the platform."
-        />
-
-        <div className="flex items-center gap-2">
-          <FilterListingDialog
-            onApply={(filters) => setFilters(filters)}
-            onReset={() => setFilters(DEFAULT_LISTING_FILTERS)}
-            defaultValues={filters}
-          />
-          <AddListingDialog
-            onSubmit={async (formData) => {
-              await dispatch(listingsApi.postListing(formData)).unwrap();
-              dispatch(listingsApi.getListings()); // refresh grid after creating
-            }}
-          />
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Inventory · Discreet"
+        title="My Listings"
+        description="Properties presented under your name or shared from the platform."
+        actions={
+          <div className="flex items-center gap-2">
+            <FilterListingDialog
+              onApply={(filters) => setFilters(filters)}
+              onReset={() => setFilters(DEFAULT_LISTING_FILTERS)}
+              defaultValues={filters}
+            />
+            <AddListingDialog
+              onSubmit={async (formData) => {
+                await dispatch(listingsApi.postListing(formData)).unwrap();
+                dispatch(listingsApi.getListings()); // refresh grid after creating
+              }}
+            />
+          </div>
+        }
+      />
 
       {loading ? (
         <ListingsGridSkeleton count={6} />
       ) : visibleItems.length === 0 ? (
-        <div className="flex min-h-[30vh] flex-col items-center justify-center rounded-3xl border border-gold-soft/30 bg-[#111111]/70 p-10 text-center text-white shadow-xl">
-          <span className="mb-3 text-sm font-ui uppercase tracking-[0.3em] text-gold">
-            No listings found
-          </span>
-          <h2 className="max-w-md text-2xl font-semibold text-white">
-            There are no listings that match your filter yet.
-          </h2>
-          <p className="mt-4 max-w-lg text-sm text-muted-foreground">
-            Try changing the sort order or commission filter, or add a new listing to populate your inventory.
-          </p>
-        </div>
+        <EmptyState
+          kicker="No listings found"
+          title="There are no listings that match your filter yet."
+          description="Try changing the sort order or commission filter, or add a new listing to populate your inventory."
+        />
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {visibleItems.map((property) => (
@@ -108,6 +103,6 @@ export default function MyListingsPage() {
           ))}
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 }

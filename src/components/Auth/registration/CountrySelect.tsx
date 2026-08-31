@@ -64,7 +64,7 @@ export default function CountrySelect({
     }
     setIsOpen((prev) => !prev);
   };
-
+ 
   // window resize/scroll hole abar recalculate hobe (open thakle)
   useEffect(() => {
     if (!isOpen) return;

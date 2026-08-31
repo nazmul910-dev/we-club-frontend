@@ -6,6 +6,13 @@ export const getGeneralRoom = async (): Promise<Room> => {
   return res.data.data;
 };
 
+export const getCountryRoom = async (countryName: string): Promise<Room> => {
+  const res = await api.get("/rooms/country", {
+    params: { countryName },
+  });
+  return res.data.data;
+};
+
 export const getMessageHistory = async (
   roomId: string,
   page = 1,

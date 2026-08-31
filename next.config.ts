@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
-   turbopack: {
+  turbopack: {
     root: __dirname,
   },
   images: {
@@ -15,6 +15,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "img.youtube.com",
       },
     ],
   },
