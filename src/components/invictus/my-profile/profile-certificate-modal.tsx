@@ -187,12 +187,12 @@ export default function ProfileCertificateModal({
             <Award className="text-[#D4AF37]" size={22} />
             Official Invictus Certificate of Achievement
           </DialogTitle>
-          <button
+          {/* <button
             onClick={onClose}
             className="cursor-pointer rounded-full p-1.5 text-gray-400 transition hover:bg-white/10 hover:text-white"
           >
             <X size={18} />
-          </button>
+          </button> */}
         </DialogHeader>
 
         {/* Certificate Container with Royal Landscape Aspect Ratio */}

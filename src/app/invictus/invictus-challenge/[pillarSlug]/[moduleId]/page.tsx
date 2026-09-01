@@ -47,6 +47,7 @@ export default function ModuleChallengePage() {
    * True when the user has passed the quiz for EVERY published module in this pillar.
    * This is the gate that enables the "Claim Certificate" button.
    */
+  
   const allModulesPassed = useMemo(() => {
     if (pillarModules.length === 0) return false;
     return pillarModules.every((mod) => {

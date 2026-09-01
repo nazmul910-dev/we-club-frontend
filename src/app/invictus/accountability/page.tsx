@@ -127,20 +127,15 @@ const overallProgress = 35;
 
 export default function MyAccountabilityPage() {
     const [journalEntry, setJournalEntry] = useState("");
-
     const [bookingOpen, setBookingOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date | undefined>();
     const [selectedTime, setSelectedTime] = useState<Date | undefined>();
-
     const [recordingOpen, setRecordingOpen] = useState(false);
     const [activeRecordingBooking, setActiveRecordingBooking] =
         useState<IMentorBooking | null>(null);
-
     const dispatch = useAppDispatch();
-
     const myMentor = useAppSelector(selectMyMentor);
     const completedBookings = useAppSelector(selectCompletedMentorBookings);
-
     const {
         myMentor: myMentorStatus,
         list: bookingListStatus,

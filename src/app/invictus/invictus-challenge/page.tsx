@@ -10,7 +10,9 @@ import ChallengePillarCard from "@/components/invictus/challenge/ChallengPillarC
 export default function InvictusChallenge() {
   const dispatch = useAppDispatch();
 
-  const { pillars, loading } = useAppSelector((state) => state.pillar);
+  // const { pillars, loading } = useAppSelector((state) => state.pillar);
+  const pillars = useAppSelector((state) => state.pillar.pillars);
+  const loading = useAppSelector((state) => state.pillar.loading)
   const pillarAccessById = useAppSelector((state) => state.entitlement.pillarAccessById);
 
   useEffect(() => {
