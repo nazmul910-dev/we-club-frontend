@@ -22,11 +22,11 @@ const initialState: LeaderboardState = {
 
 export const fetchInvictusLeaderboard = createAsyncThunk<
   InvictusLeaderboardData,
-  number | undefined,
+  {page? : number ; limit? :  number  } | undefined,
   { rejectValue: string }
->("leaderboard/fetchInvictusLeaderboard", async (page = 1, { rejectWithValue }) => {
+>("leaderboard/fetchInvictusLeaderboard", async ({ page = 1, limit } = {}, { rejectWithValue }) => {
   try {
-    return await getActiveInvictusLeaderboard(page);
+    return await getActiveInvictusLeaderboard(page, limit);
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return rejectWithValue(

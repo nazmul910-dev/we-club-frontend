@@ -76,7 +76,7 @@ export default function LeaderboardPage() {
   const totalPages = useAppSelector((state) => state.leaderboard.totalPages);
 
   useEffect(() => {
-    dispatch(fetchInvictusLeaderboard(1));
+    dispatch(fetchInvictusLeaderboard({ limit : 10}));
   }, [dispatch]);
 
   const topPerformer = entries[0];
@@ -150,7 +150,7 @@ export default function LeaderboardPage() {
         currentPage={currentPage}
         totalPages={totalPages}
         variant="light"
-        onPageChange={(page) => dispatch(fetchInvictusLeaderboard(page))}
+        onPageChange={(page) => dispatch(fetchInvictusLeaderboard({page, limit : 10}))}
       />
     </PageContainer>
   );

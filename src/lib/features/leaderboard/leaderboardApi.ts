@@ -11,6 +11,7 @@ interface PaginatedResponse<T> {
 
 export const getActiveInvictusLeaderboard = async (
   page = 1,
+  limit? : number,
 ): Promise<{
   leaderboard: LeaderboardRecord;
   entries: LeaderboardEntry[];
@@ -33,10 +34,11 @@ export const getActiveInvictusLeaderboard = async (
     throw new Error("No active Invictus leaderboard found");
   }
 
+
   const entriesResponse = await api.get<{
     data: PaginatedResponse<LeaderboardEntry>;
   }>(`/invictus/leaderboards/${leaderboard._id}/entries`, {
-    params: { page, limit: 10 },
+    params: { page, limit  },
   });
 
   return {
