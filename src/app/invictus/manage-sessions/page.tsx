@@ -26,9 +26,21 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { sessionScheduleApi } from "@/lib/features/invictus/sessionSchedule/sessionScheduleApi";
 import type { ISessionScheduleItem } from "@/lib/features/invictus/sessionSchedule/sessionScheduleTypes";
-import CreateSessionModal from "@/components/invictus/academy/sessions/CreateSessionModal";
-import EditSessionModal from "@/components/invictus/academy/sessions/EditSessionModal";
-import AttendeesModal from "@/components/invictus/academy/sessions/AttendeesModal";
+// import CreateSessionModal from "@/components/invictus/academy/sessions/CreateSessionModal";
+// import EditSessionModal from "@/components/invictus/academy/sessions/EditSessionModal";
+// import AttendeesModal from "@/components/invictus/academy/sessions/AttendeesModal";
+import dynamic from "next/dynamic";
+
+const CreateSessionModal = dynamic(()=> import("@/components/invictus/academy/sessions/CreateSessionModal"), {
+  ssr : false
+})
+const EditSessionModal = dynamic(()=> import("@/components/invictus/academy/sessions/EditSessionModal"), {
+  ssr : false
+})
+const AttendeesModal = dynamic(()=> import("@/components/invictus/academy/sessions/AttendeesModal"), {
+  ssr : false
+})
+
 
 const STATUS_STYLE: Record<string, string> = {
   scheduled: "bg-[#F3E9D2] text-[#B08A3E]",
@@ -298,26 +310,26 @@ function ManageSessionsContent() {
       </div>
 
       {/* Create Session Modal */}
-      <CreateSessionModal
+      {createOpen && <CreateSessionModal
         open={createOpen}
         onClose={() => setCreateOpen(false)}
         onCreated={load}
-      />
+      />}
 
       {/* Edit Session Modal */}
-      <EditSessionModal
+     {Boolean(editSession) && <EditSessionModal
         session={editSession}
         open={Boolean(editSession)}
         onClose={() => setEditSession(null)}
         onUpdated={load}
-      />
+      />}
 
       {/* Attendees Modal */}
-      <AttendeesModal
+     {Boolean(attendeesSession) && <AttendeesModal
         session={attendeesSession}
         open={Boolean(attendeesSession)}
         onClose={() => setAttendeesSession(null)}
-      />
+      />}
 
       {/* Cancel Session Dialog */}
       <Dialog

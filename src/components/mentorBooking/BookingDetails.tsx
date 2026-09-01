@@ -15,11 +15,28 @@ import {
     primaryButtonClass,
     sectionLabelClass,
 } from "./bookingDesignTokens";
-import ConfirmBookingDialog from "./ConfirmBookingDialog";
-import CompleteBookingDialog from "./CompleteBookingDialog";
-import CancelBookingDialog from "./CancelBookingDialog";
-import RecordingViewerDialog from "./RecordingViewerDialog";
-import NoShowBookingDialog from "./NoShowBookingDialog";
+// import ConfirmBookingDialog from "./ConfirmBookingDialog";
+// import CompleteBookingDialog from "./CompleteBookingDialog";
+// import CancelBookingDialog from "./CancelBookingDialog";
+// import RecordingViewerDialog from "./RecordingViewerDialog";
+// import NoShowBookingDialog from "./NoShowBookingDialog";
+import dynamic from "next/dynamic";
+
+const ConfirmBookingDialog = dynamic(() => import("./ConfirmBookingDialog"), {
+    ssr: false,
+});
+const CompleteBookingDialog = dynamic(() => import("./CompleteBookingDialog"), {
+    ssr: false,
+});
+const CancelBookingDialog = dynamic(() => import("./CancelBookingDialog"), {
+    ssr: false,
+});
+const RecordingViewerDialog = dynamic(() => import("./RecordingViewerDialog"), {
+    ssr: false,
+});
+const NoShowBookingDialog = dynamic(() => import("./NoShowBookingDialog"), {
+    ssr: false,
+});
 
 const MEETING_WINDOW_MS = 60 * 60 * 1000; // 60 minutes
 
@@ -210,35 +227,45 @@ export default function BookingDetails({
             )}
 
             {/* Dialogs */}
-            <ConfirmBookingDialog
-                open={confirmOpen}
-                onOpenChange={setConfirmOpen}
-                booking={booking}
-            />
+            {confirmOpen && (
+                <ConfirmBookingDialog
+                    open={confirmOpen}
+                    onOpenChange={setConfirmOpen}
+                    booking={booking}
+                />
+            )}
 
-            <CompleteBookingDialog
-                open={completeOpen}
-                onOpenChange={setCompleteOpen}
-                booking={booking}
-            />
+            {completeOpen && (
+                <CompleteBookingDialog
+                    open={completeOpen}
+                    onOpenChange={setCompleteOpen}
+                    booking={booking}
+                />
+            )}
 
-            <CancelBookingDialog
-                open={cancelOpen}
-                onOpenChange={setCancelOpen}
-                booking={booking}
-            />
+            {cancelOpen && (
+                <CancelBookingDialog
+                    open={cancelOpen}
+                    onOpenChange={setCancelOpen}
+                    booking={booking}
+                />
+            )}
 
-            <NoShowBookingDialog
-                open={noShowOpen}
-                onOpenChange={setNoShowOpen}
-                booking={booking}
-            />
+            {noShowOpen && (
+                <NoShowBookingDialog
+                    open={noShowOpen}
+                    onOpenChange={setNoShowOpen}
+                    booking={booking}
+                />
+            )}
 
-            <RecordingViewerDialog
-                open={recordingOpen}
-                onOpenChange={setRecordingOpen}
-                booking={booking}
-            />
+            {recordingOpen && (
+                <RecordingViewerDialog
+                    open={recordingOpen}
+                    onOpenChange={setRecordingOpen}
+                    booking={booking}
+                />
+            )}
         </div>
     );
 }

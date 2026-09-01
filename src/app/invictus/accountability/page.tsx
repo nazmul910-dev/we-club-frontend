@@ -41,6 +41,9 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import SessionHistorySkeleton from "@/components/invictus/academy/accountibility/SessionHistorySkeleton";
+import MentorSectionSkeleton from "@/components/invictus/academy/accountibility/MentorSectionSkeleton";
+import NextSessionSkeleton from "@/components/invictus/academy/accountibility/NextSessionSkeleton";
 /* -------------------------------------------------------------------------- */
 /*  Mock data — replace with real data fetched from your backend               */
 /* -------------------------------------------------------------------------- */
@@ -944,64 +947,4 @@ export default function MyAccountabilityPage() {
             </PageContainer>
         </div>
     );
-}
-function MentorSectionSkeleton() {
-    return (
-        <SectionCard variant="invictus" className="mb-6">
-            <Skeleton className="mb-4 h-3 w-28 bg-[#E9E2D2]" />
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {[1, 2].map((item) => (
-                    <div
-                        key={item}
-                        className="flex min-h-25 items-center gap-3 rounded-lg border border-[#EFE6CE] bg-white px-5 py-3"
-                    >
-                        <Skeleton className="h-11 w-11 shrink-0 rounded-full bg-[#E9E2D2]" />
-
-                        <div className="space-y-2">
-                            <Skeleton className="h-3 w-20 bg-[#E9E2D2]" />
-                            <Skeleton className="h-4 w-32 bg-[#E9E2D2]" />
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            <Skeleton className="mt-5 h-11 w-full rounded-md bg-[#E9E2D2]" />
-        </SectionCard>
-    );
-}
-function NextSessionSkeleton() {
-    return (
-        <SectionCard
-            variant="invictus"
-            className="mb-10 flex items-center justify-between gap-4"
-        >
-            <div className="space-y-2">
-                <Skeleton className="h-3 w-24 bg-[#E9E2D2]" />
-                <Skeleton className="h-6 w-52 bg-[#E9E2D2]" />
-                <Skeleton className="h-4 w-72 max-w-full bg-[#E9E2D2]" />
-            </div>
-
-            <Skeleton className="h-10 w-20 rounded-md bg-[#E9E2D2]" />
-        </SectionCard>
-    );
-}
-function SessionHistorySkeleton() {
-    return (
-        <>
-            {[1, 2].map((item) => (
-                <div
-                    key={item}
-                    className="flex items-center justify-between gap-4 rounded-xl border border-[#E9E2D2] bg-white p-5"
-                >
-                    <div className="space-y-2">
-                        <Skeleton className="h-4 w-32 bg-[#E9E2D2]" />
-                        <Skeleton className="h-3 w-56 max-w-full bg-[#E9E2D2]" />
-                    </div>
-
-                    <Skeleton className="h-9 w-32 shrink-0 rounded-md bg-[#E9E2D2]" />
-                </div>
-            ))}
-        </>
-    );
-}
+};

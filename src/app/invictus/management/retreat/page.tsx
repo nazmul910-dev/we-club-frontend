@@ -38,9 +38,9 @@ import {
     BatchStatusBadge,
     LocationStatusBadge,
 } from "@/components/invictus/management/retreat/Retreatstatusbadges";
-import LocationFormDialog from "@/components/invictus/management/retreat/Locationformdialog";
-import BatchFormDialog from "@/components/invictus/management/retreat/Batchformdialog";
-import DeleteConfirmDialog from "@/components/invictus/management/retreat/Deleteconfirmdialog";
+// import LocationFormDialog from "@/components/invictus/management/retreat/Locationformdialog";
+// import BatchFormDialog from "@/components/invictus/management/retreat/Batchformdialog";
+// import DeleteConfirmDialog from "@/components/invictus/management/retreat/Deleteconfirmdialog";
 import {
     deleteRetreatBatch,
     deleteRetreatLocation,
@@ -54,6 +54,23 @@ import {
     selectRetreatStatus,
 } from "@/lib/features/retreat/retreatSlice";
 import { PaginationControl } from "@/components/ui/PaginationControll";
+import dynamic from "next/dynamic";
+
+
+const LocationFormDialog = dynamic(()=> import("@/components/invictus/management/retreat/Locationformdialog"), {
+    ssr : false,
+});
+
+const BatchFormDialog  = dynamic(()=> import("@/components/invictus/management/retreat/Batchformdialog"), {
+    ssr : false
+} );
+
+const DeleteConfirmDialog = dynamic(()=> import("@/components/invictus/management/retreat/Deleteconfirmdialog"),
+{
+    ssr : false
+}
+)
+
 
 function formatDate(iso: string) {
     return new Intl.DateTimeFormat("en-US", {
@@ -846,18 +863,18 @@ export default function RetreatManagementPage() {
             </PageContainer>
 
             {/* Dialogs */}
-            <LocationFormDialog
+            {locationFormOpen && <LocationFormDialog
                 open={locationFormOpen}
                 onOpenChange={setLocationFormOpen}
                 location={editingLocation}
-            />
-            <BatchFormDialog
+            />}
+           {batchFormOpen && <BatchFormDialog
                 open={batchFormOpen}
                 onOpenChange={setBatchFormOpen}
                 locations={locations}
                 batch={editingBatch}
-            />
-            <DeleteConfirmDialog
+            />}
+           {Boolean(deletingLocation) && <DeleteConfirmDialog
                 open={Boolean(deletingLocation)}
                 onOpenChange={(open) => {
                     if (!open) setDeletingLocation(null);
@@ -866,8 +883,8 @@ export default function RetreatManagementPage() {
                 description={`"${deletingLocation?.title ?? ""}" will be permanently removed. This cannot be undone.`}
                 isDeleting={status.locationDelete === "loading"}
                 onConfirm={handleDeleteLocation}
-            />
-            <DeleteConfirmDialog
+            />}
+           {Boolean(deletingBatch) && <DeleteConfirmDialog
                 open={Boolean(deletingBatch)}
                 onOpenChange={(open) => {
                     if (!open) setDeletingBatch(null);
@@ -876,7 +893,7 @@ export default function RetreatManagementPage() {
                 description={`"${deletingBatch?.batchName ?? ""}" will be permanently removed. This cannot be undone.`}
                 isDeleting={status.batchDelete === "loading"}
                 onConfirm={handleDeleteBatch}
-            />
+            />}
         </div>
     );
 }
