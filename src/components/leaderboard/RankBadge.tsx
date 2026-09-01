@@ -10,7 +10,7 @@ export function RankBadge({ rank }: { rank: number }) {
 
   return (
     <span
-      className={`inline-flex h-7 w-7 items-center justify-center rounded-full border-[1.4px] font-display text-[0.8rem] font-semibold ${tierClass}`}
+      className={`inline-flex h-7 w-7 items-center justify-center rounded-full border-[1.4px] text-[0.8rem] font-semibold ${tierClass}`}
     >
       {rank}
     </span>

@@ -20,13 +20,13 @@ export default function InvictusHeroBanner() {
           className="text-2xl md:text-4xl text-[#241D15] font-normal leading-snug"
         >
           Welcome back to the{" "}
-          <span className="font-playfair italic font-medium text-[#9E7B28]">
+          <span className="font-playfair font-medium text-[#9E7B28]">
             INVICTUS
           </span>{" "}
-          Academy, <span className="italic">{firstName}</span>.
+          Academy, <span className="">{firstName}</span>.
         </PageTitle>
 
-        <p className="font-playfair italic text-base md:text-xl text-[#6B5F50] leading-relaxed pt-1">
+        <p className="font-playfair text-base md:text-xl text-[#6B5F50] leading-relaxed pt-1">
           Your 3.0 version is waiting for you —{" "}
           <span className="not-italic">one room at a time...</span>
         </p>

@@ -124,7 +124,7 @@ function SessionCard({
     <div
       className={`group relative overflow-hidden rounded-2xl border p-5 transition-all duration-300 ${
         isExpired
-          ? "border-[#E8E2D7] bg-[#F7F5F1] opacity-60"
+          ? "border-[#E8E2D7] bg-[#F7F5F1] opacity-85"
           : "border-[#EDE7D8] bg-white hover:border-[#DDBB6E] hover:shadow-[0_8px_30px_rgba(201,168,76,0.12)]"
       }`}
     >
@@ -135,7 +135,7 @@ function SessionCard({
         {/* Header: Date + Session Type */}
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-[#C6A34A] px-3 py-1 font-[family-name:var(--font-display)] text-[10px] font-bold tracking-widest text-[#1C1A16]">
+            <span className="rounded-full bg-[#C6A34A] px-3 py-1 text-[10px] font-bold tracking-widest text-[#1C1A16]">
               {formattedDate}
             </span>
             <span

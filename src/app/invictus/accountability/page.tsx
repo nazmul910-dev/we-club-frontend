@@ -253,7 +253,7 @@ export default function MyAccountabilityPage() {
     }, [dispatch]);
 
     return (
-        <div className="min-h-screen bg-[#FBF9F4] font-[family-name:var(--font-body)] text-[#1C1A16]">
+        <div className="">
             <PageContainer variant="invictus" as="main">
                 {/* Header */}
                 <div className="mb-10">

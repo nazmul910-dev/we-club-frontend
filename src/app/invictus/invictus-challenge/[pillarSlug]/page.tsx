@@ -84,7 +84,7 @@ export default function PillarChallengePage() {
   if (!isCurrentPillarLoaded || !selectedPillar) {
     if (pillarLoading || !selectedPillar || selectedPillar.slug !== params.pillarSlug) {
       return (
-        <div className="min-h-screen bg-[#FAF8F3] mx-auto max-w-[1180px] px-[6vw] py-[2vw] sm:px-8 space-y-8">
+        <div className="page-wrapper">
           <div className="rounded-3xl border border-[#E8DDCA] bg-white p-10 space-y-4">
             <Skeleton className="h-4 w-32 rounded" />
             <Skeleton className="h-10 w-2/3 rounded-lg" />
@@ -110,7 +110,7 @@ export default function PillarChallengePage() {
     }
 
     return (
-      <div className="min-h-screen bg-[#FAF8F3] mx-auto max-w-[1180px] px-[6vw] py-[2vw] sm:px-8">
+      <div className="page-wrapper">
         <p className="text-red-600">{pillarError || "This pillar is not available."}</p>
         <Link
           href="/invictus/invictus-challenge"
@@ -141,7 +141,7 @@ export default function PillarChallengePage() {
     : null;
 
   return (
-    <div className="min-h-screen bg-[#FAF8F3] text-[#171717] mx-auto max-w-[1180px] px-[6vw] py-[2vw] sm:px-8">
+    <div className="page-wrapper">
       <div className="relative overflow-hidden rounded-3xl border border-[#E8DDCA] bg-white p-10 shadow-sm">
         {/* Background glow */}
         <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-[#B18A3A]/8 blur-3xl" />
@@ -211,7 +211,7 @@ export default function PillarChallengePage() {
         <h2 className="mb-6 text-2xl font-semibold text-[#171717]">Modules</h2>
 
         {coursesLoading ? (
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={i}
@@ -232,7 +232,7 @@ export default function PillarChallengePage() {
             No modules are published for this pillar yet.
           </p>
         ) : (
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {publishedModules.map((courseModule: ICourseModule) => {
               const progress = myProgress.find((item) => {
                 const itemModId =

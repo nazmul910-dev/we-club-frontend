@@ -17,7 +17,7 @@ export function RetreatGallery({ title, images }: RetreatGalleryProps) {
         <span className="h-px flex-1 bg-line" />
       </div>
 
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+      <div className="grid gap-7 sm:gap-2.5 sm:grid-cols-3">
         {images.map((src, i) => (
           <div
             key={src}

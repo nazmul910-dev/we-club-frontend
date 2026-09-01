@@ -168,7 +168,7 @@ const academyItems = [
   const managementItems = [
     {
       label: "RETREAT ",
-      href: "/invictus/management/retreat",
+      href: "/invictus/management/retreats",
       icon: Tent,
     },
     {

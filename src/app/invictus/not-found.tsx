@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Compass } from "lucide-react";
 import PageTitle from "@/components/common/PageTitle";
+import "../globals.css";
 
 export default function NotFound() {
   const router = useRouter();

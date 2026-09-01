@@ -149,7 +149,7 @@ function VideoDetailsContent() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-[1180px] px-[6vw] py-[4vw] sm:px-8">
+      <div className="page-wrapper">
         <p className="text-sm text-[#8A8175]">Loading video...</p>
       </div>
     );

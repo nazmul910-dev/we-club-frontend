@@ -44,8 +44,11 @@ export default function ProfileAcademyProgress({
   pillars,
   userName,
 }: Props) {
-  const [activeTab, setActiveTab] = useState<"videos" | "quizzes" | "certificates">("videos");
-  const [selectedCertificate, setSelectedCertificate] = useState<IQuizCertificate | null>(null);
+  const [activeTab, setActiveTab] = useState<
+    "videos" | "quizzes" | "certificates"
+  >("videos");
+  const [selectedCertificate, setSelectedCertificate] =
+    useState<IQuizCertificate | null>(null);
 
   // Group watched videos by pillar
   const pillarVideoMap = useMemo(() => {
@@ -78,29 +81,46 @@ export default function ProfileAcademyProgress({
   // Overall Statistics
   const totalVideosWatched = videoHistory.length;
   const completedVideos = videoHistory.filter((v) => v.isCompleted).length;
-  const totalWatchSeconds = videoHistory.reduce((sum, v) => sum + (v.totalWatchedSeconds || 0), 0);
-  const quizzesPassed = moduleProgressList.filter((m) => m.quizSummary?.passed).length;
-  const totalCertificates = certificates.filter((c) => c.status === "issued").length;
+  const totalWatchSeconds = videoHistory.reduce(
+    (sum, v) => sum + (v.totalWatchedSeconds || 0),
+    0,
+  );
+  const quizzesPassed = moduleProgressList.filter(
+    (m) => m.quizSummary?.passed,
+  ).length;
+  const totalCertificates = certificates.filter(
+    (c) => c.status === "issued",
+  ).length;
 
   return (
     <div className="space-y-8">
       {/* Top Learning Metrics Grid */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="grid sm:grid-cols-2 gap-4 md:grid-cols-4">
         <div className="rounded-2xl border border-[#E8E0D2] bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3E9D2] text-[#B08A3E]">
             <PlayCircle size={20} />
           </div>
-          <p className="mt-3 text-xs uppercase tracking-wider text-[#8A8175]">Videos Watched</p>
-          <h4 className="mt-1 text-2xl font-bold text-[#1C1A17]">{totalVideosWatched}</h4>
-          <p className="mt-1 text-[11px] text-[#8A8175]">{completedVideos} fully completed</p>
+          <p className="mt-3 text-xs uppercase tracking-wider text-[#8A8175]">
+            Videos Watched
+          </p>
+          <h4 className="mt-1 text-2xl font-bold text-[#1C1A17]">
+            {totalVideosWatched}
+          </h4>
+          <p className="mt-1 text-[11px] text-[#8A8175]">
+            {completedVideos} fully completed
+          </p>
         </div>
 
         <div className="rounded-2xl border border-[#E8E0D2] bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3E9D2] text-[#B08A3E]">
             <Clock size={20} />
           </div>
-          <p className="mt-3 text-xs uppercase tracking-wider text-[#8A8175]">Total Watch Time</p>
-          <h4 className="mt-1 text-2xl font-bold text-[#1C1A17]">{formatDuration(totalWatchSeconds)}</h4>
+          <p className="mt-3 text-xs uppercase tracking-wider text-[#8A8175]">
+            Total Watch Time
+          </p>
+          <h4 className="mt-1 text-2xl font-bold text-[#1C1A17]">
+            {formatDuration(totalWatchSeconds)}
+          </h4>
           <p className="mt-1 text-[11px] text-[#8A8175]">across all pillars</p>
         </div>
 
@@ -108,56 +128,66 @@ export default function ProfileAcademyProgress({
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3E9D2] text-[#B08A3E]">
             <ListChecks size={20} />
           </div>
-          <p className="mt-3 text-xs uppercase tracking-wider text-[#8A8175]">Quizzes Passed</p>
-          <h4 className="mt-1 text-2xl font-bold text-[#1C1A17]">{quizzesPassed}</h4>
-          <p className="mt-1 text-[11px] text-[#8A8175]">score ≥ 70% required</p>
+          <p className="mt-3 text-xs uppercase tracking-wider text-[#8A8175]">
+            Quizzes Passed
+          </p>
+          <h4 className="mt-1 text-2xl font-bold text-[#1C1A17]">
+            {quizzesPassed}
+          </h4>
+          <p className="mt-1 text-[11px] text-[#8A8175]">
+            score ≥ 70% required
+          </p>
         </div>
 
         <div className="rounded-2xl border border-[#E8E0D2] bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3E9D2] text-[#B08A3E]">
             <Award size={20} />
           </div>
-          <p className="mt-3 text-xs uppercase tracking-wider text-[#8A8175]">Certificates</p>
-          <h4 className="mt-1 text-2xl font-bold text-[#1C1A17]">{totalCertificates}</h4>
+          <p className="mt-3 text-xs uppercase tracking-wider text-[#8A8175]">
+            Certificates
+          </p>
+          <h4 className="mt-1 text-2xl font-bold text-[#1C1A17]">
+            {totalCertificates}
+          </h4>
           <p className="mt-1 text-[11px] text-[#8A8175]">earned and verified</p>
         </div>
       </div>
 
       {/* Navigation Sub-Tabs */}
-      <div className="flex items-center gap-2 border-b border-[#E8E0D2] pb-2">
+      <div className="flex items-center gap-2 overflow-x-auto border-b border-[#E8E0D2] pb-2 [scrollbar-width:thin] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#E8E0D2]">
         <button
           onClick={() => setActiveTab("videos")}
-          className={`flex cursor-pointer items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition duration-150 ${
+          className={`flex shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap rounded-xl px-5 py-2.5 text-sm font-semibold transition duration-150 ${
             activeTab === "videos"
               ? "bg-[#B08A3E] text-white shadow-sm"
-              : "text-[#8A8175] hover:bg-[#F3E9D2]/50 hover:text-[#1C1A17]"
+              : "bg-[#F8F4EA] text-[#8A8175] hover:bg-[#F3E9D2]/50 hover:text-[#1C1A17]"
           }`}
         >
-          <PlayCircle size={16} />
+          <PlayCircle size={16} className="shrink-0" />
           <span>Watched Videos by Pillar ({videoHistory.length})</span>
         </button>
 
         <button
           onClick={() => setActiveTab("quizzes")}
-          className={`flex cursor-pointer items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition duration-150 ${
+          className={`flex shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap rounded-xl px-5 py-2.5 text-sm font-semibold transition duration-150 ${
             activeTab === "quizzes"
               ? "bg-[#B08A3E] text-white shadow-sm"
-              : "text-[#8A8175] hover:bg-[#F3E9D2]/50 hover:text-[#1C1A17]"
+              : "bg-[#F8F4EA] text-[#8A8175] hover:bg-[#F3E9D2]/50 hover:text-[#1C1A17]"
           }`}
         >
-          <ListChecks size={16} />
+          <ListChecks size={16} className="shrink-0" />
           <span>Quiz Assessment Results ({moduleProgressList.length})</span>
         </button>
 
         <button
           onClick={() => setActiveTab("certificates")}
-          className={`flex cursor-pointer items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition duration-150 ${
+          className={`flex shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap rounded-xl px-5 py-2.5 text-sm font-semibold transition duration-150 ${
             activeTab === "certificates"
               ? "bg-[#B08A3E] text-white shadow-sm"
-              : "text-[#8A8175] hover:bg-[#F3E9D2]/50 hover:text-[#1C1A17]"
+              : "bg-[#F8F4EA] text-[#8A8175] hover:bg-[#F3E9D2]/50 hover:text-[#1C1A17]"
           }`}
         >
-          <Award size={16} />
+          <Award size={16} className="shrink-0" />
           <span>Earned Certificates ({certificates.length})</span>
         </button>
       </div>
@@ -168,9 +198,12 @@ export default function ProfileAcademyProgress({
           {Object.keys(pillarVideoMap).length === 0 ? (
             <div className="rounded-2xl border border-[#E8E0D2] bg-white p-12 text-center">
               <PlayCircle size={40} className="mx-auto text-[#B08A3E]/60" />
-              <h4 className="mt-4 text-lg font-semibold text-[#1C1A17]">No Video Watch History Yet</h4>
+              <h4 className="mt-4 text-lg font-semibold text-[#1C1A17]">
+                No Video Watch History Yet
+              </h4>
               <p className="mt-1 text-sm text-[#8A8175]">
-                Start watching lessons in the Invictus Challenge to track your video progress here.
+                Start watching lessons in the Invictus Challenge to track your
+                video progress here.
               </p>
               <Link
                 href="/invictus/invictus-challenge"
@@ -191,7 +224,9 @@ export default function ProfileAcademyProgress({
                     <span className="text-[10px] font-bold uppercase tracking-[3px] text-[#B08A3E]">
                       PILLAR TRACK
                     </span>
-                    <h3 className="mt-0.5 text-xl font-bold text-[#1C1A17]">{pillarGroup.pillarName}</h3>
+                    <h3 className="mt-0.5 text-xl font-bold text-[#1C1A17]">
+                      {pillarGroup.pillarName}
+                    </h3>
                   </div>
 
                   <Link
@@ -206,16 +241,22 @@ export default function ProfileAcademyProgress({
                 <div className="mt-4 divide-y divide-[#F3E9D2]">
                   {pillarGroup.videos.map((item) => {
                     const videoTitle = item.video?.title || "Lesson Video";
-                    const duration = item.video?.durationSeconds || item.durationSecondsSnapshot || 0;
+                    const duration =
+                      item.video?.durationSeconds ||
+                      item.durationSecondsSnapshot ||
+                      0;
                     const isCompleted = item.isCompleted;
-                    const percent = Math.min(100, Math.round(item.watchPercent || 0));
+                    const percent = Math.min(
+                      100,
+                      Math.round(item.watchPercent || 0),
+                    );
 
                     return (
                       <div
                         key={item._id}
-                        className="flex flex-wrap items-center justify-between gap-4 py-3.5 transition hover:bg-[#FAF8F4] px-2 rounded-xl"
+                        className="flex flex-wrap items-center justify-between gap-4 py-3.5 transition hover:bg-[#FAF8F4]  rounded-xl"
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 ">
                           <div
                             className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
                               isCompleted
@@ -223,21 +264,34 @@ export default function ProfileAcademyProgress({
                                 : "bg-[#F3E9D2] text-[#B08A3E]"
                             }`}
                           >
-                            {isCompleted ? <CheckCircle2 size={18} /> : <PlayCircle size={18} />}
+                            {isCompleted ? (
+                              <CheckCircle2 size={18} />
+                            ) : (
+                              <PlayCircle size={18} />
+                            )}
                           </div>
                           <div>
-                            <p className="text-sm font-semibold text-[#1C1A17]">{videoTitle}</p>
+                            <p className="text-sm font-semibold text-[#1C1A17]">
+                              {videoTitle}
+                            </p>
                             <p className="text-xs text-[#8A8175]">
-                              {item.module?.title || "Module"} · {formatDuration(duration)} total
+                              {item.module?.title || "Module"} ·{" "}
+                              {formatDuration(duration)} total
                             </p>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-4">
-                          <div className="w-28 text-right sm:w-36">
+                        <div className="flex items-center  w-full sm:w-auto gap-4">
+                          <div className="w-full text-right sm:w-36">
                             <div className="flex items-center justify-between text-xs font-medium text-[#8A8175]">
                               <span>Watched</span>
-                              <span className={isCompleted ? "font-bold text-emerald-700" : "text-[#1C1A17]"}>
+                              <span
+                                className={
+                                  isCompleted
+                                    ? "font-bold text-emerald-700"
+                                    : "text-[#1C1A17]"
+                                }
+                              >
                                 {percent}%
                               </span>
                             </div>
@@ -275,9 +329,12 @@ export default function ProfileAcademyProgress({
           {moduleProgressList.length === 0 ? (
             <div className="rounded-2xl border border-[#E8E0D2] bg-white p-12 text-center">
               <ListChecks size={40} className="mx-auto text-[#B08A3E]/60" />
-              <h4 className="mt-4 text-lg font-semibold text-[#1C1A17]">No Quiz Assessments Taken Yet</h4>
+              <h4 className="mt-4 text-lg font-semibold text-[#1C1A17]">
+                No Quiz Assessments Taken Yet
+              </h4>
               <p className="mt-1 text-sm text-[#8A8175]">
-                Complete module videos and resources to unlock and take module assessments.
+                Complete module videos and resources to unlock and take module
+                assessments.
               </p>
             </div>
           ) : (
@@ -290,7 +347,8 @@ export default function ProfileAcademyProgress({
                 {moduleProgressList.map((progress) => {
                   const quiz = progress.quizSummary;
                   const moduleTitle = progress.module?.title || "Course Module";
-                  const pillarName = progress.module?.pillar?.name || "Invictus Pillar";
+                  const pillarName =
+                    progress.module?.pillar?.name || "Invictus Pillar";
                   const hasPassed = quiz?.passed;
                   const bestScore = quiz?.bestScore ?? 0;
                   const attemptsUsed = quiz?.attemptsUsed ?? 0;
@@ -306,8 +364,8 @@ export default function ProfileAcademyProgress({
                             hasPassed
                               ? "bg-emerald-100 text-emerald-700"
                               : attemptsUsed > 0
-                              ? "bg-red-100 text-red-600"
-                              : "bg-gray-100 text-gray-400"
+                                ? "bg-red-100 text-red-600"
+                                : "bg-gray-100 text-gray-400"
                           }`}
                         >
                           {hasPassed ? (
@@ -320,17 +378,21 @@ export default function ProfileAcademyProgress({
                         </div>
 
                         <div>
-                          <p className="text-sm font-bold text-[#1C1A17]">{moduleTitle}</p>
+                          <p className="text-sm font-bold text-[#1C1A17]">
+                            {moduleTitle}
+                          </p>
                           <p className="text-xs text-[#8A8175]">
                             {pillarName} · Attempts Used: {attemptsUsed} / 2
                           </p>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-4">
-                        <div className="text-right">
+                      <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
+                        <div className="text-center sm:text-right">
                           <p className="text-xs text-[#8A8175]">Best Score</p>
-                          <p className="font-serif text-base font-bold text-[#1C1A17]">{bestScore}%</p>
+                          <p className="text-base font-bold text-[#1C1A17]">
+                            {bestScore}% 
+                          </p>
                         </div>
 
                         <span
@@ -338,17 +400,17 @@ export default function ProfileAcademyProgress({
                             hasPassed
                               ? "bg-emerald-100 text-emerald-800"
                               : attemptsUsed > 0
-                              ? "bg-red-100 text-red-800"
-                              : "bg-gray-100 text-gray-600"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-gray-100 text-gray-600"
                           }`}
                         >
                           {hasPassed
                             ? "Passed"
                             : attemptsUsed > 0
-                            ? "Failed / Retry"
-                            : progress.quizUnlocked
-                            ? "Unlocked"
-                            : "Locked"}
+                              ? "Failed / Retry"
+                              : progress.quizUnlocked
+                                ? "Unlocked"
+                                : "Locked"}
                         </span>
                       </div>
                     </div>
@@ -366,9 +428,12 @@ export default function ProfileAcademyProgress({
           {certificates.length === 0 ? (
             <div className="rounded-2xl border border-[#E8E0D2] bg-white p-12 text-center">
               <Award size={40} className="mx-auto text-[#B08A3E]/60" />
-              <h4 className="mt-4 text-lg font-semibold text-[#1C1A17]">No Certificates Earned Yet</h4>
+              <h4 className="mt-4 text-lg font-semibold text-[#1C1A17]">
+                No Certificates Earned Yet
+              </h4>
               <p className="mt-1 text-sm text-[#8A8175]">
-                Complete all modules and pass assessments across an Invictus Pillar to earn your official Certificate.
+                Complete all modules and pass assessments across an Invictus
+                Pillar to earn your official Certificate.
               </p>
               <Link
                 href="/invictus/invictus-challenge"
@@ -409,14 +474,19 @@ export default function ProfileAcademyProgress({
                         {cert.pillar?.name || "INVICTUS CHALLENGE"}
                       </span>
                       <h4 className="mt-1 text-lg font-serif font-bold text-[#1C1A17]">
-                        {cert.pillar?.name ? `${cert.pillar.name} Pillar Certificate` : cert.module?.title || "Course Certificate"}
+                        {cert.pillar?.name
+                          ? `${cert.pillar.name} Pillar Certificate`
+                          : cert.module?.title || "Course Certificate"}
                       </h4>
                       <p className="mt-2 font-mono text-xs text-[#8A8175]">
                         Certificate ID: {cert.certificateNumber}
                       </p>
                       <p className="mt-1 text-xs text-[#8A8175]">
-                        Score: <span className="font-semibold text-[#1C1A17]">{cert.score}%</span> · Issued:{" "}
-                        {new Date(cert.issuedAt).toLocaleDateString()}
+                        Score:{" "}
+                        <span className="font-semibold text-[#1C1A17]">
+                          {cert.score}%
+                        </span>{" "}
+                        · Issued: {new Date(cert.issuedAt).toLocaleDateString()}
                       </p>
                     </div>
 

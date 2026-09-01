@@ -12,7 +12,7 @@ export function RetreatCollectionHero({
   intro = "Once a year we gather the inner circle of World Élite in a place designed to reset, expand and elevate. No stage, no selling, just the room.",
 }: RetreatCollectionHeroProps) {
   return (
-    <div className="pb-8 pt-[3vw]">
+    <div className="pb-3 ">
       <PageHeader
         variant="invictus"
         eyebrow={kicker}

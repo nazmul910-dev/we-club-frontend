@@ -94,7 +94,7 @@ export default function AcademyPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAF8F3] text-[#171717] mx-auto max-w-[1180px] px-[6vw] py-[2vw] sm:px-8">
+    <div className="page-wrapper">
       {/* HERO */}
 
       <div className="relative overflow-hidden rounded-3xl border border-[#E8DDCA] bg-white p-10 shadow-sm">

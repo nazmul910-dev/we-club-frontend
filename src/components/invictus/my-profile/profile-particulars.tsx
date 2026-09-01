@@ -62,7 +62,7 @@ export default function ProfileParticulars({ profile }: any) {
           </button>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-5">
+        <div className="grid md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-5">
           {fields.map((field) => (
             <div
               key={field.label}

@@ -4,6 +4,8 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -44,6 +46,11 @@
   --sidebar-ring: oklch(0.714 0.014 41.2);
   --background: oklch(1 0 0);
   --foreground: oklch(0.147 0.004 49.3);
+}
+
+
+@theme {
+  --breakpoint-3xl: 120rem;
 }
 
 @theme inline {
@@ -100,6 +107,8 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+
+
 @layer utilities {
   .scrollbar-hide {
     /* Chrome, Safari and Opera */
@@ -140,9 +149,12 @@ body.skiptranslate {
 }
 
 .container1{
-
   @apply w-full max-w-360 mx-auto px-3 py-6 md:px-2 md:py-10 lg:px-0;
 
+}
+
+.page-wrapper {
+  @apply min-h-screen bg-[#FAF8F3] text-[#171717] mx-auto max-w-295 px-4 py-8 md:px-8 md:py-10 space-y-8;
 }
 
 .text-eyebrow {

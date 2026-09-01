@@ -91,6 +91,15 @@ export default function CoursesPage() {
     }
   };
 
+  const handleArchiveCourse = async (course: ICourseModule) => {
+    try {
+      await courseApi.archiveCourse(course._id);
+      loadCourses();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   if (loading) {
     return (
       <div
@@ -108,9 +117,7 @@ text-[#B18A3A]
   }
 
   return (
-    <div
-      className="mx-auto max-w-[1180px] px-[6vw] py-[2vw] sm:px-8"
-    >
+    <div className="page-wrapper">
       <CourseHeader onCreate={() => setCreateOpen(true)} />
 
       {error && (
@@ -132,6 +139,7 @@ text-red-500
           setEditOpen(true);
         }}
         onToggleStatus={handleToggleStatus}
+        onArchive={handleArchiveCourse}
       />
 
       <CreateCourseDialog
