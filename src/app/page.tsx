@@ -9,7 +9,7 @@ import BgImage from "@/assets/Login/login-bg.jpg";
 
 export default function Home() {
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10 sm:px-6">
+    <main className="page-wrapper">
       <Image
         src={BgImage}
         alt="Background"

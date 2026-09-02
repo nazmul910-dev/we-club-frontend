@@ -33,7 +33,7 @@ import entitlementReducer from "@/lib/features/invictus/academy/entitlement/enti
 import invictusPaymentReducer from "@/lib/features/invictus/payment/invictusPaymentSlice";
 import notificationReducer from "@/lib/features/invictus/notifications/notificationSlice";
 import onboardingTasksReducer from "@/lib/features/onboardingTasks/onboardingTaskSlice";
-
+import leaderboardAdminReducer from "@/lib/features/leaderboardAdmin/leaderboardAdminSlice"
 
 export const store = configureStore({
   reducer: {
@@ -70,6 +70,7 @@ export const store = configureStore({
     invictusPayment: invictusPaymentReducer,
     notification: notificationReducer,
     onboardingTasks: onboardingTasksReducer,
+    leaderboardAdmin: leaderboardAdminReducer,
   },
 });
 

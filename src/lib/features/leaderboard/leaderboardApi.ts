@@ -23,8 +23,14 @@ export const getActiveInvictusLeaderboard = async (
   }>("/invictus/leaderboards", {
     params: {
       type: "points",
-      period: "seasonal",
       status: "active",
+      // No `period` filter — an admin can activate a leaderboard with any
+      // period (daily/weekly/monthly/seasonal/all_time), and more than one
+      // can be active at once (the uniqueness constraint is scoped per
+      // type+period). We don't want to hardcode one period and silently
+      // miss whichever is actually live. The backend already sorts by
+      // createdAt desc, so with limit:1 this picks the most recently
+      // activated "points" leaderboard, whatever its period.
       limit: 1,
     },
   });

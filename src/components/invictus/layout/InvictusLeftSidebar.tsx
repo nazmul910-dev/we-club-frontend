@@ -181,6 +181,11 @@ const academyItems = [
       href: "/invictus/management/mentor-bookings",
       icon: CalendarCheck,
     },
+    {
+      label: "LEADERBOARD ",
+      href: "/invictus/management/leaderboards",
+      icon: CalendarCheck,
+    },
   ];
 
   const canManageInvictus =

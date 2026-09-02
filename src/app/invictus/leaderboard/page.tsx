@@ -50,8 +50,14 @@ const avatarClasses = [
   "bg-gradient-to-br from-[#4d7066] to-[#1a2723]",
 ];
 
-const invictusColumns: LedgerColumn<LeaderboardEntry>[] = [
-  { key: "rank", label: "Rank", width: "w-14", render: (entry) => <RankBadge rank={entry.rank} /> },
+// The backend `rank` field is only set once a leaderboard is finalized —
+// for an "active" leaderboard it's null (or stale, if reactivated after a
+// prior finalize). We compute display rank from row position instead,
+// since entries already arrive sorted by points from the API.
+type RankedEntry = LeaderboardEntry & { displayRank: number };
+
+const invictusColumns: LedgerColumn<RankedEntry>[] = [
+  { key: "rank", label: "Rank", width: "w-14", render: (entry) => <RankBadge rank={entry.displayRank} /> },
   {
     key: "member",
     label: "Member",
@@ -59,7 +65,7 @@ const invictusColumns: LedgerColumn<LeaderboardEntry>[] = [
       <PersonCell
         name={entry.user.fullName}
         initials={getInitials(entry.user.fullName)}
-        avatarClassName={avatarClasses[(entry.rank - 1) % avatarClasses.length]}
+        avatarClassName={avatarClasses[(entry.displayRank - 1) % avatarClasses.length]}
       />
     ),
   },
@@ -71,7 +77,9 @@ const invictusColumns: LedgerColumn<LeaderboardEntry>[] = [
 export default function LeaderboardPage() {
   const dispatch = useAppDispatch();
   const entries = useAppSelector((state) => state.leaderboard.entries ?? []);
+  const leaderboard = useAppSelector((state) => state.leaderboard.leaderboard);
   const isLoading = useAppSelector((state) => state.leaderboard.isLoading);
+  const error = useAppSelector((state) => state.leaderboard.error);
   const currentPage = useAppSelector((state) => state.leaderboard.currentPage);
   const totalPages = useAppSelector((state) => state.leaderboard.totalPages);
 
@@ -85,6 +93,15 @@ export default function LeaderboardPage() {
     topPerformer,
   );
 
+  // Table rows need `displayRank` (see RankedEntry above) — entries arrive
+  // sorted by points already, so rank is just position + pagination offset.
+  const ENTRIES_PER_PAGE = 10; // keep in sync with the `limit` used below
+  const rankOffset = (currentPage - 1) * ENTRIES_PER_PAGE;
+  const rankedEntries: RankedEntry[] = entries.map((entry, index) => ({
+    ...entry,
+    displayRank: rankOffset + index + 1,
+  }));
+
   return (
     <PageContainer variant="invictus" as="main">
       {/* hero */}
@@ -97,6 +114,10 @@ export default function LeaderboardPage() {
           titleClassName="text-[clamp(2.2rem,4.6vw,3.6rem)]"
         />
       </div>
+
+      {error && (
+        <p className="mb-6 rounded-xl bg-red-50 p-3 text-sm text-red-600">{error}</p>
+      )}
 
       {/* stat cards */}
       <div className="mb-[2.6rem] grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -138,11 +159,11 @@ export default function LeaderboardPage() {
       <LeaderboardTable
         kickerIcon={<ShieldIcon />}
         kicker="INVICTUS Rankings"
-        title="Season 03 standings."
-        tag="Season 03 · Live"
+        title={leaderboard?.title ?? "Standings"}
+        tag={leaderboard ? `${leaderboard.period} · Live` : "Live"}
         live
         columns={invictusColumns}
-        rows={entries}
+        rows={rankedEntries}
         rowKey={(entry) => entry._id}
         delay={80}
       />
