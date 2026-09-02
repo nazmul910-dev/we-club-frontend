@@ -134,10 +134,10 @@ export function RetreatCta({
                           : "Resume payment →"}
                 </button>
             ) : status ? (
-                <div className="inline-flex items-center gap-2 border border-gold-bright/40 bg-gold-bright/10 px-7 py-3 text-[0.7rem] font-bold uppercase tracking-[0.14em] text-gold-bright">
+                <button className="inline-flex items-center gap-2 border border-gold-bright/40 bg-gold-bright/10 px-7 py-3 text-[0.7rem] font-bold uppercase tracking-[0.14em] text-gold-bright cursor-not-allowed">
                     <StatusIcon icon={status.icon} />
                     {status.label}
-                </div>
+                </button>
             ) : (
                 <AlertDialog
                     open={open}
@@ -179,6 +179,7 @@ export function RetreatCta({
                                     handleConfirm();
                                 }}
                                 disabled={isBooking}
+                                className="border  rounded-xl cursor-pointer border-gold-bright/70 bg-gold/90  px-7 py-3 text-[0.7rem] font-bold uppercase tracking-[0.14em] text-white transition-colors duration-300 hover:bg-gold-bright/90 disabled:opacity-60"
                             >
                                 {isBooking
                                     ? "Reserving..."
