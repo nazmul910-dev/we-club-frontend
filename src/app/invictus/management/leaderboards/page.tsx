@@ -90,7 +90,7 @@ export default function LeaderboardAdminPage() {
         title="Leaderboards"
         description="Create, activate, and finalize leaderboards, then drill into each one to review member points."
         actions={
-          <Button onClick={() => setCreateOpen((v) => !v)}>
+          <Button variant={"invictus"} onClick={() => setCreateOpen((v) => !v)}>
             <Plus size={16} /> New Leaderboard
           </Button>
         }
@@ -207,8 +207,8 @@ export default function LeaderboardAdminPage() {
             setStatusFilter("");
             setPage(1);
           }}
-          className={`rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wide ${
-            statusFilter === "" ? "bg-primary text-primary-foreground" : "bg-muted"
+          className={`rounded-full cursor-pointer px-3 py-1.5 text-xs font-semibold uppercase tracking-wide ${
+            statusFilter === "" ? "bg-[#B18A3A] text-white" : "bg-muted"
           }`}
         >
           All
@@ -220,8 +220,8 @@ export default function LeaderboardAdminPage() {
               setStatusFilter(s);
               setPage(1);
             }}
-            className={`rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wide ${
-              statusFilter === s ? "bg-primary text-primary-foreground" : "bg-muted"
+            className={`rounded-full cursor-pointer px-3 py-1.5 text-xs font-semibold uppercase tracking-wide ${
+              statusFilter === s ? "bg-[#B18A3A] text-white" : "bg-muted"
             }`}
           >
             {s}
@@ -309,7 +309,9 @@ export default function LeaderboardAdminPage() {
                         </Button>
                       )}
                       <Link href={`/invictus/management/leaderboards/${lb._id}`}>
-                        <Button size="sm">View Entries</Button>
+                        <Button className="font-normal" size="sm" variant="invictus">
+                          View Entries
+                        </Button>
                       </Link>
                     </div>
                   </td>

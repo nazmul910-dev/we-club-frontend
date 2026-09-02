@@ -5,14 +5,15 @@ import { cn } from "@/lib/utils"
 function Card({
   className,
   size = "default",
+  variant = "we-club",
   ...props
-}: React.ComponentProps<"div"> & { size?: "default" | "sm" }) {
+}: React.ComponentProps<"div"> & { size?: "default" | "sm"  | "lg"; variant?: "default" | "we-club" }) {
   return (
     <div
       data-slot="card"
       data-size={size}
       className={cn(
-        "rounded-2xl border border-[#E7DDCC] bg-white shadow-sm",
+        `${variant === "we-club" ? "" : "border-[#E7DDCC] bg-white shadow-sm border"} rounded-2xl `,
         className
       )}
       {...props}

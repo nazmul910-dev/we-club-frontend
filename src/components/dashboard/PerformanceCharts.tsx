@@ -84,8 +84,8 @@ export function ChartAreaDefault() {
   
 
   return (
-    <Card className="bg-transparent px-0">
-      <CardHeader className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+    <Card className="bg-transparent " variant="we-club">
+      <CardHeader className="flex flex-col mb-5 gap-5 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <CardTitle className="text-white">Performance Overview</CardTitle>
 

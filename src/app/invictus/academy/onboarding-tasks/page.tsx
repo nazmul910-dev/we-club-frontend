@@ -168,7 +168,7 @@ function StatCard({
   value: string;
 }) {
   return (
-    <div className="page-warpper">
+    <div className="rounded-2xl border border-[#E7DDCC] bg-white p-6 ">
       <div className="mb-4 text-[#B18A3A]">{icon}</div>
 
       <p className="text-sm text-[#8A8175]">{title}</p>
