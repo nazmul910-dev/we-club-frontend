@@ -125,7 +125,8 @@ const isInvictusPage = pathname.startsWith("/invictus");
           </span>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center  sm:gap-3">
+                  <div className="flex items-center gap-3">
            {isInvictusPage && <LanguageSwitch/>}
            
            <NotificationDropdown />
@@ -215,6 +216,7 @@ const isInvictusPage = pathname.startsWith("/invictus");
         >
           <Menu size={18} />
         </button>
+        </div>
       </header>
 
       {/* Switch Dialog */}

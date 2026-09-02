@@ -77,13 +77,13 @@ function ManageResourcesContent() {
         return { total, required, optional };
     }, [resources]);
 
-    return (
-        <div className="mx-auto max-w-[1180px] px-[6vw] py-[2vw] sm:px-8">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <p className="text-[11px] tracking-[4px] text-[#B18A3A] font-semibold">
-                        INVICTUS ACADEMY
-                    </p>
+  return (
+    <div className="page-wrapper">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p className="text-[11px] tracking-[4px] text-[#B18A3A] font-semibold">
+            INVICTUS ACADEMY
+          </p>
 
                     <h1 className="mt-3 text-3xl font-semibold text-[#171717]">
                         Module Resources

@@ -21,7 +21,7 @@ export default function PageContainer({
     dashboard:
       "flex-1 overflow-y-auto px-4 md:px-8 py-6 flex flex-col gap-8 bg-[#0a0a0a] min-h-[calc(100vh-4rem)] w-full",
     invictus:
-      "mx-auto max-w-[1180px] px-5 sm:px-8 py-8 sm:py-12 w-full",
+      " min-h-screen bg-[#FAF8F3] text-[#171717] mx-auto max-w-295 px-4 py-8 md:px-8 md:py-10 space-y-8",
     raw: "",
   };
 

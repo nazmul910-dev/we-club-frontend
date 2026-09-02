@@ -144,7 +144,7 @@ function ManageSessionsContent() {
   });
 
   return (
-    <div className="mx-auto max-w-[1180px] px-[6vw] py-[2vw] sm:px-8">
+    <div className="page-wrapper">
       {/* Page Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>

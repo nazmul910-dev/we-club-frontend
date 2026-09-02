@@ -38,9 +38,9 @@ const referrerColumns: LedgerColumn<Referrer>[] = [
   { key: "rank", label: "Rank", width: "w-14", render: (r) => <RankBadge rank={r.rank} /> },
   { key: "sponsor", label: "Sponsor", render: (r) => <PersonCell name={r.name} initials={r.initials} avatarClassName={r.avatarClassName} /> },
   { key: "territory", label: "Territory", render: (r) => <TerritoryCell territory={r.territory} /> },
-  { key: "referrals", label: "Referrals", align: "right", render: (r) => <span className="font-display font-medium text-ink">{r.referrals}</span> },
-  { key: "sold", label: "Sold", align: "right", render: (r) => <span className="font-display font-medium text-ink">{r.sold}</span> },
-  { key: "volume", label: "Volume", align: "right", render: (r) => <span className="font-display font-medium text-gold-deep">{r.volume}</span> },
+  { key: "referrals", label: "Referrals", align: "right", render: (r) => <span className="font-medium text-ink">{r.referrals}</span> },
+  { key: "sold", label: "Sold", align: "right", render: (r) => <span className=" font-medium text-ink">{r.sold}</span> },
+  { key: "volume", label: "Volume", align: "right", render: (r) => <span className=" font-medium text-gold-deep">{r.volume}</span> },
 ];
 
 const avatarClasses = [
@@ -65,7 +65,7 @@ const invictusColumns: LedgerColumn<LeaderboardEntry>[] = [
   },
   { key: "territory", label: "Territory", render: (entry) => <TerritoryCell territory={entry.user.country ?? "-"} /> },
   { key: "streak", label: "Streak", align: "right", render: (entry) => <StreakPill value={`${entry.breakdown?.streak ?? 0}d`} /> },
-  { key: "points", label: "Points", align: "right", render: (entry) => <span className="font-display font-medium text-gold-deep">{entry.points.toLocaleString()}</span> },
+  { key: "points", label: "Points", align: "right", render: (entry) => <span className=" font-medium text-gold-deep">{entry.points.toLocaleString()}</span> },
 ];
 
 export default function LeaderboardPage() {
@@ -88,7 +88,7 @@ export default function LeaderboardPage() {
   return (
     <PageContainer variant="invictus" as="main">
       {/* hero */}
-      <div className="pb-12 pt-[3.5vw]">
+      <div className="mb-8">
         <PageHeader
           variant="invictus"
           eyebrow="Leaderboard"
@@ -99,7 +99,7 @@ export default function LeaderboardPage() {
       </div>
 
       {/* stat cards */}
-      <div className="mb-[3.6rem] grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="mb-[2.6rem] grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard
           icon={<TrophyIcon />}
           label="Top Performer"

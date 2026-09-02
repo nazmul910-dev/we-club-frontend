@@ -391,7 +391,7 @@ export default function RetreatManagementPage() {
 
                             <Card className={`overflow-hidden ${cardClass}`}>
                                 <CardHeader className="border-b border-[#E9E2D2]">
-                                    <CardTitle className="text-base text-[#1C1A16]">
+                                    <CardTitle className="text-base p-5 text-[#1C1A16]">
                                         Retreat locations
                                     </CardTitle>
                                 </CardHeader>
@@ -666,7 +666,7 @@ export default function RetreatManagementPage() {
 
                             <Card className={`overflow-hidden ${cardClass}`}>
                                 <CardHeader className="border-b border-[#E9E2D2]">
-                                    <CardTitle className="text-base text-[#1C1A16]">
+                                    <CardTitle className="text-base p-5 text-[#1C1A16]">
                                         Retreat batches
                                     </CardTitle>
                                 </CardHeader>

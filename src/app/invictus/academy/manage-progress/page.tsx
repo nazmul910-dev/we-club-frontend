@@ -91,19 +91,14 @@ function ManageProgressContent() {
     }, [records, meta]);
 
     return (
-        <div className="mx-auto max-w-[1180px] px-[6vw] py-[2vw] sm:px-8">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <p className="text-[11px] font-semibold tracking-[4px] text-[#B18A3A]">
-                        INVICTUS ACADEMY
-                    </p>
-                    <h1 className="mt-3 text-3xl font-semibold text-[#171717]">
-                        Progress Tracking
-                    </h1>
-                    <p className="mt-2 text-sm text-[#8A8175]">
-                        See exactly where every member stands — videos,
-                        resources, actions and quizzes — across every module.
-                    </p>
+         <div className="page-wrapper">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p className="text-[11px] font-semibold tracking-[4px] text-[#B18A3A]">INVICTUS ACADEMY</p>
+          <h1 className="mt-3 text-3xl font-semibold text-[#171717]">Progress Tracking</h1>
+          <p className="mt-2 text-sm text-[#8A8175]">
+            See exactly where every member stands — videos, resources, actions and quizzes — across every module.
+          </p>
                 </div>
             </div>
 
@@ -190,9 +185,9 @@ function ManageProgressContent() {
                 record={selectedRecord}
                 onClose={() => setDetailOpen(false)}
             />}
-        </div>
-    );
-}
+            </div>
+)
+
 
 function StatCard({
     icon,
@@ -209,5 +204,6 @@ function StatCard({
             <p className="text-sm text-[#8A8175]">{title}</p>
             <h3 className="mt-1 text-2xl font-bold text-[#171717]">{value}</h3>
         </div>
-    );
+    )
+} 
 }

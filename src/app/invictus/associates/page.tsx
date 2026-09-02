@@ -54,7 +54,7 @@ export default function FirstYearPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white font-[family-name:var(--font-body)] text-[#1C1A16]">
+    <div className="">
       <PageContainer variant="invictus" as="main">
         <header className="mb-8">
           <PageHeader

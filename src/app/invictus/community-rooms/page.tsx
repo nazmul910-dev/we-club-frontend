@@ -46,7 +46,7 @@ export default function CommunityRoomsPage() {
   return (
     <PageContainer variant="invictus" as="main">
       {/* page head */}
-      <div className="mb-[4.6rem]">
+      <div className="mb-9">
         <PageHeader
           variant="invictus"
           eyebrow="Community Rooms"
@@ -56,7 +56,7 @@ export default function CommunityRoomsPage() {
       </div>
 
       {/* focus groups */}
-      <section className="mb-[5.5rem]  p-10 rounded-2xl border border-[#DECDB0]">
+      <section className="mb-16 p-8 md:p-10 rounded-2xl border border-[#DECDB0]">
         <div className="mb-7 flex flex-col">
           <span className="text-[0.66rem] font-semibold uppercase tracking-[0.24em] text-gold-deep">
             Focus Groups
@@ -66,7 +66,7 @@ export default function CommunityRoomsPage() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 2xl:grid-cols-3">
           {focusGroups.map((room, i) => (
             <RoomCard
               key={room.name}

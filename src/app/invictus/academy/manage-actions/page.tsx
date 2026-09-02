@@ -88,9 +88,8 @@ function ManageActionsContent() {
             optional: total - required,
         };
     }, [actions]);
-
     return (
-        <div className="mx-auto max-w-[1180px] px-[6vw] py-[2vw] sm:px-8">
+        <div className="page-wrapper">
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <p className="text-[11px] font-semibold tracking-[4px] text-[#B18A3A]">

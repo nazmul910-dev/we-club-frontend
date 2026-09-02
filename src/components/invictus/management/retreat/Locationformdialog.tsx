@@ -29,7 +29,7 @@ import {
   primaryButtonClass,
   sectionLabelClass,
   textareaClass,
-} from "@/app/invictus/management/retreat/Retreatdesigntokens";
+} from "@/app/invictus/management/retreats/Retreatdesigntokens";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -251,9 +251,7 @@ export default function LocationFormDialog({
     }
 
     const result = location
-      ? await dispatch(
-          updateRetreatLocation({ id: location._id, payload }),
-        )
+      ? await dispatch(updateRetreatLocation({ id: location._id, payload }))
       : await dispatch(createRetreatLocation(payload));
 
     const succeeded = location

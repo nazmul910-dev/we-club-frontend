@@ -28,7 +28,7 @@ export default function InvictusChallenge() {
   }, [dispatch, pillars, pillarAccessById]);
 
   return (
-    <div className="min-h-screen bg-[#FAF8F3] text-[#171717] mx-auto max-w-[1180px] px-[6vw] py-[2vw] sm:px-8">
+    <div className="page-wrapper">
       <div className="relative overflow-hidden rounded-3xl border border-[#E8DDCA] bg-white p-10 shadow-sm">
         <div className="absolute right-0 top-0 h-80 w-80 rounded-full bg-[#B18A3A]/10 blur-3xl" />
         <div className="relative z-10">
@@ -44,7 +44,7 @@ export default function InvictusChallenge() {
         ) : pillars.length === 0 ? (
           <p className="text-sm text-[#8A8175]">No challenge pillars are published yet.</p>
         ) : (
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid gap-3 lg:gap-6 md:grid-cols-3">
             {pillars.map((pillar) => (
               <ChallengePillarCard key={pillar._id} pillar={pillar} hasAccess={!pillar.isPaid || pillarAccessById[pillar._id]?.hasAccess === true} />
             ))}

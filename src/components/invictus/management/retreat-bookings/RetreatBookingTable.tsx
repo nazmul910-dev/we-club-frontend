@@ -46,9 +46,9 @@ export default function RetreatBookingTable({ data, onAction }: Props) {
   }
 
   return (
-    <div className="rounded-2xl border border-[#E7DDCC] bg-white p-3">
+    <div className="rounded-2xl border border-[#E7DDCC] bg-white">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-[#FAF6EE] text-[#8A8175]">
           <TableRow>
             <TableHead>Member</TableHead>
             <TableHead>Retreat</TableHead>

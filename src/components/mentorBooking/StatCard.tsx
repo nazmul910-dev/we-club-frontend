@@ -10,7 +10,7 @@ export default function StatCard({
   icon: React.ElementType;
 }) {
   return (
-    <Card className="border-[#E9E2D2] bg-white">
+    <Card className="border-[#E9E2D2] rounded-lg bg-white">
       <CardContent className="flex items-center justify-between p-5">
         <div>
           <p className="text-sm text-gray-500">{title}</p>

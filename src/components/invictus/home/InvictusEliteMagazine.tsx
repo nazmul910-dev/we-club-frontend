@@ -177,7 +177,7 @@ text-[#6B6358]
             </p>
 
             <div className="grid lg:flex gap-3">
-              <button
+              {/* <button
                 className="
 cursor-pointer
 rounded-md
@@ -219,7 +219,7 @@ hover:-translate-y-1
 "
               >
                 ORDER PRINT EDITION →
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
@@ -273,11 +273,17 @@ text-gray-400
               disableOnInteraction: false,
             }}
             breakpoints={{
+              320: {
+                slidesPerView: 1,
+              },
               640: {
-                slidesPerView: 3,
+                slidesPerView: 2,
               },
 
               1024: {
+                slidesPerView: 3,
+              },
+              1576: {
                 slidesPerView: 5,
               },
             }}

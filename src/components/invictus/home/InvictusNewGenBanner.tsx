@@ -74,7 +74,7 @@ export default function InvictusNewGenBanner() {
           className="
           flex
           flex-col
-          lg:flex-row
+          xl:flex-row
           items-center
           justify-between
           gap-8
@@ -86,7 +86,7 @@ export default function InvictusNewGenBanner() {
             text-2xl
             sm:text-3xl
             text-center
-            lg:text-left
+            xl:text-left
             "
           >
             Ready to become
@@ -111,7 +111,8 @@ export default function InvictusNewGenBanner() {
             lg:w-auto
             "
           >
-            <div
+            <div className="flex items-center justify-between gap-4 w-full sm:w-auto">
+              <div
               className="
               group
               text-center
@@ -176,6 +177,7 @@ export default function InvictusNewGenBanner() {
 
               <p className="text-[10px] tracking-widest mt-1">BORDERLESS</p>
             </div>
+            </div>
 
             <button
               className="
@@ -187,8 +189,9 @@ export default function InvictusNewGenBanner() {
               rounded-md
 
               bg-[#C9A84C]
-
               px-8
+              xl:px-3
+              3xl:px-8
               py-3
 
               text-xs

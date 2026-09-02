@@ -24,11 +24,17 @@ interface Props {
 export default function ProfilePage({ profile, loading }: Props) {
   const dispatch = useAppDispatch();
 
-  const [activeSection, setActiveSection] = useState<"details" | "progress">("details");
+  const [activeSection, setActiveSection] = useState<"details" | "progress">(
+    "details",
+  );
 
   const videoHistory = useAppSelector((state) => state.videoProgress.myHistory);
-  const moduleProgressList = useAppSelector((state) => state.progress.myProgress);
-  const myCertificates = useAppSelector((state) => state.certificate.myCertificates);
+  const moduleProgressList = useAppSelector(
+    (state) => state.progress.myProgress,
+  );
+  const myCertificates = useAppSelector(
+    (state) => state.certificate.myCertificates,
+  );
   const pillars = useAppSelector((state) => state.pillar.pillars);
 
   useEffect(() => {
@@ -43,8 +49,8 @@ export default function ProfilePage({ profile, loading }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F6F1] px-6 py-10">
-      <div className="mx-auto max-w-6xl">
+    <div className="page-wrapper">
+      <div className="">
         <PageHeader
           variant="invictus"
           className="mb-8"
@@ -58,31 +64,33 @@ export default function ProfilePage({ profile, loading }: Props) {
         <ProfileHeader profile={profile} />
 
         {/* Primary Profile vs Challenge Progress Tab Switcher */}
-        <div className="mt-8 flex flex-wrap items-center gap-3 rounded-2xl border border-[#E8E0D2] bg-white p-2 shadow-sm">
+        <div className="mt-8 flex flex-col gap-3 rounded-2xl border border-[#E8E0D2] bg-white p-2 shadow-sm sm:flex-row sm:flex-wrap sm:items-center">
           <button
             onClick={() => setActiveSection("details")}
-            className={`flex cursor-pointer items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition duration-200 ${
+            className={`flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-3 text-center text-sm font-semibold transition duration-200 sm:w-auto sm:justify-start sm:px-6 ${
               activeSection === "details"
                 ? "bg-[#B08A3E] text-white shadow-md"
-                : "text-[#8A8175] hover:bg-[#F3E9D2]/60 hover:text-[#1C1A17]"
+                : "bg-[#F8F4EA] text-[#8A8175] hover:bg-[#F3E9D2]/60 hover:text-[#1C1A17]"
             }`}
           >
-            <User size={18} />
+            <User size={18} className="shrink-0" />
             <span>Profile Particulars & Bio</span>
           </button>
 
           <button
             onClick={() => setActiveSection("progress")}
-            className={`flex cursor-pointer items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition duration-200 ${
+            className={`flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-3 text-center text-sm font-semibold transition duration-200 sm:w-auto sm:justify-start sm:px-6 ${
               activeSection === "progress"
                 ? "bg-[#B08A3E] text-white shadow-md"
-                : "text-[#8A8175] hover:bg-[#F3E9D2]/60 hover:text-[#1C1A17]"
+                : "bg-[#F8F4EA] text-[#8A8175] hover:bg-[#F3E9D2]/60 hover:text-[#1C1A17]"
             }`}
           >
-            <BookOpen size={18} />
-            <span>Invictus Challenge & Academy Progress</span>
+            <BookOpen size={18} className="shrink-0" />
+            <span className="leading-tight">
+              Invictus Challenge & Academy Progress
+            </span>
             {myCertificates.length > 0 && (
-              <span className="ml-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#1C1A17] text-[10px] font-bold text-[#F3E9D2]">
+              <span className="ml-1.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#1C1A17] text-[10px] font-bold text-[#F3E9D2]">
                 {myCertificates.length}
               </span>
             )}
@@ -91,7 +99,7 @@ export default function ProfilePage({ profile, loading }: Props) {
 
         {/* Content Section */}
         {activeSection === "details" ? (
-          <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_330px]">
+          <div className="mt-8 grid gap-8 2xl:grid-cols-[1fr_330px]">
             <div className="space-y-8">
               <ProfileParticulars profile={profile} />
               <ProfileBio profile={profile} />

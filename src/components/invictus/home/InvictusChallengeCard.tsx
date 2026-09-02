@@ -175,7 +175,7 @@ export default function InvictusChallengeCard() {
   return (
     <div className="rounded-2xl border border-[#DECDB0] bg-[#FAF6EE] p-6 md:p-8 shadow-xs space-y-6">
       {/* Card Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[#EAE2D2] pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between  border-b border-[#EAE2D2] pb-5 gap-4 md:gap-0">
         <div className="space-y-1">
           <p className="font-montserrat text-[10px] font-bold tracking-[0.22em] text-[#9E7B28] uppercase">
             THE FLAGSHIP PROGRAM
@@ -188,7 +188,7 @@ export default function InvictusChallengeCard() {
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center md:w-[51%] xl:w-auto gap-4">
           {overallChallengePercent > 0 && (
             <div className="hidden sm:flex items-center gap-2 rounded-full bg-white border border-[#DECDB0] px-3.5 py-1.5 shadow-2xs">
               <Sparkles size={14} className="text-[#9E7B28]" />

@@ -41,7 +41,7 @@ export const textareaClass =
     "flex min-h-[90px] w-full resize-none rounded-md border border-[#E9E2D2] bg-white px-3 py-2 text-sm text-[#1C1A16] outline-none placeholder:text-[#B0A996] focus-visible:border-[#C6A34A]";
 
 export const tabButtonClass = (active: boolean) =>
-    `rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
+    `rounded-md px-4 py-2 text-sm font-semibold transition-colors cursor-pointer ${
         active
             ? "bg-[#C6A34A] text-white"
             : "border border-[#E9E2D2] bg-white text-[#4A4539] hover:border-[#C6A34A] hover:text-[#A88A3F]"

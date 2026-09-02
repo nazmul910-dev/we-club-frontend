@@ -29,7 +29,7 @@ export default function InvictusCampusPage() {
 
   return (
     <>
-      <div className="w-full max-w-5xl mx-auto px-4 py-8 md:px-8 md:py-10 space-y-8">
+      <div className="page-wrapper">
         <InvictusHeroBanner />
 
         <InvictusChallengeCard />
