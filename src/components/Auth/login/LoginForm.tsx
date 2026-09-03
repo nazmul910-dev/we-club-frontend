@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import Link from "next/link";
+
 import { useRouter } from "next/navigation";
 import { useAppDispatch } from "@/lib/redux/store/hook";
 import { loginUser } from "@/lib/features/auth/authApi";
@@ -27,7 +28,6 @@ export default function LoginForm() {
     password: "",
   });
 
-  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,46 +40,42 @@ export default function LoginForm() {
 
 const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
   e.preventDefault();
-  setError("");
 
   if (!formData.email || !formData.password) {
-    toast.error("Please fill all required fields.");
+    toast.error("Email and password are required.");
     return;
   }
 
   setIsSubmitting(true);
 
   try {
-    const loginPromise = dispatch(
+    const data = await dispatch(
       loginUser({
         email: formData.email,
         password: formData.password,
       })
     ).unwrap();
 
-    toast.promise(loginPromise, {
-      loading: "Signing in...",
+    const token =
+      data?.data?.token ||
+      (typeof window !== "undefined"
+        ? localStorage.getItem("token")
+        : null);
 
-      success: (data) => {
-        const token = data?.data?.token || (typeof window !== "undefined" ? localStorage.getItem("token") : null);
-        const decoded = token ? decodeToken(token) : null;
-        const redirectUrl = getDefaultRedirect(decoded);
-        router.push(redirectUrl);
-        return "Login successful!";
-      },
+    const decoded = token ? decodeToken(token) : null;
+    const redirectUrl = getDefaultRedirect(decoded);
 
-      error: (err) => {
-        const message =
-          typeof err === "string"
-            ? err
-            : err?.message || "Login failed. Please try again.";
+    toast.success("Login successful!");
 
-        setError(message);
-        return message;
-      },
-    });
+    router.push(redirectUrl);
 
-    await loginPromise;
+  } catch (err: any) {
+    const message =
+      typeof err === "string"
+        ? err
+        : err?.message || "Login failed.";
+
+    toast.error(message); // শুধু একবার দেখাবে
   } finally {
     setIsSubmitting(false);
   }
@@ -159,11 +155,11 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         </div>
       </div>
 
-      {error && (
+      {/* {error && (
         <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-center text-sm text-red-400">
           {error}
         </div>
-      )}
+      )} */}
 
       <button
         type="submit"

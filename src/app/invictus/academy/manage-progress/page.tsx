@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 import { CircleCheck, Gauge, ListChecks, Loader2 } from "lucide-react";
 
@@ -74,6 +75,12 @@ function ManageProgressContent() {
         );
     }, [dispatch, moduleFilter, statusFilter]);
 
+    useEffect(() => {
+        if (error) {
+            toast.error(error);
+        }
+    }, [error]);
+
     const stats = useMemo(() => {
         const total = meta.total || records.length;
         const completed = records.filter((item) => item.isCompleted).length;
@@ -102,11 +109,7 @@ function ManageProgressContent() {
                 </div>
             </div>
 
-            {error && (
-                <div className="mt-5 rounded-xl bg-red-50 p-3 text-sm text-red-500">
-                    {error}
-                </div>
-            )}
+
 
             <div className="mt-8 grid gap-6 md:grid-cols-4">
                 <StatCard

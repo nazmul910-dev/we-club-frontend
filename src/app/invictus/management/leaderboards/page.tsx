@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 
@@ -62,6 +63,10 @@ export default function LeaderboardAdminPage() {
     );
   }, [dispatch, page, statusFilter]);
 
+  useEffect(() => {
+    if (error) toast.error(error);
+  }, [error]);
+
   const handleCreate = async () => {
     if (!form.title || !form.startAt || !form.endAt) return;
 
@@ -96,9 +101,7 @@ export default function LeaderboardAdminPage() {
         }
       />
 
-      {error && (
-        <p className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-600">{error}</p>
-      )}
+
 
       {createOpen && (
         <Card className="mt-6">

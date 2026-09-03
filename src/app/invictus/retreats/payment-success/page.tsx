@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
 import { verifyRetreatPayment } from "@/lib/features/retreat/retreatSlice";
+import { toast } from "sonner";
 
 export default function RetreatPaymentSuccessPage() {
     const dispatch = useAppDispatch();
@@ -32,8 +33,12 @@ export default function RetreatPaymentSuccessPage() {
         return () => { cancelled = true; };
     }, [dispatch, searchParams]);
 
+    useEffect(() => {
+        if (verifyError) toast.error(verifyError);
+    }, [verifyError]);
+
     if (isVerifying) return <div className="py-20 text-center">Confirming your payment…</div>;
-    if (verifyError) return <div className="py-20 text-center text-red-500">{verifyError}</div>;
+
 
     return (
         <div className="py-20 text-center">

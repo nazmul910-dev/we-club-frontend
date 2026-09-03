@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { CheckCircle2, ClipboardList, Plus, Star } from "lucide-react";
 
 import AuthGuard from "@/components/Auth/authGuard/AuthGuard";
@@ -48,6 +49,10 @@ function OnboardingTasksContent() {
     dispatch(fetchAllOnboardingTasksAdmin());
   }, [dispatch]);
 
+  useEffect(() => {
+    if (error) toast.error(error);
+  }, [error]);
+
   const filteredTasks = useMemo(() => {
     if (!statusFilter) return tasks;
     return tasks.filter((item) => item.status === statusFilter);
@@ -92,11 +97,7 @@ function OnboardingTasksContent() {
         </button>
       </div>
 
-      {error && (
-        <div className="mt-5 rounded-xl bg-red-50 p-3 text-sm text-red-500">
-          {error}
-        </div>
-      )}
+
 
       <div className="mt-8 grid gap-6 md:grid-cols-3">
         <StatCard

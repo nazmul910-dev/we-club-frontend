@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
     CalendarDays,
     MapPin,
@@ -255,6 +256,10 @@ export default function RetreatManagementPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    useEffect(() => {
+        if (error) toast.error(error);
+    }, [error]);
+
     // Optional: reset to page 1 when filters change
     useEffect(() => {
         setLocationPage(1);
@@ -297,11 +302,7 @@ export default function RetreatManagementPage() {
                     </button>
                 </div>
 
-                {error && (
-                    <div className="mt-4 rounded-lg border border-[#F0D3CE] bg-[#FCEEEC] px-4 py-3 text-sm text-[#B3413E]">
-                        {error}
-                    </div>
-                )}
+
 
                 {/* ---------------- Locations tab ---------------- */}
                 {tab === "locations" && (

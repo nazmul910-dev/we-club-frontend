@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import dynamic from "next/dynamic";
 import { Award, CircleCheck, ShieldAlert } from "lucide-react";
 
@@ -71,6 +72,12 @@ function ManageCertificatesContent() {
         );
     }, [dispatch, moduleFilter, statusFilter]);
 
+    useEffect(() => {
+        if (error) {
+            toast.error(error);
+        }
+    }, [error]);
+
     const stats = useMemo(() => {
         const total = meta.total || certificates.length;
 
@@ -109,12 +116,7 @@ function ManageCertificatesContent() {
                 </div>
             </div>
 
-            {/* Error */}
-            {error && (
-                <div className="mt-5 rounded-xl bg-red-50 p-3 text-sm text-red-500">
-                    {error}
-                </div>
-            )}
+
 
             {/* Stats */}
             <div className="mt-8 grid gap-6 md:grid-cols-3">

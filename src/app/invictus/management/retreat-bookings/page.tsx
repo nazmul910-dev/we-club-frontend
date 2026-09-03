@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { CheckCircle2, Clock, Mail, Users } from "lucide-react";
 
 import AuthGuard from "@/components/Auth/authGuard/AuthGuard";
@@ -85,21 +86,27 @@ function RetreatBookingsManagementContent() {
     }, []);
 
     const loadBookings = () => {
-        dispatch(
-            fetchAdminRetreatBookings({
-                page,
-                limit: 20,
-                ...(status ? { status } : {}),
-                ...(locationId ? { locationId } : {}),
-            }),
-        );
-        dispatch(fetchAdminRetreatBookingCounts());
-    };
+        dispatch(fetchAdminRetreatBookings({
+        page,
+        limit: 20,
+        ...(status ? { status } : {}),
+        ...(locationId ? { locationId } : {}),
+    }));
+    dispatch(fetchAdminRetreatBookingCounts());
+  };
 
-    useEffect(() => {
-        loadBookings();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [dispatch, status, locationId, page]);
+  useEffect(() => {
+    loadBookings();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, status, locationId, page]);
+
+  useEffect(() => {
+    if (adminBookingsError) toast.error(adminBookingsError);
+  }, [adminBookingsError]);
+
+  useEffect(() => {
+    if (adminActionError) toast.error(adminActionError);
+  }, [adminActionError]);
 
     const handleTabChange = (value: "" | RetreatBookingStatus) => {
         setStatus(value);
@@ -139,11 +146,7 @@ function RetreatBookingsManagementContent() {
                 description="Review waitlist requests, send invitations, and approve or refund retreat seats."
             />
 
-            {adminBookingsError && (
-                <div className="mt-5 rounded-xl bg-red-50 p-3 text-sm text-red-500">
-                    {adminBookingsError}
-                </div>
-            )}
+
 
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <StatCard

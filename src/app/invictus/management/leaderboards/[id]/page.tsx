@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, RefreshCw, Trash2 } from "lucide-react";
 
@@ -46,6 +47,10 @@ export default function LeaderboardEntriesAdminPage() {
       dispatch(clearSelectedLeaderboard());
     };
   }, [dispatch, leaderboardId]);
+
+  useEffect(() => {
+    if (error) toast.error(error);
+  }, [error]);
 
   useEffect(() => {
     dispatch(
@@ -127,9 +132,7 @@ export default function LeaderboardEntriesAdminPage() {
         }
       />
 
-      {error && (
-        <p className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-600">{error}</p>
-      )}
+
 
       {isFinalized && (
         <p className="mt-4 rounded-xl bg-blue-50 p-3 text-sm text-blue-700">

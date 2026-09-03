@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { toast } from "sonner";
 import { ClimbIcon, StreakIcon, TrophyIcon } from "@/components/invictus/profiles/icons";
 import { LeaderboardTable, LedgerColumn } from "@/components/leaderboard/LeaderboardTable";
 import { PersonCell, StreakPill, TerritoryCell } from "@/components/leaderboard/PersonCell";
@@ -87,6 +88,10 @@ export default function LeaderboardPage() {
     dispatch(fetchInvictusLeaderboard({ limit : 10}));
   }, [dispatch]);
 
+  useEffect(() => {
+    if (error) toast.error(error);
+  }, [error]);
+
   const topPerformer = entries[0];
   const longestStreak = entries.reduce(
     (best, entry) => (entry.breakdown?.streak ?? 0) > (best?.breakdown?.streak ?? 0) ? entry : best,
@@ -115,9 +120,7 @@ export default function LeaderboardPage() {
         />
       </div>
 
-      {error && (
-        <p className="mb-6 rounded-xl bg-red-50 p-3 text-sm text-red-600">{error}</p>
-      )}
+
 
       {/* stat cards */}
       <div className="mb-[2.6rem] grid grid-cols-1 gap-4 sm:grid-cols-3">

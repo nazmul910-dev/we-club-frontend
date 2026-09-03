@@ -19,6 +19,7 @@ import api from "@/lib/api/api";
 import { useAppDispatch } from "@/lib/redux/store/hook";
 import { fetchMyEntitlements } from "@/lib/features/invictus/academy/entitlement/entitlementSlice";
 import { fetchMyInvictusPurchases } from "@/lib/features/invictus/payment/invictusPaymentSlice";
+import { toast } from "sonner";
 
 type VerificationStatus = "verifying" | "success" | "error" | "no_session";
 
@@ -58,11 +59,12 @@ export default function InvictusPaymentSuccessPage() {
           // Non-blocking if entitlements fetch encounters a minor issue
         }
         setStatus("success");
+        toast.success("Payment verified successfully!");
       } else {
+        const errorMsg = response.data?.message || "Payment verification could not be completed.";
         setStatus("error");
-        setErrorMessage(
-          response.data?.message || "Payment verification could not be completed."
-        );
+        setErrorMessage(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (err: any) {
       console.error("Payment verification error:", err);
@@ -75,9 +77,11 @@ export default function InvictusPaymentSuccessPage() {
       // If backend says already paid or webhook succeeded earlier
       if (err?.response?.status === 200) {
         setStatus("success");
+        toast.success("Payment verified successfully!");
       } else {
         setStatus("error");
         setErrorMessage(msg);
+        toast.error(msg);
       }
     }
   }, [sessionId, dispatch]);

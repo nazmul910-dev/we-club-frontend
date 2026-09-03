@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 import { FileText, Plus, ShieldCheck, Unlock } from "lucide-react";
 
@@ -65,6 +66,12 @@ function ManageResourcesContent() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dispatch]);
 
+    useEffect(() => {
+        if (error) {
+            toast.error(error);
+        }
+    }, [error]);
+
     const filteredResources = useMemo(() => {
         if (!courseFilter) return resources;
         return resources.filter((item) => item.module?._id === courseFilter);
@@ -104,11 +111,7 @@ function ManageResourcesContent() {
                 </button>
             </div>
 
-            {error && (
-                <div className="mt-5 rounded-xl bg-red-50 p-3 text-sm text-red-500">
-                    {error}
-                </div>
-            )}
+
 
             <div className="mt-8 grid gap-6 md:grid-cols-3">
                 <StatCard

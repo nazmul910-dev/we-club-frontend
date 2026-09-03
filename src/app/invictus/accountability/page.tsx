@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import ProgressBar from "@/components/accountability/ProgressBar";
 import StatusDot from "@/components/accountability/statusDot";
 import PageContainer from "@/components/common/PageContainer";
@@ -234,8 +235,10 @@ export default function MyAccountabilityPage() {
 
             await dispatch(fetchMyMentorBookings());
             await dispatch(fetchMyMentor());
-        } catch (error) {
+            toast.success("Mentor session booked successfully!");
+        } catch (error: any) {
             console.error("Booking failed:", error);
+            toast.error(error?.message || "Booking failed");
         }
     };
 
@@ -249,6 +252,12 @@ export default function MyAccountabilityPage() {
         dispatch(fetchMyMentorBookings());
         dispatch(fetchMyMentorBookings({ status: "completed" }));
     }, [dispatch]);
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error);
+        }
+    }, [error]);
 
     return (
         <div className="">

@@ -1,4 +1,5 @@
 "use client";
+import { toast } from "sonner";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -97,6 +98,10 @@ export default function AdminMentorBookingsPage() {
   useEffect(() => {
     loadBookings();
   }, [loadBookings]);
+
+  useEffect(() => {
+    if (error && status.adminList === "failed") toast.error(error);
+  }, [error, status.adminList]);
 
   const handleRefresh = () => {
     loadBookings();
@@ -261,12 +266,7 @@ export default function AdminMentorBookingsPage() {
           </CardContent>
         </Card>
 
-        {/* List Error */}
-        {error && status.adminList === "failed" && (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
-          </div>
-        )}
+
 
         {/* Bookings Table Wrapper */}
         <Card className="w-full max-w-full overflow-hidden border-[#E9E2D2] rounded-lg bg-white">
@@ -436,7 +436,6 @@ export default function AdminMentorBookingsPage() {
               <p className="text-sm font-medium text-red-700">
                 Unable to load booking details.
               </p>
-              {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
               <Button
                 type="button"
                 variant="outline"

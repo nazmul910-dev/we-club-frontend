@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import {toast} from "sonner";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
 import {
   prevStep,
@@ -40,7 +41,7 @@ export default function DetailsStep() {
 
   const formData = useAppSelector((state) => state.registration.formData);
 
-  const [error, setError] = useState("");
+
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
@@ -59,37 +60,72 @@ export default function DetailsStep() {
   const isPaidRole = PAID_ROLES.includes(formData.role);
   const isCeoRole = CEO_ROLES.includes(formData.role);
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
 
-    setError("");
+  if (!formData.fullName || formData.fullName.length < 2) {
+    toast.error("Name must be 2+ characters.");
+    return;
+  }
 
-    if (
-      !formData.fullName ||
-      !formData.email ||
-      !formData.password ||
-      !formData.role
-    ) {
-      setError("Please fill all required fields.");
-      return;
-    }
+  if (!formData.email) {
+    toast.error("Email is required.");
+    return;
+  }
 
-    if (isPaidRole && !isCeoRole && !formData.membershipDurationMonths) {
-      setError("Please select a membership duration (3, 6, or 12 months).");
-      return;
-    }
+  if (!formData.password) {
+    toast.error("Password is required.");
+    return;
+  }
 
-    try {
-      setIsLoading(true);
-      await dispatch(registerUser(formData)).unwrap();
+  if (formData.password.length < 8) {
+    toast.error("Password must be 8+ characters.");
+    return;
+  }
 
-      setShowSuccessModal(true);
-    } catch (err: any) {
-      setError(err ?? "Registration failed. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  if (!formData.role) {
+    toast.error("Please select a role.");
+    return;
+  }
+
+  if (!formData.licenseNumber) {
+    toast.error("License number is required.");
+    return;
+  }
+
+  if (!formData.phone) {
+    toast.error("Phone number is required.");
+    return;
+  }
+
+  if (!formData.city) {
+    toast.error("City is required.");
+    return;
+  }
+
+  if (!formData.country) {
+    toast.error("Country is required.");
+    return;
+  }
+
+  if (isPaidRole && !isCeoRole && !formData.membershipDurationMonths) {
+    toast.error("Select membership duration.");
+    return;
+  }
+
+  try {
+    setIsLoading(true);
+
+    await dispatch(registerUser(formData)).unwrap();
+
+    setShowSuccessModal(true);
+
+  } catch (err: any) {
+    toast.error(err ?? "Registration failed.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <>
@@ -198,7 +234,7 @@ export default function DetailsStep() {
                 }
               >
                 <option value="" className="bg-black">
-                  Select Duration
+                  Select Duration 
                 </option>
 
                 {DURATION_OPTIONS.map((duration) => (
@@ -225,7 +261,7 @@ export default function DetailsStep() {
           )}
 
           <div>
-            <label className={labelClass}>License Number</label>
+            <label className={labelClass}>License Number *</label>
 
             <input
               className={inputClass}
@@ -236,7 +272,7 @@ export default function DetailsStep() {
           </div>
 
           <div>
-            <label className={labelClass}>Phone</label>
+            <label className={labelClass}>Phone *</label>
 
             <input
               type="tel"
@@ -248,7 +284,7 @@ export default function DetailsStep() {
           </div>
 
           <div>
-            <label className={labelClass}>City</label>
+            <label className={labelClass}>City *</label>
 
             <input
               className={inputClass}
@@ -259,20 +295,21 @@ export default function DetailsStep() {
           </div>
 
           <div>
-            <label className={labelClass}>Country</label>
+            <label className={labelClass}>Country *</label>
 
             <CountrySelect
               value={formData.country}
+              
               onChange={(value) => handleChange("country", value)}
             />
           </div>
         </div>
 
-        {error && (
+        {/* {error && (
           <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-center text-sm text-red-400">
             {error}
           </div>
-        )}
+        )} */}
 
         <div className="flex items-center justify-between">
           <button

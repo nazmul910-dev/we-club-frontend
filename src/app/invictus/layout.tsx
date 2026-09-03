@@ -6,6 +6,7 @@ import AuthGuard from "@/components/Auth/authGuard/AuthGuard";
 import InvictusNavbar from "@/components/invictus/layout/InvictusNavbar";
 import InvictusLeftSidebar from "@/components/invictus/layout/InvictusLeftSidebar";
 import InvictusRightSidebar from "@/components/invictus/layout/InvictusRightSidebar";
+import { Toaster } from "sonner";
 
 export default function InvictusLayout({
   children,
@@ -25,6 +26,7 @@ export default function InvictusLayout({
           <InvictusRightSidebar />
         </div>
       </div>
+      <Toaster position="top-right" richColors />
     </AuthGuard>
   );
 }

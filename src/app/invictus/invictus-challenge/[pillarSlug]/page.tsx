@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Lock, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
 import { fetchPillarBySlug } from "@/lib/features/invictus/academy/pillar/pillarSlice";
@@ -55,6 +56,18 @@ export default function PillarChallengePage() {
 
         dispatch(fetchMyAllProgress());
     }, [dispatch, params.pillarSlug]);
+
+    useEffect(() => {
+        if (pillarError) {
+            toast.error(pillarError);
+        }
+    }, [pillarError]);
+
+    useEffect(() => {
+        if (courseError) {
+            toast.error(courseError);
+        }
+    }, [courseError]);
 
 
     
@@ -166,8 +179,6 @@ export default function PillarChallengePage() {
     if (pillarError) {
         return (
             <div className="page-wrapper">
-                <p className="text-red-600">{pillarError}</p>
-
                 <Link
                     href="/invictus/invictus-challenge"
                     className="mt-4 inline-block text-sm font-semibold text-[#B18A3A]"

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 import { Crown, PlayCircle, Plus, Unlock } from "lucide-react";
 
@@ -54,6 +55,10 @@ function ManageVideosContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 
+  useEffect(() => {
+    if (error) toast.error(error);
+  }, [error]);
+
   const filteredVideos = useMemo(() => {
     if (!courseFilter) return videos;
     return videos.filter((video) => video.module?._id === courseFilter);
@@ -92,11 +97,7 @@ function ManageVideosContent() {
         </button>
       </div>
 
-      {error && (
-        <div className="mt-5 rounded-xl bg-red-50 p-3 text-sm text-red-500">
-          {error}
-        </div>
-      )}
+
 
       <div className="mt-8 grid gap-6 md:grid-cols-3">
         <StatCard
