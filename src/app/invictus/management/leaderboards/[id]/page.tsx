@@ -132,7 +132,7 @@ export default function LeaderboardEntriesAdminPage() {
       )}
 
       {isFinalized && (
-        <p className="mt-4 rounded-xl bg-blue-50 p-3 text-sm text-blue-700">
+        <p className="mt-4 rounded-md bg-gold/5 p-3 text-sm text-gold">
           This leaderboard is finalized — points and entries can no longer be modified.
         </p>
       )}

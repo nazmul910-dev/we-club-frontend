@@ -55,22 +55,35 @@ import {
 } from "@/lib/features/retreat/retreatSlice";
 import { PaginationControl } from "@/components/ui/PaginationControll";
 import dynamic from "next/dynamic";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
+const LocationFormDialog = dynamic(
+    () => import("@/components/invictus/management/retreat/Locationformdialog"),
+    {
+        ssr: false,
+    },
+);
 
-const LocationFormDialog = dynamic(()=> import("@/components/invictus/management/retreat/Locationformdialog"), {
-    ssr : false,
-});
+const BatchFormDialog = dynamic(
+    () => import("@/components/invictus/management/retreat/Batchformdialog"),
+    {
+        ssr: false,
+    },
+);
 
-const BatchFormDialog  = dynamic(()=> import("@/components/invictus/management/retreat/Batchformdialog"), {
-    ssr : false
-} );
-
-const DeleteConfirmDialog = dynamic(()=> import("@/components/invictus/management/retreat/Deleteconfirmdialog"),
-{
-    ssr : false
-}
-)
-
+const DeleteConfirmDialog = dynamic(
+    () =>
+        import("@/components/invictus/management/retreat/Deleteconfirmdialog"),
+    {
+        ssr: false,
+    },
+);
 
 function formatDate(iso: string) {
     return new Intl.DateTimeFormat("en-US", {
@@ -329,29 +342,41 @@ export default function RetreatManagementPage() {
                                             />
                                         </div>
 
-                                        <select
-                                            value={locationStatusFilter}
-                                            onChange={(event) => {
-                                                setLocationStatusFilter(
-                                                    event.target.value as
-                                                        | RetreatLocationStatus
-                                                        | "all",
-                                                );
-                                            }}
-                                            className="h-9 rounded-md border border-[#E9E2D2] bg-white px-3 text-sm text-[#1C1A16] outline-none focus-visible:border-[#C6A34A] lg:w-[180px]"
-                                        >
-                                            <option value="all">
-                                                All statuses
-                                            </option>
-                                            {RETREAT_LOCATION_STATUSES.map(
-                                                (s) => (
-                                                    <option key={s} value={s}>
-                                                        {s[0].toUpperCase() +
-                                                            s.slice(1)}
-                                                    </option>
-                                                ),
-                                            )}
-                                        </select>
+                                        <div className="lg:w-[180px]">
+                                            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-[#9C9284]">
+                                                Status
+                                            </label>
+                                            <Select
+                                                value={locationStatusFilter}
+                                                onValueChange={(value) =>
+                                                    setLocationStatusFilter(
+                                                        value as
+                                                            | RetreatLocationStatus
+                                                            | "all",
+                                                    )
+                                                }
+                                            >
+                                                <SelectTrigger className="h-9 w-full rounded-md border-[#E9E2D2] bg-white text-sm text-[#1C1A16] focus-visible:border-[#C6A34A]">
+                                                    <SelectValue placeholder="All statuses"  className={"capitalize"}/>
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="all" className={"capitalize"} >
+                                                        All statuses
+                                                    </SelectItem>
+                                                    {RETREAT_LOCATION_STATUSES.map(
+                                                        (s) => (
+                                                            <SelectItem
+                                                                key={s}
+                                                                value={s}
+                                                            >
+                                                                {s[0].toUpperCase() +
+                                                                    s.slice(1)}
+                                                            </SelectItem>
+                                                        ),
+                                                    )}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
 
                                         <Button
                                             variant="outline"
@@ -389,7 +414,9 @@ export default function RetreatManagementPage() {
                                 </CardContent>
                             </Card>
 
-                            <Card className={`overflow-hidden ${cardClass}`}>
+                            <Card
+                                className={`overflow-hidden border border-gold-soft`}
+                            >
                                 <CardHeader className="border-b border-[#E9E2D2]">
                                     <CardTitle className="text-base p-5 text-[#1C1A16]">
                                         Retreat locations
@@ -460,7 +487,7 @@ export default function RetreatManagementPage() {
                                                                 key={
                                                                     location._id
                                                                 }
-                                                                className="border-b border-[#F0EBDE] last:border-0 hover:bg-[#FAF6EE]/60"
+                                                                className="border-b border-[#F0EBDE] last:border-0  hover:bg-[#FAF6EE]/60"
                                                             >
                                                                 <td className="px-6 py-4">
                                                                     <p className="font-medium text-[#1C1A16]">
@@ -506,6 +533,7 @@ export default function RetreatManagementPage() {
                                                                         <Button
                                                                             variant="ghost"
                                                                             size="sm"
+                                                                            className="rounded-full  aspect-square"
                                                                             onClick={() => {
                                                                                 setEditingLocation(
                                                                                     location,
@@ -515,7 +543,7 @@ export default function RetreatManagementPage() {
                                                                                 );
                                                                             }}
                                                                         >
-                                                                            <Pencil className="h-4 w-4" />
+                                                                            <Pencil className="h-4 w-4 " />
                                                                         </Button>
                                                                         <Button
                                                                             variant="ghost"
@@ -525,7 +553,7 @@ export default function RetreatManagementPage() {
                                                                                     location,
                                                                                 )
                                                                             }
-                                                                            className="text-[#B3413E] hover:text-[#9C3733]"
+                                                                            className="text-[#B3413E] hover:text-[#9C3733] rounded-full aspect-square"
                                                                         >
                                                                             <Trash2 className="h-4 w-4" />
                                                                         </Button>
@@ -573,60 +601,89 @@ export default function RetreatManagementPage() {
                         <div className="mt-6 space-y-4">
                             <Card className={cardClass}>
                                 <CardContent className="p-4">
-                                    <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-                                        <select
-                                            value={batchLocationFilter}
-                                            onChange={(event) =>
-                                                setBatchLocationFilter(
-                                                    event.target.value,
-                                                )
-                                            }
-                                            className="h-9 flex-1 rounded-md border border-[#E9E2D2] bg-white px-3 text-sm text-[#1C1A16] outline-none focus-visible:border-[#C6A34A]"
-                                        >
-                                            <option value="all">
-                                                All locations
-                                            </option>
-                                            {locations.map((loc) => (
-                                                <option
-                                                    key={loc._id}
-                                                    value={loc._id}
-                                                >
-                                                    {loc.title}
-                                                </option>
-                                            ))}
-                                        </select>
+                                    <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
+                                        <div className="flex-1">
+                                            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-[#9C9284]">
+                                                Location
+                                            </label>
+                                            <Select
+                                                value={batchLocationFilter}
+                                                onValueChange={(value) =>
+                                                    setBatchLocationFilter(
+                                                        value!,
+                                                    )
+                                                }
+                                            >
+                                                <SelectTrigger className="h-9 w-full rounded-md border-[#E9E2D2] bg-white text-sm text-[#1C1A16] focus-visible:border-[#C6A34A]">
+                                                    <SelectValue placeholder="All locations" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="all">
+                                                        All locations
+                                                    </SelectItem>
+                                                    {locations.map((loc) => (
+                                                        <SelectItem
+                                                            key={loc._id}
+                                                            value={loc._id}
+                                                        >
+                                                            {loc.title}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
 
-                                        <select
-                                            value={batchStatusFilter}
-                                            onChange={(event) =>
-                                                setBatchStatusFilter(
-                                                    event.target.value as
-                                                        | RetreatBatchStatus
-                                                        | "all",
-                                                )
-                                            }
-                                            className="h-9 rounded-md border border-[#E9E2D2] bg-white px-3 text-sm text-[#1C1A16] outline-none focus-visible:border-[#C6A34A] lg:w-[180px]"
-                                        >
-                                            <option value="all">
-                                                All statuses
-                                            </option>
-                                            {RETREAT_BATCH_STATUSES.map((s) => (
-                                                <option key={s} value={s}>
-                                                    {s
-                                                        .split("_")
-                                                        .map(
-                                                            (word) =>
-                                                                word[0].toUpperCase() +
-                                                                word.slice(1),
-                                                        )
-                                                        .join(" ")}
-                                                </option>
-                                            ))}
-                                        </select>
+                                        <div className="lg:w-[180px]">
+                                            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-[#9C9284]">
+                                                Status
+                                            </label>
+                                            <Select
+                                                value={batchStatusFilter}
+                                                onValueChange={(value) =>
+                                                    setBatchStatusFilter(
+                                                        value as
+                                                            | RetreatBatchStatus
+                                                            | "all",
+                                                    )
+                                                }
+                                            >
+                                                <SelectTrigger className="h-9 w-full rounded-md border-[#E9E2D2] bg-white text-sm text-[#1C1A16] focus-visible:border-[#C6A34A]">
+                                                    <SelectValue placeholder="All statuses" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="all">
+                                                        All statuses
+                                                    </SelectItem>
+                                                    {RETREAT_BATCH_STATUSES.map(
+                                                        (s) => (
+                                                            <SelectItem
+                                                                key={s}
+                                                                value={s}
+                                                            >
+                                                                {s
+                                                                    .split("_")
+                                                                    .map(
+                                                                        (
+                                                                            word,
+                                                                        ) =>
+                                                                            word[0].toUpperCase() +
+                                                                            word.slice(
+                                                                                1,
+                                                                            ),
+                                                                    )
+                                                                    .join(" ")}
+                                                            </SelectItem>
+                                                        ),
+                                                    )}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
 
                                         <Button
                                             variant="outline"
-                                            onClick={() =>loadBatches(batchPage)}
+                                            onClick={() =>
+                                                loadBatches(batchPage)
+                                            }
                                             disabled={
                                                 status.batchesList === "loading"
                                             }
@@ -664,7 +721,9 @@ export default function RetreatManagementPage() {
                                 </CardContent>
                             </Card>
 
-                            <Card className={`overflow-hidden ${cardClass}`}>
+                            <Card
+                                className={`overflow-hidden border border-gold-soft`}
+                            >
                                 <CardHeader className="border-b border-[#E9E2D2]">
                                     <CardTitle className="text-base p-5 text-[#1C1A16]">
                                         Retreat batches
@@ -746,7 +805,7 @@ export default function RetreatManagementPage() {
                                                                     }
                                                                     className="border-b border-[#F0EBDE] last:border-0 hover:bg-[#FAF6EE]/60"
                                                                 >
-                                                                    <td className="px-6 py-4">
+                                                                    <td className="px-6 py-4 min-w-50 sm:min-w-50">
                                                                         <p className="font-medium text-[#1C1A16]">
                                                                             {
                                                                                 batch.batchName
@@ -759,12 +818,12 @@ export default function RetreatManagementPage() {
                                                                             }
                                                                         </p>
                                                                     </td>
-                                                                    <td className="px-6 py-4 text-sm text-[#4A4539]">
+                                                                    <td className="px-6 py-4 text-sm min-w-20 sm:min-w-30 text-[#4A4539]">
                                                                         {
                                                                             locationLabel
                                                                         }
                                                                     </td>
-                                                                    <td className="px-6 py-4 text-sm text-[#4A4539]">
+                                                                    <td className="px-6 py-4 min-w-20 sm:min-w-30 text-sm text-[#4A4539]">
                                                                         {formatDate(
                                                                             batch.startDate,
                                                                         )}{" "}
@@ -800,6 +859,7 @@ export default function RetreatManagementPage() {
                                                                             <Button
                                                                                 variant="ghost"
                                                                                 size="sm"
+                                                                                className="rounded-full aspect-square"
                                                                                 onClick={() => {
                                                                                     setEditingBatch(
                                                                                         batch,
@@ -819,7 +879,7 @@ export default function RetreatManagementPage() {
                                                                                         batch,
                                                                                     )
                                                                                 }
-                                                                                className="text-[#B3413E] hover:text-[#9C3733]"
+                                                                                className="text-[#B3413E] hover:text-[#9C3733] rounded-full aspect-square"
                                                                             >
                                                                                 <Trash2 className="h-4 w-4" />
                                                                             </Button>
@@ -863,37 +923,45 @@ export default function RetreatManagementPage() {
             </PageContainer>
 
             {/* Dialogs */}
-            {locationFormOpen && <LocationFormDialog
-                open={locationFormOpen}
-                onOpenChange={setLocationFormOpen}
-                location={editingLocation}
-            />}
-           {batchFormOpen && <BatchFormDialog
-                open={batchFormOpen}
-                onOpenChange={setBatchFormOpen}
-                locations={locations}
-                batch={editingBatch}
-            />}
-           {Boolean(deletingLocation) && <DeleteConfirmDialog
-                open={Boolean(deletingLocation)}
-                onOpenChange={(open) => {
-                    if (!open) setDeletingLocation(null);
-                }}
-                title="Delete this retreat location?"
-                description={`"${deletingLocation?.title ?? ""}" will be permanently removed. This cannot be undone.`}
-                isDeleting={status.locationDelete === "loading"}
-                onConfirm={handleDeleteLocation}
-            />}
-           {Boolean(deletingBatch) && <DeleteConfirmDialog
-                open={Boolean(deletingBatch)}
-                onOpenChange={(open) => {
-                    if (!open) setDeletingBatch(null);
-                }}
-                title="Delete this retreat batch?"
-                description={`"${deletingBatch?.batchName ?? ""}" will be permanently removed. This cannot be undone.`}
-                isDeleting={status.batchDelete === "loading"}
-                onConfirm={handleDeleteBatch}
-            />}
+            {locationFormOpen && (
+                <LocationFormDialog
+                    open={locationFormOpen}
+                    onOpenChange={setLocationFormOpen}
+                    location={editingLocation}
+                />
+            )}
+            {batchFormOpen && (
+                <BatchFormDialog
+                    open={batchFormOpen}
+                    onOpenChange={setBatchFormOpen}
+                    locations={locations}
+                    batch={editingBatch}
+                />
+            )}
+            {Boolean(deletingLocation) && (
+                <DeleteConfirmDialog
+                    open={Boolean(deletingLocation)}
+                    onOpenChange={(open) => {
+                        if (!open) setDeletingLocation(null);
+                    }}
+                    title="Delete this retreat location?"
+                    description={`"${deletingLocation?.title ?? ""}" will be permanently removed. This cannot be undone.`}
+                    isDeleting={status.locationDelete === "loading"}
+                    onConfirm={handleDeleteLocation}
+                />
+            )}
+            {Boolean(deletingBatch) && (
+                <DeleteConfirmDialog
+                    open={Boolean(deletingBatch)}
+                    onOpenChange={(open) => {
+                        if (!open) setDeletingBatch(null);
+                    }}
+                    title="Delete this retreat batch?"
+                    description={`"${deletingBatch?.batchName ?? ""}" will be permanently removed. This cannot be undone.`}
+                    isDeleting={status.batchDelete === "loading"}
+                    onConfirm={handleDeleteBatch}
+                />
+            )}
         </div>
     );
 }

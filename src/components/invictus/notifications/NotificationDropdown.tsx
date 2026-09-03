@@ -102,13 +102,13 @@ export default function NotificationDropdown() {
           type="button"
           onClick={() => setIsOpen(!isOpen)}
           aria-label="Notifications"
-          className={`relative flex h-9 w-9 items-center justify-center rounded-full transition cursor-pointer ${
+          className={`relative flex h-9 w-9 rounded-xl border border-1 flex items-center border-gold-soft  justify-center transition cursor-pointer ${
             isOpen
               ? "bg-[#F3EBD8] text-[#947124]"
               : "text-[#6B6358] hover:bg-[#F3EBD8] hover:text-[#1C1814]"
           }`}
         >
-          <Bell size={17} />
+          <Bell size={17}/>
 
           {/* Unread badge / pulse indicator */}
           {unreadCount > 0 && (

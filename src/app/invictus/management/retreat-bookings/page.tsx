@@ -208,7 +208,7 @@ function RetreatBookingsManagementContent() {
 
             <div className="mt-6">
                 {isLoadingAdminBookings ? (
-                    <div className="flex h-64 items-center justify-center rounded-2xl border border-[#E7DDCC] bg-white text-sm text-[#8A8175]">
+                    <div className="flex h-64 items-center justify-center rounded-2xl border border-[#E7DDCC]  text-sm text-[#8A8175]">
                         Loading retreat bookings…
                     </div>
                 ) : (

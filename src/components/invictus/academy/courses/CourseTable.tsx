@@ -48,7 +48,7 @@ export default function CourseTable({
 
   return (
     <>
-      <div className="bg-white border border-[#E8DDCA] rounded-3xl overflow-hidden">
+      <div className=" border border-[#E8DDCA] rounded-3xl overflow-hidden overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-[#E8DDCA] bg-[#FAF6EE] text-[#8A8175]">

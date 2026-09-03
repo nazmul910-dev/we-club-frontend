@@ -213,9 +213,9 @@ function ManageSessionsContent() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-2xl border border-[#E8DDCA] bg-white shadow-2xs">
+          <div className="overflow-x-auto rounded-2xl border border-[#E8DDCA]  shadow-2xs">
             <table className="w-full text-left text-sm">
-              <thead className="bg-[#FAF6EE] text-[#8A8175] text-xs uppercase tracking-wider">
+              <thead className="bg-[#FAF6EE] text-[#8A8175] text-xs uppercase tracking-wider border-b border-b-gold-soft">
                 <tr>
                   <th className="px-5 py-3.5">Title</th>
                   <th className="px-4 py-3.5">Type</th>
