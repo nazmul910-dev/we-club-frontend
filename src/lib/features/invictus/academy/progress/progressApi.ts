@@ -4,6 +4,7 @@ import type {
   IModuleProgress,
   IModuleProgressAdminQuery,
   IModuleProgressListResponse,
+  IUserModuleProgressListResponse,
 } from "./progressTypes";
 
 export type ApiEnvelope<T> = {
@@ -20,6 +21,25 @@ export const progressApi = {
     query: IModuleProgressAdminQuery,
   ): Promise<ApiEnvelope<IModuleProgressListResponse>> => {
     const res = await api.get(PROGRESS_URL, {
+      params: {
+        ...(query.userId ? { userId: query.userId } : {}),
+        ...(query.moduleId ? { moduleId: query.moduleId } : {}),
+        ...(query.isCompleted !== undefined
+          ? { isCompleted: String(query.isCompleted) }
+          : {}),
+        page: query.page ?? 1,
+        limit: query.limit ?? 20,
+      },
+    });
+    return res.data;
+  },
+
+  // Admin: paginated list with ONE row per member — every module
+  // record for that member is grouped together with a summary.
+  getAllByUser: async (
+    query: IModuleProgressAdminQuery,
+  ): Promise<ApiEnvelope<IUserModuleProgressListResponse>> => {
+    const res = await api.get(`${PROGRESS_URL}/by-user`, {
       params: {
         ...(query.userId ? { userId: query.userId } : {}),
         ...(query.moduleId ? { moduleId: query.moduleId } : {}),
