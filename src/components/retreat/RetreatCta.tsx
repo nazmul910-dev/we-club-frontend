@@ -143,7 +143,7 @@ export function RetreatCta({
                     open={open}
                     onOpenChange={(next) => !isBooking && setOpen(next)}
                 >
-                    <AlertDialogTrigger asChild>
+                    <AlertDialogTrigger >
                         <button
                             type="button"
                             disabled={isBooking}
