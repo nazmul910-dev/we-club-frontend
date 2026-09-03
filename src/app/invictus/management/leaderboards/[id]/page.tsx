@@ -137,7 +137,7 @@ export default function LeaderboardEntriesAdminPage() {
         </p>
       )}
 
-      {!isFinalized && (
+      {/* {!isFinalized && (
         <Card className="mt-6">
           <CardContent className="grid gap-4 pt-6 sm:grid-cols-[1fr_140px_1fr_auto]">
             <div>
@@ -181,7 +181,7 @@ export default function LeaderboardEntriesAdminPage() {
             </div>
           </CardContent>
         </Card>
-      )}
+      )} */}
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-border">
         <table className="w-full min-w-[640px] border-collapse">
