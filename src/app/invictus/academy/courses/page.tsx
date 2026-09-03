@@ -19,6 +19,7 @@ import CourseTable from "@/components/invictus/academy/courses/CourseTable";
 
 import type { ICourseModule } from "@/lib/features/invictus/academy/course/courseTypes";
 import dynamic from "next/dynamic";
+import TableSkeleton from "@/components/skeleton/Tableskeleton";
 
 const CreateCourseDialog = dynamic(
     () => import("@/components/invictus/academy/courses/CreateCourseDialog"),
@@ -125,36 +126,51 @@ export default function CoursesPage() {
         }
     };
 
-    if (loading) {
-        return (
-            <div
-                className="
-h-[300px]
-flex
-items-center
-justify-center
-text-[#B18A3A]
-"
-            >
-                Loading Courses...
-            </div>
-        );
-    }
+    //     if (loading) {
+    //         return (
+    //             <div
+    //                 className="
+    // h-[300px]
+    // flex
+    // items-center
+    // justify-center
+    // text-[#B18A3A]
+    // "
+    //             >
+    //                 Loading Courses...
+    //             </div>
+    //         );
+    //     }
 
     return (
         <div className="page-wrapper">
             <CourseHeader onCreate={() => setCreateOpen(true)} />
 
-            <CourseTable
-                courses={courses}
-                onEdit={(course) => {
-                    setSelectedCourse(course);
+            {error && (
+                <div
+                    className="
+mb-5
+text-red-500
+"
+                >
+                    {error}
+                </div>
+            )}
 
-                    setEditOpen(true);
-                }}
-                onToggleStatus={handleToggleStatus}
-                onArchive={handleArchiveCourse}
-            />
+            {loading ? (
+                <TableSkeleton variant="invictus" className="border border-gold-soft" />
+            ) : (
+                <CourseTable
+                    courses={courses}
+                    onEdit={(course) => {
+                        setSelectedCourse(course);
+
+                        setEditOpen(true);
+                    }}
+                    onToggleStatus={handleToggleStatus}
+                    onArchive={handleArchiveCourse}
+                />
+            )}
 
             {createOpen && (
                 <CreateCourseDialog

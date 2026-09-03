@@ -14,7 +14,7 @@ export type UserRole =
   | "manager"
   | "founder"
   | "super_admin"
-  | "community_manager";
+  | "co_mentor";
 
 export interface SocialLinks {
   linkedin?: string;

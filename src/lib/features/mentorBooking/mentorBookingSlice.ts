@@ -270,7 +270,7 @@ export const completeAdminMentorBooking = createAsyncThunk<
 );
 
 // The new endpoint: resolves the member's primary mentor + selected
-// co-mentor + next session
+// co_mentor + next session
 export const fetchMyMentor = createAsyncThunk<
   IMyMentorResponse,
   void,
@@ -283,7 +283,7 @@ export const fetchMyMentor = createAsyncThunk<
   }
 });
 
-// Member picks their co-mentor from the available (non-primary) profiles.
+// Member picks their co_mentor from the available (non-primary) profiles.
 // After this succeeds, dispatch fetchMyMentor() again to refresh the pairing.
 export const selectCoMentor = createAsyncThunk<
   void,
@@ -563,7 +563,7 @@ const mentorBookingSlice = createSlice({
         state.error = action.payload ?? "Failed to load mentor";
       })
 
-      // select co-mentor
+      // select co_mentor
       .addCase(selectCoMentor.pending, (state) => {
         state.selectCoMentorStatus = "loading";
         state.error = null;
@@ -573,7 +573,7 @@ const mentorBookingSlice = createSlice({
       })
       .addCase(selectCoMentor.rejected, (state, action) => {
         state.selectCoMentorStatus = "failed";
-        state.error = action.payload ?? "Failed to select co-mentor";
+        state.error = action.payload ?? "Failed to select co_mentor";
       });
   },
 });

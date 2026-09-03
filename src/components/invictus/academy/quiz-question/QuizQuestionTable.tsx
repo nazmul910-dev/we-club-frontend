@@ -100,7 +100,7 @@ export default function QuizQuestionTable({ data, onEdit }: Props) {
   };
 
   return (
-    <div className="rounded-2xl border border-[#E7DDCC] bg-white p-3">
+    <div className="rounded-2xl border border-[#E7DDCC]  p-3">
       <Table>
         <TableHeader>
           <TableRow>

@@ -38,7 +38,7 @@ interface Props {
 export default function RetreatBookingTable({ data, onAction }: Props) {
   if (data.length === 0) {
     return (
-      <div className="flex h-64 flex-col items-center justify-center rounded-2xl border border-[#E7DDCC] bg-white text-[#8A8175]">
+      <div className="flex h-64 flex-col items-center justify-center rounded-2xl border border-[#E7DDCC]  text-[#8A8175]">
         <p className="font-medium text-[#1C1A17]">No bookings in this view</p>
         <p className="mt-1 text-sm">Try another status or retreat location.</p>
       </div>
@@ -46,7 +46,8 @@ export default function RetreatBookingTable({ data, onAction }: Props) {
   }
 
   return (
-    <div className="rounded-2xl border border-[#E7DDCC] bg-white">
+    <div className="rounded-2xl border border-[#E7DDCC] 
+    overflow-hidden">
       <Table>
         <TableHeader className="bg-[#FAF6EE] text-[#8A8175]">
           <TableRow>
@@ -95,7 +96,7 @@ export default function RetreatBookingTable({ data, onAction }: Props) {
                   </p>
                 </TableCell>
                 <TableCell>
-                  <p className="text-[#1C1A17]">{batch?.batchName || "—"}</p>
+                  <p className="text-[#1C1A17] min-w-50">{batch?.batchName || "—"}</p>
                   <p className="text-xs text-[#8A8175]">
                     {formatDateRange(batch?.startDate, batch?.endDate)}
                   </p>

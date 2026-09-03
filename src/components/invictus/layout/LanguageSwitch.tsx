@@ -84,14 +84,14 @@ export default function LanguageSwitch({ className }: LanguageSwitchProps) {
         onClick={() => setOpen(!open)}
         disabled={isLoading}
         className={cn(
-          "flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl bg-[#947124] transition hover:bg-[#7C5F1E] disabled:opacity-70",
+          "flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-gold-soft transition hover:bg-[#F3EBD8] disabled:opacity-70",
           className,
         )}
       >
         {isLoading ? (
           <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
         ) : (
-          <Globe2 size={20} className="text-white" />
+          <Globe2 size={20} className="text-gold" />
         )}
       </button>
 

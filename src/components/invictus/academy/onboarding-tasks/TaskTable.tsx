@@ -89,7 +89,7 @@ export default function TaskTable({ data, onEdit }: Props) {
   };
 
   return (
-    <div className="rounded-2xl border border-[#E7DDCC] bg-white p-3">
+    <div className="rounded-2xl border border-[#E7DDCC]  p-3">
       <Table>
         <TableHeader>
           <TableRow>
@@ -130,7 +130,7 @@ export default function TaskTable({ data, onEdit }: Props) {
                 </TableCell>
 
                 <TableCell>
-                  <Badge className="bg-gray-100 text-gray-600 hover:bg-gray-100">
+                  <Badge className="bg-gray-100 w-fit text-nowrap text-gray-600 hover:bg-gray-100">
                     {triggerLabel[task.trigger] ?? task.trigger}
                   </Badge>
                 </TableCell>

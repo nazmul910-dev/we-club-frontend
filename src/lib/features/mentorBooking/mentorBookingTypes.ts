@@ -140,10 +140,10 @@ export interface IPaginatedBookings {
 //   for every member, always present.
 // - coMentor: the non-primary mentor this specific member selected for
 //   themselves (typically at purchase/onboarding time). Null until they've
-//   picked one via PATCH /invictus/mentorship-profiles/me/co-mentor.
+//   picked one via PATCH /invictus/mentorship-profiles/me/co_mentor.
 // - nextSession: the member's soonest upcoming confirmed booking (or most
 //   recent active booking as a fallback) — informational only, drives the
-//   "book / join" card, and does NOT determine who the mentor/co-mentor are.
+//   "book / join" card, and does NOT determine who the mentor/co_mentor are.
 export interface IMentorPairing {
   mentor: IUserSummary;
   mentorProfile: IMentorshipProfileSummary;

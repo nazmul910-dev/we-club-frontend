@@ -98,7 +98,7 @@ export default function BookingDetails({
 
                 {booking.coMentor && (
                     <div>
-                        <p className={sectionLabelClass}>Co-mentor</p>
+                        <p className={sectionLabelClass}>co_mentor</p>
                         <p className="mt-1 font-medium text-[#1C1A16]">
                             {booking.coMentor.fullName}
                         </p>

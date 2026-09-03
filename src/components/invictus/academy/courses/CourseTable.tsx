@@ -48,7 +48,7 @@ export default function CourseTable({
 
   return (
     <>
-      <div className="bg-white border border-[#E8DDCA] rounded-3xl overflow-hidden">
+      <div className=" border border-[#E8DDCA] rounded-3xl overflow-hidden overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-[#E8DDCA] bg-[#FAF6EE] text-[#8A8175]">
@@ -70,15 +70,15 @@ export default function CourseTable({
                 key={course._id}
                 className="border-b border-[#F0E8DB] hover:bg-[#FCFAF6] transition"
               >
-                <td className="p-5 font-medium text-[#171717]">{course.title}</td>
+                <td className="px-5 py-2 font-medium text-[#171717]">{course.title}</td>
 
-                <td className="p-5 text-[#8A8175]">{course.pillar?.name}</td>
+                <td className="px-5 py-2 text-[#8A8175]">{course.pillar?.name}</td>
 
-                <td className="p-5 text-[#8A8175]">
+                <td className="px-5 py-2 text-[#8A8175]">
                   {course.estimatedDurationMinutes} min
                 </td>
 
-                <td className="p-5">
+                <td className="px-5 py-2">
                   <div className="flex items-center justify-center gap-3">
                     <Switch
                       checked={course.status === "published"}
@@ -101,7 +101,7 @@ capitalize
                   </div>
                 </td>
 
-                <td className="p-5">
+                <td className="px-5 py-2">
                   <div className="flex justify-center gap-2">
                     {/* <button
                       onClick={() => onEdit(course)}

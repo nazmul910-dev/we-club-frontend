@@ -17,6 +17,7 @@ import type { ICourseModule } from "@/lib/features/invictus/academy/course/cours
 import VideoTable from "@/components/invictus/academy/videos/VideoTable";
 import CreateVideoModal from "@/components/invictus/academy/videos/CreateVideoModal";
 import EditVideoModal from "@/components/invictus/academy/videos/EditVideoModal";
+import TableSkeleton from "@/components/skeleton/Tableskeleton";
 
 export default function ManageVideosPage() {
   return (
@@ -136,7 +137,7 @@ function ManageVideosContent() {
 
       <div className="mt-6">
         {loading ? (
-          <p className="text-sm text-[#8A8175]">Loading videos...</p>
+          <TableSkeleton variant="invictus" className="border border-gold-soft"/>
         ) : (
           <VideoTable
             data={filteredVideos}

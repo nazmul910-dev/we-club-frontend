@@ -147,7 +147,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
 const PROFILE_ROLES = [
   ...PLAN_ROLES,
   "admin",
-  "community_manager",
+  "co_mentor",
   "founder",
   "manager",
   "super_admin",

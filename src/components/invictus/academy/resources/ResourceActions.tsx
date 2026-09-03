@@ -54,7 +54,7 @@ transition
       </button>
 
       <AlertDialog>
-        <AlertDialogTrigger asChild>
+        <AlertDialogTrigger >
           <button
             className="
 cursor-pointer

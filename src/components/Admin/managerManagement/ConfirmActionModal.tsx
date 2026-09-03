@@ -45,7 +45,7 @@ export default function ConfirmActionModal({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
-          <AlertDialogAction asChild>
+          <AlertDialogAction >
             <Button
               onClick={(e) => {
                 e.preventDefault();

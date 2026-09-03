@@ -78,7 +78,7 @@ export default function PillarTable({ data, onEdit }: Props) {
 
   return (
     <>
-      <div className="rounded-2xl border border-[#E7DDCC] bg-white">
+      <div className="rounded-2xl border border-[#E7DDCC] overflow-hidden">
         <Table>
           <TableHeader className="bg-[#FAF6EE] text-[#8A8175]">
             <TableRow>

@@ -11,7 +11,7 @@ export type UserRole =
   | "manager"
   | "founder"
   | "super_admin"
-  | "community_manager";
+  | "co_mentor";
 
 export type AccessTo = "we_command_center" | "invictus" | "both";
 

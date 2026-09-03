@@ -94,9 +94,9 @@ export default function ResourceTable({ data, onEdit }: Props) {
   };
 
   return (
-    <div className="rounded-2xl border border-[#E7DDCC] bg-white p-3">
+    <div className="rounded-2xl border border-[#E7DDCC] p-3">
       <Table>
-        <TableHeader>
+        <TableHeader className="">
           <TableRow>
             <TableHead>Resource</TableHead>
             <TableHead>Course Module</TableHead>
