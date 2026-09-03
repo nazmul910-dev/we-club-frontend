@@ -36,7 +36,7 @@ const emptyForm: CreateManagerPayload = {
   fullName: "",
   email: "",
   password: "",
-  role: "community_manager",
+  role: "co_mentor",
   accessTo: "we_command_center",
 };
 

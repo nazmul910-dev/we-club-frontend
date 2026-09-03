@@ -20,7 +20,7 @@ interface ConfirmDialogProps {
   description?: string;
   confirmText?: string;
   cancelText?: string;
-  confirmVariant?: "default" | "danger" | "success";
+  confirmVariant?: "default" | "danger" | "success" | "invictus";
   loading?: boolean;
   onConfirm: () => void;
 }
@@ -36,14 +36,24 @@ export default function ConfirmDialog({
   loading = false,
   onConfirm,
 }: ConfirmDialogProps) {
+  const isInvictus = confirmVariant === "invictus";
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange} >
-      <AlertDialogContent className=" border-neutral-800 bg-[#111] text-white">
+      <AlertDialogContent
+        className={
+          isInvictus
+            ? "border-[#E7E1D4] bg-[#FAF8F3] text-[#171717] rounded-2xl "
+            : "border-neutral-800 bg-[#111] text-white"
+        }
+      >
         <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogTitle >{title}</AlertDialogTitle>
 
           {description && (
-            <AlertDialogDescription className="text-neutral-400">
+            <AlertDialogDescription
+              className={isInvictus ? "text-[#777]" : "text-neutral-400"}
+            >
               {description}
             </AlertDialogDescription>
           )}
@@ -52,7 +62,11 @@ export default function ConfirmDialog({
         <AlertDialogFooter>
           <AlertDialogCancel
             disabled={loading}
-            className="border-neutral-700 cursor-pointer rounded-lg bg-transparent text-white hover:bg-neutral-800"
+            className={
+              isInvictus
+                ? "border-[#E7E1D4] cursor-pointer rounded-lg bg-transparent text-[#171717] hover:bg-[#F1ECE0]"
+                : "border-neutral-700 cursor-pointer rounded-lg bg-transparent text-white hover:bg-neutral-800"
+            }
           >
             {cancelText}
           </AlertDialogCancel>
@@ -64,11 +78,12 @@ export default function ConfirmDialog({
               onConfirm();
             }}
             className={
-                
               confirmVariant === "danger"
                 ? "bg-red-600 hover:bg-red-700 cursor-pointer"
                 : confirmVariant === "success"
                 ? "bg-green-600 hover:bg-green-700 rounded-lg cursor-pointer"
+                : confirmVariant === "invictus"
+                ? "bg-gradient-to-br  from-[#f3d98a] to-[#b4863a] text-[#3a2c10] rounded-lg cursor-pointer hover:from-[#eecf74] hover:to-[#a3762f]"
                 : "bg-amber-500 text-black hover:bg-amber-600 rounded-lg cursor-pointer"
             }
           >

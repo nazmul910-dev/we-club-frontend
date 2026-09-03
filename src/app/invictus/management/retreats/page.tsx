@@ -62,6 +62,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { LeaderboardRowSkeleton } from "@/components/skeleton/skeleton";
 
 const LocationFormDialog = dynamic(
     () => import("@/components/invictus/management/retreat/Locationformdialog"),
@@ -450,14 +451,7 @@ export default function RetreatManagementPage() {
                                             <tbody>
                                                 {status.locationsList ===
                                                 "loading" ? (
-                                                    <tr>
-                                                        <td
-                                                            colSpan={6}
-                                                            className="px-6 py-10 text-center text-sm text-[#B0A996]"
-                                                        >
-                                                            Loading locations...
-                                                        </td>
-                                                    </tr>
+                                                   <LeaderboardRowSkeleton />
                                                 ) : filteredLocations.length ===
                                                   0 ? (
                                                     <tr>
@@ -760,14 +754,7 @@ export default function RetreatManagementPage() {
                                             <tbody>
                                                 {status.batchesList ===
                                                 "loading" ? (
-                                                    <tr>
-                                                        <td
-                                                            colSpan={7}
-                                                            className="px-6 py-10 text-center text-sm text-[#B0A996]"
-                                                        >
-                                                            Loading batches...
-                                                        </td>
-                                                    </tr>
+                                                   <LeaderboardRowSkeleton />
                                                 ) : filteredBatches.length ===
                                                   0 ? (
                                                     <tr>

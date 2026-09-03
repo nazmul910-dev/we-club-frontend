@@ -18,6 +18,7 @@ import ActionTable from "@/components/invictus/academy/acitons/ActionTable";
 // import CreateActionModal from "@/components/invictus/academy/acitons/CreateActionModal";
 // import EditActionModal from "@/components/invictus/academy/acitons/EditActionModal";
 import dynamic from "next/dynamic";
+import TableSkeleton from "@/components/skeleton/Tableskeleton";
 
 const CreateActionModal = dynamic(
     () => import("@/components/invictus/academy/acitons/CreateActionModal"),
@@ -158,7 +159,7 @@ function ManageActionsContent() {
 
             <div className="mt-6">
                 {loading ? (
-                    <p className="text-sm text-[#8A8175]">Loading actions...</p>
+                    <TableSkeleton variant="invictus" className="border-gold-soft border"/>
                 ) : (
                     <ActionTable
                         data={filteredActions}

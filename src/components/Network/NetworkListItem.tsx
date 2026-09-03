@@ -28,7 +28,7 @@ const roleStyles: Record<string, string> = {
     "border-gray-700 text-gray-400 bg-gray-900/30",
   founder: "border-amber-600 text-amber-400 bg-amber-950/20",
   super_admin: "border-rose-700 text-rose-400 bg-rose-950/20",
-  community_manager:
+  co_mentor:
     "border-teal-700 text-teal-400 bg-teal-950/20",
   manager: "border-indigo-700 text-indigo-400 bg-indigo-950/20",
 };

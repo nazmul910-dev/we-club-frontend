@@ -15,6 +15,7 @@ import {
 
 import CreatePillarModal from "@/components/invictus/academy/pillars/CreatePillarModal";
 import EditPillarModal from "@/components/invictus/academy/pillars/EditPillarModal";
+import TableSkeleton from "@/components/skeleton/Tableskeleton";
 
 export default function PillarsPage() {
   const dispatch = useAppDispatch();
@@ -61,7 +62,7 @@ export default function PillarsPage() {
 
       <div className="mt-10">
         {loading ? (
-          <p className="text-sm text-[#8A8175]">Loading pillars...</p>
+          <TableSkeleton variant="invictus" className="border border-gold-soft  rounded-2xl!"/>
         ) : (
           <PillarTable data={pillars} onEdit={(pillar) => setEditingPillar(pillar)} />
         )}

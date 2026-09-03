@@ -15,7 +15,7 @@ const focusGroups = [
   { code: "MX", countryName: "Mexico", name: "World Élite Mexico — Focus Group & Referrals", status: "invitation" as const },
   { code: "PT", countryName: "Portugal", name: "World Élite Portugal — Focus Group & Referrals", status: "invitation" as const },
   { code: "FR", countryName: "France", name: "World Élite France — Focus Group & Referrals", status: "invitation" as const },
-  { name: "Contact World Élite for Global Referrals", status: "enter" as const },
+  // { name: "Contact World Élite for Global Referrals", status: "enter" as const },
 ];
 
 const innerCircles = [

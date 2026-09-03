@@ -28,6 +28,7 @@ import RetreatBookingTable, {
 } from "@/components/invictus/management/retreat-bookings/RetreatBookingTable";
 // import RetreatBookingDialogs from "@/components/invictus/management/retreat-bookings/RetreatBookingDialogs";
 import dynamic from "next/dynamic";
+import { LeaderboardRowSkeleton } from "@/components/skeleton/skeleton";
 
 const RetreatBookingDialogs = dynamic(
     () =>
@@ -208,8 +209,10 @@ function RetreatBookingsManagementContent() {
 
             <div className="mt-6">
                 {isLoadingAdminBookings ? (
-                    <div className="flex h-64 items-center justify-center rounded-2xl border border-[#E7DDCC]  text-sm text-[#8A8175]">
-                        Loading retreat bookings…
+                    <div
+                        className="rounded-2xl border border-[#E7DDCC] overflow-hidden"
+                    >
+                        <LeaderboardRowSkeleton />
                     </div>
                 ) : (
                     <RetreatBookingTable

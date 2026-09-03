@@ -314,7 +314,7 @@ export default function AdminMentorBookingsPage() {
                         key={booking._id}
                         className="border-b last:border-0 hover:bg-gray-50/50"
                       >
-                        <td className="px-6 py-4 align-top">
+                        <td className="px-6 py-4 align-top sm:min-w-40">
                           <p className="font-medium text-gray-900 break-words">
                             {booking.member?.fullName || "Unknown member"}
                           </p>

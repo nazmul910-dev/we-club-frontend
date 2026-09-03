@@ -388,6 +388,7 @@ export default function LeaderboardAdminPage() {
                                                 >
                                                     View Entries
                                                 </Button>
+                                                
                                             </Link>
                                         </div>
                                     </td>

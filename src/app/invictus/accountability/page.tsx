@@ -344,7 +344,7 @@ export default function MyAccountabilityPage() {
 
                                 <div>
                                     <p className="text-[11px] font-semibold uppercase tracking-wide text-[#9C9284]">
-                                        Co-Mentor
+                                        co_mentor
                                     </p>
 
                                     <p className="text-md font-semibold text-[#1C1A16]">
@@ -643,7 +643,7 @@ export default function MyAccountabilityPage() {
                             <DialogDescription className="max-w-[620px] text-sm leading-relaxed text-[#8A8375]">
                                 Choose a time based on {primaryMentor?.fullName}
                                 &apos;s availability. Your session will be with
-                                your primary mentor and co-mentor.
+                                your primary mentor and co_mentor.
                             </DialogDescription>
                         </DialogHeader>
 

@@ -132,7 +132,7 @@ export const mentorBookingApi = {
   },
 
   // GET /me/my-mentor — resolves the member's primary mentor + selected
-  // co-mentor + next session
+  // co_mentor + next session
   fetchMyMentor: async (): Promise<IMyMentorResponse> => {
     const { data } = await api.get<IApiEnvelope<IMyMentorResponse>>(
       `${BASE_URL}/me/my-mentor`,
@@ -140,13 +140,13 @@ export const mentorBookingApi = {
     return data.data;
   },
 
-  // PATCH /invictus/mentorship-profiles/me/co-mentor — member selects a
-  // non-primary mentorship profile as their co-mentor
+  // PATCH /invictus/mentorship-profiles/me/co_mentor — member selects a
+  // non-primary mentorship profile as their co_mentor
   selectCoMentor: async (
     payload: ISelectCoMentorPayload,
   ): Promise<unknown> => {
     const { data } = await api.patch<IApiEnvelope<unknown>>(
-      `${MENTORSHIP_PROFILES_URL}/me/co-mentor`,
+      `${MENTORSHIP_PROFILES_URL}/me/co_mentor`,
       payload,
     );
     return data.data;
