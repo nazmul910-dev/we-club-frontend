@@ -90,7 +90,7 @@ export default function LeaderboardAdminPage() {
         title="Leaderboards"
         description="Create, activate, and finalize leaderboards, then drill into each one to review member points."
         actions={
-          <Button onClick={() => setCreateOpen((v) => !v)}>
+          <Button onClick={() => setCreateOpen((v) => !v)} >
             <Plus size={16} /> New Leaderboard
           </Button>
         }
