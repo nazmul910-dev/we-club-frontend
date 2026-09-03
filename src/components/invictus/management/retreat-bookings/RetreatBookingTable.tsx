@@ -46,7 +46,7 @@ export default function RetreatBookingTable({ data, onAction }: Props) {
   }
 
   return (
-    <div className="rounded-2xl border border-[#E7DDCC] transparent
+    <div className="rounded-2xl border border-[#E7DDCC] 
     overflow-hidden">
       <Table>
         <TableHeader className="bg-[#FAF6EE] text-[#8A8175]">

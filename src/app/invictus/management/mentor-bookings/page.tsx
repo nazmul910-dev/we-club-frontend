@@ -269,7 +269,7 @@ export default function AdminMentorBookingsPage() {
         )}
 
         {/* Bookings Table Wrapper */}
-        <Card className="w-full max-w-full overflow-hidden border-[#E9E2D2] rounded-lg bg-white">
+        <Card className="w-full max-w-full overflow-hidden border border-[#E9E2D2] rounded-lg  overflow-hidden rounded-2xl">
           <CardHeader className="border-b border-[#E9E2D2]">
             <CardTitle className="text-base p-5">
               Mentor session bookings
@@ -291,7 +291,7 @@ export default function AdminMentorBookingsPage() {
                   </tr>
                 </thead>
 
-                <tbody>
+                <tbody className="bg-transparent">
                   {status.adminList === "loading" ? (
                     Array.from({ length: 6 }).map((_, i) => (
                       <BookingSkeleton key={i} />
