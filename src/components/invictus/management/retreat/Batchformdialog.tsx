@@ -38,6 +38,7 @@ import {
   updateRetreatBatch,
 } from "@/lib/features/retreat/retreatSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
+import { DateTimePicker } from "@/components/common/date-time-picker";
 
 interface BatchFormDialogProps {
   open: boolean;
@@ -86,6 +87,13 @@ function emptyForm(defaultLocationId?: string): BatchFormState {
     notes: "",
   };
 }
+
+const generateSlug = (value: string) =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
 
 // ISO string <-> <input type="datetime-local"> value conversion
 function isoToLocalInput(iso?: string): string {
@@ -253,6 +261,7 @@ export default function BatchFormDialog({
                   setForm((prev) => ({
                     ...prev,
                     batchName: event.target.value,
+                    slug: generateSlug(event.target.value),
                   }))
                 }
                 placeholder="e.g. March 2027 Cohort"
@@ -285,17 +294,12 @@ export default function BatchFormDialog({
               <Label htmlFor="batch-start" className={sectionLabelClass}>
                 Start date
               </Label>
-              <Input
-                id="batch-start"
-                type="datetime-local"
+              <DateTimePicker
                 value={form.startDate}
-                onChange={(event) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    startDate: event.target.value,
-                  }))
+                onChange={(value) =>
+                  setForm((prev) => ({ ...prev, startDate: value }))
                 }
-                className={inputClass}
+                placeholder="Select start date and time"
               />
             </div>
 
@@ -303,17 +307,12 @@ export default function BatchFormDialog({
               <Label htmlFor="batch-end" className={sectionLabelClass}>
                 End date
               </Label>
-              <Input
-                id="batch-end"
-                type="datetime-local"
+              <DateTimePicker
                 value={form.endDate}
-                onChange={(event) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    endDate: event.target.value,
-                  }))
+                onChange={(value) =>
+                  setForm((prev) => ({ ...prev, endDate: value }))
                 }
-                className={inputClass}
+                placeholder="Select end date and time"
               />
             </div>
 
@@ -344,17 +343,12 @@ export default function BatchFormDialog({
                   (optional)
                 </span>
               </Label>
-              <Input
-                id="batch-deadline"
-                type="datetime-local"
+              <DateTimePicker
                 value={form.bookingDeadline}
-                onChange={(event) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    bookingDeadline: event.target.value,
-                  }))
+                onChange={(value) =>
+                  setForm((prev) => ({ ...prev, bookingDeadline: value }))
                 }
-                className={inputClass}
+                placeholder="Select booking deadline"
               />
             </div>
 

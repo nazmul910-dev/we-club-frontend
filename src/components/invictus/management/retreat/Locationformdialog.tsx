@@ -69,6 +69,13 @@ const EMPTY_FORM: LocationFormState = {
   order: 0,
 };
 
+const generateSlug = (value: string) =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
 function toFormState(location: IRetreatLocation): LocationFormState {
   return {
     title: location.title,
@@ -289,7 +296,11 @@ export default function LocationFormDialog({
                 id="loc-title"
                 value={form.title}
                 onChange={(e) =>
-                  setForm((prev) => ({ ...prev, title: e.target.value }))
+                  setForm((prev) => ({
+                    ...prev,
+                    title: e.target.value,
+                    slug: generateSlug(e.target.value),
+                  }))
                 }
                 placeholder="e.g. Bali Fearless Retreat"
                 className={inputClass}
