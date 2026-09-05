@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { Plus, ListChecks, ShieldCheck, Unlock } from "lucide-react";
 
 import AuthGuard from "@/components/Auth/authGuard/AuthGuard";
@@ -72,6 +73,12 @@ function ManageActionsContent() {
         loadCourses();
     }, [dispatch]);
 
+    useEffect(() => {
+        if (error) {
+            toast.error(error);
+        }
+    }, [error]);
+
     const filteredActions = useMemo(() => {
         if (!courseFilter) return actions;
 
@@ -115,11 +122,7 @@ function ManageActionsContent() {
                 </button>
             </div>
 
-            {error && (
-                <div className="mt-5 rounded-xl bg-red-50 p-3 text-sm text-red-500">
-                    {error}
-                </div>
-            )}
+
 
             <div className="mt-8 grid gap-6 md:grid-cols-3">
                 <StatCard

@@ -55,6 +55,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import SessionHistorySkeleton from "@/components/invictus/academy/accountibility/SessionHistorySkeleton";
 import MentorSectionSkeleton from "@/components/invictus/academy/accountibility/MentorSectionSkeleton";
 import NextSessionSkeleton from "@/components/invictus/academy/accountibility/NextSessionSkeleton";
+import { toast } from "sonner";
 
 const SLOT_INTERVAL_MINUTES = 30;
 
@@ -278,8 +279,10 @@ export default function MyAccountabilityPage() {
 
             await dispatch(fetchMyMentorBookings());
             await dispatch(fetchMyMentor());
-        } catch (error) {
+            toast.success("Mentor session booked successfully!");
+        } catch (error: any) {
             console.error("Booking failed:", error);
+            toast.error(error?.message || "Booking failed");
         }
     };
 
@@ -324,6 +327,14 @@ export default function MyAccountabilityPage() {
             setMentorReviews(Object.fromEntries(entries));
         }).catch(() => setPublishedMentors([]));
     }, []);
+
+    useEffect(() => {
+ if (error) {
+            toast.error(error);
+        }
+    }, [error])
+       
+
 
     return (
         <AuthGuard

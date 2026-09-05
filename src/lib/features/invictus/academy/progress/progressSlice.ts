@@ -5,12 +5,16 @@ import type {
   IModuleProgress,
   IModuleProgressAdminQuery,
   IPaginationMeta,
+  IUserModuleProgressGroup,
 } from "./progressTypes";
 
 interface ProgressState {
   records: IModuleProgress[];
   meta: IPaginationMeta;
+  userGroups: IUserModuleProgressGroup[];
+  userGroupsMeta: IPaginationMeta;
   selectedProgress: IModuleProgress | null;
+  selectedUserGroup: IUserModuleProgressGroup | null;
   myProgress: IModuleProgress[];
   loading: boolean;
   detailLoading: boolean;
@@ -20,7 +24,10 @@ interface ProgressState {
 const initialState: ProgressState = {
   records: [],
   meta: { page: 1, limit: 20, total: 0, totalPages: 0 },
+  userGroups: [],
+  userGroupsMeta: { page: 1, limit: 20, total: 0, totalPages: 0 },
   selectedProgress: null,
+  selectedUserGroup: null,
   myProgress: [],
   loading: false,
   detailLoading: false,
@@ -31,6 +38,15 @@ export const fetchAllProgress = createAsyncThunk(
   "progress/getAll",
   async (query: IModuleProgressAdminQuery | undefined) => {
     const res = await progressApi.getAll(query ?? {});
+    return res.data;
+  },
+);
+
+// One row per member — used by the admin "Progress Tracking" table.
+export const fetchAllProgressByUser = createAsyncThunk(
+  "progress/getAllByUser",
+  async (query: IModuleProgressAdminQuery | undefined) => {
+    const res = await progressApi.getAllByUser(query ?? {});
     return res.data;
   },
 );
@@ -93,6 +109,9 @@ const progressSlice = createSlice({
     clearProgressError: (state) => {
       state.error = null;
     },
+    clearSelectedUserGroup: (state) => {
+      state.selectedUserGroup = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -108,6 +127,20 @@ const progressSlice = createSlice({
       .addCase(fetchAllProgress.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || "Failed loading progress records";
+      })
+
+      .addCase(fetchAllProgressByUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllProgressByUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.userGroups = action.payload.data || [];
+        state.userGroupsMeta = action.payload.meta;
+      })
+      .addCase(fetchAllProgressByUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "Failed loading member progress overview";
       })
 
       .addCase(fetchUserModuleProgress.pending, (state) => {
@@ -164,5 +197,6 @@ const progressSlice = createSlice({
   },
 });
 
-export const { clearSelectedProgress, clearProgressError } = progressSlice.actions;
+export const { clearSelectedProgress, clearProgressError, clearSelectedUserGroup } =
+  progressSlice.actions;
 export default progressSlice.reducer;

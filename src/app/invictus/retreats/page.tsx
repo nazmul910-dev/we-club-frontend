@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
+import { toast } from "sonner";
 
 import { RetreatBody } from "@/components/retreat/RetreatBody";
 import { RetreatCollectionHero } from "@/components/retreat/RetreatCollectionHero";
@@ -18,7 +19,6 @@ import {
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
 import { RetreatBatch } from "@/types/retreat";
 import RetreatPageSkeleton from "@/components/retreat/RetreatPageSkeleton";
-import { RetreatError } from "@/components/retreat/RetreatError";
 import { RetreatEmptyState } from "@/components/retreat/RetreatEmptyState";
 import { createRetreatCheckoutSession } from "@/lib/features/retreat/retreatSlice";
 
@@ -85,6 +85,18 @@ export default function RetreatPage() {
         dispatch(fetchMyRetreatBookings());
     }, [dispatch]);
 
+    useEffect(() => {
+        if (error) toast.error(error);
+    }, [error]);
+
+    useEffect(() => {
+        if (bookingError) toast.error(bookingError);
+    }, [bookingError]);
+
+    useEffect(() => {
+        if (checkoutError) toast.error(checkoutError);
+    }, [checkoutError]);
+
     const { nextRetreat, nextBatch, previousRetreats } = useMemo(() => {
         const now = Date.now();
 
@@ -149,17 +161,6 @@ export default function RetreatPage() {
         return <RetreatPageSkeleton />;
     }
 
-    if (error) {
-        return (
-            <RetreatError
-                message={error}
-                onRetry={() => {
-                    dispatch(fetchRetreatOverview());
-                    dispatch(fetchMyRetreatBookings());
-                }}
-            />
-        );
-    }
 
     if (!nextRetreat || !nextBatch) {
         return (
@@ -216,7 +217,7 @@ export default function RetreatPage() {
                         bookingMessage={
                             booking
                                 ? "Your retreat reservation request has been submitted."
-                                : (bookingError ?? checkoutError)
+                                : undefined
                         }
                         bookingStatus={bookingStatus}
                         onReserve={() =>

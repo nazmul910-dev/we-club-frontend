@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 import { Plus } from "lucide-react";
 
@@ -26,9 +27,12 @@ export default function PillarsPage() {
   const [editingPillar, setEditingPillar] = useState<ChallengePillar | null>(null);
 
   useEffect(() => {
-
     dispatch(fetchPillars(true));
   }, [dispatch]);
+
+  useEffect(() => {
+    if (error) toast.error(error);
+  }, [error]);
 
   const usedNames = useMemo(() => pillars.map((p) => p.name) as PillarName[], [pillars]);
 
@@ -56,9 +60,7 @@ export default function PillarsPage() {
         )}
       </div>
 
-      {error && (
-        <p className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-600">{error}</p>
-      )}
+
 
       <div className="mt-10">
         {loading ? (

@@ -31,6 +31,7 @@ import {
   Tent,
   CalendarCheck,
   CalendarClock,
+  Gauge,
 } from "lucide-react";
 
 import {
@@ -152,6 +153,16 @@ const academyItems = [
     label: "MANAGE SESSIONS",
     href: "/invictus/manage-sessions",
     icon: CalendarClock,
+    role:[
+      "founder",
+      "manager"
+    ]
+  },
+
+  {
+    label: "PROGRESS TRACKING",
+    href: "/invictus/academy/manage-progress",
+    icon: Gauge,
     role:[
       "founder",
       "manager"
@@ -440,7 +451,7 @@ const academyItems = [
 
               <div
                 className={`overflow-hidden transition-all ${
-                  academyOpen ? "max-h-80 mt-2" : "max-h-0"
+                  academyOpen ? "max-h-[26rem] mt-2" : "max-h-0"
                 }`}
               >
                 <div className="ml-5 space-y-1 border-l border-[#D9CEBA] pl-3">

@@ -25,6 +25,7 @@ import AuthGuard from "@/components/Auth/authGuard/AuthGuard";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { toast } from "sonner";
 
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
 import {
@@ -112,23 +113,30 @@ function VideoDetailsContent() {
     };
   }, [videoId, dispatch]);
 
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
+
   const handleStatus = async (checked: boolean) => {
     if (!video) return;
     try {
       setActionLoading(true);
       if (checked) {
         await dispatch(publishVideo(video._id)).unwrap();
+        toast.success("Video published successfully");
       } else {
         await dispatch(draftVideo(video._id)).unwrap();
+        toast.success("Video set to draft successfully");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
+      toast.error(err?.message || "Failed to update video status");
     } finally {
       setActionLoading(false);
     }
   };
-
-
 
   const handleArchive = async () => {
     if (!video) return;
@@ -140,8 +148,10 @@ function VideoDetailsContent() {
     try {
       setActionLoading(true);
       await dispatch(archiveVideo(video._id)).unwrap();
-    } catch (err) {
+      toast.success("Video archived successfully");
+    } catch (err: any) {
       console.log(err);
+      toast.error(err?.message || "Failed to archive video");
     } finally {
       setActionLoading(false);
     }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { ListChecks, Plus, CircleCheck, CircleHelp } from "lucide-react";
 
 import AuthGuard from "@/components/Auth/authGuard/AuthGuard";
@@ -84,6 +85,12 @@ function ManageQuizQuestionsContent() {
         loadCourses();
     }, [dispatch]);
 
+    useEffect(() => {
+        if (error) {
+            toast.error(error);
+        }
+    }, [error]);
+
     const filteredQuestions = useMemo(() => {
         if (!courseFilter) return questions;
 
@@ -136,11 +143,7 @@ function ManageQuizQuestionsContent() {
                 </button>
             </div>
 
-            {error && (
-                <div className="mt-5 rounded-xl bg-red-50 p-3 text-sm text-red-500">
-                    {error}
-                </div>
-            )}
+
 
             <div className="mt-8 grid gap-6 md:grid-cols-3">
                 <StatCard

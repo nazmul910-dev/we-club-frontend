@@ -94,3 +94,24 @@ export interface IModuleProgressListResponse {
   meta: IPaginationMeta;
   data: IModuleProgress[];
 }
+
+// One row per member — every module-progress record for that
+// member is collapsed into a summary, with the individual records
+// kept so the detail modal can show a full per-module breakdown.
+export interface IUserModuleProgressGroup {
+  user: IProgressUserRef;
+
+  totalModules: number;
+  completedModules: number;
+  avgCompletionPercent: number;
+  isFullyCompleted: boolean;
+
+  lastUpdatedAt?: string;
+
+  records: IModuleProgress[];
+}
+
+export interface IUserModuleProgressListResponse {
+  meta: IPaginationMeta;
+  data: IUserModuleProgressGroup[];
+}

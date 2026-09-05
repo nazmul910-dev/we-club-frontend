@@ -1,26 +1,29 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 import { CircleCheck, Gauge, ListChecks, Loader2 } from "lucide-react";
 
 import AuthGuard from "@/components/Auth/authGuard/AuthGuard";
+import { PaginationControl } from "@/components/ui/PaginationControll";
 
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
-import { fetchAllProgress } from "@/lib/features/invictus/academy/progress/progressSlice";
-import type { IModuleProgress } from "@/lib/features/invictus/academy/progress/progressTypes";
+import { fetchAllProgressByUser } from "@/lib/features/invictus/academy/progress/progressSlice";
+import type { IUserModuleProgressGroup } from "@/lib/features/invictus/academy/progress/progressTypes";
 
 import { courseApi } from "@/lib/features/invictus/academy/course/courseApi";
 import type { ICourseModule } from "@/lib/features/invictus/academy/course/courseTypes";
 
 import ProgressTable from "@/components/invictus/academy/progress/ProgressTable";
-// import ProgressDetailModal from "@/components/invictus/academy/progress/ProgressDetailModal";
 import dynamic from "next/dynamic";
 
 const ProgressDetailModal = dynamic(
     () => import("@/components/invictus/academy/progress/ProgressDetailModal"),
     { ssr: false },
 );
+
+const PAGE_LIMIT = 20;
 
 export default function ManageProgressPage() {
     return (
@@ -33,7 +36,7 @@ export default function ManageProgressPage() {
 function ManageProgressContent() {
     const dispatch = useAppDispatch();
 
-    const { records, meta, loading, error } = useAppSelector(
+    const { userGroups, userGroupsMeta, loading, error } = useAppSelector(
         (state) => state.progress,
     );
 
@@ -42,10 +45,11 @@ function ManageProgressContent() {
     const [statusFilter, setStatusFilter] = useState<
         "" | "completed" | "in_progress"
     >("");
+    const [page, setPage] = useState(1);
 
     const [detailOpen, setDetailOpen] = useState(false);
-    const [selectedRecord, setSelectedRecord] =
-        useState<IModuleProgress | null>(null);
+    const [selectedGroup, setSelectedGroup] =
+        useState<IUserModuleProgressGroup | null>(null);
 
     const loadCourses = async () => {
         try {
@@ -60,63 +64,74 @@ function ManageProgressContent() {
         loadCourses();
     }, []);
 
+    // Reset back to page 1 whenever a filter changes.
+    useEffect(() => {
+        setPage(1);
+    }, [moduleFilter, statusFilter]);
+
     useEffect(() => {
         dispatch(
-            fetchAllProgress({
+            fetchAllProgressByUser({
                 moduleId: moduleFilter || undefined,
                 isCompleted:
                     statusFilter === ""
                         ? undefined
                         : statusFilter === "completed",
-                page: 1,
-                limit: 50,
+                page,
+                limit: PAGE_LIMIT,
             }),
         );
-    }, [dispatch, moduleFilter, statusFilter]);
+    }, [dispatch, moduleFilter, statusFilter, page]);
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error);
+        }
+    }, [error]);
 
     const stats = useMemo(() => {
-        const total = meta.total || records.length;
-        const completed = records.filter((item) => item.isCompleted).length;
-        const inProgress = records.length - completed;
+        const total = userGroupsMeta.total || userGroups.length;
+        const completed = userGroups.filter(
+            (group) => group.isFullyCompleted,
+        ).length;
+        const inProgress = userGroups.length - completed;
         const avgCompletion =
-            records.length === 0
+            userGroups.length === 0
                 ? 0
                 : Math.round(
-                      records.reduce(
-                          (sum, item) => sum + item.overallCompletionPercent,
+                      userGroups.reduce(
+                          (sum, group) => sum + group.avgCompletionPercent,
                           0,
-                      ) / records.length,
+                      ) / userGroups.length,
                   );
         return { total, completed, inProgress, avgCompletion };
-    }, [records, meta]);
+    }, [userGroups, userGroupsMeta]);
 
     return (
-         <div className="page-wrapper">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <p className="text-[11px] font-semibold tracking-[4px] text-[#B18A3A]">INVICTUS ACADEMY</p>
-          <h1 className="mt-3 text-3xl font-semibold text-[#171717]">Progress Tracking</h1>
-          <p className="mt-2 text-sm text-[#8A8175]">
-            See exactly where every member stands — videos, resources, actions and quizzes — across every module.
-          </p>
+        <div className="page-wrapper">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <p className="text-[11px] font-semibold tracking-[4px] text-[#B18A3A]">
+                        INVICTUS ACADEMY
+                    </p>
+                    <h1 className="mt-3 text-3xl font-semibold text-[#171717]">
+                        Progress Tracking
+                    </h1>
+                    <p className="mt-2 text-sm text-[#8A8175]">
+                        See exactly where every member stands — videos, resources, actions and quizzes — across every module.
+                    </p>
                 </div>
             </div>
-
-            {error && (
-                <div className="mt-5 rounded-xl bg-red-50 p-3 text-sm text-red-500">
-                    {error}
-                </div>
-            )}
 
             <div className="mt-8 grid gap-6 md:grid-cols-4">
                 <StatCard
                     icon={<ListChecks />}
-                    title="Total Records"
+                    title="Total Members"
                     value={String(stats.total)}
                 />
                 <StatCard
                     icon={<CircleCheck />}
-                    title="Modules Completed"
+                    title="Fully Completed"
                     value={String(stats.completed)}
                 />
                 <StatCard
@@ -171,23 +186,36 @@ function ManageProgressContent() {
                     </p>
                 ) : (
                     <ProgressTable
-                        data={records}
-                        onView={(record) => {
-                            setSelectedRecord(record);
+                        data={userGroups}
+                        onView={(group) => {
+                            setSelectedGroup(group);
                             setDetailOpen(true);
                         }}
                     />
                 )}
             </div>
 
-          {detailOpen &&  <ProgressDetailModal
-                open={detailOpen}
-                record={selectedRecord}
-                onClose={() => setDetailOpen(false)}
-            />}
-            </div>
-)
+            {!loading && userGroupsMeta.totalPages > 1 && (
+                <div className="mt-6 flex justify-center">
+                    <PaginationControl
+                        currentPage={userGroupsMeta.page}
+                        totalPages={userGroupsMeta.totalPages}
+                        onPageChange={setPage}
+                        variant="light"
+                    />
+                </div>
+            )}
 
+            {detailOpen && (
+                <ProgressDetailModal
+                    open={detailOpen}
+                    group={selectedGroup}
+                    onClose={() => setDetailOpen(false)}
+                />
+            )}
+        </div>
+    );
+}
 
 function StatCard({
     icon,
@@ -204,6 +232,5 @@ function StatCard({
             <p className="text-sm text-[#8A8175]">{title}</p>
             <h3 className="mt-1 text-2xl font-bold text-[#171717]">{value}</h3>
         </div>
-    )
-} 
+    );
 }
