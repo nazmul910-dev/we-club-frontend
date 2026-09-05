@@ -29,6 +29,7 @@ export interface IMentorshipAvailabilitySlot {
 
 export interface IMentorshipProfileSummary {
   _id: string;
+  mentor?: IUserSummary;
   bio?: string;
   expertise?: string[];
   availability?: IMentorshipAvailabilitySlot[];
@@ -157,6 +158,32 @@ export interface IMyMentorResponse {
 
 export interface ISelectCoMentorPayload {
   mentorshipProfileId: string;
+}
+
+export interface IMentorReviewSummary {
+  averageRating: number;
+  totalReviews: number;
+  ratingBreakdown: Record<1 | 2 | 3 | 4 | 5, number>;
+}
+
+export interface IMentorReview {
+  _id: string;
+  rating: number;
+  comment?: string;
+  isAnonymous?: boolean;
+  user?: { fullName?: string; role?: string };
+  createdAt?: string;
+}
+
+export interface IMentorReviewsResponse {
+  stats: IMentorReviewSummary;
+  data: IMentorReview[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 export interface IConfirmMentorBookingPayload {

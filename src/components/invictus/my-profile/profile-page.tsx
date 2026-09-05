@@ -12,6 +12,7 @@ import ProfileHeader from "./profile-header";
 import ProfileParticulars from "./profile-particulars";
 import ProfileBio from "./profile-bio";
 import ProfileSocialLinks from "./profile-social-links";
+import ProfileAvailability from "./profile-availability";
 import ProfileAcademyProgress from "./profile-academy-progress";
 import ProfilePageSkeleton from "./profile-page-skeleton";
 import PageHeader from "@/components/common/PageHeader";
@@ -107,6 +108,11 @@ export default function ProfilePage({ profile, loading }: Props) {
 
             <div>
               <ProfileSocialLinks profile={profile} />
+              {(profile.role === "founder" || profile.role === "co_mentor") && (
+                <div className="mt-8">
+                  <ProfileAvailability role={profile.role} />
+                </div>
+              )}
             </div>
           </div>
         ) : (

@@ -2,7 +2,7 @@
 // (the one with baseURL + auth token interceptor already attached).
 
 import api from "@/lib/api/api";
-import { IApiEnvelope, ICancelMentorBookingPayload, ICompleteMentorBookingPayload, IConfirmMentorBookingPayload, ICreateMentorBookingPayload, IMentorBooking, IMentorBookingQuery, IMyMentorResponse, INoShowMentorBookingPayload, IPaginatedBookings, ISelectCoMentorPayload, IUpdateMentorBookingPayload } from "./mentorBookingTypes";
+import { IApiEnvelope, ICancelMentorBookingPayload, ICompleteMentorBookingPayload, IConfirmMentorBookingPayload, ICreateMentorBookingPayload, IMentorBooking, IMentorBookingQuery, IMentorshipProfileSummary, IMyMentorResponse, IMentorReviewsResponse, INoShowMentorBookingPayload, IPaginatedBookings, ISelectCoMentorPayload, IUpdateMentorBookingPayload } from "./mentorBookingTypes";
 
 
 const BASE_URL = "/invictus/mentor-bookings";
@@ -148,6 +148,30 @@ export const mentorBookingApi = {
     const { data } = await api.patch<IApiEnvelope<unknown>>(
       `${MENTORSHIP_PROFILES_URL}/me/co_mentor`,
       payload,
+    );
+    return data.data;
+  },
+
+  fetchAvailableCoMentors: async (): Promise<IMentorshipProfileSummary[]> => {
+    const { data } = await api.get<IApiEnvelope<IMentorshipProfileSummary[]>>(
+      MENTORSHIP_PROFILES_URL,
+    );
+    return data.data;
+  },
+
+  fetchPublishedMentors: async (): Promise<IMentorshipProfileSummary[]> => {
+    const { data } = await api.get<IApiEnvelope<IMentorshipProfileSummary[]>>(
+      MENTORSHIP_PROFILES_URL,
+    );
+    return data.data;
+  },
+
+  fetchMentorReviews: async (
+    mentorId: string,
+  ): Promise<IMentorReviewsResponse> => {
+    const { data } = await api.get<IApiEnvelope<IMentorReviewsResponse>>(
+      `/invictus/mentorship-reviews/mentor/${mentorId}`,
+      { params: { page: 1, limit: 5 } },
     );
     return data.data;
   },
