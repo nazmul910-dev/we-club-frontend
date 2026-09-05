@@ -1,9 +1,30 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
-import { FileText, Plus, ShieldCheck, Unlock } from "lucide-react";
+import {
+  Check,
+  ChevronsUpDown,
+  FileText,
+  Plus,
+  ShieldCheck,
+  Unlock,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 import AuthGuard from "@/components/Auth/authGuard/AuthGuard";
 
@@ -21,183 +42,251 @@ import dynamic from "next/dynamic";
 import TableSkeleton from "@/components/skeleton/Tableskeleton";
 
 const CreateResourceModal = dynamic(
-    () => import("@/components/invictus/academy/resources/CreateResourceModal"),
-    { ssr: false },
+  () => import("@/components/invictus/academy/resources/CreateResourceModal"),
+  { ssr: false },
 );
 const EditResourceModal = dynamic(
-    () => import("@/components/invictus/academy/resources/EditResourceModal"),
-    { ssr: false },
+  () => import("@/components/invictus/academy/resources/EditResourceModal"),
+  { ssr: false },
 );
 
 export default function ManageResourcesPage() {
-    return (
-        <AuthGuard allowedRoles={["founder", "manager", "admin"]}>
-            <ManageResourcesContent />
-        </AuthGuard>
-    );
+  return (
+    <AuthGuard allowedRoles={["founder", "manager", "admin"]}>
+      <ManageResourcesContent />
+    </AuthGuard>
+  );
 }
 
 function ManageResourcesContent() {
-    const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
 
-    const { resources, loading, error } = useAppSelector(
-        (state) => state.resource,
-    );
+  const { resources, loading, error } = useAppSelector(
+    (state) => state.resource,
+  );
 
-    const [courses, setCourses] = useState<ICourseModule[]>([]);
-    const [courseFilter, setCourseFilter] = useState("");
+  const [courses, setCourses] = useState<ICourseModule[]>([]);
+  const [courseFilter, setCourseFilter] = useState("");
+  const [courseFilterSearch, setCourseFilterSearch] = useState("");
+  const [courseFilterOpen, setCourseFilterOpen] = useState(false);
 
-    const [createOpen, setCreateOpen] = useState(false);
-    const [editOpen, setEditOpen] = useState(false);
-    const [selectedResource, setSelectedResource] =
-        useState<IModuleResource | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [selectedResource, setSelectedResource] =
+    useState<IModuleResource | null>(null);
 
-    const loadCourses = async () => {
-        try {
-            const res = await courseApi.getCourses();
-            setCourses(res.data);
-        } catch (err) {
-            console.log(err);
-        }
-    };
+  const loadCourses = useCallback(async () => {
+    try {
+      const res = await courseApi.getCourses();
+      setCourses(res.data);
+    } catch (err) {
+      console.log(err);
+    }
+  }, []);
 
-    useEffect(() => {
-        dispatch(fetchResources({ includeArchived: true }));
-        loadCourses();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [dispatch]);
+  useEffect(() => {
+    dispatch(fetchResources({ includeArchived: true }));
+    const timeoutId = window.setTimeout(() => {
+      void loadCourses();
+    }, 0);
 
-    useEffect(() => {
-        if (error) {
-            toast.error(error);
-        }
-    }, [error]);
+    return () => window.clearTimeout(timeoutId);
+  }, [dispatch, loadCourses]);
 
-    const filteredResources = useMemo(() => {
-        if (!courseFilter) return resources;
-        return resources.filter((item) => item.module?._id === courseFilter);
-    }, [resources, courseFilter]);
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
 
-    const stats = useMemo(() => {
-        const total = resources.length;
-        const required = resources.filter((item) => item.isRequired).length;
-        const optional = total - required;
-        return { total, required, optional };
-    }, [resources]);
+  const filteredResources = useMemo(() => {
+    if (!courseFilter) return resources;
+    return resources.filter((item) => item.module?._id === courseFilter);
+  }, [resources, courseFilter]);
 
-    return (
-        <div className="page-wrapper">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <p className="text-[11px] tracking-[4px] text-[#B18A3A] font-semibold">
-                        INVICTUS ACADEMY
-                    </p>
+  const stats = useMemo(() => {
+    const total = resources.length;
+    const required = resources.filter((item) => item.isRequired).length;
+    const optional = total - required;
+    return { total, required, optional };
+  }, [resources]);
 
-                    <h1 className="mt-3 text-3xl font-semibold text-[#171717]">
-                        Module Resources
-                    </h1>
+  return (
+    <div className="page-wrapper">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p className="text-[11px] tracking-[4px] text-[#B18A3A] font-semibold">
+            INVICTUS ACADEMY
+          </p>
 
-                    <p className="mt-2 text-sm text-[#8A8175]">
-                        Upload downloadable resources — PDFs, worksheets,
-                        templates and external links — for each course module
-                    </p>
-                </div>
+          <h1 className="mt-3 text-3xl font-semibold text-[#171717]">
+            Module Resources
+          </h1>
 
-                <button
-                    onClick={() => setCreateOpen(true)}
-                    className="flex items-center gap-2 rounded-full bg-[#B18A3A] px-5 py-2.5 text-sm text-white transition-all duration-300 cursor-pointer hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(177,138,58,.25)]"
-                >
-                    <Plus size={16} />
-                    Add Resource
-                </button>
-            </div>
-
-
-
-            <div className="mt-8 grid gap-6 md:grid-cols-3">
-                <StatCard
-                    icon={<FileText />}
-                    title="Total Resources"
-                    value={String(stats.total)}
-                />
-                <StatCard
-                    icon={<ShieldCheck />}
-                    title="Required"
-                    value={String(stats.required)}
-                />
-                <StatCard
-                    icon={<Unlock />}
-                    title="Optional"
-                    value={String(stats.optional)}
-                />
-            </div>
-
-            <div className="mt-8 flex items-center justify-between">
-                <div className="w-full max-w-xs">
-                    <select
-                        value={courseFilter}
-                        onChange={(e) => setCourseFilter(e.target.value)}
-                        className="w-full cursor-pointer rounded-xl border border-[#E8DDCA] bg-white p-3 text-sm"
-                    >
-                        <option value="">All Courses</option>
-                        {courses.map((course) => (
-                            <option key={course._id} value={course._id}>
-                                {course.title} · {course.pillar?.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-            </div>
-
-            <div className="mt-6">
-                {loading ? (
-                    <TableSkeleton
-                        variant="invictus"
-                        className="border border-gold-soft"
-                    />
-                ) : (
-                    <ResourceTable
-                        data={filteredResources}
-                        onEdit={(resource) => {
-                            setSelectedResource(resource);
-                            setEditOpen(true);
-                        }}
-                    />
-                )}
-            </div>
-
-            {createOpen && (
-                <CreateResourceModal
-                    open={createOpen}
-                    onClose={() => setCreateOpen(false)}
-                />
-            )}
-
-            {editOpen && (
-                <EditResourceModal
-                    open={editOpen}
-                    resource={selectedResource}
-                    onClose={() => setEditOpen(false)}
-                />
-            )}
+          <p className="mt-2 text-sm text-[#8A8175]">
+            Upload downloadable resources — PDFs, worksheets, templates and
+            external links — for each course module
+          </p>
         </div>
-    );
+
+        <button
+          onClick={() => setCreateOpen(true)}
+          className="flex items-center gap-2 rounded-full bg-[#B18A3A] px-5 py-2.5 text-sm text-white transition-all duration-300 cursor-pointer hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(177,138,58,.25)]"
+        >
+          <Plus size={16} />
+          Add Resource
+        </button>
+      </div>
+
+      <div className="mt-8 grid gap-6 md:grid-cols-3">
+        <StatCard
+          icon={<FileText />}
+          title="Total Resources"
+          value={String(stats.total)}
+        />
+        <StatCard
+          icon={<ShieldCheck />}
+          title="Required"
+          value={String(stats.required)}
+        />
+        <StatCard
+          icon={<Unlock />}
+          title="Optional"
+          value={String(stats.optional)}
+        />
+      </div>
+
+      <div className="mt-8 flex items-center justify-between">
+        <div className="w-full max-w-xs">
+          <Popover
+            open={courseFilterOpen}
+            onOpenChange={(open) => {
+              setCourseFilterOpen(open);
+              if (!open) setCourseFilterSearch("");
+            }}
+          >
+            <PopoverTrigger className="block w-full">
+              <Button
+                type="button"
+                variant="outline"
+                className="h-auto min-h-12 w-full justify-between rounded-xl border-[#E8DDCA] bg-white p-3 text-left text-sm font-normal"
+              >
+                <span className={cn(!courseFilter && "text-muted-foreground")}>
+                  {courseFilter
+                    ? courses.find((course) => course._id === courseFilter)
+                        ?.title
+                    : "All Courses"}
+                </span>
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              className="w-[var(--anchor-width)] p-0"
+              align="start"
+            >
+              <Command>
+                <CommandInput
+                  value={courseFilterSearch}
+                  onValueChange={setCourseFilterSearch}
+                  placeholder="Search courses..."
+                />
+                <CommandList>
+                  <CommandEmpty>No courses found.</CommandEmpty>
+                  <CommandItem
+                    value="all courses"
+                    onSelect={() => {
+                      setCourseFilter("");
+                      setCourseFilterOpen(false);
+                      setCourseFilterSearch("");
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        "h-4 w-4",
+                        !courseFilter ? "opacity-100" : "opacity-0",
+                      )}
+                    />
+                    All Courses
+                  </CommandItem>
+                  {courses.map((course) => (
+                    <CommandItem
+                      key={course._id}
+                      value={`${course.title} ${course.pillar?.name ?? ""}`}
+                      onSelect={() => {
+                        setCourseFilter(course._id);
+                        setCourseFilterOpen(false);
+                        setCourseFilterSearch("");
+                      }}
+                    >
+                      <Check
+                        className={cn(
+                          "h-4 w-4",
+                          courseFilter === course._id
+                            ? "opacity-100"
+                            : "opacity-0",
+                        )}
+                      />
+                      <span>
+                        {course.title} · {course.pillar?.name}
+                      </span>
+                    </CommandItem>
+                  ))}
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        </div>
+      </div>
+
+      <div className="mt-6">
+        {loading ? (
+          <TableSkeleton
+            variant="invictus"
+            className="border border-gold-soft"
+          />
+        ) : (
+          <ResourceTable
+            data={filteredResources}
+            onEdit={(resource) => {
+              setSelectedResource(resource);
+              setEditOpen(true);
+            }}
+          />
+        )}
+      </div>
+
+      {createOpen && (
+        <CreateResourceModal
+          open={createOpen}
+          onClose={() => setCreateOpen(false)}
+        />
+      )}
+
+      {editOpen && (
+        <EditResourceModal
+          open={editOpen}
+          resource={selectedResource}
+          onClose={() => setEditOpen(false)}
+        />
+      )}
+    </div>
+  );
 }
 
 function StatCard({
-    icon,
-    title,
-    value,
+  icon,
+  title,
+  value,
 }: {
-    icon: React.ReactNode;
-    title: string;
-    value: string;
+  icon: React.ReactNode;
+  title: string;
+  value: string;
 }) {
-    return (
-        <div className="rounded-2xl border border-[#E8DDCA] bg-white p-6 shadow-sm">
-            <div className="mb-4 text-[#B18A3A]">{icon}</div>
-            <p className="text-sm text-[#8A8175]">{title}</p>
-            <h3 className="mt-1 text-2xl font-bold text-[#171717]">{value}</h3>
-        </div>
-    );
+  return (
+    <div className="rounded-2xl border border-[#E8DDCA] bg-white p-6 shadow-sm">
+      <div className="mb-4 text-[#B18A3A]">{icon}</div>
+      <p className="text-sm text-[#8A8175]">{title}</p>
+      <h3 className="mt-1 text-2xl font-bold text-[#171717]">{value}</h3>
+    </div>
+  );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Check, ChevronsUpDown } from "lucide-react";
 
 import {
   Dialog,
@@ -15,6 +16,19 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import {
+  Command,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 import { useAppDispatch } from "@/lib/redux/store/hook";
 
@@ -48,6 +62,8 @@ export default function CreateActionModal({ open, onClose }: Props) {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [form, setForm] = useState(emptyForm);
+  const [courseSearch, setCourseSearch] = useState("");
+  const [coursePickerOpen, setCoursePickerOpen] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -102,6 +118,8 @@ export default function CreateActionModal({ open, onClose }: Props) {
 
   const resetForm = () => {
     setForm(emptyForm);
+    setCourseSearch("");
+    setCoursePickerOpen(false);
 
     setErrors({});
   };
@@ -152,19 +170,69 @@ export default function CreateActionModal({ open, onClose }: Props) {
           <div>
             <Label>Course Module</Label>
 
-            <select
-              value={form.moduleId}
-              onChange={(e) => updateField("moduleId", e.target.value)}
-              className="mt-2 w-full cursor-pointer rounded-xl border border-[#E7DDCC] p-3"
+            <Popover
+              open={coursePickerOpen}
+              onOpenChange={(open) => {
+                setCoursePickerOpen(open);
+                if (!open) setCourseSearch("");
+              }}
             >
-              <option value="">Select Course Module</option>
-
-              {courses.map((course) => (
-                <option key={course._id} value={course._id}>
-                  {course.title} · {course.pillar?.name}
-                </option>
-              ))}
-            </select>
+              <PopoverTrigger className="mt-2 block w-full">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-auto min-h-12 w-full justify-between rounded-xl border-[#E7DDCC] p-3 text-left font-normal"
+                >
+                  <span
+                    className={cn(!form.moduleId && "text-muted-foreground")}
+                  >
+                    {form.moduleId
+                      ? courses.find((course) => course._id === form.moduleId)
+                          ?.title
+                      : "Select Course Module"}
+                  </span>
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-[var(--anchor-width)] p-0"
+                align="start"
+              >
+                <Command>
+                  <CommandInput
+                    value={courseSearch}
+                    onValueChange={setCourseSearch}
+                    placeholder="Search courses..."
+                  />
+                  <CommandList className="max-h-72 overflow-y-auto">
+                    <CommandEmpty>No courses found.</CommandEmpty>
+                    {courses.map((course) => (
+                      <CommandItem
+                        key={course._id}
+                        value={`${course.title} ${course.pillar?.name ?? ""}`}
+                        onSelect={() => {
+                          updateField("moduleId", course._id);
+                          setCoursePickerOpen(false);
+                          setCourseSearch("");
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            "h-4 w-4",
+                            form.moduleId === course._id
+                              ? "opacity-100"
+                              : "opacity-0",
+                          )}
+                        />
+                        <span>
+                          {course.title} · {course.pillar?.name}
+                        </span>
+                      </CommandItem>
+                    ))}
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
 
             {errors.moduleId && (
               <p className="mt-1 text-xs text-red-500">{errors.moduleId}</p>

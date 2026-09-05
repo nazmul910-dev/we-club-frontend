@@ -10,10 +10,25 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import {
+  Check,
+  ChevronsUpDown,
   Plus,
   Trash2,
   CheckCircle2,
@@ -55,6 +70,8 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
   const [form, setForm] = useState(emptyForm);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [courseSearch, setCourseSearch] = useState("");
+  const [coursePickerOpen, setCoursePickerOpen] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -86,7 +103,12 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
     setForm((prev) => ({
       ...prev,
       questionType: type,
-      options: type === "true_false" ? ["", ""] : prev.options.length >= 2 ? prev.options : ["", ""],
+      options:
+        type === "true_false"
+          ? ["", ""]
+          : prev.options.length >= 2
+            ? prev.options
+            : ["", ""],
       correctOptionIndexes: [0],
       correctBooleanAnswer: true,
     }));
@@ -173,7 +195,10 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
         next.options = "All options must be unique";
       }
 
-      if (!form.correctOptionIndexes || form.correctOptionIndexes.length === 0) {
+      if (
+        !form.correctOptionIndexes ||
+        form.correctOptionIndexes.length === 0
+      ) {
         next.correctOptionIndexes = "Please choose at least one correct answer";
       }
     }
@@ -189,6 +214,8 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
   const reset = () => {
     setForm(emptyForm);
     setErrors({});
+    setCourseSearch("");
+    setCoursePickerOpen(false);
   };
 
   const handleClose = () => {
@@ -212,7 +239,10 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
         order: Number(form.order),
       };
 
-      if (form.questionType === "single_choice" || form.questionType === "multiple_choice") {
+      if (
+        form.questionType === "single_choice" ||
+        form.questionType === "multiple_choice"
+      ) {
         payload.options = form.options.map((o) => o.trim());
         payload.correctOptionIndexes = form.correctOptionIndexes;
       }
@@ -231,7 +261,10 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
       toast.success("Quiz question created successfully!");
       handleClose();
     } catch (error: any) {
-      const msg = error?.response?.data?.message || error?.message || "Failed to create quiz question";
+      const msg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to create quiz question";
       toast.error(msg);
       setErrors((prev) => ({ ...prev, form: msg }));
     } finally {
@@ -248,44 +281,106 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
             Add Quiz Question
           </DialogTitle>
           <p className="text-xs text-[#8A8175]">
-            Configure the question statement, question type, options, and mark the correct answer(s).
+            Configure the question statement, question type, options, and mark
+            the correct answer(s).
           </p>
         </DialogHeader>
 
         <div className="mt-4 space-y-6">
           {/* Module Selector */}
           <div>
-            <Label className="text-xs font-semibold uppercase tracking-wider text-[#8A8175]">Course Module *</Label>
-            <select
-              value={form.moduleId}
-              onChange={(e) => updateField("moduleId", e.target.value)}
-              className="mt-1.5 w-full cursor-pointer rounded-xl border border-[#E7DDCC] bg-white p-3 text-sm text-[#1C1A17] transition hover:border-[#B08A3E] focus:border-[#B08A3E] focus:outline-none"
+            <Label className="text-xs font-semibold uppercase tracking-wider text-[#8A8175]">
+              Course Module *
+            </Label>
+            <Popover
+              open={coursePickerOpen}
+              onOpenChange={(open) => {
+                setCoursePickerOpen(open);
+                if (!open) setCourseSearch("");
+              }}
             >
-              <option value="">Select Course Module</option>
-              {courses.map((course) => (
-                <option key={course._id} value={course._id}>
-                  {course.title} · {course.pillar?.name || "Module"}
-                </option>
-              ))}
-            </select>
-            {errors.moduleId && <p className="mt-1 text-xs text-red-500">{errors.moduleId}</p>}
+              <PopoverTrigger className="mt-1.5 block w-full">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-auto min-h-12 w-full justify-between rounded-xl border-[#E7DDCC] bg-white p-3 text-left text-sm font-normal text-[#1C1A17]"
+                >
+                  <span
+                    className={cn(!form.moduleId && "text-muted-foreground")}
+                  >
+                    {form.moduleId
+                      ? courses.find((course) => course._id === form.moduleId)
+                          ?.title
+                      : "Select Course Module"}
+                  </span>
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-[var(--anchor-width)] p-0"
+                align="start"
+              >
+                <Command>
+                  <CommandInput
+                    value={courseSearch}
+                    onValueChange={setCourseSearch}
+                    placeholder="Search courses..."
+                  />
+                  <CommandList className="max-h-72 overflow-y-auto">
+                    <CommandEmpty>No courses found.</CommandEmpty>
+                    {courses.map((course) => (
+                      <CommandItem
+                        key={course._id}
+                        value={`${course.title} ${course.pillar?.name ?? ""}`}
+                        onSelect={() => {
+                          updateField("moduleId", course._id);
+                          setCoursePickerOpen(false);
+                          setCourseSearch("");
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            "h-4 w-4",
+                            form.moduleId === course._id
+                              ? "opacity-100"
+                              : "opacity-0",
+                          )}
+                        />
+                        <span>
+                          {course.title} · {course.pillar?.name || "Module"}
+                        </span>
+                      </CommandItem>
+                    ))}
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            {errors.moduleId && (
+              <p className="mt-1 text-xs text-red-500">{errors.moduleId}</p>
+            )}
           </div>
 
           {/* Question Text */}
           <div>
-            <Label className="text-xs font-semibold uppercase tracking-wider text-[#8A8175]">Question Statement *</Label>
+            <Label className="text-xs font-semibold uppercase tracking-wider text-[#8A8175]">
+              Question Statement *
+            </Label>
             <Textarea
               value={form.question}
               onChange={(e) => updateField("question", e.target.value)}
               className="mt-1.5 min-h-[90px] rounded-xl border-[#E7DDCC] text-sm focus-visible:ring-[#B08A3E]"
               placeholder="e.g. What is the core principle of Invictus leadership?"
             />
-            {errors.question && <p className="mt-1 text-xs text-red-500">{errors.question}</p>}
+            {errors.question && (
+              <p className="mt-1 text-xs text-red-500">{errors.question}</p>
+            )}
           </div>
 
           {/* Question Type Selection */}
           <div>
-            <Label className="text-xs font-semibold uppercase tracking-wider text-[#8A8175]">Question Type</Label>
+            <Label className="text-xs font-semibold uppercase tracking-wider text-[#8A8175]">
+              Question Type
+            </Label>
             <div className="mt-2 grid grid-cols-3 gap-3">
               {QUIZ_QUESTION_TYPES.map((type) => {
                 const isActive = form.questionType === type;
@@ -337,9 +432,13 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
                 </button>
               </div>
 
-              {errors.options && <p className="mt-2 text-xs text-red-500">{errors.options}</p>}
+              {errors.options && (
+                <p className="mt-2 text-xs text-red-500">{errors.options}</p>
+              )}
               {errors.correctOptionIndexes && (
-                <p className="mt-2 text-xs text-red-500">{errors.correctOptionIndexes}</p>
+                <p className="mt-2 text-xs text-red-500">
+                  {errors.correctOptionIndexes}
+                </p>
               )}
 
               <div className="mt-3 space-y-2.5">
@@ -360,9 +459,15 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
                       <button
                         type="button"
                         onClick={() =>
-                          isSingle ? setSingleCorrectOption(index) : toggleMultiCorrectOption(index)
+                          isSingle
+                            ? setSingleCorrectOption(index)
+                            : toggleMultiCorrectOption(index)
                         }
-                        title={isCorrect ? "Marked as correct" : "Click to mark as correct answer"}
+                        title={
+                          isCorrect
+                            ? "Marked as correct"
+                            : "Click to mark as correct answer"
+                        }
                         className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium transition ${
                           isCorrect
                             ? "bg-emerald-100 text-emerald-800"
@@ -370,9 +475,18 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
                         }`}
                       >
                         {isSingle ? (
-                          isCorrect ? <CheckCircle2 size={16} className="text-emerald-600" /> : <Circle size={16} />
+                          isCorrect ? (
+                            <CheckCircle2
+                              size={16}
+                              className="text-emerald-600"
+                            />
+                          ) : (
+                            <Circle size={16} />
+                          )
+                        ) : isCorrect ? (
+                          <CheckSquare size={16} className="text-emerald-600" />
                         ) : (
-                          isCorrect ? <CheckSquare size={16} className="text-emerald-600" /> : <Square size={16} />
+                          <Square size={16} />
                         )}
                         <span>{isCorrect ? "Correct" : "Mark"}</span>
                       </button>
@@ -409,7 +523,9 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
               <Label className="text-xs font-semibold uppercase tracking-wider text-[#1C1A17]">
                 Select Correct Boolean Answer
               </Label>
-              <p className="text-[11px] text-[#8A8175]">Click which statement is the correct answer:</p>
+              <p className="text-[11px] text-[#8A8175]">
+                Click which statement is the correct answer:
+              </p>
 
               <div className="mt-3 grid grid-cols-2 gap-4">
                 <button
@@ -421,7 +537,14 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
                       : "border-[#E7DDCC] bg-white text-[#8A8175] hover:border-emerald-300"
                   }`}
                 >
-                  <CheckCircle2 size={20} className={form.correctBooleanAnswer === true ? "text-emerald-600" : "text-gray-400"} />
+                  <CheckCircle2
+                    size={20}
+                    className={
+                      form.correctBooleanAnswer === true
+                        ? "text-emerald-600"
+                        : "text-gray-400"
+                    }
+                  />
                   <span>TRUE (Correct)</span>
                 </button>
 
@@ -434,7 +557,14 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
                       : "border-[#E7DDCC] bg-white text-[#8A8175] hover:border-red-300"
                   }`}
                 >
-                  <XCircle size={20} className={form.correctBooleanAnswer === false ? "text-red-600" : "text-gray-400"} />
+                  <XCircle
+                    size={20}
+                    className={
+                      form.correctBooleanAnswer === false
+                        ? "text-red-600"
+                        : "text-gray-400"
+                    }
+                  />
                   <span>FALSE (Correct)</span>
                 </button>
               </div>
@@ -443,7 +573,9 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
 
           {/* Explanation */}
           <div>
-            <Label className="text-xs font-semibold uppercase tracking-wider text-[#8A8175]">Answer Explanation (Optional)</Label>
+            <Label className="text-xs font-semibold uppercase tracking-wider text-[#8A8175]">
+              Answer Explanation (Optional)
+            </Label>
             <Textarea
               value={form.explanation}
               onChange={(e) => updateField("explanation", e.target.value)}
@@ -454,7 +586,9 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
 
           {/* Order */}
           <div>
-            <Label className="text-xs font-semibold uppercase tracking-wider text-[#8A8175]">Display Order</Label>
+            <Label className="text-xs font-semibold uppercase tracking-wider text-[#8A8175]">
+              Display Order
+            </Label>
             <Input
               type="number"
               min={1}
@@ -462,10 +596,14 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
               onChange={(e) => updateField("order", Number(e.target.value))}
               className="mt-1.5 h-10 w-32 rounded-xl border-[#E7DDCC] text-sm"
             />
-            {errors.order && <p className="mt-1 text-xs text-red-500">{errors.order}</p>}
+            {errors.order && (
+              <p className="mt-1 text-xs text-red-500">{errors.order}</p>
+            )}
           </div>
 
-          {errors.form && <p className="text-sm font-medium text-red-500">{errors.form}</p>}
+          {errors.form && (
+            <p className="text-sm font-medium text-red-500">{errors.form}</p>
+          )}
         </div>
 
         <DialogFooter className="mt-6 flex items-center justify-end gap-3 border-t border-[#E7DDCC] pt-4">

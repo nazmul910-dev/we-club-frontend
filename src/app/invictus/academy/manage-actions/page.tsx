@@ -1,8 +1,29 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Plus, ListChecks, ShieldCheck, Unlock } from "lucide-react";
+import {
+  Check,
+  ChevronsUpDown,
+  Plus,
+  ListChecks,
+  ShieldCheck,
+  Unlock,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 import AuthGuard from "@/components/Auth/authGuard/AuthGuard";
 
@@ -22,193 +43,260 @@ import dynamic from "next/dynamic";
 import TableSkeleton from "@/components/skeleton/Tableskeleton";
 
 const CreateActionModal = dynamic(
-    () => import("@/components/invictus/academy/acitons/CreateActionModal"),
-    { ssr: false },
+  () => import("@/components/invictus/academy/acitons/CreateActionModal"),
+  { ssr: false },
 );
 const EditActionModal = dynamic(
-    () => import("@/components/invictus/academy/acitons/EditActionModal"),
-    { ssr: false },
+  () => import("@/components/invictus/academy/acitons/EditActionModal"),
+  { ssr: false },
 );
 
 export default function ManageActionsPage() {
-    return (
-        <AuthGuard allowedRoles={["founder", "manager", "admin"]}>
-            <ManageActionsContent />
-        </AuthGuard>
-    );
+  return (
+    <AuthGuard allowedRoles={["founder", "manager", "admin"]}>
+      <ManageActionsContent />
+    </AuthGuard>
+  );
 }
 
 function ManageActionsContent() {
-    const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
 
-    const { actions, loading, error } = useAppSelector(
-        (state) => state.moduleAction,
-    );
+  const { actions, loading, error } = useAppSelector(
+    (state) => state.moduleAction,
+  );
 
-    const [courses, setCourses] = useState<ICourseModule[]>([]);
+  const [courses, setCourses] = useState<ICourseModule[]>([]);
 
-    const [courseFilter, setCourseFilter] = useState("");
+  const [courseFilter, setCourseFilter] = useState("");
+  const [courseFilterSearch, setCourseFilterSearch] = useState("");
+  const [courseFilterOpen, setCourseFilterOpen] = useState(false);
 
-    const [createOpen, setCreateOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
 
-    const [editOpen, setEditOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
-    const [selectedAction, setSelectedAction] = useState<IModuleAction | null>(
-        null,
-    );
+  const [selectedAction, setSelectedAction] = useState<IModuleAction | null>(
+    null,
+  );
 
-    const loadCourses = async () => {
-        try {
-            const res = await courseApi.getCourses();
+  const loadCourses = useCallback(async () => {
+    try {
+      const res = await courseApi.getCourses();
 
-            setCourses(res.data.filter((item) => item.status === "published"));
-        } catch (error) {
-            console.log(error);
-        }
+      setCourses(res.data.filter((item) => item.status === "published"));
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
+
+  useEffect(() => {
+    dispatch(fetchModuleActions({ includeArchived: true }));
+
+    const timeoutId = window.setTimeout(() => {
+      void loadCourses();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [dispatch, loadCourses]);
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
+
+  const filteredActions = useMemo(() => {
+    if (!courseFilter) return actions;
+
+    return actions.filter((item) => item.module?._id === courseFilter);
+  }, [actions, courseFilter]);
+
+  const stats = useMemo(() => {
+    const total = actions.length;
+
+    const required = actions.filter((item) => item.isRequired).length;
+
+    return {
+      total,
+      required,
+      optional: total - required,
     };
+  }, [actions]);
+  return (
+    <div className="page-wrapper">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p className="text-[11px] font-semibold tracking-[4px] text-[#B18A3A]">
+            INVICTUS ACADEMY
+          </p>
 
-    useEffect(() => {
-        dispatch(fetchModuleActions({ includeArchived: true }));
+          <h1 className="mt-3 text-3xl font-semibold text-[#171717]">
+            Module Actions
+          </h1>
 
-        loadCourses();
-    }, [dispatch]);
-
-    useEffect(() => {
-        if (error) {
-            toast.error(error);
-        }
-    }, [error]);
-
-    const filteredActions = useMemo(() => {
-        if (!courseFilter) return actions;
-
-        return actions.filter((item) => item.module?._id === courseFilter);
-    }, [actions, courseFilter]);
-
-    const stats = useMemo(() => {
-        const total = actions.length;
-
-        const required = actions.filter((item) => item.isRequired).length;
-
-        return {
-            total,
-            required,
-            optional: total - required,
-        };
-    }, [actions]);
-    return (
-        <div className="page-wrapper">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <p className="text-[11px] font-semibold tracking-[4px] text-[#B18A3A]">
-                        INVICTUS ACADEMY
-                    </p>
-
-                    <h1 className="mt-3 text-3xl font-semibold text-[#171717]">
-                        Module Actions
-                    </h1>
-
-                    <p className="mt-2 text-sm text-[#8A8175]">
-                        Create actionable checklist items for each course module
-                    </p>
-                </div>
-
-                <button
-                    onClick={() => setCreateOpen(true)}
-                    className="flex cursor-pointer items-center gap-2 rounded-full bg-[#B18A3A] px-5 py-2.5 text-sm text-white transition-all hover:-translate-y-1 hover:shadow-lg"
-                >
-                    <Plus size={16} />
-                    Add Action
-                </button>
-            </div>
-
-
-
-            <div className="mt-8 grid gap-6 md:grid-cols-3">
-                <StatCard
-                    icon={<ListChecks />}
-                    title="Total Actions"
-                    value={String(stats.total)}
-                />
-
-                <StatCard
-                    icon={<ShieldCheck />}
-                    title="Required"
-                    value={String(stats.required)}
-                />
-
-                <StatCard
-                    icon={<Unlock />}
-                    title="Optional"
-                    value={String(stats.optional)}
-                />
-            </div>
-
-            <div className="mt-8 w-full max-w-xs">
-                <select
-                    value={courseFilter}
-                    onChange={(e) => setCourseFilter(e.target.value)}
-                    className="w-full cursor-pointer rounded-xl border border-[#E7DDCC] bg-white p-3 text-sm"
-                >
-                    <option value="">All Courses</option>
-
-                    {courses.map((course) => (
-                        <option key={course._id} value={course._id}>
-                            {course.title} · {course.pillar?.name}
-                        </option>
-                    ))}
-                </select>
-            </div>
-
-            <div className="mt-6">
-                {loading ? (
-                    <TableSkeleton variant="invictus" className="border-gold-soft border"/>
-                ) : (
-                    <ActionTable
-                        data={filteredActions}
-                        onEdit={(item) => {
-                            setSelectedAction(item);
-
-                            setEditOpen(true);
-                        }}
-                    />
-                )}
-            </div>
-
-            {createOpen && (
-                <CreateActionModal
-                    open={createOpen}
-                    onClose={() => setCreateOpen(false)}
-                />
-            )}
-
-            {editOpen && (
-                <EditActionModal
-                    open={editOpen}
-                    action={selectedAction}
-                    onClose={() => setEditOpen(false)}
-                />
-            )}
+          <p className="mt-2 text-sm text-[#8A8175]">
+            Create actionable checklist items for each course module
+          </p>
         </div>
-    );
+
+        <button
+          onClick={() => setCreateOpen(true)}
+          className="flex cursor-pointer items-center gap-2 rounded-full bg-[#B18A3A] px-5 py-2.5 text-sm text-white transition-all hover:-translate-y-1 hover:shadow-lg"
+        >
+          <Plus size={16} />
+          Add Action
+        </button>
+      </div>
+
+      <div className="mt-8 grid gap-6 md:grid-cols-3">
+        <StatCard
+          icon={<ListChecks />}
+          title="Total Actions"
+          value={String(stats.total)}
+        />
+
+        <StatCard
+          icon={<ShieldCheck />}
+          title="Required"
+          value={String(stats.required)}
+        />
+
+        <StatCard
+          icon={<Unlock />}
+          title="Optional"
+          value={String(stats.optional)}
+        />
+      </div>
+
+      <div className="mt-8 w-full max-w-xs">
+        <Popover
+          open={courseFilterOpen}
+          onOpenChange={(open) => {
+            setCourseFilterOpen(open);
+            if (!open) setCourseFilterSearch("");
+          }}
+        >
+          <PopoverTrigger className="block w-full">
+            <Button
+              type="button"
+              variant="outline"
+              className="h-auto min-h-12 w-full justify-between rounded-xl border-[#E7DDCC] bg-white p-3 text-left text-sm font-normal"
+            >
+              <span className={cn(!courseFilter && "text-muted-foreground")}>
+                {courseFilter
+                  ? courses.find((course) => course._id === courseFilter)?.title
+                  : "All Courses"}
+              </span>
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[var(--anchor-width)] p-0" align="start">
+            <Command>
+              <CommandInput
+                value={courseFilterSearch}
+                onValueChange={setCourseFilterSearch}
+                placeholder="Search courses..."
+              />
+              <CommandList>
+                <CommandEmpty>No courses found.</CommandEmpty>
+                <CommandItem
+                  value="all courses"
+                  onSelect={() => {
+                    setCourseFilter("");
+                    setCourseFilterOpen(false);
+                    setCourseFilterSearch("");
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "h-4 w-4",
+                      !courseFilter ? "opacity-100" : "opacity-0",
+                    )}
+                  />
+                  All Courses
+                </CommandItem>
+                {courses.map((course) => (
+                  <CommandItem
+                    key={course._id}
+                    value={`${course.title} ${course.pillar?.name ?? ""}`}
+                    onSelect={() => {
+                      setCourseFilter(course._id);
+                      setCourseFilterOpen(false);
+                      setCourseFilterSearch("");
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        "h-4 w-4",
+                        courseFilter === course._id
+                          ? "opacity-100"
+                          : "opacity-0",
+                      )}
+                    />
+                    <span>
+                      {course.title} · {course.pillar?.name}
+                    </span>
+                  </CommandItem>
+                ))}
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      </div>
+
+      <div className="mt-6">
+        {loading ? (
+          <TableSkeleton
+            variant="invictus"
+            className="border-gold-soft border"
+          />
+        ) : (
+          <ActionTable
+            data={filteredActions}
+            onEdit={(item) => {
+              setSelectedAction(item);
+
+              setEditOpen(true);
+            }}
+          />
+        )}
+      </div>
+
+      {createOpen && (
+        <CreateActionModal
+          open={createOpen}
+          onClose={() => setCreateOpen(false)}
+        />
+      )}
+
+      {editOpen && (
+        <EditActionModal
+          open={editOpen}
+          action={selectedAction}
+          onClose={() => setEditOpen(false)}
+        />
+      )}
+    </div>
+  );
 }
 
 function StatCard({
-    icon,
-    title,
-    value,
+  icon,
+  title,
+  value,
 }: {
-    icon: React.ReactNode;
-    title: string;
-    value: string;
+  icon: React.ReactNode;
+  title: string;
+  value: string;
 }) {
-    return (
-        <div className="rounded-2xl border border-[#E8DDCA] bg-white p-6 shadow-sm">
-            <div className="mb-4 text-[#B18A3A]">{icon}</div>
+  return (
+    <div className="rounded-2xl border border-[#E8DDCA] bg-white p-6 shadow-sm">
+      <div className="mb-4 text-[#B18A3A]">{icon}</div>
 
-            <p className="text-sm text-[#8A8175]">{title}</p>
+      <p className="text-sm text-[#8A8175]">{title}</p>
 
-            <h3 className="mt-1 text-2xl font-bold text-[#171717]">{value}</h3>
-        </div>
-    );
+      <h3 className="mt-1 text-2xl font-bold text-[#171717]">{value}</h3>
+    </div>
+  );
 }

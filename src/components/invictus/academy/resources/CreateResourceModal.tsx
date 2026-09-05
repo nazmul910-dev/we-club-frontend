@@ -16,8 +16,29 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 
-import { FileUp, Link2, PlayCircle, UploadCloud, X } from "lucide-react";
+import {
+  Check,
+  ChevronsUpDown,
+  FileUp,
+  Link2,
+  PlayCircle,
+  UploadCloud,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
+import {
+  Command,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 import { useAppDispatch } from "@/lib/redux/store/hook";
 import { createResource } from "@/lib/features/invictus/academy/resource/resourceSlice";
@@ -72,6 +93,8 @@ export default function CreateResourceModal({ open, onClose }: Props) {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [form, setForm] = useState(emptyForm);
+  const [courseSearch, setCourseSearch] = useState("");
+  const [coursePickerOpen, setCoursePickerOpen] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -124,7 +147,8 @@ export default function CreateResourceModal({ open, onClose }: Props) {
   const validate = () => {
     const next: Record<string, string> = {};
 
-    if (!form.moduleId) next.moduleId = "Select the course module this resource belongs to";
+    if (!form.moduleId)
+      next.moduleId = "Select the course module this resource belongs to";
     if (!form.title.trim() || form.title.trim().length < 2)
       next.title = "Title minimum 2 charecter";
     if (!form.slug.trim()) next.slug = "Slug is required";
@@ -146,6 +170,8 @@ export default function CreateResourceModal({ open, onClose }: Props) {
     setForm(emptyForm);
     setFile(null);
     setModuleVideos([]);
+    setCourseSearch("");
+    setCoursePickerOpen(false);
   };
 
   const handleClose = () => {
@@ -185,7 +211,10 @@ export default function CreateResourceModal({ open, onClose }: Props) {
       toast.success("Module resource added successfully!");
       handleClose();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Resource could not be added, try again later!";
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Resource could not be added, try again later!";
       toast.error(message);
       setErrors((prev) => ({
         ...prev,
@@ -208,18 +237,69 @@ export default function CreateResourceModal({ open, onClose }: Props) {
         <div className="space-y-5">
           <div>
             <Label>Course Module</Label>
-            <select
-              className="mt-2 w-full cursor-pointer rounded-xl border border-[#E7DDCC] p-3"
-              value={form.moduleId}
-              onChange={(e) => updateField("moduleId", e.target.value)}
+            <Popover
+              open={coursePickerOpen}
+              onOpenChange={(open) => {
+                setCoursePickerOpen(open);
+                if (!open) setCourseSearch("");
+              }}
             >
-              <option value="">Select Course Module</option>
-              {courses.map((course) => (
-                <option key={course._id} value={course._id}>
-                  {course.title} · {course.pillar?.name}
-                </option>
-              ))}
-            </select>
+              <PopoverTrigger className="mt-2 block w-full">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-auto min-h-12 w-full justify-between rounded-xl border-[#E7DDCC] p-3 text-left font-normal"
+                >
+                  <span
+                    className={cn(!form.moduleId && "text-muted-foreground")}
+                  >
+                    {form.moduleId
+                      ? courses.find((course) => course._id === form.moduleId)
+                          ?.title
+                      : "Select Course Module"}
+                  </span>
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-[var(--anchor-width)] p-0"
+                align="start"
+              >
+                <Command>
+                  <CommandInput
+                    value={courseSearch}
+                    onValueChange={setCourseSearch}
+                    placeholder="Search courses..."
+                  />
+                  <CommandList className="max-h-72 overflow-y-auto">
+                    <CommandEmpty>No courses found.</CommandEmpty>
+                    {courses.map((course) => (
+                      <CommandItem
+                        key={course._id}
+                        value={`${course.title} ${course.pillar?.name ?? ""}`}
+                        onSelect={() => {
+                          updateField("moduleId", course._id);
+                          setCoursePickerOpen(false);
+                          setCourseSearch("");
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            "h-4 w-4",
+                            form.moduleId === course._id
+                              ? "opacity-100"
+                              : "opacity-0",
+                          )}
+                        />
+                        <span>
+                          {course.title} · {course.pillar?.name}
+                        </span>
+                      </CommandItem>
+                    ))}
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
             {errors.moduleId && (
               <p className="mt-1 text-xs text-red-500">{errors.moduleId}</p>
             )}
@@ -256,7 +336,10 @@ export default function CreateResourceModal({ open, onClose }: Props) {
               className="mt-2 w-full cursor-pointer rounded-xl border border-[#E7DDCC] p-3"
               value={form.resourceType}
               onChange={(e) =>
-                updateField("resourceType", e.target.value as ModuleResourceType)
+                updateField(
+                  "resourceType",
+                  e.target.value as ModuleResourceType,
+                )
               }
             >
               {RESOURCE_TYPES.map((type) => (
@@ -347,7 +430,9 @@ export default function CreateResourceModal({ open, onClose }: Props) {
                 onChange={(e) => updateField("externalUrl", e.target.value)}
               />
               {errors.externalUrl && (
-                <p className="mt-1 text-xs text-red-500">{errors.externalUrl}</p>
+                <p className="mt-1 text-xs text-red-500">
+                  {errors.externalUrl}
+                </p>
               )}
             </div>
           )}

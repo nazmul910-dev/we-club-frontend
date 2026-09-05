@@ -1,9 +1,31 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
-import { Crown, PlayCircle, Plus, Unlock } from "lucide-react";
+import {
+  Check,
+  ChevronsUpDown,
+  Crown,
+  PlayCircle,
+  Plus,
+  Unlock,
+} from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 import AuthGuard from "@/components/Auth/authGuard/AuthGuard";
 
@@ -34,27 +56,30 @@ function ManageVideosContent() {
 
   const [courses, setCourses] = useState<ICourseModule[]>([]);
   const [courseFilter, setCourseFilter] = useState("");
+  const [courseFilterSearch, setCourseFilterSearch] = useState("");
+  const [courseFilterOpen, setCourseFilterOpen] = useState(false);
 
   const [createOpen, setCreateOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  const [selectedVideo, setSelectedVideo] = useState<IModuleVideo | null>(
-    null,
-  );
+  const [selectedVideo, setSelectedVideo] = useState<IModuleVideo | null>(null);
 
-  const loadCourses = async () => {
+  const loadCourses = useCallback(async () => {
     try {
       const res = await courseApi.getCourses();
       setCourses(res.data);
     } catch (err) {
       console.log(err);
     }
-  };
+  }, []);
 
   useEffect(() => {
     dispatch(fetchVideos({ includeArchived: true }));
-    loadCourses();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch]);
+    const timeoutId = window.setTimeout(() => {
+      void loadCourses();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [dispatch, loadCourses]);
 
   useEffect(() => {
     if (error) toast.error(error);
@@ -98,8 +123,6 @@ function ManageVideosContent() {
         </button>
       </div>
 
-
-
       <div className="mt-8 grid gap-6 md:grid-cols-3">
         <StatCard
           icon={<PlayCircle />}
@@ -120,24 +143,92 @@ function ManageVideosContent() {
 
       <div className="mt-8 flex items-center justify-between">
         <div className="w-full max-w-xs">
-          <select
-            value={courseFilter}
-            onChange={(e) => setCourseFilter(e.target.value)}
-            className="w-full cursor-pointer rounded-xl border border-[#E8DDCA] bg-white p-3 text-sm"
+          <Popover
+            open={courseFilterOpen}
+            onOpenChange={(open) => {
+              setCourseFilterOpen(open);
+              if (!open) setCourseFilterSearch("");
+            }}
           >
-            <option value="">All Courses</option>
-            {courses.map((course) => (
-              <option key={course._id} value={course._id}>
-                {course.title} · {course.pillar?.name}
-              </option>
-            ))}
-          </select>
+            <PopoverTrigger className="block w-full">
+              <Button
+                type="button"
+                variant="outline"
+                className="h-auto min-h-12 w-full justify-between rounded-xl border-[#E8DDCA] bg-white p-3 text-left text-sm font-normal"
+              >
+                <span className={cn(!courseFilter && "text-muted-foreground")}>
+                  {courseFilter
+                    ? courses.find((course) => course._id === courseFilter)
+                        ?.title
+                    : "All Courses"}
+                </span>
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              className="w-[var(--anchor-width)] p-0"
+              align="start"
+            >
+              <Command>
+                <CommandInput
+                  value={courseFilterSearch}
+                  onValueChange={setCourseFilterSearch}
+                  placeholder="Search courses..."
+                />
+                <CommandList>
+                  <CommandEmpty>No courses found.</CommandEmpty>
+                  <CommandItem
+                    value="all courses"
+                    onSelect={() => {
+                      setCourseFilter("");
+                      setCourseFilterOpen(false);
+                      setCourseFilterSearch("");
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        "h-4 w-4",
+                        !courseFilter ? "opacity-100" : "opacity-0",
+                      )}
+                    />
+                    All Courses
+                  </CommandItem>
+                  {courses.map((course) => (
+                    <CommandItem
+                      key={course._id}
+                      value={`${course.title} ${course.pillar?.name ?? ""}`}
+                      onSelect={() => {
+                        setCourseFilter(course._id);
+                        setCourseFilterOpen(false);
+                        setCourseFilterSearch("");
+                      }}
+                    >
+                      <Check
+                        className={cn(
+                          "h-4 w-4",
+                          courseFilter === course._id
+                            ? "opacity-100"
+                            : "opacity-0",
+                        )}
+                      />
+                      <span>
+                        {course.title} · {course.pillar?.name}
+                      </span>
+                    </CommandItem>
+                  ))}
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
       <div className="mt-6">
         {loading ? (
-          <TableSkeleton variant="invictus" className="border border-gold-soft"/>
+          <TableSkeleton
+            variant="invictus"
+            className="border border-gold-soft"
+          />
         ) : (
           <VideoTable
             data={filteredVideos}
@@ -149,7 +240,10 @@ function ManageVideosContent() {
         )}
       </div>
 
-      <CreateVideoModal open={createOpen} onClose={() => setCreateOpen(false)} />
+      <CreateVideoModal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+      />
 
       <EditVideoModal
         open={editOpen}
