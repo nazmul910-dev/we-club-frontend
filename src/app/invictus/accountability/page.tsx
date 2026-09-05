@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
+import AuthGuard from "@/components/Auth/authGuard/AuthGuard";
 import ProgressBar from "@/components/accountability/ProgressBar";
 import StatusDot from "@/components/accountability/statusDot";
 import PageContainer from "@/components/common/PageContainer";
@@ -11,6 +11,7 @@ import SectionCard from "@/components/common/SectionCard";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
 
 import {
+    fetchAvailableCoMentors,
     createMentorBooking,
     fetchMyMentor,
     fetchMyMentorBookings,
@@ -18,9 +19,16 @@ import {
     selectMentorBookingError,
     selectMentorBookingStatus,
     selectMyMentor,
+    selectCoMentor,
     selectUpcomingConfirmedBooking,
 } from "@/lib/features/mentorBooking/mentorBookingSlice";
 import type { IMentorBooking } from "@/lib/features/mentorBooking/mentorBookingTypes";
+import type {
+    IMentorReview,
+    IMentorReviewSummary,
+    IMentorshipProfileSummary,
+} from "@/lib/features/mentorBooking/mentorBookingTypes";
+import { mentorBookingApi } from "@/lib/features/mentorBooking/mentorBookingApi";
 
 import {
     CalendarDays,
@@ -29,6 +37,8 @@ import {
     Loader2,
     PlayCircle,
     Video,
+    Star,
+    Users,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -45,11 +55,32 @@ import { Skeleton } from "@/components/ui/skeleton";
 import SessionHistorySkeleton from "@/components/invictus/academy/accountibility/SessionHistorySkeleton";
 import MentorSectionSkeleton from "@/components/invictus/academy/accountibility/MentorSectionSkeleton";
 import NextSessionSkeleton from "@/components/invictus/academy/accountibility/NextSessionSkeleton";
-/* -------------------------------------------------------------------------- */
-/*  Mock data — replace with real data fetched from your backend               */
-/* -------------------------------------------------------------------------- */
+import { toast } from "sonner";
 
 const SLOT_INTERVAL_MINUTES = 30;
+
+function StarRating({ value, count }: { value: number; count: number }) {
+    return (
+        <div className="mt-1 flex items-center gap-1.5">
+            <span className="flex items-center gap-0.5 text-[#C6A34A]">
+                {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                        key={star}
+                        size={12}
+                        fill={star <= Math.round(value) ? "currentColor" : "none"}
+                        className={star <= Math.round(value) ? "" : "text-[#D8CCB0]"}
+                    />
+                ))}
+            </span>
+            <span className="text-xs font-semibold text-[#6F675A]">
+                {value > 0 ? value.toFixed(1) : "New"}
+            </span>
+            <span className="text-[11px] text-[#9C9284]">
+                ({count} {count === 1 ? "review" : "reviews"})
+            </span>
+        </div>
+    );
+}
 
 function getDayName(date: Date) {
     return new Intl.DateTimeFormat("en-US", {
@@ -152,8 +183,21 @@ export default function MyAccountabilityPage() {
     const primaryMentorProfile = myMentor?.primaryMentor?.mentorProfile;
     const primaryMentor = myMentor?.primaryMentor?.mentor;
     const coMentor = myMentor?.coMentor?.mentor;
+    const availableCoMentors = useAppSelector(
+        (state) => state.mentorBooking.availableCoMentors,
+    );
+    const coMentorSelectionStatus = useAppSelector(
+        (state) => state.mentorBooking.selectCoMentorStatus,
+    );
+    const [coMentorDialogOpen, setCoMentorDialogOpen] = useState(false);
+    const [coMentorSearch, setCoMentorSearch] = useState("");
+    const [allMentorsDialogOpen, setAllMentorsDialogOpen] = useState(false);
+    const [publishedMentors, setPublishedMentors] = useState<IMentorshipProfileSummary[]>([]);
+    const [mentorReviews, setMentorReviews] = useState<Record<string, { stats: IMentorReviewSummary; reviews: IMentorReview[] }>>({});
 
     const availability = primaryMentorProfile?.availability ?? [];
+
+    console.log("adam availibility ", availability)
 
     const availableDays = useMemo(() => {
         if (!availability.length) return [];
@@ -247,19 +291,67 @@ export default function MyAccountabilityPage() {
         setRecordingOpen(true);
     };
 
+    const handleSelectCoMentor = async (mentorshipProfileId: string) => {
+        try {
+            await dispatch(selectCoMentor({ mentorshipProfileId })).unwrap();
+            await dispatch(fetchMyMentor()).unwrap();
+            setCoMentorDialogOpen(false);
+            setCoMentorSearch("");
+        } catch {
+            // The slice exposes the server error in the page state.
+        }
+    };
+
     useEffect(() => {
         dispatch(fetchMyMentor());
+        dispatch(fetchAvailableCoMentors());
         dispatch(fetchMyMentorBookings());
         dispatch(fetchMyMentorBookings({ status: "completed" }));
     }, [dispatch]);
 
     useEffect(() => {
-        if (error) {
+        mentorBookingApi.fetchPublishedMentors().then(async (mentors) => {
+            setPublishedMentors(mentors);
+            const entries = await Promise.all(
+                mentors.map(async (profile) => {
+                    try {
+                        const response = await mentorBookingApi.fetchMentorReviews(
+                            String(profile.mentor?._id ?? profile._id),
+                        );
+                        return [profile._id, { stats: response.stats, reviews: response.data }] as const;
+                    } catch {
+                        return [profile._id, { stats: { averageRating: 0, totalReviews: 0, ratingBreakdown: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } }, reviews: [] }] as const;
+                    }
+                }),
+            );
+            setMentorReviews(Object.fromEntries(entries));
+        }).catch(() => setPublishedMentors([]));
+    }, []);
+
+    useEffect(() => {
+ if (error) {
             toast.error(error);
         }
-    }, [error]);
+    }, [error])
+       
+
 
     return (
+        <AuthGuard
+            allowedRoles={[
+                "super_admin",
+                "admin",
+                "manager",
+                "co_mentor",
+                "associate",
+                "partner",
+                "ambassador",
+                "we_club_member",
+                "ceo",
+                "ceo_partner",
+            ]}
+            allowedAccessTo={["invictus", "both"]}
+        >
         <div className="">
             <PageContainer variant="invictus" as="main">
                 {/* Header */}
@@ -298,9 +390,19 @@ export default function MyAccountabilityPage() {
                     <MentorSectionSkeleton />
                 ) : (
                     <SectionCard variant="invictus" className="mb-6">
-                        <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#A88A3F]">
-                            Your Mentorship Team
-                        </p>
+                        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#A88A3F]">
+                                Your Mentorship Team
+                            </p>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setAllMentorsDialogOpen(true)}
+                                className="border-[#E7DDCC] bg-white text-[#8A6E22] hover:bg-[#FFF9EA]"
+                            >
+                                <Users size={15} /> View all mentors
+                            </Button>
+                        </div>
 
                         <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
                             <div className="flex items-center gap-3 rounded-lg border border-[#EFE6CE] bg-white px-5 py-3 min-h-25">
@@ -331,19 +433,19 @@ export default function MyAccountabilityPage() {
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3 rounded-lg border border-[#EFE6CE] bg-white px-5 py-3 min-h-25">
-                                {myMentor?.coMentor?.mentor?.profileImage ? (
+                            {coMentor ? (
+                                <div className="relative overflow-hidden rounded-xl border border-[#D9C58A] bg-gradient-to-br from-[#FFFDF6] to-[#F7EED7] px-5 py-4 min-h-25 shadow-sm">
+                                <div className="absolute right-0 top-0 h-20 w-20 rounded-full bg-[#D8B75B]/15 blur-2xl" />
+                                <div className="relative flex items-center gap-3">
+                                {coMentor.profileImage ? (
                                     <img
-                                        src={
-                                            myMentor.coMentor.mentor
-                                                .profileImage
-                                        }
-                                        alt={myMentor.coMentor.mentor.fullName}
+                                        src={coMentor.profileImage}
+                                        alt={coMentor.fullName}
                                         className="h-11 w-11 shrink-0 rounded-full object-cover"
                                     />
                                 ) : (
                                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#EFE1BD] font-[family-name:var(--font-display)] text-sm font-semibold text-[#8A6E22]">
-                                        {myMentor?.coMentor?.mentor?.fullName
+                                        {coMentor.fullName
                                             ?.split(" ")
                                             .map((name) => name[0])
                                             .slice(0, 2)
@@ -353,15 +455,35 @@ export default function MyAccountabilityPage() {
 
                                 <div>
                                     <p className="text-[11px] font-semibold uppercase tracking-wide text-[#9C9284]">
-                                        co_mentor
+                                        Your co-mentor
                                     </p>
 
                                     <p className="text-md font-semibold text-[#1C1A16]">
-                                        {myMentor?.coMentor?.mentor?.fullName ??
-                                            "Not assigned"}
+                                        {coMentor.fullName}
                                     </p>
+                                    <p className="mt-1 text-[11px] text-[#8A6E22]">Permanent assignment</p>
                                 </div>
-                            </div>
+                                </div>
+                                </div>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() => setCoMentorDialogOpen(true)}
+                                    className="group flex min-h-25 items-center justify-between rounded-xl border border-dashed border-[#C6A34A] bg-[#FFFCF5] px-5 py-4 text-left transition hover:border-[#A9812F] hover:bg-[#FFF8E8]"
+                                >
+                                    <span>
+                                        <span className="block text-[11px] font-semibold uppercase tracking-wide text-[#9C9284]">
+                                            co_mentor
+                                        </span>
+                                        <span className="mt-1 block text-sm font-semibold text-[#B8923D]">
+                                            Select your co_mentor
+                                        </span>
+                                    </span>
+                                    <span className="rounded-lg bg-[#C6A34A] px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-white transition group-hover:bg-[#A9812F]">
+                                        Choose mentor
+                                    </span>
+                                </button>
+                            )}
                         </div>
 
                         <button
@@ -378,6 +500,158 @@ export default function MyAccountabilityPage() {
                         </button>
                     </SectionCard>
                 )}
+
+                <Dialog
+                    open={coMentorDialogOpen}
+                    onOpenChange={setCoMentorDialogOpen}
+                >
+                    <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto rounded-2xl border-[#E7DDCC] bg-[#FBF9F4]">
+                        <DialogHeader>
+                            <DialogTitle className="font-playfair text-2xl text-[#1C1A16]">
+                                Choose your co_mentor
+                            </DialogTitle>
+                            <DialogDescription>
+                                This is a permanent choice. Select one published mentor who is not the primary mentor.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                            <input
+                                value={coMentorSearch}
+                                onChange={(event) => setCoMentorSearch(event.target.value)}
+                                placeholder="Search mentors by name or email"
+                                className="h-11 w-full rounded-lg border border-[#E7DDCC] bg-white px-3 text-sm outline-none focus:border-[#C6A34A]"
+                            />
+                            <div className="grid gap-3">
+                                {availableCoMentors
+                                    .filter((profile) => {
+                                        const query = coMentorSearch.trim().toLowerCase();
+                                        const mentor = profile.mentor;
+                                        return (
+                                            !query ||
+                                            mentor?.fullName.toLowerCase().includes(query) ||
+                                            mentor?.email.toLowerCase().includes(query)
+                                        );
+                                    })
+                                    .map((profile) => (
+                                        <button
+                                            key={profile._id}
+                                            type="button"
+                                            disabled={coMentorSelectionStatus === "loading"}
+                                            onClick={() => handleSelectCoMentor(profile._id)}
+                                            className="flex items-center justify-between rounded-xl border border-[#EFE6CE] bg-white p-4 text-left transition hover:border-[#C6A34A] hover:bg-[#FFFCF5] disabled:opacity-60"
+                                        >
+                                            <span>
+                                                <span className="block font-semibold text-[#1C1A16]">
+                                                    {profile.mentor?.fullName ?? "Mentor"}
+                                                </span>
+                                                <span className="block text-xs text-[#8A8375]">
+                                                    {profile.mentor?.email ?? ""}
+                                                </span>
+                                                {profile.expertise?.length ? (
+                                                    <span className="mt-2 block text-xs text-[#9C9284]">
+                                                        {profile.expertise.join(" · ")}
+                                                    </span>
+                                                ) : null}
+                                            </span>
+                                            <span className="text-xs font-semibold uppercase tracking-wide text-[#B8923D]">
+                                                {coMentorSelectionStatus === "loading" ? "Selecting..." : "Select"}
+                                            </span>
+                                        </button>
+                                    ))}
+                                {availableCoMentors.length === 0 && (
+                                    <p className="py-8 text-center text-sm text-[#8A8375]">
+                                        No published co_mentors are available right now.
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => setCoMentorDialogOpen(false)}>
+                                Cancel
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
+                <Dialog
+                    open={allMentorsDialogOpen}
+                    onOpenChange={setAllMentorsDialogOpen}
+                >
+                    <DialogContent className="max-h-[88vh] max-w-3xl overflow-y-auto rounded-2xl border-[#E7DDCC] bg-[#FBF9F4]">
+                        <DialogHeader>
+                            <DialogTitle className="font-playfair text-2xl text-[#1C1A16]">
+                                Meet the mentor collective
+                            </DialogTitle>
+                            <DialogDescription>
+                                Explore published mentors, their areas of expertise, and member feedback.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            {publishedMentors.map((profile) => {
+                                const review = mentorReviews[profile._id];
+                                const mentor = profile.mentor;
+                                const isPrimary = profile.isPrimaryMentor;
+                                return (
+                                    <div
+                                        key={profile._id}
+                                        className="overflow-hidden rounded-2xl border border-[#E9DEC1] bg-white shadow-sm"
+                                    >
+                                        <div className="flex items-start gap-3 bg-gradient-to-r from-[#FFF9E9] to-white p-4">
+                                            {mentor?.profileImage ? (
+                                                <img
+                                                    src={mentor.profileImage}
+                                                    alt={mentor.fullName}
+                                                    className="h-12 w-12 rounded-full object-cover ring-2 ring-[#E8D49A]"
+                                                />
+                                            ) : (
+                                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#EFE1BD] font-semibold text-[#8A6E22]">
+                                                    {mentor?.fullName?.split(" ").map((name) => name[0]).slice(0, 2).join("") || "M"}
+                                                </div>
+                                            )}
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex flex-wrap items-center gap-2">
+                                                    <h3 className="truncate font-semibold text-[#1C1A16]">{mentor?.fullName || "Mentor"}</h3>
+                                                    {isPrimary && <span className="rounded-full bg-[#F3E9D2] px-2 py-0.5 text-[10px] font-semibold uppercase text-[#8A6E22]">Primary</span>}
+                                                </div>
+                                                <StarRating value={review?.stats.averageRating ?? 0} count={review?.stats.totalReviews ?? 0} />
+                                            </div>
+                                        </div>
+                                        <div className="space-y-3 p-4">
+                                            {profile.expertise?.length ? (
+                                                <div className="flex flex-wrap gap-1.5">
+                                                    {profile.expertise.map((item) => <span key={item} className="rounded-full bg-[#F7F2E6] px-2 py-1 text-[11px] text-[#74684F]">{item}</span>)}
+                                                </div>
+                                            ) : null}
+                                            {review?.reviews?.length ? (
+                                                <div className="rounded-xl bg-[#FCFAF5] p-3">
+                                                    <p className="line-clamp-2 text-xs leading-5 text-[#6F675A]">“{review.reviews[0].comment || "A valued member of the mentor collective."}”</p>
+                                                    <p className="mt-2 text-[10px] font-semibold uppercase tracking-wide text-[#A88A3F]">{review.reviews[0].user?.fullName || "Member review"}</p>
+                                                </div>
+                                            ) : (
+                                                <p className="text-xs text-[#9C9284]">No reviews yet.</p>
+                                            )}
+                                            {!isPrimary && !coMentor && (
+                                                <Button
+                                                    variant="outline"
+                                                    className="w-full border-[#C6A34A] text-[#8A6E22] hover:bg-[#FFF8E8]"
+                                                    onClick={() => {
+                                                        setAllMentorsDialogOpen(false);
+                                                        setCoMentorDialogOpen(true);
+                                                    }}
+                                                >
+                                                    Choose from co-mentors
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                            {publishedMentors.length === 0 && (
+                                <p className="py-10 text-center text-sm text-[#8A8375] sm:col-span-2">No published mentors are available right now.</p>
+                            )}
+                        </div>
+                    </DialogContent>
+                </Dialog>
 
                 {/* Next session */}
                 {isBookingsLoading ? (
@@ -950,5 +1224,6 @@ export default function MyAccountabilityPage() {
                 </Dialog>
             </PageContainer>
         </div>
+        </AuthGuard>
     );
 };

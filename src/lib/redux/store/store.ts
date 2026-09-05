@@ -34,6 +34,7 @@ import invictusPaymentReducer from "@/lib/features/invictus/payment/invictusPaym
 import notificationReducer from "@/lib/features/invictus/notifications/notificationSlice";
 import onboardingTasksReducer from "@/lib/features/onboardingTasks/onboardingTaskSlice";
 import leaderboardAdminReducer from "@/lib/features/leaderboardAdmin/leaderboardAdminSlice"
+import mentorManagementReducer from "@/lib/features/mentorManagement/mentorManagementSlice";
 
 export const store = configureStore({
   reducer: {
@@ -71,6 +72,7 @@ export const store = configureStore({
     notification: notificationReducer,
     onboardingTasks: onboardingTasksReducer,
     leaderboardAdmin: leaderboardAdminReducer,
+    mentorManagement: mentorManagementReducer,
   },
 });
 

@@ -193,10 +193,17 @@ const academyItems = [
       icon: CalendarCheck,
     },
     {
+      label: "MENTOR MANAGEMENT",
+      href: "/invictus/management/mentors",
+      icon: Users,
+      role: ["founder", "manager"],
+    },
+    {
       label: "LEADERBOARD ",
       href: "/invictus/management/leaderboards",
       icon: CalendarCheck,
     },
+    
   ];
 
   const canManageInvictus =
@@ -246,6 +253,7 @@ const academyItems = [
       label: "MY ACCOUNTABILITY",
       href: "/invictus/accountability",
       icon: ClipboardCheck,
+      roles: ["manager", "admin", "super_admin", "co_mentor", "associate", "partner", "ambassador", "we_club_member", "ceo", "ceo_partner"],
     },
 
     {
@@ -389,7 +397,7 @@ const academyItems = [
               Main
             </p>
 
-            {mainItems.map(({ label, href, icon: Icon }) => {
+            {mainItems.filter((item) => !item.roles || (userRole && item.roles.includes(userRole))).map(({ label, href, icon: Icon }) => {
               const active = isActive(href);
 
               return (

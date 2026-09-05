@@ -10,6 +10,49 @@ const errorHandler = (error: any) => {
   return "Something went wrong";
 };
 
+export interface AvailabilitySlot {
+  day:
+    | "monday"
+    | "tuesday"
+    | "wednesday"
+    | "thursday"
+    | "friday"
+    | "saturday"
+    | "sunday";
+  startTime: string;
+  endTime: string;
+  timezone: string;
+}
+
+export const getPrimaryMentorAvailability = createAsyncThunk(
+  "profile/primaryMentorAvailability",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get("/invictus/mentorship-profiles/me/availability");
+      return res.data.data as {
+        profileId: string;
+        availability: AvailabilitySlot[];
+      };
+    } catch (error) {
+      return rejectWithValue(errorHandler(error));
+    }
+  },
+);
+
+export const updatePrimaryMentorAvailability = createAsyncThunk(
+  "profile/updatePrimaryMentorAvailability",
+  async (availability: AvailabilitySlot[], { rejectWithValue }) => {
+    try {
+      const res = await api.patch("/invictus/mentorship-profiles/me/availability", {
+        availability,
+      });
+      return res.data.data as AvailabilitySlot[];
+    } catch (error) {
+      return rejectWithValue(errorHandler(error));
+    }
+  },
+);
+
 // GET PROFILE
 
 export const getMyProfile = createAsyncThunk(

@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSelector, createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import { ICancelMentorBookingPayload, ICompleteMentorBookingPayload, IConfirmMentorBookingPayload, ICreateMentorBookingPayload, IMentorBooking, IMentorBookingQuery, IMyMentorResponse, INoShowMentorBookingPayload, IPaginatedBookings, ISelectCoMentorPayload, IUpdateMentorBookingPayload } from "./mentorBookingTypes";
+import { ICancelMentorBookingPayload, ICompleteMentorBookingPayload, IConfirmMentorBookingPayload, ICreateMentorBookingPayload, IMentorBooking, IMentorBookingQuery, IMentorshipProfileSummary, IMyMentorResponse, INoShowMentorBookingPayload, IPaginatedBookings, ISelectCoMentorPayload, IUpdateMentorBookingPayload } from "./mentorBookingTypes";
 import { RootState } from "@/lib/redux/store/store";
 import { mentorBookingApi } from "./mentorBookingApi";
 
@@ -16,6 +16,7 @@ interface MentorBookingState {
   bookingsMeta: IPaginatedBookings["meta"] | null;
   selectedBooking: IMentorBooking | null;
   myMentor: IMyMentorResponse | null;
+  availableCoMentors: IMentorshipProfileSummary[];
 
   // Single source of truth for whichever booking an admin/mentor is
   // currently viewing — kept in sync by every admin action below, so any
@@ -29,6 +30,7 @@ interface MentorBookingState {
   cancelStatus: RequestStatus;
   myMentorStatus: RequestStatus;
   selectCoMentorStatus: RequestStatus;
+  availableCoMentorsStatus: RequestStatus;
   completeStatus: RequestStatus;
 
   adminFetchSingleStatus: RequestStatus;
@@ -49,6 +51,7 @@ const initialState: MentorBookingState = {
   bookingsMeta: null,
   selectedBooking: null,
   myMentor: null,
+  availableCoMentors: [],
   completedBookings: [],
   adminSelectedBooking: null,
   listStatus: "idle",
@@ -58,6 +61,7 @@ const initialState: MentorBookingState = {
   cancelStatus: "idle",
   myMentorStatus: "idle",
   selectCoMentorStatus: "idle",
+  availableCoMentorsStatus: "idle",
   completeStatus: "idle",
 
   adminFetchSingleStatus: "idle",
@@ -292,6 +296,18 @@ export const selectCoMentor = createAsyncThunk<
 >("mentorBooking/selectCoMentor", async (payload, { rejectWithValue }) => {
   try {
     await mentorBookingApi.selectCoMentor(payload);
+  } catch (error) {
+    return rejectWithValue(getErrorMessage(error));
+  }
+});
+
+export const fetchAvailableCoMentors = createAsyncThunk<
+  IMentorshipProfileSummary[],
+  void,
+  { state: RootState; rejectValue: string }
+>("mentorBooking/fetchAvailableCoMentors", async (_, { rejectWithValue }) => {
+  try {
+    return await mentorBookingApi.fetchAvailableCoMentors();
   } catch (error) {
     return rejectWithValue(getErrorMessage(error));
   }
@@ -574,6 +590,19 @@ const mentorBookingSlice = createSlice({
       .addCase(selectCoMentor.rejected, (state, action) => {
         state.selectCoMentorStatus = "failed";
         state.error = action.payload ?? "Failed to select co_mentor";
+      })
+      .addCase(fetchAvailableCoMentors.pending, (state) => {
+        state.availableCoMentorsStatus = "loading";
+      })
+      .addCase(fetchAvailableCoMentors.fulfilled, (state, action) => {
+        state.availableCoMentorsStatus = "succeeded";
+        state.availableCoMentors = action.payload.filter(
+          (profile) => !profile.isPrimaryMentor && profile.status === "published",
+        );
+      })
+      .addCase(fetchAvailableCoMentors.rejected, (state, action) => {
+        state.availableCoMentorsStatus = "failed";
+        state.error = action.payload ?? "Failed to load co_mentors";
       });
   },
 });
