@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
@@ -14,41 +15,49 @@ const issues = [
     img: "https://images.unsplash.com/photo-1495020689067-958852a7765e?w=800&q=80",
     number: "N°13",
     title: "The Quiet Empire",
+    href:"https://world-elete-674262.webflow.io/magazine"
   },
   {
     img: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&q=80",
     number: "N°12",
     title: "Legacy & Leverage",
+   href:"https://world-elete-674262.webflow.io/magazine"
   },
   {
     img: "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800&q=80",
     number: "N°11",
     title: "The Art of The Climb",
+    href:"https://world-elete-674262.webflow.io/magazine"    
   },
   {
     img: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
     number: "N°10",
     title: "Cities of Elite",
+    href:"https://world-elete-674262.webflow.io/magazine"    
   },
   {
     img: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80",
     number: "N°09",
     title: "Built To Last",
+    href:"https://world-elete-674262.webflow.io/magazine"    
   },
   {
     img: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80",
     number: "N°09",
     title: "Built To Last",
+    href:"https://world-elete-674262.webflow.io/magazine"    
   },
   {
     img: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80",
     number: "N°09",
     title: "Built To Last",
+    href:"https://world-elete-674262.webflow.io/magazine"    
   },
   {
     img: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80",
     number: "N°09",
     title: "Built To Last",
+    href:"https://world-elete-674262.webflow.io/magazine"    
   },
 ];
 
@@ -291,7 +300,9 @@ text-gray-400
           >
             {issues.map((issue) => (
               <SwiperSlide key={issue.title}>
-                <div
+                <Link
+                  href={issue.href}
+                  target="_blank"
                   className="
 group
 cursor-pointer
@@ -358,7 +369,7 @@ transition
                   >
                     {issue.title}
                   </h4>
-                </div>
+                </Link>
               </SwiperSlide>
             ))}
           </Swiper>

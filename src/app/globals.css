@@ -157,6 +157,7 @@ body.skiptranslate {
   @apply min-h-screen bg-[#FAF8F3] text-[#171717] mx-auto max-w-295 px-4 py-8 md:px-8 md:py-10 space-y-8;
 }
 
+
 .text-eyebrow {
   font-family: var(--font-ui);
   letter-spacing: 0.24em;

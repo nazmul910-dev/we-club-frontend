@@ -18,6 +18,7 @@ const SESSION_TYPE_LABEL: Record<string, string> = {
   other: "SESSION",
 };
 
+
 function EventCard({
   session,
   isRegistered,
@@ -91,7 +92,7 @@ function EventCard({
           </div>
         </div>
 
-        <div className="flex items-center justify-between border-t border-[#EFE6D6] pt-4">
+        <div className="grid items-start justify-start gap-3 border-t border-[#EFE6D6] pt-4">
           <p className="font-montserrat text-[13px] text-gray-600">{label}</p>
 
           <button

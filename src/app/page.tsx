@@ -9,13 +9,13 @@ import BgImage from "@/assets/Login/login-bg.jpg";
 
 export default function Home() {
   return (
-    <main className="page-wrapper">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden">
       <Image
         src={BgImage}
         alt="Background"
         fill
         priority
-        className="object-cover"
+        className="absolute inset-0 h-full w-full object-cover"
       />
 
       <div className="absolute inset-0 bg-black/50" />

@@ -64,7 +64,9 @@ export default function ChallengeQuizPanel({
   const dispatch = useAppDispatch();
 
   const questions = useAppSelector((state) => state.quizQuestion.questions);
-  const questionsLoading = useAppSelector((state) => state.quizQuestion.loading);
+  const questionsLoading = useAppSelector(
+    (state) => state.quizQuestion.loading,
+  );
   const submitting = useAppSelector((state) => state.quizAttempt.submitting);
   const lastAttempt = useAppSelector((state) => state.quizAttempt.lastAttempt);
   const certificateLoading = useAppSelector(
@@ -102,6 +104,11 @@ export default function ChallengeQuizPanel({
     currentProgress?.quizSummary?.bestScore ??
     0;
 
+  const attemptsUsed = currentProgress?.quizSummary?.attemptsUsed ?? 0;
+  const maximumAttempts = currentProgress?.quizSummary?.maximumAttempts ?? 0;
+  const attemptsExhausted =
+    maximumAttempts > 0 && attemptsUsed >= maximumAttempts;
+
   useEffect(() => {
     if (quizUnlocked && !isModulePassed && moduleId) {
       dispatch(fetchQuizQuestions({ moduleId, includeArchived: false }));
@@ -136,6 +143,13 @@ export default function ChallengeQuizPanel({
   };
 
   const handleSubmit = async () => {
+    if (attemptsExhausted) {
+      toast.error(
+        `Maximum ${maximumAttempts} quiz attempts have already been used.`,
+      );
+      return;
+    }
+
     if (Object.keys(answers).length < questions.length) {
       toast.error("Please answer every question before submitting");
       return;
@@ -161,11 +175,13 @@ export default function ChallengeQuizPanel({
 
       dispatch(fetchMyModuleProgress(moduleId));
       dispatch(fetchMyCertificates());
-    } catch (error: any) {
+    } catch (error: unknown) {
       const msg =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Failed to submit quiz attempt";
+        typeof error === "string"
+          ? error
+          : error instanceof Error
+            ? error.message
+            : "Failed to submit quiz attempt";
       toast.error(msg);
     }
   };
@@ -188,10 +204,14 @@ export default function ChallengeQuizPanel({
       );
       dispatch(fetchMyCertificates());
       dispatch(fetchMyModuleProgress(moduleId));
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const responseError = error as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
       const msg =
-        error?.response?.data?.message ||
-        error?.message ||
+        responseError.response?.data?.message ||
+        responseError.message ||
         "Failed to issue certificate. Ensure you have passed all module quizzes in this pillar.";
       toast.error(msg);
     }
@@ -201,9 +221,8 @@ export default function ChallengeQuizPanel({
   const thisPillarCertificate = pillarId
     ? myCertificates.find(
         (cert) =>
-          (typeof cert.pillar === "string"
-            ? cert.pillar
-            : cert.pillar?._id) === pillarId && cert.status === "issued",
+          (typeof cert.pillar === "string" ? cert.pillar : cert.pillar?._id) ===
+            pillarId && cert.status === "issued",
       )
     : undefined;
 
@@ -299,7 +318,8 @@ export default function ChallengeQuizPanel({
 
         <div className="mt-6 border-t border-[#E8DDCA] pt-5">
           <p className="mb-3 text-xs text-[#8A8175]">
-            Review the module lessons and downloadable resources, then try again.
+            Review the module lessons and downloadable resources, then try
+            again.
           </p>
           <button
             onClick={handleRetake}
@@ -359,7 +379,9 @@ export default function ChallengeQuizPanel({
                   {pillarTotalModules > 0 ? `${pillarTotalModules} ` : ""}
                   modules in{" "}
                   {pillarName ? (
-                    <span className="font-semibold text-[#B18A3A]">{pillarName}</span>
+                    <span className="font-semibold text-[#B18A3A]">
+                      {pillarName}
+                    </span>
                   ) : (
                     "this pillar"
                   )}
@@ -371,14 +393,16 @@ export default function ChallengeQuizPanel({
                   <span className="font-semibold text-[#B18A3A]">
                     {pillarPassedModules} of {pillarTotalModules}
                   </span>{" "}
-                  module{pillarTotalModules !== 1 ? "s" : ""} passed.{" "}
-                  Complete the remaining{" "}
+                  module{pillarTotalModules !== 1 ? "s" : ""} passed. Complete
+                  the remaining{" "}
                   <span className="font-semibold text-[#B18A3A]">
                     {remainingModules} module{remainingModules !== 1 ? "s" : ""}
                   </span>{" "}
                   in{" "}
                   {pillarName ? (
-                    <span className="font-semibold text-[#B18A3A]">{pillarName}</span>
+                    <span className="font-semibold text-[#B18A3A]">
+                      {pillarName}
+                    </span>
                   ) : (
                     "this pillar"
                   )}{" "}
@@ -407,9 +431,7 @@ export default function ChallengeQuizPanel({
                 <div
                   key={i}
                   className={`h-2 flex-1 rounded-full ${
-                    i < pillarPassedModules
-                      ? "bg-emerald-500"
-                      : "bg-[#E8DDCA]"
+                    i < pillarPassedModules ? "bg-emerald-500" : "bg-[#E8DDCA]"
                   }`}
                 />
               ))}

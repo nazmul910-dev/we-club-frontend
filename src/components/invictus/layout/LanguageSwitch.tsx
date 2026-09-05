@@ -1,8 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Globe2, Check } from "lucide-react";
+import { Globe2, Check, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const DEFAULT_LANG = "en";
 
@@ -19,7 +25,6 @@ interface LanguageSwitchProps {
 
 export default function LanguageSwitch({ className }: LanguageSwitchProps) {
   const [selectedLanguage, setSelectedLanguage] = useState(DEFAULT_LANG);
-  const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   // Load saved language on mount
@@ -56,17 +61,14 @@ export default function LanguageSwitch({ className }: LanguageSwitchProps) {
   }, []);
 
   const changeLanguage = (lang: "en" | "fr") => {
-    if (lang === selectedLanguage) {
-      setOpen(false);
-      return;
-    }
+    if (lang === selectedLanguage) return;
 
     setIsLoading(true);
-    setOpen(false);
 
     localStorage.setItem("selectedLanguage", lang);
 
-    document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+    document.cookie =
+      "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
 
     const domain = window.location.hostname;
     document.cookie = `googtrans=/en/${lang}; path=/`;
@@ -79,45 +81,55 @@ export default function LanguageSwitch({ className }: LanguageSwitchProps) {
     <div className="relative">
       <div id="google_translate_element" className="hidden" />
 
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        disabled={isLoading}
-        className={cn(
-          "flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-gold-soft transition hover:bg-[#F3EBD8] disabled:opacity-70",
-          className,
-        )}
-      >
-        {isLoading ? (
-          <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-        ) : (
-          <Globe2 size={20} className="text-gold" />
-        )}
-      </button>
-
-      {open && (
-        <div className="absolute right-0 top-12 z-[9999] w-44 rounded-xl border border-[#EAE4D7] bg-[#FAF8F5] p-2 shadow-xl">
+      <DropdownMenu>
+        <DropdownMenuTrigger>
           <button
+            type="button"
+            disabled={isLoading}
+            className={cn(
+              "flex h-9 items-center cursor-pointer gap-1.5 rounded-xl border border-gold-soft px-3 transition hover:bg-[#F3EBD8] disabled:opacity-70",
+              className,
+            )}
+          >
+            {isLoading ? (
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-gold border-t-transparent" />
+            ) : (
+              <>
+                <Globe2 size={18} className="text-gold" />
+                <span className="text-xs font-semibold uppercase text-gold">
+                  {selectedLanguage}
+                </span>
+                <ChevronDown size={14} className="text-gold/70" />
+              </>
+            )}
+          </button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent
+          align="end"
+          className="w-44 rounded-xl border border-[#EAE4D7] bg-[#FAF8F5] p-2 shadow-xl"
+        >
+          <DropdownMenuItem
             onClick={() => changeLanguage("en")}
-            className="flex w-full items-center justify-between cursor-pointer rounded-lg px-3 py-2 text-sm text-[#4A4237] hover:bg-[#F3EBD8]"
+            className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-sm text-[#4A4237] hover:bg-[#F3EBD8] focus:bg-[#F3EBD8]"
           >
             <span>English</span>
             {selectedLanguage === "en" && (
               <Check size={15} className="text-[#947124]" />
             )}
-          </button>
+          </DropdownMenuItem>
 
-          <button
+          <DropdownMenuItem
             onClick={() => changeLanguage("fr")}
-            className="flex w-full items-center justify-between cursor-pointer rounded-lg px-3 py-2 text-sm text-[#4A4237] hover:bg-[#F3EBD8]"
+            className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-sm text-[#4A4237] hover:bg-[#F3EBD8] focus:bg-[#F3EBD8]"
           >
             <span>Français</span>
             {selectedLanguage === "fr" && (
               <Check size={15} className="text-[#947124]" />
             )}
-          </button>
-        </div>
-      )}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }
