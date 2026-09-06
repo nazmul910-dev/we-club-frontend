@@ -299,7 +299,7 @@ function StatCard({
     value: string;
 }) {
     return (
-        <div className="rounded-2xl border border-[#E8DDCA] bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-[#E8DDCA] p-6 shadow-2xs">
             <div className="mb-4 text-[#B18A3A]">{icon}</div>
             <p className="text-sm text-[#8A8175]">{title}</p>
             <h3 className="mt-1 text-2xl font-bold text-[#171717]">{value}</h3>

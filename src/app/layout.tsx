@@ -66,6 +66,37 @@ function TranslationRouteGuard() {
     return null;
 }
 
+function AppToaster() {
+    const pathname = usePathname();
+    const isInvictusRoute =
+        pathname === "/invictus" || pathname.startsWith("/invictus/");
+
+    return (
+        <Toaster
+            position="top-right"
+            richColors
+            closeButton
+            expand
+            duration={3000}
+            theme={isInvictusRoute ? "light" : "dark"}
+            toastOptions={{
+                classNames: isInvictusRoute
+                    ? {
+                          toast: "rounded-xl border border-[#E8E0D2] bg-white shadow-xl",
+                          title: "font-semibold text-[#1C1A17]",
+                          description: "text-[#777]",
+                          success: "border-emerald-200",
+                          error: "border-red-200",
+                          warning: "border-amber-200",
+                          info: "border-sky-200",
+                          closeButton: "bg-transparent",
+                      }
+                    : undefined,
+            }}
+        />
+    );
+}
+
 export default function RootLayout({
     children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -88,14 +119,7 @@ export default function RootLayout({
                     <TranslationRouteGuard />
                     {children}
                 </Provider>
-                <Toaster
-                    position="top-right"
-                    richColors
-                    closeButton
-                    expand
-                    duration={3000}
-                    theme="dark"
-                />
+                <AppToaster />
             </body>
         </html>
     );

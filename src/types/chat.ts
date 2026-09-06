@@ -10,7 +10,8 @@ export interface Room {
   description?: string;
   members: string[];
   createdBy: string;
-  type?: "general" | "country";
+  type?: "general" | "country" | "private";
+  slug?: string;
   countryCode?: string;
   countryName?: string;
 }

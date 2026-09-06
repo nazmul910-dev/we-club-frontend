@@ -31,7 +31,7 @@ export default function GroupChatPage() {
     profile?.role === "admin" ||
     profile?.role === "manager";
   const countryName =
-    canChooseAnyRoom ? selectedCountry || profile?.country : profile?.country;
+    selectedCountry || profile?.country;
   const { sendMessage, deleteMessage, startTyping, stopTyping } = useSocket(
     countryName,
     canChooseAnyRoom,

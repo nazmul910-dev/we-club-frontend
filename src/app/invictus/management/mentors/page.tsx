@@ -59,6 +59,7 @@ import type {
   MentorProfile,
   UpdateMentorPayload,
 } from "@/lib/features/mentorManagement/mentorManagementTypes";
+import { toast } from "sonner";
 
 const emptyForm = {
   bio: "",
@@ -104,9 +105,23 @@ function MentorManagementContent() {
   const [existingUserSelectOpen, setExistingUserSelectOpen] = useState(false);
   const [expertiseInput, setExpertiseInput] = useState("");
 
-  const loadData = () => {
-    dispatch(fetchMentorProfiles({}));
-    dispatch(getAllUsers({ page: 1, limit: 100 }));
+  const loadData = async (showSuccessToast = false) => {
+    try {
+      await Promise.all([
+        dispatch(fetchMentorProfiles({})).unwrap(),
+        dispatch(getAllUsers({ page: 1, limit: 100 })).unwrap(),
+      ]);
+
+      if (showSuccessToast) {
+        toast.success("Mentor management data refreshed");
+      }
+    } catch (error) {
+      toast.error(
+        typeof error === "string"
+          ? error
+          : "Unable to load mentor management data",
+      );
+    }
   };
 
   useEffect(() => {
@@ -174,7 +189,30 @@ function MentorManagementContent() {
   };
 
   const handleSubmit = async () => {
-    if (form.bio.trim().length < 10) return;
+    if (form.bio.trim().length < 10) {
+      toast.error("Bio must be at least 10 characters");
+      return;
+    }
+
+    if (!editing && mode === "create") {
+      if (!form.fullName.trim()) {
+        toast.error("Enter the mentor's full name");
+        return;
+      }
+      if (!form.email.trim()) {
+        toast.error("Enter the mentor's email");
+        return;
+      }
+      if (form.password.length < 8) {
+        toast.error("Password must be at least 8 characters");
+        return;
+      }
+    }
+
+    if (!editing && mode === "existing" && !form.userId) {
+      toast.error("Select an existing user first");
+      return;
+    }
 
     const fields = {
       bio: form.bio.trim(),
@@ -187,31 +225,37 @@ function MentorManagementContent() {
       isPrimaryMentor: form.isPrimaryMentor,
     };
 
-    let result;
-    if (editing) {
-      const payload: UpdateMentorPayload = fields;
-      result = await dispatch(updateMentor({ id: editing._id, payload }));
-    } else {
-      const payload: CreateMentorPayload =
-        mode === "create"
-          ? {
-              ...fields,
-              mode,
-              fullName: form.fullName.trim(),
-              email: form.email.trim(),
-              password: form.password,
-            }
-          : { ...fields, mode, userId: form.userId };
-      result = await dispatch(createMentor(payload));
-    }
+    try {
+      if (editing) {
+        const payload: UpdateMentorPayload = fields;
+        await dispatch(updateMentor({ id: editing._id, payload })).unwrap();
+        toast.success("Mentor profile updated");
+      } else {
+        const payload: CreateMentorPayload =
+          mode === "create"
+            ? {
+                ...fields,
+                mode,
+                fullName: form.fullName.trim(),
+                email: form.email.trim(),
+                password: form.password,
+              }
+            : { ...fields, mode, userId: form.userId };
+        await dispatch(createMentor(payload)).unwrap();
+        toast.success(
+          mode === "create"
+            ? "Mentor account and profile created"
+            : "User promoted to mentor",
+        );
+      }
 
-    if (
-      (editing && updateMentor.fulfilled.match(result)) ||
-      (!editing && createMentor.fulfilled.match(result))
-    ) {
       setFormOpen(false);
       setEditing(null);
       setForm(emptyForm);
+    } catch (error) {
+      toast.error(
+        typeof error === "string" ? error : "Unable to save mentor profile",
+      );
     }
   };
 
@@ -270,8 +314,16 @@ function MentorManagementContent() {
   const runAction = async (
     action: typeof publishMentor | typeof moveMentorToDraft | typeof archiveMentor,
     id: string,
+    successMessage: string,
   ) => {
-    await dispatch(action(id));
+    try {
+      await dispatch(action(id)).unwrap();
+      toast.success(successMessage);
+    } catch (error) {
+      toast.error(
+        typeof error === "string" ? error : "Unable to update mentor profile",
+      );
+    }
   };
 
   return (
@@ -283,7 +335,11 @@ function MentorManagementContent() {
         description="Create mentor profiles, promote existing users, and keep the active mentor roster ready for members."
         actions={
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={loadData} disabled={loading}>
+            <Button
+              variant="outline"
+              onClick={() => loadData(true)}
+              disabled={loading}
+            >
               <RefreshCw className={loading ? "animate-spin" : ""} size={15} />
               Refresh
             </Button>
@@ -549,7 +605,7 @@ function MentorManagementContent() {
         </Select>
       </div>
 
-      <div className="mt-4 overflow-hidden rounded-2xl border border-[#E7DDCC] bg-white">
+      <div className="mt-4 overflow-hidden rounded-2xl border border-[#E7DDCC] ">
         <Table>
           <TableHeader className="bg-[#FAF6EE]">
             <TableRow>
@@ -584,16 +640,16 @@ function MentorManagementContent() {
                       <Edit3 size={15} />
                     </Button>
                     {profile.status === "published" ? (
-                      <Button variant="outline" size="icon" title="Move to draft" disabled={actionLoading} onClick={() => runAction(moveMentorToDraft, profile._id)}>
+                      <Button variant="outline" size="icon" title="Move to draft" disabled={actionLoading} onClick={() => runAction(moveMentorToDraft, profile._id, "Mentor profile moved to draft")}>
                         <RefreshCw size={15} />
                       </Button>
                     ) : profile.status === "draft" ? (
-                      <Button variant="outline" size="icon" title="Publish mentor" disabled={actionLoading} onClick={() => runAction(publishMentor, profile._id)}>
+                      <Button variant="outline" size="icon" title="Publish mentor" disabled={actionLoading} onClick={() => runAction(publishMentor, profile._id, "Mentor profile published")}>
                         <CheckCircle2 size={15} />
                       </Button>
                     ) : null}
                     {profile.status !== "archived" && (
-                      <Button variant="outline" size="icon" title="Archive mentor" disabled={actionLoading} onClick={() => runAction(archiveMentor, profile._id)}>
+                      <Button variant="outline" size="icon" title="Archive mentor" disabled={actionLoading} onClick={() => runAction(archiveMentor, profile._id, "Mentor profile archived")}>
                         <Archive size={15} />
                       </Button>
                     )}
@@ -632,7 +688,7 @@ function Field({
 
 function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
   return (
-    <Card className="border-[#E7DDCC]">
+    <Card className="border border-[#E7DDCC] bg-[##faf6ee] shadow-2xs">
       <CardContent className="flex items-center gap-3 p-4">
         <span className="rounded-full bg-[#F3E9D2] p-2 text-[#B08A3E]">{icon}</span>
         <div>

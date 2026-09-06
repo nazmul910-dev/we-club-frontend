@@ -23,3 +23,8 @@ export const getMessageHistory = async (
   });
   return res.data.data;
 };
+
+export const getPrivateRoom = async (slug: string): Promise<Room> => {
+  const res = await api.get(`/rooms/private/${encodeURIComponent(slug)}`);
+  return res.data.data;
+};

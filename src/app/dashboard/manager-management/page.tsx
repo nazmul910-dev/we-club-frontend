@@ -68,6 +68,8 @@ const formatAccess = (value: string) => {
       return "Super Admin Support";
     case "co_mentor":
       return "co_mentor";
+    case "ceo":
+      return "CEO";
     default:
       return value;
   }
@@ -123,7 +125,7 @@ export default function ManagerManagement() {
         description={
           currentUserRole === "founder"
             ? "Manage access, roles and account status of all admins."
-            : "Manage Admin, Super Admin and co_mentor accounts."
+            : "Manage Admin, Super Admin, CEO and co_mentor accounts."
         }
         fontFamily="font-playfair"
         actions={<AddManagerModal />}

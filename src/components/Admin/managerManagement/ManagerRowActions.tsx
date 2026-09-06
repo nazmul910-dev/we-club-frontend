@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MoreVertical, Ban, CheckCircle2, Trash2 } from "lucide-react";
+import { MoreVertical, Ban, CheckCircle2, Trash2, Send } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +19,7 @@ import {
 import { Manager } from "@/lib/features/addManager/managerTypes";
 import ConfirmActionModal from "./ConfirmActionModal";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
+import PrivateRoomInviteModal from "./PrivateRoomInviteModal";
 
 type PendingAction = "activate" | "suspend" | "delete" | null;
 
@@ -38,6 +39,7 @@ export default function ManagerRowActions({ manager, canDelete: canDeleteProp }:
 
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const [loading, setLoading] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
 
   const isActive = manager.accountStatus === "active";
 
@@ -126,6 +128,12 @@ export default function ManagerRowActions({ manager, canDelete: canDeleteProp }:
               Delete
             </DropdownMenuItem>
           )}
+          {currentUserRole === "founder" && (
+            <DropdownMenuItem onClick={() => setInviteOpen(true)}>
+              <Send className="mr-2 h-4 w-4" />
+              Invite to private room
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -138,6 +146,12 @@ export default function ManagerRowActions({ manager, canDelete: canDeleteProp }:
           {...confirmCopy[pendingAction]}
         />
       )}
+
+      <PrivateRoomInviteModal
+        manager={manager}
+        open={inviteOpen}
+        onOpenChange={setInviteOpen}
+      />
     </>
   );
 }
