@@ -19,6 +19,8 @@ import InvictusLeaderboardSection from "@/components/invictus/home/InvictusLeade
 import InvictusFounderSpotlight from "@/components/invictus/home/InvictusFounderSpotlight";
 import InvictusEliteMagazine from "@/components/invictus/home/InvictusEliteMagazine";
 import InvictusNewGenBanner from "@/components/invictus/home/InvictusNewGenBanner";
+import AccessUpgradeModal from "@/components/common/AccessUpgradeModal";
+import { useAppSelector } from "@/lib/redux/store/hook";
 
 import img from "@/assets/Invictus/Home/sof.png";
 import img1 from "@/assets/Invictus/Home/soft2.avif";
@@ -26,6 +28,14 @@ import img1 from "@/assets/Invictus/Home/soft2.avif";
 export default function InvictusCampusPage() {
   const router = useRouter();
   const [switchModal, setSwitchModal] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const profile = useAppSelector((state) => state.authUser.profile);
+  const tokenUser = useAppSelector((state) => state.authUser.user);
+  const accessTo = profile?.accessTo || tokenUser?.accessTo;
+  const canSwitchDirectly =
+    accessTo === "both" ||
+    accessTo === "we_command_center" ||
+    tokenUser?.role === "admin";
 
   return (
     <>
@@ -79,7 +89,9 @@ export default function InvictusCampusPage() {
             </p>
             <button
               type="button"
-              onClick={() => setSwitchModal(true)}
+              onClick={() =>
+                canSwitchDirectly ? setSwitchModal(true) : setUpgradeOpen(true)
+              }
               className="inline-flex items-center justify-center gap-1.5 font-montserrat text-xs font-bold uppercase tracking-wider text-[#9E7B28] hover:text-[#7C5F1E] transition cursor-pointer"
             >
               <span>ENTER</span>
@@ -159,6 +171,11 @@ export default function InvictusCampusPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <AccessUpgradeModal
+        open={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+        variant="invictus"
+      />
     </>
   );
 }

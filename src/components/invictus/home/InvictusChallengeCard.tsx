@@ -139,7 +139,9 @@ export default function InvictusChallengeCard() {
           return itemModId === modId;
         });
 
-        if (progress) {
+        const hasPublishedVideos = (mod.publishedVideoCount ?? 0) > 0;
+
+        if (progress && hasPublishedVideos) {
           totalPercentSum += progress.overallCompletionPercent || 0;
           if (
             progress.isCompleted ||

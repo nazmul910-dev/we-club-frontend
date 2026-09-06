@@ -15,50 +15,39 @@ const issues = [
     img: "https://images.unsplash.com/photo-1495020689067-958852a7765e?w=800&q=80",
     number: "N°13",
     title: "The Quiet Empire",
-    href:"https://world-elete-674262.webflow.io/magazine"
+    href:"https://world-elete-674262.webflow.io/magazine#one"
   },
   {
-    img: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&q=80",
+    img: "/assets/magazine/two.png",
     number: "N°12",
     title: "Legacy & Leverage",
-   href:"https://world-elete-674262.webflow.io/magazine"
+   href:"https://world-elete-674262.webflow.io/magazine#two"
   },
   {
-    img: "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800&q=80",
+    img: "/assets/magazine/three.jpg",
     number: "N°11",
     title: "The Art of The Climb",
-    href:"https://world-elete-674262.webflow.io/magazine"    
+    href:"https://world-elete-674262.webflow.io/magazine#three"    
   },
   {
-    img: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
+    img: "/assets/magazine/four.jpg",
     number: "N°10",
     title: "Cities of Elite",
-    href:"https://world-elete-674262.webflow.io/magazine"    
+    href:"https://world-elete-674262.webflow.io/magazine#four"    
   },
   {
-    img: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80",
+    img: "/assets/magazine/five.png",
     number: "N°09",
     title: "Built To Last",
-    href:"https://world-elete-674262.webflow.io/magazine"    
+    href:"https://world-elete-674262.webflow.io/magazine#five"    
   },
   {
-    img: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80",
+    img: "/assets/magazine/six.jpg",
     number: "N°09",
     title: "Built To Last",
-    href:"https://world-elete-674262.webflow.io/magazine"    
+    href:"https://world-elete-674262.webflow.io/magazine#six"    
   },
-  {
-    img: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80",
-    number: "N°09",
-    title: "Built To Last",
-    href:"https://world-elete-674262.webflow.io/magazine"    
-  },
-  {
-    img: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80",
-    number: "N°09",
-    title: "Built To Last",
-    href:"https://world-elete-674262.webflow.io/magazine"    
-  },
+  
 ];
 
 export default function InvictusEliteMagazine() {

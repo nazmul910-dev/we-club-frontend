@@ -345,15 +345,24 @@ export default function PillarChallengePage() {
                                 return itemModId === courseModule._id;
                             });
 
+                            const hasPublishedVideos =
+                                (courseModule.publishedVideoCount ?? 0) > 0;
+
                             return (
                                 <ChallengeModuleCard
                                     key={courseModule._id}
                                     courseModule={courseModule}
                                     pillarSlug={selectedPillar.slug}
                                     progressPercent={
-                                        progress?.overallCompletionPercent ?? 0
+                                        hasPublishedVideos
+                                            ? (progress?.overallCompletionPercent ?? 0)
+                                            : 0
                                     }
-                                    isCompleted={progress?.isCompleted ?? false}
+                                    isCompleted={
+                                        hasPublishedVideos
+                                            ? (progress?.isCompleted ?? false)
+                                            : false
+                                    }
                                     isLocked={
                                         !hasAccess && selectedPillar.isPaid
                                     }

@@ -23,6 +23,9 @@ export default function ChallengeModuleCard({
   onLockClick,
 }: Props) {
   const hasPublishedVideos = (courseModule.publishedVideoCount ?? 0) > 0;
+  const currentProgressPercent = hasPublishedVideos ? progressPercent : 0;
+  const currentIsCompleted = hasPublishedVideos ? isCompleted : false;
+
   const cardBody = (
     <div className="group relative cursor-pointer overflow-hidden rounded-3xl border border-[#E8DDCA] bg-white p-6 transition duration-300 hover:-translate-y-1.5 hover:border-[#B18A3A]/50 hover:shadow-[0_20px_50px_rgba(177,138,58,.15)]">
       {isLocked && (
@@ -33,7 +36,7 @@ export default function ChallengeModuleCard({
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#F3E9D2] text-[#B18A3A]">
           {isLocked ? <Lock size={22} /> : <PlayCircle size={24} />}
         </div>
-        {isCompleted ? (
+        {currentIsCompleted ? (
           <CheckCircle2 size={20} className="text-emerald-500" />
         ) : isLocked ? (
           <span className="inline-flex items-center gap-1 rounded-full bg-[#F3E9D2] px-2.5 py-0.5 text-xs font-semibold text-[#B18A3A]">
@@ -52,27 +55,25 @@ export default function ChallengeModuleCard({
         {courseModule.shortDescription || courseModule.description}
       </p>
 
-      {hasPublishedVideos && (
-        <div className="mt-6">
-          <div className="mb-2 flex justify-between text-xs text-[#8A8175]">
-            <span>{courseModule.estimatedDurationMinutes} min</span>
-            <span>{isLocked ? "Locked" : `${progressPercent}%`}</span>
-          </div>
-          <div className="h-2 overflow-hidden rounded-full bg-[#F3E9D2]">
-            <div
-              style={{ width: isLocked ? "0%" : `${progressPercent}%` }}
-              className="h-full bg-[#B18A3A]"
-            />
-          </div>
+      <div className="mt-6">
+        <div className="mb-2 flex justify-between text-xs text-[#8A8175]">
+          <span>{courseModule.estimatedDurationMinutes ?? 0} min</span>
+          <span>{isLocked ? "Locked" : `${currentProgressPercent}%`}</span>
         </div>
-      )}
+        <div className="h-2 overflow-hidden rounded-full bg-[#F3E9D2]">
+          <div
+            style={{ width: isLocked ? "0%" : `${currentProgressPercent}%` }}
+            className="h-full bg-[#B18A3A]"
+          />
+        </div>
+      </div>
 
       <div className="mt-6 flex items-center gap-2 text-sm text-[#B18A3A]">
         {isLocked
           ? "Unlock to Access"
-          : isCompleted
+          : currentIsCompleted
             ? "Review Module"
-            : progressPercent > 0
+            : currentProgressPercent > 0
               ? "Continue"
               : "Start Module"}
         <ArrowRight

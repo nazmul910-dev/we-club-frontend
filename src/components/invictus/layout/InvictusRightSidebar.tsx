@@ -19,6 +19,8 @@ import type { ISessionScheduleItem } from "@/lib/features/invictus/sessionSchedu
 import adam from "@/assets/Invictus/Home/adam.jpg";
 import tour from "@/assets/Invictus/Navbar/tour.jpg";
 import Link from "next/link";
+import AccessUpgradeModal from "@/components/common/AccessUpgradeModal";
+import { useAppSelector } from "@/lib/redux/store/hook";
 
 function formatSessionTime(startTime: string, timezone?: string) {
   const d = new Date(startTime);
@@ -41,11 +43,20 @@ interface LatestRetreatInfo {
 export default function InvictusRightSidebar() {
   const router = useRouter();
   const [switchModal, setSwitchModal] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const profile = useAppSelector((state) => state.authUser.profile);
+  const tokenUser = useAppSelector((state) => state.authUser.user);
+  const accessTo = profile?.accessTo || tokenUser?.accessTo;
+  const canSwitchDirectly =
+    accessTo === "both" ||
+    accessTo === "we_command_center" ||
+    tokenUser?.role === "admin";
   const [sessions, setSessions] = useState<ISessionScheduleItem[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(true);
-  const [latestRetreat, setLatestRetreat] = useState<LatestRetreatInfo | null>(null);
+  const [latestRetreat, setLatestRetreat] = useState<LatestRetreatInfo | null>(
+    null,
+  );
   const [imageError, setImageError] = useState(false);
-
 
   useEffect(() => {
     sessionScheduleApi
@@ -131,7 +142,9 @@ export default function InvictusRightSidebar() {
 
           <button
             type="button"
-            onClick={() => setSwitchModal(true)}
+            onClick={() =>
+              canSwitchDirectly ? setSwitchModal(true) : setUpgradeOpen(true)
+            }
             className="inline-flex items-center justify-center gap-1.5 font-montserrat text-xs font-bold uppercase tracking-wider text-[#9E7B28] hover:text-[#7C5F1E] transition cursor-pointer"
           >
             <span>ENTER</span>
@@ -305,6 +318,11 @@ export default function InvictusRightSidebar() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <AccessUpgradeModal
+        open={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+        variant="invictus"
+      />
     </>
   );
 }
