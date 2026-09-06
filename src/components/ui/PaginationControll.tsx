@@ -14,7 +14,7 @@ interface PaginationControlProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
-  variant?: "dark" | "light";
+  variant?: "dashboard" | "invictus" | "dark" | "light";
 }
 
 // Builds a compact page list with ellipses, e.g.:
@@ -48,7 +48,13 @@ export function PaginationControl({
   if (totalPages <= 1) return null;
 
   const pages = getPageNumbers(currentPage, totalPages);
-  const isLight = variant === "light";
+  const isInvictus = variant === "invictus" || variant === "light";
+  const pageClassName = isInvictus
+    ? "text-ink border-[#D6B15C] hover:bg-gold/20 data-[active=true]:bg-gold data-[active=true]:text-ink"
+    : "text-white border-gold hover:bg-gold/20 data-[active=true]:bg-gold data-[active=true]:text-ink";
+  const navigationClassName = isInvictus
+    ? "text-ink-soft hover:bg-gold/20"
+    : "text-white hover:bg-gold/20";
 
   function go(page: number) {
     if (page < 1 || page > totalPages || page === currentPage) return;
@@ -65,30 +71,24 @@ export function PaginationControl({
               e.preventDefault();
               go(currentPage - 1);
             }}
-            className={
-              `${isLight ? "text-ink-soft hover:bg-gold/20" : "text-white"} ${
-                currentPage === 1
-                  ? "pointer-events-none opacity-40"
-                  : ""
-              }`
-            }
+            className={`${navigationClassName} ${
+              currentPage === 1 ? "pointer-events-none opacity-40" : ""
+            }`}
           />
         </PaginationItem>
 
         {pages.map((page, i) =>
           page === "ellipsis" ? (
             <PaginationItem key={`ellipsis-${i}`}>
-              <PaginationEllipsis />
+              <PaginationEllipsis
+                className={isInvictus ? "text-ink-soft bg-transparent" : "text-white bg-transparent"}
+              />
             </PaginationItem>
           ) : (
             <PaginationItem key={page}>
               <PaginationLink
                 href="#"
-                className={`${
-                  isLight ? "text-ink" : "text-white"
-                } rounded-full text-xs h-6 w-6 border border-gold hover:bg-gold ${
-                  isLight && page !== currentPage ? "bg-transparent" : ""
-                }`}
+                className={`${pageClassName} rounded-full text-xs h-7 w-7 border bg-transparent`}
                 isActive={page === currentPage}
                 onClick={(e) => {
                   e.preventDefault();
@@ -108,13 +108,9 @@ export function PaginationControl({
               e.preventDefault();
               go(currentPage + 1);
             }}
-            className={
-              `${isLight ? "text-ink-soft hover:bg-gold/20" : "text-white"} ${
-                currentPage === totalPages
-                  ? "pointer-events-none opacity-40"
-                  : ""
-              }`
-            }
+            className={`${navigationClassName} ${
+              currentPage === totalPages ? "pointer-events-none opacity-40" : ""
+            }`}
           />
         </PaginationItem>
       </PaginationContent>
