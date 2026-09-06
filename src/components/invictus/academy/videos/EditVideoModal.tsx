@@ -96,7 +96,9 @@ export default function EditVideoModal({ open, onClose, video }: Props) {
       onClose();
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Video could not be updated, try again later!";
+        error instanceof Error
+          ? error.message
+          : "Video could not be updated, try again later!";
       toast.error(message);
       setErrors((prev) => ({
         ...prev,
@@ -206,7 +208,7 @@ export default function EditVideoModal({ open, onClose, video }: Props) {
             <div>
               <p className="font-medium">Premium Video</p>
               <p className="text-sm text-gray-500">
-                Requires an active pillar purchase to watch
+                Uses pillar access; no separate video payment is required
               </p>
             </div>
             <Switch
@@ -230,9 +232,7 @@ export default function EditVideoModal({ open, onClose, video }: Props) {
             />
           </div>
 
-          {errors.form && (
-            <p className="text-sm text-red-500">{errors.form}</p>
-          )}
+          {errors.form && <p className="text-sm text-red-500">{errors.form}</p>}
         </div>
 
         <DialogFooter>

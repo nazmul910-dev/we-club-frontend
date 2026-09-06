@@ -22,7 +22,10 @@ import type { ICourseModule } from "@/lib/features/invictus/academy/course/cours
 import type { ChallengePillar } from "@/lib/features/invictus/academy/pillar/pillarTypes";
 import BuyPillarModal from "@/components/invictus/challenge/BuyPillarModal";
 
-const PILLAR_ICONS: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+const PILLAR_ICONS: Record<
+  string,
+  React.ComponentType<{ size?: number; className?: string }>
+> = {
   crown: Crown,
   flame: Flame,
   infinity: InfinityIcon,
@@ -36,13 +39,18 @@ export default function InvictusChallengeCard() {
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  const { pillars, loading: pillarsLoading } = useAppSelector((state) => state.pillar);
-  const pillarAccessById = useAppSelector((state) => state.entitlement.pillarAccessById);
+  const { pillars, loading: pillarsLoading } = useAppSelector(
+    (state) => state.pillar,
+  );
+  const pillarAccessById = useAppSelector(
+    (state) => state.entitlement.pillarAccessById,
+  );
   const { myProgress } = useAppSelector((state) => state.progress);
 
   const [modules, setModules] = useState<ICourseModule[]>([]);
   const [modulesLoading, setModulesLoading] = useState(true);
-  const [selectedBuyPillar, setSelectedBuyPillar] = useState<ChallengePillar | null>(null);
+  const [selectedBuyPillar, setSelectedBuyPillar] =
+    useState<ChallengePillar | null>(null);
 
   // Fetch pillars and user's module progress
   useEffect(() => {
@@ -133,7 +141,10 @@ export default function InvictusChallengeCard() {
 
         if (progress) {
           totalPercentSum += progress.overallCompletionPercent || 0;
-          if (progress.isCompleted || progress.quizSummary?.passed) {
+          if (
+            progress.isCompleted ||
+            (progress.quizSummary?.passed && progress.videoSummary?.completed)
+          ) {
             completedCount += 1;
           }
         }
@@ -141,11 +152,14 @@ export default function InvictusChallengeCard() {
 
       const avgPercent = Math.min(
         100,
-        Math.round(totalPercentSum / pillarModules.length)
+        Math.round(totalPercentSum / pillarModules.length),
       );
 
       let status: "COMPLETED" | "IN PROGRESS" | "NOT STARTED" = "NOT STARTED";
-      if (avgPercent >= 100 || (completedCount === pillarModules.length && pillarModules.length > 0)) {
+      if (
+        avgPercent >= 100 ||
+        (completedCount === pillarModules.length && pillarModules.length > 0)
+      ) {
         status = "COMPLETED";
       } else if (avgPercent > 0 || completedCount > 0) {
         status = "IN PROGRESS";
@@ -255,7 +269,10 @@ export default function InvictusChallengeCard() {
                       <Icon size={20} />
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <Lock size={14} className="text-[#A69B89] group-hover:text-[#9E7B28]" />
+                      <Lock
+                        size={14}
+                        className="text-[#A69B89] group-hover:text-[#9E7B28]"
+                      />
                       <span className="font-montserrat text-xs font-semibold text-[#7A7062]">
                         {pillar.priceCents
                           ? new Intl.NumberFormat("en-US", {
@@ -279,7 +296,10 @@ export default function InvictusChallengeCard() {
                     <span className="inline-block rounded-md bg-[#EFE8DC] px-2.5 py-1 font-montserrat text-[10px] font-semibold tracking-wider text-[#7A7062] uppercase group-hover:bg-[#FAF4E6] group-hover:text-[#9E7B28]">
                       LOCKED · UNLOCK
                     </span>
-                    <ArrowRight size={13} className="text-[#A69B89] opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition" />
+                    <ArrowRight
+                      size={13}
+                      className="text-[#A69B89] opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition"
+                    />
                   </div>
                 </div>
               );
@@ -288,7 +308,9 @@ export default function InvictusChallengeCard() {
             return (
               <div
                 key={pillar._id}
-                onClick={() => router.push(`/invictus/invictus-challenge/${pillar.slug}`)}
+                onClick={() =>
+                  router.push(`/invictus/invictus-challenge/${pillar.slug}`)
+                }
                 className="group relative cursor-pointer rounded-xl border border-[#DECDB0] bg-white p-5 shadow-2xs space-y-4 transition hover:-translate-y-0.5 hover:border-[#9E7B28] hover:shadow-md"
               >
                 <div className="flex items-center justify-between">
@@ -329,7 +351,11 @@ export default function InvictusChallengeCard() {
                   )}
 
                   <span className="flex items-center gap-1 font-montserrat text-[11px] font-semibold text-[#9E7B28] opacity-0 group-hover:opacity-100 transition">
-                    Open <ArrowRight size={12} className="transition group-hover:translate-x-0.5" />
+                    Open{" "}
+                    <ArrowRight
+                      size={12}
+                      className="transition group-hover:translate-x-0.5"
+                    />
                   </span>
                 </div>
               </div>
@@ -349,4 +375,3 @@ export default function InvictusChallengeCard() {
     </div>
   );
 }
-

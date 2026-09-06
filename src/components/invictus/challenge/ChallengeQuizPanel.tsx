@@ -212,7 +212,7 @@ export default function ChallengeQuizPanel({
       const msg =
         responseError.response?.data?.message ||
         responseError.message ||
-        "Failed to issue certificate. Ensure you have passed all module quizzes in this pillar.";
+        "Failed to issue certificate. Complete the latest videos and quizzes in every module first.";
       toast.error(msg);
     }
   };

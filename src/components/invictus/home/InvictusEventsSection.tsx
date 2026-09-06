@@ -98,7 +98,7 @@ function EventCard({
           <button
             onClick={handleAction}
             disabled={registering || (isRegistered && !canJoin)}
-            className={`flex items-center gap-2 rounded-full px-4 py-2 font-montserrat text-[10px] font-bold tracking-widest transition-all duration-300 ${
+            className={`flex items-center justify-center gap-2 rounded-full px-4 py-2 font-montserrat text-[10px] font-bold tracking-widest transition-all duration-300 ${
               canJoin
                 ? "bg-[#1C1A16] text-[#DECDB0] hover:bg-[#332C1E] cursor-pointer hover:-translate-y-0.5 hover:shadow-lg active:scale-95"
                 : isRegistered

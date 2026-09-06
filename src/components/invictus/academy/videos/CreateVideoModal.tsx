@@ -388,7 +388,7 @@ export default function CreateVideoModal({ open, onClose }: Props) {
             <div>
               <p className="font-medium">Premium Video</p>
               <p className="text-sm text-gray-500">
-                Requires an active pillar purchase to watch
+                Uses pillar access; no separate video payment is required
               </p>
             </div>
             <Switch

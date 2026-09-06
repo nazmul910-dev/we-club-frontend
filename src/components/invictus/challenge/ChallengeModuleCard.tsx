@@ -22,6 +22,7 @@ export default function ChallengeModuleCard({
   isLocked = false,
   onLockClick,
 }: Props) {
+  const hasPublishedVideos = (courseModule.publishedVideoCount ?? 0) > 0;
   const cardBody = (
     <div className="group relative cursor-pointer overflow-hidden rounded-3xl border border-[#E8DDCA] bg-white p-6 transition duration-300 hover:-translate-y-1.5 hover:border-[#B18A3A]/50 hover:shadow-[0_20px_50px_rgba(177,138,58,.15)]">
       {isLocked && (
@@ -51,18 +52,20 @@ export default function ChallengeModuleCard({
         {courseModule.shortDescription || courseModule.description}
       </p>
 
-      <div className="mt-6">
-        <div className="mb-2 flex justify-between text-xs text-[#8A8175]">
-          <span>{courseModule.estimatedDurationMinutes} min</span>
-          <span>{isLocked ? "Locked" : `${progressPercent}%`}</span>
+      {hasPublishedVideos && (
+        <div className="mt-6">
+          <div className="mb-2 flex justify-between text-xs text-[#8A8175]">
+            <span>{courseModule.estimatedDurationMinutes} min</span>
+            <span>{isLocked ? "Locked" : `${progressPercent}%`}</span>
+          </div>
+          <div className="h-2 overflow-hidden rounded-full bg-[#F3E9D2]">
+            <div
+              style={{ width: isLocked ? "0%" : `${progressPercent}%` }}
+              className="h-full bg-[#B18A3A]"
+            />
+          </div>
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-[#F3E9D2]">
-          <div
-            style={{ width: isLocked ? "0%" : `${progressPercent}%` }}
-            className="h-full bg-[#B18A3A]"
-          />
-        </div>
-      </div>
+      )}
 
       <div className="mt-6 flex items-center gap-2 text-sm text-[#B18A3A]">
         {isLocked
@@ -72,7 +75,10 @@ export default function ChallengeModuleCard({
             : progressPercent > 0
               ? "Continue"
               : "Start Module"}
-        <ArrowRight size={16} className="transition group-hover:translate-x-1" />
+        <ArrowRight
+          size={16}
+          className="transition group-hover:translate-x-1"
+        />
       </div>
     </div>
   );
@@ -86,8 +92,10 @@ export default function ChallengeModuleCard({
   }
 
   return (
-    <Link href={`/invictus/invictus-challenge/${pillarSlug}/${courseModule._id}`}>
+    <Link
+      href={`/invictus/invictus-challenge/${pillarSlug}/${courseModule._id}`}
+    >
       {cardBody}
     </Link>
   );
-}
+}

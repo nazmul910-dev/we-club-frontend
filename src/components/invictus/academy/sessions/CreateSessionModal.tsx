@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import api from "@/lib/api/api";
 import { sessionScheduleApi } from "@/lib/features/invictus/sessionSchedule/sessionScheduleApi";
 import type { SessionType } from "@/lib/features/invictus/sessionSchedule/sessionScheduleTypes";
+import { DateTimePicker } from "@/components/common/date-time-picker";
 
 interface HostUser {
   _id: string;
@@ -50,7 +51,11 @@ const emptyForm = {
   capacity: "",
 };
 
-export default function CreateSessionModal({ open, onClose, onCreated }: Props) {
+export default function CreateSessionModal({
+  open,
+  onClose,
+  onCreated,
+}: Props) {
   const [hosts, setHosts] = useState<HostUser[]>([]);
   const [form, setForm] = useState(emptyForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -100,6 +105,7 @@ export default function CreateSessionModal({ open, onClose, onCreated }: Props) 
     if (!form.host) next.host = "Select a host";
     if (!form.startTime) next.startTime = "Start time is required";
     if (!form.endTime) next.endTime = "End time is required";
+    if (!form.meetingUrl.trim()) next.meetingUrl = "Meeting link is required";
     if (
       form.startTime &&
       form.endTime &&
@@ -110,6 +116,9 @@ export default function CreateSessionModal({ open, onClose, onCreated }: Props) 
     if (!form.timezone.trim()) next.timezone = "Timezone is required";
 
     setErrors(next);
+    if (Object.keys(next).length > 0) {
+      toast.error(Object.values(next)[0]);
+    }
     return Object.keys(next).length === 0;
   };
 
@@ -129,13 +138,17 @@ export default function CreateSessionModal({ open, onClose, onCreated }: Props) 
 
       await sessionScheduleApi.createSession({
         title: form.title.trim(),
-        ...(form.description.trim() ? { description: form.description.trim() } : {}),
+        ...(form.description.trim()
+          ? { description: form.description.trim() }
+          : {}),
         sessionType: form.sessionType,
         host: form.host,
         startTime: new Date(form.startTime).toISOString(),
         endTime: new Date(form.endTime).toISOString(),
         timezone: form.timezone.trim(),
-        ...(form.meetingUrl.trim() ? { meetingUrl: form.meetingUrl.trim() } : {}),
+        ...(form.meetingUrl.trim()
+          ? { meetingUrl: form.meetingUrl.trim() }
+          : {}),
         ...(form.capacity ? { capacity: Number(form.capacity) } : {}),
       });
 
@@ -143,8 +156,37 @@ export default function CreateSessionModal({ open, onClose, onCreated }: Props) 
       onCreated();
       handleClose();
     } catch (error: any) {
-      const message =
-        error?.response?.data?.message || "Could not schedule session, try again.";
+      const rawMessage = error?.response?.data?.message;
+      let parsedMessage = rawMessage;
+
+      if (typeof rawMessage === "string") {
+        try {
+          parsedMessage = JSON.parse(rawMessage);
+        } catch {
+          parsedMessage = rawMessage;
+        }
+      }
+
+      const message = Array.isArray(parsedMessage)
+        ? parsedMessage
+            .map((item) => {
+              const field = Array.isArray(item?.path)
+                ? item.path[item.path.length - 1]
+                : "";
+              const fieldLabel = field
+                ? field
+                    .replace(/([A-Z])/g, " $1")
+                    .replace(/^./, (char: string) => char.toUpperCase())
+                : "";
+              if (field === "meetingUrl") return "Meeting link invalid";
+              return fieldLabel
+                ? `${fieldLabel}: ${item?.message || "Invalid value"}`
+                : item?.message || "Invalid value";
+            })
+            .join(", ")
+        : typeof parsedMessage === "string"
+          ? parsedMessage
+          : parsedMessage?.message || "Could not schedule session, try again.";
       toast.error(message);
       setErrors((prev) => ({ ...prev, form: message }));
     } finally {
@@ -156,7 +198,9 @@ export default function CreateSessionModal({ open, onClose, onCreated }: Props) 
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto rounded-3xl border-[#E7DDCC] bg-white">
         <DialogHeader>
-          <DialogTitle className="text-2xl text-[#1C1A17]">Schedule a Session</DialogTitle>
+          <DialogTitle className="text-2xl text-[#1C1A17]">
+            Schedule a Session
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-5">
@@ -168,7 +212,9 @@ export default function CreateSessionModal({ open, onClose, onCreated }: Props) 
               value={form.title}
               onChange={(e) => updateField("title", e.target.value)}
             />
-            {errors.title && <p className="mt-1 text-xs text-red-500">{errors.title}</p>}
+            {errors.title && (
+              <p className="mt-1 text-xs text-red-500">{errors.title}</p>
+            )}
           </div>
 
           <div>
@@ -211,18 +257,19 @@ export default function CreateSessionModal({ open, onClose, onCreated }: Props) 
                   </option>
                 ))}
               </select>
-              {errors.host && <p className="mt-1 text-xs text-red-500">{errors.host}</p>}
+              {errors.host && (
+                <p className="mt-1 text-xs text-red-500">{errors.host}</p>
+              )}
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>Start Time</Label>
-              <Input
-                className="mt-2"
-                type="datetime-local"
+              <Label className="mb-2">Start Time</Label>
+              <DateTimePicker
                 value={form.startTime}
-                onChange={(e) => updateField("startTime", e.target.value)}
+                onChange={(value) => updateField("startTime", value)}
+                placeholder="Select start date and time"
               />
               {errors.startTime && (
                 <p className="mt-1 text-xs text-red-500">{errors.startTime}</p>
@@ -230,12 +277,11 @@ export default function CreateSessionModal({ open, onClose, onCreated }: Props) 
             </div>
 
             <div>
-              <Label>End Time</Label>
-              <Input
-                className="mt-2"
-                type="datetime-local"
+              <Label className="mb-2">End Time</Label>
+              <DateTimePicker
                 value={form.endTime}
-                onChange={(e) => updateField("endTime", e.target.value)}
+                onChange={(value) => updateField("endTime", value)}
+                placeholder="Select end date and time"
               />
               {errors.endTime && (
                 <p className="mt-1 text-xs text-red-500">{errors.endTime}</p>
@@ -274,17 +320,21 @@ export default function CreateSessionModal({ open, onClose, onCreated }: Props) 
             <Label>Meeting URL (Zoom/Meet link)</Label>
             <Input
               className="mt-2"
+              type="url"
+              required
               placeholder="https://zoom.us/j/..."
               value={form.meetingUrl}
               onChange={(e) => updateField("meetingUrl", e.target.value)}
             />
           </div>
-
-          {errors.form && <p className="text-sm text-red-500">{errors.form}</p>}
         </div>
 
         <DialogFooter>
-          <Button variant="outline" className="cursor-pointer border-[#E7DDCC]" onClick={handleClose}>
+          <Button
+            variant="outline"
+            className="cursor-pointer border-[#E7DDCC]"
+            onClick={handleClose}
+          >
             Cancel
           </Button>
           <Button

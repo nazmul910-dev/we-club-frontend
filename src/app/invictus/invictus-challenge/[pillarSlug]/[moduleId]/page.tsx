@@ -7,11 +7,17 @@ import { FileText, ListChecks, ExternalLink } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
-import { setSelectedCourse, clearSelectedCourse } from "@/lib/features/invictus/academy/course/courseSlice";
+import {
+  setSelectedCourse,
+  clearSelectedCourse,
+} from "@/lib/features/invictus/academy/course/courseSlice";
 import { courseApi } from "@/lib/features/invictus/academy/course/courseApi";
 import { fetchVideos } from "@/lib/features/invictus/academy/video-module/videoSlice";
 import { fetchMyModuleVideoProgress } from "@/lib/features/invictus/videoProgress/videoProgressSlice";
-import { fetchMyModuleProgress, fetchMyAllProgress } from "@/lib/features/invictus/academy/progress/progressSlice";
+import {
+  fetchMyModuleProgress,
+  fetchMyAllProgress,
+} from "@/lib/features/invictus/academy/progress/progressSlice";
 import { fetchResources } from "@/lib/features/invictus/academy/resource/resourceSlice";
 import { fetchMyCertificates } from "@/lib/features/invictus/academy/cerfificate/certificateSlice";
 import type { ICourseModule } from "@/lib/features/invictus/academy/course/courseTypes";
@@ -47,17 +53,21 @@ export default function ModuleChallengePage() {
    * True when the user has passed the quiz for EVERY published module in this pillar.
    * This is the gate that enables the "Claim Certificate" button.
    */
-  
+
   const allModulesPassed = useMemo(() => {
     if (pillarModules.length === 0) return false;
     return pillarModules.every((mod) => {
       const modId = typeof mod._id === "string" ? mod._id : String(mod._id);
       const progress = myProgress.find(
         (item) =>
-          (typeof item?.module === "string" ? item.module : item?.module?._id) ===
-          modId,
+          (typeof item?.module === "string"
+            ? item.module
+            : item?.module?._id) === modId,
       );
-      return progress?.quizSummary?.passed === true;
+      return (
+        progress?.quizSummary?.passed === true &&
+        progress?.videoSummary?.completed === true
+      );
     });
   }, [pillarModules, myProgress]);
 
@@ -83,9 +93,7 @@ export default function ModuleChallengePage() {
               ? pillarRes.data.modules
               : [];
             setPillarModules(
-              rawModules.filter(
-                (m: ICourseModule) => m.status === "published",
-              ),
+              rawModules.filter((m: ICourseModule) => m.status === "published"),
             );
           } catch (pErr) {
             // eslint-disable-next-line no-console
@@ -118,9 +126,7 @@ export default function ModuleChallengePage() {
       videos
         .filter((video) => {
           const videoModId =
-            typeof video.module === "string"
-              ? video.module
-              : video.module?._id;
+            typeof video.module === "string" ? video.module : video.module?._id;
           return videoModId === moduleId && video.status === "published";
         })
         .sort((a, b) => a.order - b.order),
@@ -149,34 +155,31 @@ export default function ModuleChallengePage() {
 
   const currentProgress = myProgress.find(
     (item) =>
-      (typeof item?.module === "string"
-        ? item.module
-        : item?.module?._id) === moduleId,
+      (typeof item?.module === "string" ? item.module : item?.module?._id) ===
+      moduleId,
   );
 
   // Pillar info — always read from selectedCourse even during partial load
   const pillarId = selectedCourse
-    ? (typeof selectedCourse.pillar === "string"
-        ? selectedCourse.pillar
-        : selectedCourse.pillar?._id ?? "")
+    ? typeof selectedCourse.pillar === "string"
+      ? selectedCourse.pillar
+      : (selectedCourse.pillar?._id ?? "")
     : "";
   const pillarName = selectedCourse
-    ? (typeof selectedCourse.pillar === "object"
-        ? selectedCourse.pillar?.name ?? ""
-        : "")
+    ? typeof selectedCourse.pillar === "object"
+      ? (selectedCourse.pillar?.name ?? "")
+      : ""
     : "";
 
   // Certificate is issued at the PILLAR level
   // ONLY true if there is a valid non-empty pillarId AND an issued certificate for THIS specific pillar
   const alreadyCertified = Boolean(
     pillarId &&
-      myCertificates.some((cert) => {
-        const certPillarId =
-          typeof cert?.pillar === "string"
-            ? cert.pillar
-            : cert?.pillar?._id;
-        return certPillarId === pillarId && cert?.status === "issued";
-      }),
+    myCertificates.some((cert) => {
+      const certPillarId =
+        typeof cert?.pillar === "string" ? cert.pillar : cert?.pillar?._id;
+      return certPillarId === pillarId && cert?.status === "issued";
+    }),
   );
 
   if (courseLoading) {
@@ -212,11 +215,17 @@ export default function ModuleChallengePage() {
                 <Skeleton className="h-6 w-20 rounded-full" />
               </div>
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="rounded-2xl border border-[#E8DDCA] p-5 space-y-3">
+                <div
+                  key={i}
+                  className="rounded-2xl border border-[#E8DDCA] p-5 space-y-3"
+                >
                   <Skeleton className="h-4 w-3/4 rounded" />
                   <div className="space-y-2">
                     {Array.from({ length: 3 }).map((_, j) => (
-                      <div key={j} className="flex items-center justify-between rounded-xl border border-[#E8DDCA] px-4 py-3">
+                      <div
+                        key={j}
+                        className="flex items-center justify-between rounded-xl border border-[#E8DDCA] px-4 py-3"
+                      >
                         <Skeleton className="h-3.5 w-32 rounded" />
                         <Skeleton className="h-4 w-4 rounded-full" />
                       </div>
@@ -307,10 +316,11 @@ export default function ModuleChallengePage() {
             </div>
           )}
 
-          {resources.length > 0 && (
+          {moduleVideos.length > 0 && resources.length > 0 && (
             <div className="rounded-3xl border border-[#E8DDCA] bg-white p-6 shadow-sm">
               <h3 className="flex items-center gap-2 text-lg font-semibold text-[#171717]">
-                <FileText size={18} className="text-[#B18A3A]" /> Downloadable Resources & Links
+                <FileText size={18} className="text-[#B18A3A]" /> Downloadable
+                Resources & Links
               </h3>
               <div className="mt-4 space-y-2">
                 {resources.map((resource) => (
@@ -332,29 +342,39 @@ export default function ModuleChallengePage() {
             </div>
           )}
 
-          <ChallengeQuizPanel
-            moduleId={moduleId}
-            pillarId={pillarId}
-            pillarName={pillarName}
-            quizUnlocked={currentProgress?.quizUnlocked ?? false}
-            alreadyCertified={alreadyCertified}
-            moduleQuizPassed={currentProgress?.quizSummary?.passed ?? false}
-            moduleScore={currentProgress?.quizSummary?.bestScore ?? 0}
-            allModulesPassed={allModulesPassed}
-            pillarTotalModules={pillarModules.length}
-            pillarPassedModules={pillarModules.filter((mod) => {
-              const modId = typeof mod._id === "string" ? mod._id : String(mod._id);
-              const p = myProgress.find(
-                (item) =>
-                  (typeof item?.module === "string" ? item.module : item?.module?._id) === modId,
-              );
-              return p?.quizSummary?.passed === true;
-            }).length}
-          />
+          {(currentProgress?.videoSummary?.totalRequired ?? 0) > 0 && (
+            <ChallengeQuizPanel
+              moduleId={moduleId}
+              pillarId={pillarId}
+              pillarName={pillarName}
+              quizUnlocked={currentProgress?.quizUnlocked ?? false}
+              alreadyCertified={alreadyCertified}
+              moduleQuizPassed={currentProgress?.quizSummary?.passed ?? false}
+              moduleScore={currentProgress?.quizSummary?.bestScore ?? 0}
+              allModulesPassed={allModulesPassed}
+              pillarTotalModules={pillarModules.length}
+              pillarPassedModules={
+                pillarModules.filter((mod) => {
+                  const modId =
+                    typeof mod._id === "string" ? mod._id : String(mod._id);
+                  const p = myProgress.find(
+                    (item) =>
+                      (typeof item?.module === "string"
+                        ? item.module
+                        : item?.module?._id) === modId,
+                  );
+                  return (
+                    p?.quizSummary?.passed === true &&
+                    p?.videoSummary?.completed === true
+                  );
+                }).length
+              }
+            />
+          )}
         </div>
 
         <div className="space-y-6">
-          {currentProgress && (
+          {moduleVideos.length > 0 && currentProgress && (
             <div className="rounded-3xl border border-[#E8DDCA] bg-white p-5">
               <h3 className="flex items-center gap-2 text-sm font-semibold text-[#171717]">
                 <ListChecks size={16} className="text-[#B18A3A]" /> Your
