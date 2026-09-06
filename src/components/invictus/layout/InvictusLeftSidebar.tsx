@@ -199,6 +199,12 @@ const academyItems = [
       role: ["founder", "manager"],
     },
     {
+      label: "ROOM REQUESTS",
+      href: "/invictus/management/community-room-requests",
+      icon: Users,
+      role: ["founder", "manager"],
+    },
+    {
       label: "LEADERBOARD ",
       href: "/invictus/management/leaderboards",
       icon: CalendarCheck,

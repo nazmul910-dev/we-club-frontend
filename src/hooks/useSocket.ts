@@ -15,7 +15,11 @@ import { AppDispatch, RootState } from "@/lib/redux/store/store";
 const SOCKET_URL =
   process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5000";
 
-export const useSocket = (countryName?: string, canSwitchRooms = false) => {
+export const useSocket = (
+  countryName?: string,
+  canSwitchRooms = false,
+  privateRoomSlug?: string,
+) => {
   const dispatch = useDispatch<AppDispatch>();
   const isAuthenticated = useSelector(
     (state: RootState) => state.authUser.isAuthenticated,
@@ -29,7 +33,7 @@ export const useSocket = (countryName?: string, canSwitchRooms = false) => {
     if (!token) return;
 
     const socket = io(SOCKET_URL, {
-      auth: { token },
+      auth: { token, privateRoomSlug, countryName },
     });
     socketRef.current = socket;
 
@@ -90,7 +94,7 @@ export const useSocket = (countryName?: string, canSwitchRooms = false) => {
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [isAuthenticated, countryName, canSwitchRooms, dispatch]);
+  }, [isAuthenticated, countryName, canSwitchRooms, privateRoomSlug, dispatch]);
 
   const sendMessage = useCallback(
     (content: string, replyTo?: string | null) => {

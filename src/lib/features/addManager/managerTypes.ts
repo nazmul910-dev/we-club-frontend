@@ -1,5 +1,5 @@
-export type CreatableAdminRole = "manager" | "super_admin" | "co_mentor";
-export type AllVisibleRole = "admin" | "manager" | "super_admin" | "co_mentor";
+export type CreatableAdminRole = "manager" | "super_admin" | "co_mentor" | "ceo";
+export type AllVisibleRole = "admin" | "manager" | "super_admin" | "co_mentor" | "ceo";
 
 export interface Manager {
   _id: string;
@@ -32,12 +32,12 @@ export interface CreateManagerPayload {
 }
 
 export const CREATABLE_ROLES_BY_CURRENT_ROLE: Record<string, CreatableAdminRole[]> = {
-  founder: ["manager", "super_admin", "co_mentor"],
+  founder: ["manager", "super_admin", "co_mentor", "ceo"],
   manager: ["super_admin", "co_mentor"],
 };
 
 export const VISIBLE_ROLES_BY_CURRENT_ROLE: Record<string, AllVisibleRole[]> = {
-  founder: ["admin", "manager", "super_admin", "co_mentor"],
+  founder: ["admin", "manager", "super_admin", "co_mentor", "ceo"],
   manager: ["admin", "super_admin", "co_mentor"],
 };
 
@@ -46,4 +46,5 @@ export const ROLE_LABELS: Record<AllVisibleRole, string> = {
   manager: "Manager",
   super_admin: "Super Admin Support",
   co_mentor: "Co Mentor",
+  ceo: "CEO",
 };
