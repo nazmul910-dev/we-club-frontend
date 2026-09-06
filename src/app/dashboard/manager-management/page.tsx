@@ -275,7 +275,7 @@ export default function ManagerManagement() {
 
         {!loading && !error && meta && meta.totalPage > 1 && (
           <div className="flex justify-center border-t border-neutral-800 px-6 py-5">
-            <PaginationControl
+            <PaginationControl variant="dashboard"
               currentPage={page}
               totalPages={meta.totalPage}
               onPageChange={(nextPage) => setPage(nextPage)}
