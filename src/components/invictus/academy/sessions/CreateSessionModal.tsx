@@ -105,7 +105,18 @@ export default function CreateSessionModal({
     if (!form.host) next.host = "Select a host";
     if (!form.startTime) next.startTime = "Start time is required";
     if (!form.endTime) next.endTime = "End time is required";
-    if (!form.meetingUrl.trim()) next.meetingUrl = "Meeting link is required";
+    if (!form.meetingUrl.trim()) {
+      next.meetingUrl = "Meeting link is required";
+    } else {
+      try {
+        const meetingUrl = new URL(form.meetingUrl.trim());
+        if (meetingUrl.protocol !== "https:" || !meetingUrl.hostname) {
+          next.meetingUrl = "Meeting link invalid";
+        }
+      } catch {
+        next.meetingUrl = "Meeting link invalid";
+      }
+    }
     if (
       form.startTime &&
       form.endTime &&
