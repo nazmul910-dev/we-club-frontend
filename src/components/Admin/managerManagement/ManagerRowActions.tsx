@@ -102,11 +102,11 @@ export default function ManagerRowActions({ manager, canDelete: canDeleteProp }:
     <>
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <div className="h-8 w-8 text-neutral-400 hover:text-amber-400">
+          <div className="mt-2 text-neutral-400 hover:text-amber-400">
             <MoreVertical className="h-4 w-4" />
           </div>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent align="end" className="w-62">
           {isActive ? (
             <DropdownMenuItem onClick={() => setPendingAction("suspend")}>
               <Ban className="mr-2 h-4 w-4" />

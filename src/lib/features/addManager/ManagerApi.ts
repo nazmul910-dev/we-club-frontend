@@ -9,6 +9,8 @@ interface GetManagersParams {
   limit?: number;
 }
 
+const MANAGED_ROLES = "ceo,ceo_partner,manager,admin,super_admin";
+
 export const getManagers = createAsyncThunk<
   { managers: Manager[]; meta: ManagerMeta },
   GetManagersParams,
@@ -21,6 +23,7 @@ export const getManagers = createAsyncThunk<
       const params: Record<string, string | number> = {
         page: page ?? 1,
         limit: limit ?? 10,
+        role: MANAGED_ROLES,
       };
 
       if (status !== "all") {
@@ -39,81 +42,69 @@ export const getManagers = createAsyncThunk<
       }
       return rejectWithValue("Something went wrong");
     }
-  }
+  },
 );
 
 export const createManager = createAsyncThunk<
   Manager,
   CreateManagerPayload,
   { rejectValue: string }
->(
-  "manager/createManager",
-  async (payload, { rejectWithValue }) => {
-    try {
-      const res = await api.post("/users/admin-create", payload);
-      return res.data.data;
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        return rejectWithValue(err.response?.data?.message || "Failed");
-      }
-      return rejectWithValue("Something went wrong");
+>("manager/createManager", async (payload, { rejectWithValue }) => {
+  try {
+    const res = await api.post("/users/admin-create", payload);
+    return res.data.data;
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      return rejectWithValue(err.response?.data?.message || "Failed");
     }
+    return rejectWithValue("Something went wrong");
   }
-);
+});
 
 export const suspendManager = createAsyncThunk<
   Manager,
   string,
   { rejectValue: string }
->(
-  "manager/suspend",
-  async (id, { rejectWithValue }) => {
-    try {
-      const res = await api.patch(`/users/${id}/suspend`);
-      return res.data.data;
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        return rejectWithValue(err.response?.data?.message || "Failed");
-      }
-      return rejectWithValue("Something went wrong");
+>("manager/suspend", async (id, { rejectWithValue }) => {
+  try {
+    const res = await api.patch(`/users/${id}/suspend`);
+    return res.data.data;
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      return rejectWithValue(err.response?.data?.message || "Failed");
     }
+    return rejectWithValue("Something went wrong");
   }
-);
+});
 
 export const activateManager = createAsyncThunk<
   Manager,
   string,
   { rejectValue: string }
->(
-  "manager/activate",
-  async (id, { rejectWithValue }) => {
-    try {
-      const res = await api.patch(`/users/${id}/activate`);
-      return res.data.data;
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        return rejectWithValue(err.response?.data?.message || "Failed");
-      }
-      return rejectWithValue("Something went wrong");
+>("manager/activate", async (id, { rejectWithValue }) => {
+  try {
+    const res = await api.patch(`/users/${id}/activate`);
+    return res.data.data;
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      return rejectWithValue(err.response?.data?.message || "Failed");
     }
+    return rejectWithValue("Something went wrong");
   }
-);
+});
 
 export const deleteManager = createAsyncThunk<
   string,
   string,
   { rejectValue: string }
->(
-  "manager/delete",
-  async (id, { rejectWithValue }) => {
-    try {
-      await api.delete(`/users/${id}`);
-      return id;
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        return rejectWithValue(err.response?.data?.message || "Failed");
-      }
-      return rejectWithValue("Something went wrong");
+>("manager/delete", async (id, { rejectWithValue }) => {
+  try {
+    await api.delete(`/users/${id}`);
+    return id;
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      return rejectWithValue(err.response?.data?.message || "Failed");
     }
+    return rejectWithValue("Something went wrong");
   }
-);
+});
