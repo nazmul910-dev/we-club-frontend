@@ -359,7 +359,7 @@ export default function MyAccountabilityPage() {
           </div>
 
           {/* Active challenge */}
-          <SectionCard variant="light" className="mb-6">
+          {/* <SectionCard variant="light" className="mb-6">
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9C9284]">
               Active Challenge
             </p>
@@ -372,7 +372,7 @@ export default function MyAccountabilityPage() {
               </span>
             </div>
             <ProgressBar value={42} className="mt-3" />
-          </SectionCard>
+          </SectionCard> */}
 
           {isMentorLoading ? (
             <MentorSectionSkeleton />
