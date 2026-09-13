@@ -302,7 +302,7 @@ export default function LocationFormDialog({
                     slug: generateSlug(e.target.value),
                   }))
                 }
-                placeholder="e.g. Bali Fearless Retreat"
+                placeholder="e.g. Bali Fareless Retreat"
                 className={inputClass}
               />
             </div>
@@ -320,7 +320,7 @@ export default function LocationFormDialog({
                 onChange={(e) =>
                   setForm((prev) => ({ ...prev, slug: e.target.value }))
                 }
-                placeholder="bali-fearless-retreat"
+                placeholder="bali-fareless-retreat"
                 className={inputClass}
               />
             </div>

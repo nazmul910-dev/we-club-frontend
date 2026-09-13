@@ -219,7 +219,7 @@ export default function CreateSessionModal({
             <Label>Title</Label>
             <Input
               className="mt-2"
-              placeholder="e.g. Fearless Group Call w/ Adam Koubi"
+              placeholder="e.g. Fareless Group Call w/ Adam Koubi"
               value={form.title}
               onChange={(e) => updateField("title", e.target.value)}
             />

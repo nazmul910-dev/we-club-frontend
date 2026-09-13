@@ -121,7 +121,7 @@ const isInvictusPage = pathname.startsWith("/invictus");
 
         <div className="hidden flex-1 items-center justify-center md:flex">
           <span className="font-montserrat text-[11px] font-semibold uppercase tracking-[0.3em] text-[#947124]">
-            LIMITLESS · FEARLESS · BORDERLESS
+            LIMITLESS · FARELESS · BORDERLESS
           </span>
         </div>
 

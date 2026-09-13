@@ -30,7 +30,7 @@ const PILLAR_ICONS: Record<
   flame: Flame,
   infinity: InfinityIcon,
   globe: Globe,
-  fearless: Flame,
+  fareless: Flame,
   limitless: InfinityIcon,
   borderless: Globe,
 };

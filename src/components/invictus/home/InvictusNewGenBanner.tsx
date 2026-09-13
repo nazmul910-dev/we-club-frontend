@@ -232,7 +232,7 @@ export default function InvictusNewGenBanner() {
                 "
                 />
 
-                <p className="text-[10px] tracking-widest mt-1">FEARLESS</p>
+                <p className="text-[10px] tracking-widest mt-1">FARELESS</p>
               </div>
 
               <div
