@@ -154,7 +154,17 @@ const videoSlice = createSlice({
       })
       .addCase(createVideo.fulfilled, (state, action) => {
         state.actionLoading = false;
-        state.videos.push(action.payload);
+        const newVideo = action.payload;
+        state.videos = [
+          newVideo,
+          ...state.videos
+            .filter((v) => v._id !== newVideo._id)
+            .map((v) =>
+              v.module?._id === newVideo.module?._id && v.status !== "archived"
+                ? { ...v, order: v.order + 1 }
+                : v,
+            ),
+        ];
       })
       .addCase(createVideo.rejected, (state, action) => {
         state.actionLoading = false;

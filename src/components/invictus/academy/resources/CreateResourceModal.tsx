@@ -41,7 +41,10 @@ import {
 import { cn } from "@/lib/utils";
 
 import { useAppDispatch } from "@/lib/redux/store/hook";
-import { createResource } from "@/lib/features/invictus/academy/resource/resourceSlice";
+import {
+  createResource,
+  fetchResources,
+} from "@/lib/features/invictus/academy/resource/resourceSlice";
 import { courseApi } from "@/lib/features/invictus/academy/course/courseApi";
 import type { ICourseModule } from "@/lib/features/invictus/academy/course/courseTypes";
 import { videoApi } from "@/lib/features/invictus/academy/video-module/videoApi";
@@ -74,7 +77,6 @@ const emptyForm = {
   externalUrl: "",
   isRequired: true,
   pointsReward: 5,
-  order: 1,
 };
 
 const generateSlug = (value: string) =>
@@ -152,8 +154,6 @@ export default function CreateResourceModal({ open, onClose }: Props) {
     if (!form.title.trim() || form.title.trim().length < 2)
       next.title = "Title minimum 2 charecter";
     if (!form.slug.trim()) next.slug = "Slug is required";
-    if (!form.order || form.order < 1) next.order = "Order must be at least 1";
-
     if (form.provider === "cloudinary" && !file) {
       next.file = "Please select a file to upload";
     }
@@ -196,7 +196,6 @@ export default function CreateResourceModal({ open, onClose }: Props) {
       formData.append("provider", form.provider);
       formData.append("isRequired", String(form.isRequired));
       formData.append("pointsReward", String(form.pointsReward));
-      formData.append("order", String(form.order));
 
       if (form.provider === "external") {
         formData.append("externalUrl", form.externalUrl.trim());
@@ -207,6 +206,8 @@ export default function CreateResourceModal({ open, onClose }: Props) {
       await dispatch(
         createResource({ moduleId: form.moduleId, data: formData }),
       ).unwrap();
+
+      void dispatch(fetchResources({ includeArchived: true }));
 
       toast.success("Module resource added successfully!");
       handleClose();
@@ -472,33 +473,17 @@ export default function CreateResourceModal({ open, onClose }: Props) {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>Order</Label>
-              <Input
-                className="mt-2"
-                type="number"
-                min={1}
-                value={form.order}
-                onChange={(e) => updateField("order", Number(e.target.value))}
-              />
-              {errors.order && (
-                <p className="mt-1 text-xs text-red-500">{errors.order}</p>
-              )}
-            </div>
-
-            <div>
-              <Label>Points Reward</Label>
-              <Input
-                className="mt-2"
-                type="number"
-                min={0}
-                value={form.pointsReward}
-                onChange={(e) =>
-                  updateField("pointsReward", Number(e.target.value))
-                }
-              />
-            </div>
+          <div>
+            <Label>Points Reward</Label>
+            <Input
+              className="mt-2"
+              type="number"
+              min={0}
+              value={form.pointsReward}
+              onChange={(e) =>
+                updateField("pointsReward", Number(e.target.value))
+              }
+            />
           </div>
 
           <div className="flex items-center justify-between rounded-xl border border-[#E7DDCC] p-4">

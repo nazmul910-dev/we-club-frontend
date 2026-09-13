@@ -44,6 +44,7 @@ import QuizQuestionTable from "@/components/invictus/academy/quiz-question/QuizQ
 // import EditQuizQuestionModal from "@/components/invictus/academy/quiz-question/EditQuizQuestionModal";
 import dynamic from "next/dynamic";
 import TableSkeleton from "@/components/skeleton/Tableskeleton";
+import { PaginationControl } from "@/components/ui/PaginationControll";
 
 const CreateQuizQuestionModal = dynamic(
   () =>
@@ -118,11 +119,25 @@ function ManageQuizQuestionsContent() {
     }
   }, [error]);
 
+  const [page, setPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
+
+  useEffect(() => {
+    setPage(1);
+  }, [courseFilter]);
+
   const filteredQuestions = useMemo(() => {
     if (!courseFilter) return questions;
 
     return questions.filter((item) => item.module?._id === courseFilter);
   }, [questions, courseFilter]);
+
+  const totalPages = Math.ceil(filteredQuestions.length / ITEMS_PER_PAGE);
+
+  const paginatedQuestions = useMemo(() => {
+    const start = (page - 1) * ITEMS_PER_PAGE;
+    return filteredQuestions.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredQuestions, page]);
 
   const stats = useMemo(() => {
     const total = questions.length;
@@ -273,14 +288,27 @@ function ManageQuizQuestionsContent() {
             className="border border-gold-soft"
           />
         ) : (
-          <QuizQuestionTable
-            data={filteredQuestions}
-            onEdit={(item) => {
-              setSelectedQuestion(item);
+          <>
+            <QuizQuestionTable
+              data={paginatedQuestions}
+              onEdit={(item) => {
+                setSelectedQuestion(item);
 
-              setEditOpen(true);
-            }}
-          />
+                setEditOpen(true);
+              }}
+            />
+
+            {totalPages > 1 && (
+              <div className="mt-6 flex justify-center">
+                <PaginationControl
+                  currentPage={page}
+                  totalPages={totalPages}
+                  onPageChange={setPage}
+                  variant="invictus"
+                />
+              </div>
+            )}
+          </>
         )}
       </div>
 

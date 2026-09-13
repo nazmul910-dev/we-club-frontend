@@ -144,7 +144,17 @@ const actionSlice = createSlice({
       })
       .addCase(createModuleAction.fulfilled, (state, action) => {
         state.actionLoading = false;
-        state.actions.push(action.payload);
+        const newAction = action.payload;
+        state.actions = [
+          newAction,
+          ...state.actions
+            .filter((a) => a._id !== newAction._id)
+            .map((a) =>
+              a.module === newAction.module && a.status !== "archived"
+                ? { ...a, order: a.order + 1 }
+                : a,
+            ),
+        ];
       })
       .addCase(createModuleAction.rejected, (state, action) => {
         state.actionLoading = false;

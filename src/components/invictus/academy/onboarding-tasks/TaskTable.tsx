@@ -130,9 +130,25 @@ export default function TaskTable({ data, onEdit }: Props) {
                 </TableCell>
 
                 <TableCell>
-                  <Badge className="bg-gray-100 w-fit text-nowrap text-gray-600 hover:bg-gray-100">
-                    {triggerLabel[task.trigger] ?? task.trigger}
-                  </Badge>
+                  <div className="flex flex-col gap-1">
+                    <Badge className="bg-gray-100 w-fit text-nowrap text-gray-600 hover:bg-gray-100">
+                      {triggerLabel[task.trigger] ?? task.trigger}
+                    </Badge>
+                    {task.trigger === "video_watch" && task.linkedVideo && (
+                      <span
+                        className="max-w-[180px] truncate text-xs text-[#8A8175]"
+                        title={
+                          typeof task.linkedVideo === "object"
+                            ? task.linkedVideo.title
+                            : task.linkedVideo
+                        }
+                      >
+                        {typeof task.linkedVideo === "object"
+                          ? `🎬 ${task.linkedVideo.title}`
+                          : "🎬 Linked Video"}
+                      </span>
+                    )}
+                  </div>
                 </TableCell>
 
                 <TableCell>

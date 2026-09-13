@@ -40,6 +40,7 @@ import VideoTable from "@/components/invictus/academy/videos/VideoTable";
 import CreateVideoModal from "@/components/invictus/academy/videos/CreateVideoModal";
 import EditVideoModal from "@/components/invictus/academy/videos/EditVideoModal";
 import TableSkeleton from "@/components/skeleton/Tableskeleton";
+import { PaginationControl } from "@/components/ui/PaginationControll";
 
 export default function ManageVideosPage() {
   return (
@@ -85,10 +86,24 @@ function ManageVideosContent() {
     if (error) toast.error(error);
   }, [error]);
 
+  const [page, setPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
+
+  useEffect(() => {
+    setPage(1);
+  }, [courseFilter]);
+
   const filteredVideos = useMemo(() => {
     if (!courseFilter) return videos;
     return videos.filter((video) => video.module?._id === courseFilter);
   }, [videos, courseFilter]);
+
+  const totalPages = Math.ceil(filteredVideos.length / ITEMS_PER_PAGE);
+
+  const paginatedVideos = useMemo(() => {
+    const start = (page - 1) * ITEMS_PER_PAGE;
+    return filteredVideos.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredVideos, page]);
 
   const stats = useMemo(() => {
     const total = videos.length;
@@ -230,13 +245,26 @@ function ManageVideosContent() {
             className="border border-gold-soft"
           />
         ) : (
-          <VideoTable
-            data={filteredVideos}
-            onEdit={(video) => {
-              setSelectedVideo(video);
-              setEditOpen(true);
-            }}
-          />
+          <>
+            <VideoTable
+              data={paginatedVideos}
+              onEdit={(video) => {
+                setSelectedVideo(video);
+                setEditOpen(true);
+              }}
+            />
+
+            {totalPages > 1 && (
+              <div className="mt-6 flex justify-center">
+                <PaginationControl
+                  currentPage={page}
+                  totalPages={totalPages}
+                  onPageChange={setPage}
+                  variant="invictus"
+                />
+              </div>
+            )}
+          </>
         )}
       </div>
 

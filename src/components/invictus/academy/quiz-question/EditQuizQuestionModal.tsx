@@ -44,7 +44,6 @@ const emptyForm = {
   correctOptionIndexes: [0],
   correctBooleanAnswer: true,
   explanation: "",
-  order: 1,
 };
 
 export default function EditQuizQuestionModal({
@@ -69,7 +68,6 @@ export default function EditQuizQuestionModal({
           : [0],
         correctBooleanAnswer: question.correctBooleanAnswer ?? true,
         explanation: question.explanation || "",
-        order: question.order || 1,
       });
       setErrors({});
     }
@@ -180,10 +178,6 @@ export default function EditQuizQuestionModal({
       }
     }
 
-    if (!form.order || form.order < 1) {
-      next.order = "Order must be at least 1";
-    }
-
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -208,7 +202,6 @@ export default function EditQuizQuestionModal({
         question: form.question.trim(),
         questionType: form.questionType,
         explanation: form.explanation.trim() || undefined,
-        order: Number(form.order),
       };
 
       if (form.questionType === "single_choice" || form.questionType === "multiple_choice") {
@@ -440,19 +433,6 @@ export default function EditQuizQuestionModal({
               className="mt-1.5 min-h-[70px] rounded-xl border-[#E7DDCC] text-sm focus-visible:ring-[#B08A3E]"
               placeholder="Explain why this is the correct answer"
             />
-          </div>
-
-          {/* Order */}
-          <div>
-            <Label className="text-xs font-semibold uppercase tracking-wider text-[#8A8175]">Display Order</Label>
-            <Input
-              type="number"
-              min={1}
-              value={form.order}
-              onChange={(e) => updateField("order", Number(e.target.value))}
-              className="mt-1.5 h-10 w-32 rounded-xl border-[#E7DDCC] text-sm"
-            />
-            {errors.order && <p className="mt-1 text-xs text-red-500">{errors.order}</p>}
           </div>
 
           {errors.form && <p className="text-sm font-medium text-red-500">{errors.form}</p>}

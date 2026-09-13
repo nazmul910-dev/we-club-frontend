@@ -35,8 +35,6 @@ const emptyForm = {
 
   description: "",
 
-  order: 1,
-
   pointsReward: 0,
 
   isRequired: true,
@@ -57,8 +55,6 @@ export default function EditActionModal({ open, action, onClose }: Props) {
         title: action.title || "",
 
         description: action.description || "",
-
-        order: action.order || 1,
 
         pointsReward: action.pointsReward || 0,
 
@@ -91,9 +87,6 @@ export default function EditActionModal({ open, action, onClose }: Props) {
       next.title = "Action title is required";
     }
 
-    if (!form.order || form.order < 1) {
-      next.order = "Order must be at least 1";
-    }
 
     setErrors(next);
 
@@ -122,8 +115,6 @@ export default function EditActionModal({ open, action, onClose }: Props) {
             title: form.title.trim(),
 
             description: form.description.trim(),
-
-            order: form.order,
 
             pointsReward: form.pointsReward,
 
@@ -176,32 +167,18 @@ export default function EditActionModal({ open, action, onClose }: Props) {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>Order</Label>
+          <div>
+            <Label>Points Reward</Label>
 
-              <Input
-                className="mt-2"
-                type="number"
-                min={1}
-                value={form.order}
-                onChange={(e) => updateField("order", Number(e.target.value))}
-              />
-            </div>
-
-            <div>
-              <Label>Points Reward</Label>
-
-              <Input
-                className="mt-2"
-                type="number"
-                min={0}
-                value={form.pointsReward}
-                onChange={(e) =>
-                  updateField("pointsReward", Number(e.target.value))
-                }
-              />
-            </div>
+            <Input
+              className="mt-2"
+              type="number"
+              min={0}
+              value={form.pointsReward}
+              onChange={(e) =>
+                updateField("pointsReward", Number(e.target.value))
+              }
+            />
           </div>
 
           <div className="flex items-center justify-between rounded-xl border border-[#E7DDCC] p-4">

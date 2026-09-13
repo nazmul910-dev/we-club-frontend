@@ -17,6 +17,7 @@ import {
 import CreatePillarModal from "@/components/invictus/academy/pillars/CreatePillarModal";
 import EditPillarModal from "@/components/invictus/academy/pillars/EditPillarModal";
 import TableSkeleton from "@/components/skeleton/Tableskeleton";
+import { PaginationControl } from "@/components/ui/PaginationControll";
 
 export default function PillarsPage() {
   const dispatch = useAppDispatch();
@@ -25,6 +26,15 @@ export default function PillarsPage() {
 
   const [createOpen, setCreateOpen] = useState(false);
   const [editingPillar, setEditingPillar] = useState<ChallengePillar | null>(null);
+  const [page, setPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
+
+  const totalPages = Math.ceil(pillars.length / ITEMS_PER_PAGE);
+
+  const paginatedPillars = useMemo(() => {
+    const start = (page - 1) * ITEMS_PER_PAGE;
+    return pillars.slice(start, start + ITEMS_PER_PAGE);
+  }, [pillars, page]);
 
   useEffect(() => {
     dispatch(fetchPillars(true));
@@ -66,7 +76,19 @@ export default function PillarsPage() {
         {loading ? (
           <TableSkeleton variant="invictus" className="border border-gold-soft  rounded-2xl!"/>
         ) : (
-          <PillarTable data={pillars} onEdit={(pillar) => setEditingPillar(pillar)} />
+          <>
+            <PillarTable data={paginatedPillars} onEdit={(pillar) => setEditingPillar(pillar)} />
+            {totalPages > 1 && (
+              <div className="mt-6 flex justify-center">
+                <PaginationControl
+                  currentPage={page}
+                  totalPages={totalPages}
+                  onPageChange={setPage}
+                  variant="invictus"
+                />
+              </div>
+            )}
+          </>
         )}
       </div>
 

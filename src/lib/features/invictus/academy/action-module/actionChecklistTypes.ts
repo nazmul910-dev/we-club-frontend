@@ -55,7 +55,7 @@ export interface ICreateModuleAction {
   title: string;
   description?: string;
 
-  order: number;
+  order?: number;
   isRequired?: boolean;
   pointsReward?: number;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
@@ -20,6 +20,7 @@ import CourseTable from "@/components/invictus/academy/courses/CourseTable";
 import type { ICourseModule } from "@/lib/features/invictus/academy/course/courseTypes";
 import dynamic from "next/dynamic";
 import TableSkeleton from "@/components/skeleton/Tableskeleton";
+import { PaginationControl } from "@/components/ui/PaginationControll";
 
 const CreateCourseDialog = dynamic(
     () => import("@/components/invictus/academy/courses/CreateCourseDialog"),
@@ -47,6 +48,15 @@ export default function CoursesPage() {
     const [selectedCourse, setSelectedCourse] = useState<ICourseModule | null>(
         null,
     );
+    const [page, setPage] = useState(1);
+    const ITEMS_PER_PAGE = 10;
+
+    const totalPages = Math.ceil(courses.length / ITEMS_PER_PAGE);
+
+    const paginatedCourses = useMemo(() => {
+        const start = (page - 1) * ITEMS_PER_PAGE;
+        return courses.slice(start, start + ITEMS_PER_PAGE);
+    }, [courses, page]);
 
     const loadCourses = async () => {
         try {
@@ -160,16 +170,29 @@ text-red-500
             {loading ? (
                 <TableSkeleton variant="invictus" className="border border-gold-soft" />
             ) : (
-                <CourseTable
-                    courses={courses}
-                    onEdit={(course) => {
-                        setSelectedCourse(course);
+                <>
+                    <CourseTable
+                        courses={paginatedCourses}
+                        onEdit={(course) => {
+                            setSelectedCourse(course);
 
-                        setEditOpen(true);
-                    }}
-                    onToggleStatus={handleToggleStatus}
-                    onArchive={handleArchiveCourse}
-                />
+                            setEditOpen(true);
+                        }}
+                        onToggleStatus={handleToggleStatus}
+                        onArchive={handleArchiveCourse}
+                    />
+
+                    {totalPages > 1 && (
+                        <div className="mt-6 flex justify-center">
+                            <PaginationControl
+                                currentPage={page}
+                                totalPages={totalPages}
+                                onPageChange={setPage}
+                                variant="invictus"
+                            />
+                        </div>
+                    )}
+                </>
             )}
 
             {createOpen && (

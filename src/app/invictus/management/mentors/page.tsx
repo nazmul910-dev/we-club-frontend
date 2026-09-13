@@ -60,6 +60,7 @@ import type {
   UpdateMentorPayload,
 } from "@/lib/features/mentorManagement/mentorManagementTypes";
 import { toast } from "sonner";
+import { PaginationControl } from "@/components/ui/PaginationControll";
 
 const emptyForm = {
   bio: "",
@@ -99,6 +100,8 @@ function MentorManagementContent() {
   const [editing, setEditing] = useState<MentorProfile | null>(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [page, setPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
   const [formOpen, setFormOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [existingUserSearch, setExistingUserSearch] = useState("");
@@ -141,6 +144,18 @@ function MentorManagementContent() {
       return matchesStatus && matchesSearch;
     });
   }, [profiles, search, statusFilter]);
+
+  const totalPages = Math.ceil(filteredProfiles.length / ITEMS_PER_PAGE);
+
+  const paginatedProfiles = useMemo(() => {
+    const start = (page - 1) * ITEMS_PER_PAGE;
+    return filteredProfiles.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredProfiles, page]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [search, statusFilter]);
 
   const stats = useMemo(
     () => ({
@@ -617,7 +632,7 @@ function MentorManagementContent() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredProfiles.map((profile) => (
+            {paginatedProfiles.map((profile) => (
               <TableRow key={profile._id}>
                 <TableCell>
                   <p className="font-medium text-[#1C1A17]">{profile.mentor.fullName}</p>
@@ -663,6 +678,17 @@ function MentorManagementContent() {
           <div className="p-10 text-center text-sm text-[#8A8175]">No mentor profiles match this view.</div>
         )}
       </div>
+
+      {totalPages > 1 && (
+        <div className="mt-6 flex justify-center">
+          <PaginationControl
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            variant="invictus"
+          />
+        </div>
+      )}
     </PageContainer>
   );
 }

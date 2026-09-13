@@ -39,7 +39,10 @@ import {
   XCircle,
 } from "lucide-react";
 import { useAppDispatch } from "@/lib/redux/store/hook";
-import { createQuizQuestion } from "@/lib/features/invictus/academy/quiz-question/quizQuestionSlice";
+import {
+  createQuizQuestion,
+  fetchQuizQuestions,
+} from "@/lib/features/invictus/academy/quiz-question/quizQuestionSlice";
 import {
   QUIZ_QUESTION_TYPES,
   type QuizQuestionType,
@@ -257,6 +260,8 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
           data: payload,
         }),
       ).unwrap();
+
+      void dispatch(fetchQuizQuestions({ moduleId: form.moduleId }));
 
       toast.success("Quiz question created successfully!");
       handleClose();

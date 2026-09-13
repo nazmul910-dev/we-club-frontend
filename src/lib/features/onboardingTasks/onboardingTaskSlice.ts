@@ -199,9 +199,14 @@ const onboardingTaskSlice = createSlice({
       })
       .addCase(createOnboardingTask.fulfilled, (state, action) => {
         state.isSavingTask = false;
-        state.adminTasks = [...state.adminTasks, action.payload].sort(
-          (a, b) => a.order - b.order,
-        );
+        state.adminTasks = [
+          action.payload,
+          ...state.adminTasks
+            .filter((t) => t._id !== action.payload._id)
+            .map((t) =>
+              t.status !== "archived" ? { ...t, order: t.order + 1 } : t,
+            ),
+        ];
       })
       .addCase(createOnboardingTask.rejected, (state, action) => {
         state.isSavingTask = false;

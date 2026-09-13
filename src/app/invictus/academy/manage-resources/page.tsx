@@ -40,6 +40,7 @@ import ResourceTable from "@/components/invictus/academy/resources/ResourceTable
 // import EditResourceModal from "@/components/invictus/academy/resources/EditResourceModal";
 import dynamic from "next/dynamic";
 import TableSkeleton from "@/components/skeleton/Tableskeleton";
+import { PaginationControl } from "@/components/ui/PaginationControll";
 
 const CreateResourceModal = dynamic(
   () => import("@/components/invictus/academy/resources/CreateResourceModal"),
@@ -99,10 +100,24 @@ function ManageResourcesContent() {
     }
   }, [error]);
 
+  const [page, setPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
+
+  useEffect(() => {
+    setPage(1);
+  }, [courseFilter]);
+
   const filteredResources = useMemo(() => {
     if (!courseFilter) return resources;
     return resources.filter((item) => item.module?._id === courseFilter);
   }, [resources, courseFilter]);
+
+  const totalPages = Math.ceil(filteredResources.length / ITEMS_PER_PAGE);
+
+  const paginatedResources = useMemo(() => {
+    const start = (page - 1) * ITEMS_PER_PAGE;
+    return filteredResources.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredResources, page]);
 
   const stats = useMemo(() => {
     const total = resources.length;
@@ -245,13 +260,26 @@ function ManageResourcesContent() {
             className="border border-gold-soft"
           />
         ) : (
-          <ResourceTable
-            data={filteredResources}
-            onEdit={(resource) => {
-              setSelectedResource(resource);
-              setEditOpen(true);
-            }}
-          />
+          <>
+            <ResourceTable
+              data={paginatedResources}
+              onEdit={(resource) => {
+                setSelectedResource(resource);
+                setEditOpen(true);
+              }}
+            />
+
+            {totalPages > 1 && (
+              <div className="mt-6 flex justify-center">
+                <PaginationControl
+                  currentPage={page}
+                  totalPages={totalPages}
+                  onPageChange={setPage}
+                  variant="invictus"
+                />
+              </div>
+            )}
+          </>
         )}
       </div>
 
