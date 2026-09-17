@@ -18,6 +18,7 @@ import {
   fetchMyModuleProgress,
   fetchMyAllProgress,
 } from "@/lib/features/invictus/academy/progress/progressSlice";
+import { fetchMyModuleAttempts } from "@/lib/features/invictus/academy/quiz-attempt/quizAttemptSlice";
 import { fetchResources } from "@/lib/features/invictus/academy/resource/resourceSlice";
 import { fetchMyCertificates } from "@/lib/features/invictus/academy/cerfificate/certificateSlice";
 import type { ICourseModule } from "@/lib/features/invictus/academy/course/courseTypes";
@@ -42,12 +43,21 @@ export default function ModuleChallengePage() {
   const { myProgress } = useAppSelector((state) => state.progress);
   const { resources } = useAppSelector((state) => state.resource);
   const { myCertificates } = useAppSelector((state) => state.certificate);
+  const moduleAttempts = useAppSelector(
+    (state) => state.quizAttempt.attemptsByModuleId[moduleId] ?? [],
+  );
   // Read selectedPillar WITHOUT dispatching fetchPillarBySlug (that resets it to null)
   const selectedPillar = useAppSelector((state) => state.pillar.selectedPillar);
 
   const [courseLoading, setCourseLoading] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState<IModuleVideo | null>(null);
   const [pillarModules, setPillarModules] = useState<ICourseModule[]>([]);
+
+  const isAttemptPassed = moduleAttempts.some((a) => a.passed);
+  const bestAttemptScore = moduleAttempts.reduce(
+    (max, a) => Math.max(max, a.score ?? 0),
+    0,
+  );
 
   /**
    * True when the user has passed the quiz for EVERY published module in this pillar.
@@ -112,6 +122,7 @@ export default function ModuleChallengePage() {
     dispatch(fetchVideos({ moduleId, includeArchived: false }));
     dispatch(fetchMyModuleVideoProgress(moduleId));
     dispatch(fetchMyModuleProgress(moduleId));
+    dispatch(fetchMyModuleAttempts(moduleId));
     dispatch(fetchMyAllProgress());
     dispatch(fetchResources({ moduleId, includeArchived: false }));
     dispatch(fetchMyCertificates());
@@ -349,8 +360,14 @@ export default function ModuleChallengePage() {
               pillarName={pillarName}
               quizUnlocked={currentProgress?.quizUnlocked ?? false}
               alreadyCertified={alreadyCertified}
-              moduleQuizPassed={currentProgress?.quizSummary?.passed ?? false}
-              moduleScore={currentProgress?.quizSummary?.bestScore ?? 0}
+              moduleQuizPassed={
+                currentProgress?.quizSummary?.passed ?? false
+              }
+              moduleScore={
+                (bestAttemptScore > 0 ? bestAttemptScore : undefined) ??
+                currentProgress?.quizSummary?.bestScore ??
+                0
+              }
               allModulesPassed={allModulesPassed}
               pillarTotalModules={pillarModules.length}
               pillarPassedModules={

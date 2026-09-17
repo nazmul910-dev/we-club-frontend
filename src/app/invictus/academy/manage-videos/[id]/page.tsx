@@ -6,7 +6,6 @@ import { useParams, useRouter } from "next/navigation";
 
 import {
   ArrowLeft,
-  Archive,
   Award,
   Calendar,
   Clock,
@@ -17,6 +16,7 @@ import {
   ListOrdered,
   Percent,
   PlayCircle,
+  Trash2,
   Unlock,
   User,
 } from "lucide-react";
@@ -24,13 +24,23 @@ import {
 import AuthGuard from "@/components/Auth/authGuard/AuthGuard";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
 import {
-  archiveVideo,
   clearSelectedVideo,
+  deleteVideo,
   draftVideo,
   fetchVideoById,
   publishVideo,
@@ -102,6 +112,8 @@ function VideoDetailsContent() {
 
   const [editOpen, setEditOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (videoId) {
@@ -138,22 +150,19 @@ function VideoDetailsContent() {
     }
   };
 
-  const handleArchive = async () => {
+  const handleDelete = async () => {
     if (!video) return;
-    const confirmed = window.confirm(
-      `Archive "${video.title}"? Archived videos are hidden from members and can no longer be edited or published. This cannot be undone.`,
-    );
-    if (!confirmed) return;
-
     try {
-      setActionLoading(true);
-      await dispatch(archiveVideo(video._id)).unwrap();
-      toast.success("Video archived successfully");
+      setDeleting(true);
+      await dispatch(deleteVideo(video._id)).unwrap();
+      toast.success("Video deleted successfully");
+      setDeleteConfirmOpen(false);
+      router.push("/invictus/academy/manage-videos");
     } catch (err: any) {
       console.log(err);
-      toast.error(err?.message || "Failed to archive video");
+      toast.error(err?.message || "Failed to delete video");
     } finally {
-      setActionLoading(false);
+      setDeleting(false);
     }
   };
 
@@ -238,12 +247,12 @@ function VideoDetailsContent() {
 
           <Button
             variant="outline"
-            className="cursor-pointer border-[#E8DDCA] text-red-500"
-            disabled={video.status === "archived" || actionLoading}
-            onClick={handleArchive}
+            className="cursor-pointer border-red-200 bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-600"
+            disabled={actionLoading || deleting}
+            onClick={() => setDeleteConfirmOpen(true)}
           >
-            <Archive size={16} className="mr-1.5" />
-            Archive
+            <Trash2 size={16} className="mr-1.5" />
+            Delete
           </Button>
         </div>
       </div>
@@ -432,6 +441,41 @@ function VideoDetailsContent() {
       </div>
 
       <EditVideoModal open={editOpen} video={video} onClose={() => setEditOpen(false)} />
+
+      <AlertDialog
+        open={deleteConfirmOpen}
+        onOpenChange={(open) => {
+          if (!open) setDeleteConfirmOpen(false);
+        }}
+      >
+        <AlertDialogContent className="rounded-3xl border border-[#E7DDCC] bg-white p-6">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-[#1C1A17]">
+              Delete video?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-[#8A8175]">
+              Are you sure you want to permanently delete &quot;{video.title}&quot;? This will delete the video file from Cloudinary and clear all related watch progress. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              className="cursor-pointer border-[#E7DDCC] bg-transparent text-[#1C1A17] hover:bg-[#FAF8F4]"
+              onClick={() => setDeleteConfirmOpen(false)}
+              disabled={deleting}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="cursor-pointer bg-red-600 text-white hover:bg-red-700"
+              onClick={handleDelete}
+              disabled={deleting}
+            >
+              {deleting ? "Deleting..." : "Delete Video"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

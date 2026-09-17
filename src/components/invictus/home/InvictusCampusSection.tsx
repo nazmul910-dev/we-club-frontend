@@ -10,8 +10,18 @@ import {
   Trophy,
   BookOpen,
 } from "lucide-react";
+import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
+import { UserRole } from "@/lib/utils/auth";
 
 export default function InvictusCampusSection() {
+
+
+  const tokenUser = useAppSelector((state) => state.authUser.user);
+  const profile = useAppSelector((state) => state.authUser.profile);
+
+  const userRole = (profile?.role || tokenUser?.role) as UserRole | undefined;
+    const isFounderOrManager = userRole === "founder" || userRole === "manager";
+
   const campusCards = [
     {
       title: "COMMUNITY ROOMS",
@@ -68,8 +78,13 @@ export default function InvictusCampusSection() {
       badgeColor: "bg-purple-50 text-purple-700 border-purple-200",
       href: "/invictus/accountability",
       icon: BookOpen,
+      hideForFounderOrManager: true,
     },
   ];
+
+  const visibleCampusCards = campusCards.filter(
+  (card) => !(card.hideForFounderOrManager && isFounderOrManager)
+);
 
   return (
     <div className="space-y-4">
@@ -83,7 +98,7 @@ export default function InvictusCampusSection() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 pt-2">
-        {campusCards.map((card) => {
+        {visibleCampusCards.map((card) => {
           const Icon = card.icon;
           return (
             <Link

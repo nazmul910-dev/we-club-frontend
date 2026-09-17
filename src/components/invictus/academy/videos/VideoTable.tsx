@@ -26,11 +26,12 @@ import {
 } from "@/components/ui/Table";
 import { Switch } from "@/components/ui/switch";
 
-import { Archive, Crown, Edit, Eye, PlayCircle } from "lucide-react";
+import { toast } from "sonner";
+import { Crown, Edit, Eye, PlayCircle, Trash2 } from "lucide-react";
 
 import { useAppDispatch } from "@/lib/redux/store/hook";
 import {
-  archiveVideo,
+  deleteVideo,
   draftVideo,
   publishVideo,
 } from "@/lib/features/invictus/academy/video-module/videoSlice";
@@ -63,7 +64,8 @@ const formatDuration = (seconds: number) => {
 export default function VideoTable({ data, onEdit }: Props) {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const [archiveTarget, setArchiveTarget] = useState<IModuleVideo | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<IModuleVideo | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const handleStatus = (item: IModuleVideo, checked: boolean) => {
     if (checked) {
@@ -73,14 +75,22 @@ export default function VideoTable({ data, onEdit }: Props) {
     }
   };
 
-  const handleArchive = (item: IModuleVideo) => {
-    setArchiveTarget(item);
+  const handleDelete = (item: IModuleVideo) => {
+    setDeleteTarget(item);
   };
 
-  const confirmArchive = () => {
-    if (!archiveTarget) return;
-    dispatch(archiveVideo(archiveTarget._id));
-    setArchiveTarget(null);
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      setDeleting(true);
+      await dispatch(deleteVideo(deleteTarget._id)).unwrap();
+      toast.success("Video deleted successfully");
+      setDeleteTarget(null);
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to delete video");
+    } finally {
+      setDeleting(false);
+    }
   };
 
   return (
@@ -193,11 +203,10 @@ export default function VideoTable({ data, onEdit }: Props) {
                       variant="outline"
                       size="icon"
                       className="cursor-pointer border-red-200 bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-600"
-                      disabled={item.status === "archived"}
-                      onClick={() => handleArchive(item)}
-                      title="Archive video"
+                      onClick={() => handleDelete(item)}
+                      title="Delete video"
                     >
-                      <Archive size={16} />
+                      <Trash2 size={16} />
                     </Button>
                   </div>
                 </TableCell>
@@ -220,35 +229,37 @@ export default function VideoTable({ data, onEdit }: Props) {
       </div>
 
       <AlertDialog
-        open={Boolean(archiveTarget)}
+        open={Boolean(deleteTarget)}
         onOpenChange={(open) => {
-          if (!open) setArchiveTarget(null);
+          if (!open) setDeleteTarget(null);
         }}
       >
         <AlertDialogContent className="rounded-3xl border border-[#E7DDCC] bg-white p-6">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-[#1C1A17]">
-              Archive video?
+              Delete video?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-[#8A8175]">
-              {archiveTarget
-                ? `Archived videos are hidden from members and can no longer be edited or published. This cannot be undone.`
-                : "This video will be archived."}
+              {deleteTarget
+                ? `Are you sure you want to permanently delete "${deleteTarget.title}"? This will delete the video file and clear all related watch progress. This action cannot be undone.`
+                : "This video will be permanently deleted."}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
           <AlertDialogFooter>
             <AlertDialogCancel
               className="cursor-pointer border-[#E7DDCC] bg-transparent text-[#1C1A17] hover:bg-[#FAF8F4]"
-              onClick={() => setArchiveTarget(null)}
+              onClick={() => setDeleteTarget(null)}
+              disabled={deleting}
             >
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              className="cursor-pointer bg-red-500 text-white hover:bg-red-600"
-              onClick={confirmArchive}
+              className="cursor-pointer bg-red-600 text-white hover:bg-red-700"
+              onClick={confirmDelete}
+              disabled={deleting}
             >
-              OK
+              {deleting ? "Deleting..." : "Delete Video"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

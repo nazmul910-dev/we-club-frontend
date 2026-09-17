@@ -67,13 +67,19 @@ export const videoApi = {
     return res.data;
   },
 
-  // Archive (soft delete — backend has no hard delete for videos)
+  // Archive
   archive: async (id: string): Promise<ApiEnvelope<IModuleVideo>> => {
     const res = await api.patch(`${VIDEO_URL}/${id}/archive`);
     return res.data;
   },
+
+  // Delete Video permanently
+  delete: async (id: string): Promise<ApiEnvelope<{ message: string; videoId: string }>> => {
+    const res = await api.delete(`${VIDEO_URL}/${id}`);
+    return res.data;
+  },
   
-    checkAccess: async (id: string): Promise<ApiEnvelope<IVideoAccessResult>> => {
+  checkAccess: async (id: string): Promise<ApiEnvelope<IVideoAccessResult>> => {
     const res = await api.get(`${VIDEO_URL}/${id}/access`);
     return res.data;
   },

@@ -94,6 +94,14 @@ export const archiveVideo = createAsyncThunk(
   },
 );
 
+export const deleteVideo = createAsyncThunk(
+  "video/delete",
+  async (id: string) => {
+    await videoApi.delete(id);
+    return id;
+  },
+);
+
 const upsertVideo = (state: VideoState, updated: IModuleVideo) => {
   const index = state.videos.findIndex((item) => item._id === updated._id);
   if (index !== -1) {
@@ -203,6 +211,16 @@ const videoSlice = createSlice({
       })
       .addCase(archiveVideo.rejected, (state, action) => {
         state.error = action.error.message || "Failed to archive video";
+      })
+
+      .addCase(deleteVideo.fulfilled, (state, action) => {
+        state.videos = state.videos.filter((v) => v._id !== action.payload);
+        if (state.selectedVideo?._id === action.payload) {
+          state.selectedVideo = null;
+        }
+      })
+      .addCase(deleteVideo.rejected, (state, action) => {
+        state.error = action.error.message || "Failed to delete video";
       })
 
       .addCase(checkVideoAccess.pending, (state) => {

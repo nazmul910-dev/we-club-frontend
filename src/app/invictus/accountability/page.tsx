@@ -805,7 +805,7 @@ export default function MyAccountabilityPage() {
               })
             )}
           </section>
-
+{/* 
           <SectionHeader
             variant="invictus"
             title="Progress Journal"
@@ -828,7 +828,7 @@ export default function MyAccountabilityPage() {
                 Save entry
               </button>
             </div>
-          </SectionCard>
+          </SectionCard> */}
 
           {/* Booking dialog */}
           <Dialog

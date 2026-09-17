@@ -71,6 +71,11 @@ export const academyApi = {
 
     return res.data;
   },
+  deleteVideo: async (id: string) => {
+    const res = await api.delete(`/module-videos/${id}`);
+
+    return res.data;
+  },
   getMyEntitlement: async () => {
     const res = await api.get("/user-entitlements/me");
 
