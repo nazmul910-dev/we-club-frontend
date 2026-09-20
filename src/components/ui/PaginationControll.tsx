@@ -19,7 +19,8 @@ interface PaginationControlProps {
 
 // Builds a compact page list with ellipses, e.g.:
 //   1 ... 4 5 [6] 7 8 ... 20
-// Always shows first, last, current, and one neighbor on each side.
+// Always shows first, last, current,
+//  and one neighbor on each side.
 function getPageNumbers(current: number, total: number): (number | "ellipsis")[] {
   if (total <= 7) {
     return Array.from({ length: total }, (_, i) => i + 1);
