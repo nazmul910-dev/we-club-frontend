@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
     CalendarClock,
     Plus,
@@ -31,6 +31,7 @@ import type { ISessionScheduleItem } from "@/lib/features/invictus/sessionSchedu
 // import AttendeesModal from "@/components/invictus/academy/sessions/AttendeesModal";
 import dynamic from "next/dynamic";
 import TableSkeleton from "@/components/skeleton/Tableskeleton";
+import { PaginationControl } from "@/components/ui/PaginationControll";
 
 const CreateSessionModal = dynamic(
     () => import("@/components/invictus/academy/sessions/CreateSessionModal"),
@@ -151,16 +152,32 @@ function ManageSessionsContent() {
         }
     };
 
-    const filteredSessions = sessions.filter((s) => {
-        const matchSearch =
-            s.title?.toLowerCase().includes(search.toLowerCase()) ||
-            s.host?.fullName?.toLowerCase().includes(search.toLowerCase()) ||
-            s.sessionType?.toLowerCase().includes(search.toLowerCase());
+    const [page, setPage] = useState(1);
+    const ITEMS_PER_PAGE = 10;
 
-        const matchStatus = statusFilter === "all" || s.status === statusFilter;
+    useEffect(() => {
+        setPage(1);
+    }, [search, statusFilter]);
 
-        return matchSearch && matchStatus;
-    });
+    const filteredSessions = useMemo(() =>
+        sessions.filter((s) => {
+            const matchSearch =
+                s.title?.toLowerCase().includes(search.toLowerCase()) ||
+                s.host?.fullName?.toLowerCase().includes(search.toLowerCase()) ||
+                s.sessionType?.toLowerCase().includes(search.toLowerCase());
+
+            const matchStatus = statusFilter === "all" || s.status === statusFilter;
+
+            return matchSearch && matchStatus;
+        }),
+    [sessions, search, statusFilter]);
+
+    const totalPages = Math.ceil(filteredSessions.length / ITEMS_PER_PAGE);
+
+    const paginatedSessions = useMemo(() => {
+        const start = (page - 1) * ITEMS_PER_PAGE;
+        return filteredSessions.slice(start, start + ITEMS_PER_PAGE);
+    }, [filteredSessions, page]);
 
     return (
         <div className="page-wrapper">
@@ -238,7 +255,8 @@ function ManageSessionsContent() {
                         </p>
                     </div>
                 ) : (
-                    <div className="overflow-x-auto rounded-2xl border border-[#E8DDCA]  shadow-2xs">
+                    <>
+                        <div className="overflow-x-auto rounded-2xl border border-[#E8DDCA]  shadow-2xs">
                         <table className="w-full text-left text-sm">
                             <thead className="bg-[#FAF6EE] text-[#8A8175] text-xs uppercase tracking-wider border-b border-b-gold-soft">
                                 <tr>
@@ -253,7 +271,7 @@ function ManageSessionsContent() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[#EFE6D6]">
-                                {filteredSessions.map((s) => (
+                                {paginatedSessions.map((s) => (
                                     <tr
                                         key={s._id}
                                         className="hover:bg-[#FAF8F5] transition-colors"
@@ -355,6 +373,18 @@ function ManageSessionsContent() {
                             </tbody>
                         </table>
                     </div>
+
+                    {!loading && totalPages > 1 && (
+                        <div className="mt-6 flex justify-center">
+                            <PaginationControl
+                                currentPage={page}
+                                totalPages={totalPages}
+                                onPageChange={setPage}
+                                variant="invictus"
+                            />
+                        </div>
+                    )}
+                    </>
                 )}
             </div>
 

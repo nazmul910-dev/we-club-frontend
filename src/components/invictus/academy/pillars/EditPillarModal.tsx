@@ -217,7 +217,7 @@ export default function EditPillarDialog({ open, onClose, pillar }: Props) {
               </div>
 
               <div>
-                <Label>Stripe Price ID</Label>
+                <Label>Stripe Price ID (Optional)</Label>
                 <Input
                   className="mt-2"
                   placeholder="price_xxxxx"

@@ -166,7 +166,12 @@ const progressSlice = createSlice({
       })
       .addCase(fetchMyAllProgress.fulfilled, (state, action) => {
         state.loading = false;
-        state.myProgress = action.payload || [];
+        const list = Array.isArray(action.payload)
+          ? action.payload
+          : Array.isArray((action.payload as any)?.data)
+            ? (action.payload as any).data
+            : [];
+        state.myProgress = list;
       })
       .addCase(fetchMyAllProgress.rejected, (state, action) => {
         state.loading = false;
@@ -174,24 +179,28 @@ const progressSlice = createSlice({
       })
 
       .addCase(fetchMyModuleProgress.fulfilled, (state, action) => {
+        const item = (action.payload as any)?.data ?? action.payload;
+        if (!item || !item._id) return;
         const index = state.myProgress.findIndex(
-          (item) => item._id === action.payload._id,
+          (p) => p._id === item._id,
         );
         if (index !== -1) {
-          state.myProgress[index] = action.payload;
+          state.myProgress[index] = item;
         } else {
-          state.myProgress.push(action.payload);
+          state.myProgress.push(item);
         }
       })
 
       .addCase(recalculateMyModuleProgress.fulfilled, (state, action) => {
+        const item = (action.payload as any)?.data ?? action.payload;
+        if (!item || !item._id) return;
         const index = state.myProgress.findIndex(
-          (item) => item._id === action.payload._id,
+          (p) => p._id === item._id,
         );
         if (index !== -1) {
-          state.myProgress[index] = action.payload;
+          state.myProgress[index] = item;
         } else {
-          state.myProgress.push(action.payload);
+          state.myProgress.push(item);
         }
       });
   },

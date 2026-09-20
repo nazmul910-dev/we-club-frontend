@@ -14,6 +14,7 @@ import { Provider } from "react-redux";
 import { store } from "@/lib/redux/store/store";
 import { cn } from "@/lib/utils";
 import { Toaster } from "sonner";
+import NotificationSocketListener from "@/components/notifications/NotificationSocketListener";
 
 const notoSans = Noto_Sans({ subsets: ["latin"], variable: "--font-sans" });
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -117,6 +118,7 @@ export default function RootLayout({
             <body className="min-h-full flex flex-col" suppressHydrationWarning>
                 <Provider store={store}>
                     <TranslationRouteGuard />
+                    <NotificationSocketListener />
                     {children}
                 </Provider>
                 <AppToaster />

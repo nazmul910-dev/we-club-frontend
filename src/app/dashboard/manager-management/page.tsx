@@ -70,6 +70,8 @@ const formatAccess = (value: string) => {
       return "co_mentor";
     case "ceo":
       return "CEO";
+    case "ceo_partner":
+      return "CEO Partner";
     default:
       return value;
   }
@@ -78,12 +80,12 @@ const formatAccess = (value: string) => {
 export default function ManagerManagement() {
   const dispatch = useAppDispatch();
   const { managers, loading, error, activeTab, meta } = useAppSelector(
-    (state) => state.manager
+    (state) => state.manager,
   );
 
-  const currentUserRole = useAppSelector((state) => state.authUser?.user?.role) as
-    | string
-    | undefined;
+  const currentUserRole = useAppSelector(
+    (state) => state.authUser?.user?.role,
+  ) as string | undefined;
 
   const canDelete = currentUserRole === "founder";
 
@@ -135,7 +137,9 @@ export default function ManagerManagement() {
         <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-5">
           <Tabs
             value={activeTab}
-            onValueChange={(value) => dispatch(setActiveTab(value as typeof activeTab))}
+            onValueChange={(value) =>
+              dispatch(setActiveTab(value as typeof activeTab))
+            }
           >
             <TabsList className="h-11 rounded-full border border-neutral-800 bg-transparent p-1">
               {TABS.map((tab) => (
@@ -172,7 +176,9 @@ export default function ManagerManagement() {
         {loading && <ManagersTableSkeleton />}
 
         {error && (
-          <div className="flex h-72 items-center justify-center text-red-400">{error}</div>
+          <div className="flex h-72 items-center justify-center text-red-400">
+            {error}
+          </div>
         )}
 
         {!loading && !error && filteredManagers.length === 0 && (
@@ -229,7 +235,9 @@ export default function ManagerManagement() {
                           <span className="text-sm font-semibold text-white">
                             {manager.fullName}
                           </span>
-                          <span className="text-xs text-neutral-500">{manager.email}</span>
+                          <span className="text-xs text-neutral-500">
+                            {manager.email}
+                          </span>
                         </div>
                       </div>
                     </TableCell>
@@ -256,15 +264,18 @@ export default function ManagerManagement() {
                       <Badge
                         variant="outline"
                         className={`rounded-full bg-transparent px-3 py-1 text-[10px] font-semibold uppercase tracking-wider ${statusBadgeClass(
-                          manager.accountStatus
+                          manager.accountStatus,
                         )}`}
                       >
                         {manager.accountStatus.replace("_", " ")}
                       </Badge>
                     </TableCell>
 
-                    <TableCell className="text-right">
-                      <ManagerRowActions manager={manager} canDelete={canDelete} />
+                    <TableCell className="flex justify-end ">
+                      <ManagerRowActions
+                        manager={manager}
+                        canDelete={canDelete}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}

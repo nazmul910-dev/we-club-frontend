@@ -49,16 +49,16 @@ export default function PrivateRoomInviteModal({
 
   return (
     <Dialog open={open} onOpenChange={(next) => !sending && onOpenChange(next)}>
-      <DialogContent className="rounded-2xl border-neutral-800 bg-[#0B0B0B] text-white sm:max-w-md">
+      <DialogContent className="rounded-2xl py-6 px-5 border-neutral-800 bg-[#292929] text-white sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Invite to private community</DialogTitle>
-          <DialogDescription className="text-neutral-400">
-            Send {manager.fullName} an email with a direct link to the selected Invictus room.
+          <DialogDescription className="text-white">
+            Send <span className="font-semibold">{manager.fullName}</span> an email with a direct link to the selected Invictus room.
           </DialogDescription>
         </DialogHeader>
         <Select value={room} onValueChange={(value) => setRoom(value ?? "")} disabled={sending}>
           <SelectTrigger className="h-11 border-neutral-800 bg-neutral-900 text-white">
-            <SelectValue placeholder="Choose a community room" />
+            <SelectValue placeholder="Choose a community room" className="text-white" />
           </SelectTrigger>
           <SelectContent className="border-neutral-800 bg-neutral-900 text-white">
             {PRIVATE_ROOMS.map((item) => (
@@ -67,7 +67,7 @@ export default function PrivateRoomInviteModal({
           </SelectContent>
         </Select>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={sending}>Cancel</Button>
+          <Button variant="default" onClick={() => onOpenChange(false)} disabled={sending}>Cancel</Button>
           <Button variant="invictus" onClick={sendInvite} disabled={sending}>
             {sending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
             Send invitation

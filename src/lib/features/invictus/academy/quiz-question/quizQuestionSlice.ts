@@ -144,7 +144,17 @@ const quizQuestionSlice = createSlice({
       })
       .addCase(createQuizQuestion.fulfilled, (state, action) => {
         state.actionLoading = false;
-        state.questions.push(action.payload);
+        const newQuestion = action.payload;
+        state.questions = [
+          newQuestion,
+          ...state.questions
+            .filter((q) => q._id !== newQuestion._id)
+            .map((q) =>
+              q.module === newQuestion.module && q.status !== "archived"
+                ? { ...q, order: q.order + 1 }
+                : q,
+            ),
+        ];
       })
       .addCase(createQuizQuestion.rejected, (state, action) => {
         state.actionLoading = false;

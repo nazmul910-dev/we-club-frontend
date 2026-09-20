@@ -6,8 +6,14 @@ import {
   useRef,
   useEffect,
   useCallback,
+  useState,
 } from "react";
-import { useEditor, EditorContent, Editor, useEditorState } from "@tiptap/react";
+import {
+  useEditor,
+  EditorContent,
+  Editor,
+  useEditorState,
+} from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -19,6 +25,16 @@ import {
   Link as LinkIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 // ─── Public API ────────────────────────────────────────────────────────────────
 export interface RichTextEditorHandle {
@@ -67,7 +83,7 @@ function FmtBtn({
         "flex h-7 w-7 items-center justify-center rounded transition-colors duration-100",
         active
           ? "bg-indigo-500/20 text-indigo-300"
-          : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700/50"
+          : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700/50",
       )}
     >
       {children}
@@ -85,6 +101,9 @@ function FormatBar({
   leftSlot?: React.ReactNode;
   rightSlot?: React.ReactNode;
 }) {
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
+  const [linkUrl, setLinkUrl] = useState("");
+
   // Subscribe to just the active-state booleans we need.
   // This re-renders on selection change / mark toggle — not on every keystroke elsewhere.
   const editorState = useEditorState({
@@ -100,14 +119,24 @@ function FormatBar({
 
   const setLink = useCallback(() => {
     const prev = editor.getAttributes("link").href as string | undefined;
-    const url = window.prompt("Enter URL", prev ?? "https://");
-    if (url === null) return;
-    if (url === "") {
-      editor.chain().focus().extendMarkRange("link").unsetLink().run();
-      return;
-    }
-    editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+    setLinkUrl(prev ?? "");
+    window.setTimeout(() => setLinkDialogOpen(true), 0);
   }, [editor]);
+
+  const applyLink = () => {
+    const url = linkUrl.trim();
+    if (!url) {
+      editor.chain().focus().extendMarkRange("link").unsetLink().run();
+    } else {
+      editor
+        .chain()
+        .focus()
+        .extendMarkRange("link")
+        .setLink({ href: url })
+        .run();
+    }
+    setLinkDialogOpen(false);
+  };
 
   return (
     <div className="flex items-center justify-between px-2 py-1">
@@ -152,6 +181,45 @@ function FormatBar({
       </div>
 
       {rightSlot && <div className="flex items-center">{rightSlot}</div>}
+
+      <Dialog
+        open={linkDialogOpen}
+        onOpenChange={(open) => setLinkDialogOpen(open)}
+        disablePointerDismissal
+      >
+        <DialogContent className="max-w-md bg-white text-zinc-900">
+          <DialogHeader>
+            <DialogTitle>Attach a link</DialogTitle>
+            <DialogDescription>
+              Add a URL to the selected text. Leave it empty to remove the link.
+            </DialogDescription>
+          </DialogHeader>
+
+          <Input
+            autoFocus
+            value={linkUrl}
+            onChange={(event) => setLinkUrl(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") applyLink();
+            }}
+            placeholder="https://example.com"
+            type="url"
+          />
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setLinkDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="invictus" type="button" onClick={applyLink}>
+              OK
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -169,7 +237,7 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
       leftSlot,
       rightSlot,
     },
-    ref
+    ref,
   ) {
     const editorRef = useRef<Editor | null>(null);
 
@@ -204,23 +272,31 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
             "text-black text-sm leading-relaxed min-h-[1.5rem]",
             "[&_strong]:font-semibold [&_em]:italic [&_s]:line-through",
             "[&_code]:bg-zinc-700 [&_code]:text-rose-300 [&_code]:rounded",
-            "[&_code]:px-1 [&_code]:py-0.5 [&_code]:text-xs [&_code]:font-mono"
+            "[&_code]:px-1 [&_code]:py-0.5 [&_code]:text-xs [&_code]:font-mono",
           ),
         },
         handleKeyDown(view, event) {
           // Plain Enter → send
-          if (event.key === "Enter" && !event.shiftKey && !event.ctrlKey && !event.metaKey) {
+          if (
+            event.key === "Enter" &&
+            !event.shiftKey &&
+            !event.ctrlKey &&
+            !event.metaKey
+          ) {
             event.preventDefault();
             onSend?.();
             return true;
           }
           // Shift+Enter or Ctrl+Enter → insert hard break (new line)
-          if (event.key === "Enter" && (event.shiftKey || event.ctrlKey || event.metaKey)) {
+          if (
+            event.key === "Enter" &&
+            (event.shiftKey || event.ctrlKey || event.metaKey)
+          ) {
             event.preventDefault();
             view.dispatch(
               view.state.tr.replaceSelectionWith(
-                view.state.schema.nodes.hardBreak.create()
-              )
+                view.state.schema.nodes.hardBreak.create(),
+              ),
             );
             return true;
           }
@@ -264,7 +340,7 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
           "flex flex-col w-full rounded-lg",
           "bg-white border text-black border-zinc-600/50",
           "focus-within:border-zinc-500/70 transition-colors duration-150",
-          className
+          className,
         )}
       >
         {/* Scrollable text area */}
@@ -276,7 +352,7 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
         <FormatBar editor={editor} leftSlot={leftSlot} rightSlot={rightSlot} />
       </div>
     );
-  }
+  },
 );
 
 export default RichTextEditor;

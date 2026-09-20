@@ -13,7 +13,7 @@ import {
   getDefaultRedirect,
 } from "@/lib/utils/auth";
 
-import { setUser, logout } from "@/lib/features/auth/authUserSlice";
+import { setUser, logout, fetchCurrentUserProfile } from "@/lib/features/auth/authUserSlice";
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -31,50 +31,75 @@ export default function AuthGuard({
   const router = useRouter();
 
   const user = useAppSelector((state) => state.authUser.user);
+  const profile = useAppSelector((state) => state.authUser.profile);
 
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    const stored = getStoredUser();
+    let isMounted = true;
 
-    if (!stored) {
-      dispatch(logout());
+    const checkAuth = async () => {
+      const stored = getStoredUser();
 
-      router.replace("/login");
+      if (!stored) {
+        dispatch(logout());
 
-      return;
-    }
+        router.replace("/login");
 
-    // Access To Check
+        return;
+      }
 
-    if (
-      allowedAccessTo &&
-      allowedAccessTo.length > 0 &&
-      !hasAccessTo(stored.accessTo, allowedAccessTo)
-    ) {
-      router.replace(getDefaultRedirect(stored));
+      // Access To Check
+      if (
+        allowedAccessTo &&
+        allowedAccessTo.length > 0 &&
+        !hasAccessTo(stored.accessTo, allowedAccessTo)
+      ) {
+        router.replace(getDefaultRedirect(stored));
 
-      return;
-    }
+        return;
+      }
 
-    // Role Check
+      // Role Check
+      if (
+        allowedRoles &&
+        allowedRoles.length > 0 &&
+        !allowedRoles.includes(stored.role)
+      ) {
+        router.replace(getDefaultRedirect(stored));
 
-    if (
-      allowedRoles &&
-      allowedRoles.length > 0 &&
-      !allowedRoles.includes(stored.role)
-    ) {
-      router.replace(getDefaultRedirect(stored));
+        return;
+      }
 
-      return;
-    }
+      if (!user) {
+        dispatch(setUser(stored));
+      }
 
-    if (!user) {
-      dispatch(setUser(stored));
-    }
+      // Keep showing the circle loading animation until the user profile is fetched from the server
+      if (!profile && stored.id) {
+        try {
+          await dispatch(fetchCurrentUserProfile(stored.id)).unwrap();
+        } catch (err: unknown) {
+          const errMsg = typeof err === "string" ? err.toLowerCase() : "";
+          if (errMsg.includes("unauthorized") || errMsg.includes("not found")) {
+            dispatch(logout());
+            router.replace("/login");
+            return;
+          }
+        }
+      }
 
-    setChecking(false);
-  }, [allowedRoles, allowedAccessTo, dispatch, router, user]);
+      if (isMounted) {
+        setChecking(false);
+      }
+    };
+
+    void checkAuth();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [allowedRoles, allowedAccessTo, dispatch, router, user, profile]);
 
   if (checking) {
     return (

@@ -30,7 +30,7 @@ export interface ICertificateUserRef {
 export interface IQuizCertificate {
   _id: string;
   user: ICertificateUserRef;
-  module?: ICertificateModuleRef;  // optional — pillar-based certificates have no module
+  module?: ICertificateModuleRef; // optional — pillar-based certificates have no module
   pillar: ICertificatePillarRef;
 
   quizAttempt?: string;
@@ -42,6 +42,8 @@ export interface IQuizCertificate {
   score: number;
 
   issuedAt: string;
+
+  contentVersionAtIssue?: string;
 
   certificateUrl?: string;
 

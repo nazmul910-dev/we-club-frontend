@@ -16,6 +16,7 @@ import TaskTable from "@/components/invictus/academy/onboarding-tasks/TaskTable"
 import CreateTaskModal from "@/components/invictus/academy/onboarding-tasks/CreateTaskModal";
 import EditTaskModal from "@/components/invictus/academy/onboarding-tasks/EditTAskModal";
 import TableSkeleton from "@/components/skeleton/Tableskeleton";
+import { PaginationControl } from "@/components/ui/PaginationControll";
 
 export default function OnboardingTasksPage() {
     return (
@@ -37,6 +38,8 @@ function OnboardingTasksContent() {
     const [statusFilter, setStatusFilter] = useState<OnboardingTaskStatus | "">(
         "",
     );
+    const [page, setPage] = useState(1);
+    const ITEMS_PER_PAGE = 10;
 
     const [createOpen, setCreateOpen] = useState(false);
     const [editOpen, setEditOpen] = useState(false);
@@ -47,10 +50,21 @@ function OnboardingTasksContent() {
         dispatch(fetchAllOnboardingTasksAdmin());
     }, [dispatch]);
 
+    useEffect(() => {
+        setPage(1);
+    }, [statusFilter]);
+
     const filteredTasks = useMemo(() => {
         if (!statusFilter) return tasks;
         return tasks.filter((item) => item.status === statusFilter);
     }, [tasks, statusFilter]);
+
+    const totalPages = Math.ceil(filteredTasks.length / ITEMS_PER_PAGE);
+
+    const paginatedTasks = useMemo(() => {
+        const start = (page - 1) * ITEMS_PER_PAGE;
+        return filteredTasks.slice(start, start + ITEMS_PER_PAGE);
+    }, [filteredTasks, page]);
 
     const stats = useMemo(() => {
         const total = tasks.length;
@@ -144,13 +158,26 @@ function OnboardingTasksContent() {
                         className="border border-gold-soft"
                     />
                 ) : (
-                    <TaskTable
-                        data={filteredTasks}
-                        onEdit={(task) => {
-                            setSelectedTask(task);
-                            setEditOpen(true);
-                        }}
-                    />
+                    <>
+                        <TaskTable
+                            data={paginatedTasks}
+                            onEdit={(task) => {
+                                setSelectedTask(task);
+                                setEditOpen(true);
+                            }}
+                        />
+
+                        {totalPages > 1 && (
+                            <div className="mt-6 flex justify-center">
+                                <PaginationControl
+                                    currentPage={page}
+                                    totalPages={totalPages}
+                                    onPageChange={setPage}
+                                    variant="invictus"
+                                />
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
 

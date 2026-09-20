@@ -34,7 +34,6 @@ const buildFormFromResource = (resource: IModuleResource | null) => ({
   externalUrl: resource?.externalUrl || "",
   isRequired: resource?.isRequired ?? true,
   pointsReward: resource?.pointsReward ?? 5,
-  order: resource?.order ?? 1,
 });
 
 export default function EditResourceModal({ open, onClose, resource }: Props) {
@@ -63,7 +62,6 @@ export default function EditResourceModal({ open, onClose, resource }: Props) {
     if (!form.title.trim() || form.title.trim().length < 2)
       next.title = "Title minimum 2 charecter";
     if (!form.slug.trim()) next.slug = "Slug is required";
-    if (!form.order || form.order < 1) next.order = "Order must be at least 1";
 
     if (resource?.provider === "external" && !form.externalUrl.trim()) {
       next.externalUrl = "External URL is required";
@@ -91,7 +89,6 @@ export default function EditResourceModal({ open, onClose, resource }: Props) {
               : {}),
             isRequired: form.isRequired,
             pointsReward: form.pointsReward,
-            order: form.order,
           },
         }),
       ).unwrap();
@@ -176,33 +173,17 @@ export default function EditResourceModal({ open, onClose, resource }: Props) {
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>Order</Label>
-              <Input
-                className="mt-2"
-                type="number"
-                min={1}
-                value={form.order}
-                onChange={(e) => updateField("order", Number(e.target.value))}
-              />
-              {errors.order && (
-                <p className="mt-1 text-xs text-red-500">{errors.order}</p>
-              )}
-            </div>
-
-            <div>
-              <Label>Points Reward</Label>
-              <Input
-                className="mt-2"
-                type="number"
-                min={0}
-                value={form.pointsReward}
-                onChange={(e) =>
-                  updateField("pointsReward", Number(e.target.value))
-                }
-              />
-            </div>
+          <div>
+            <Label>Points Reward</Label>
+            <Input
+              className="mt-2"
+              type="number"
+              min={0}
+              value={form.pointsReward}
+              onChange={(e) =>
+                updateField("pointsReward", Number(e.target.value))
+              }
+            />
           </div>
 
           <div className="flex items-center justify-between rounded-xl border border-[#E7DDCC] p-4">

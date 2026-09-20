@@ -35,6 +35,8 @@ export interface ICourseModule {
 
   estimatedDurationMinutes: number;
 
+  publishedVideoCount?: number;
+
   minimumVideoPercent: number;
 
   minimumActionPercent: number;

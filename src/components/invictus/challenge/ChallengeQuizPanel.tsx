@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { toast } from "sonner";
 import {
   Award,
@@ -19,12 +19,16 @@ import { fetchQuizQuestions } from "@/lib/features/invictus/academy/quiz-questio
 import {
   submitQuizAttempt,
   clearLastAttempt,
+  fetchMyModuleAttempts,
 } from "@/lib/features/invictus/academy/quiz-attempt/quizAttemptSlice";
 import {
   issueMyCertificate,
   fetchMyCertificates,
 } from "@/lib/features/invictus/academy/cerfificate/certificateSlice";
-import { fetchMyModuleProgress } from "@/lib/features/invictus/academy/progress/progressSlice";
+import {
+  fetchMyModuleProgress,
+  fetchMyAllProgress,
+} from "@/lib/features/invictus/academy/progress/progressSlice";
 import type { ISubmitQuizAnswer } from "@/lib/features/invictus/academy/quiz-attempt/quizAttemptTypes";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -64,7 +68,9 @@ export default function ChallengeQuizPanel({
   const dispatch = useAppDispatch();
 
   const questions = useAppSelector((state) => state.quizQuestion.questions);
-  const questionsLoading = useAppSelector((state) => state.quizQuestion.loading);
+  const questionsLoading = useAppSelector(
+    (state) => state.quizQuestion.loading,
+  );
   const submitting = useAppSelector((state) => state.quizAttempt.submitting);
   const lastAttempt = useAppSelector((state) => state.quizAttempt.lastAttempt);
   const certificateLoading = useAppSelector(
@@ -74,6 +80,9 @@ export default function ChallengeQuizPanel({
     (state) => state.certificate.myCertificates,
   );
   const myProgress = useAppSelector((state) => state.progress.myProgress);
+  const moduleAttempts = useAppSelector(
+    (state) => state.quizAttempt.attemptsByModuleId[moduleId] ?? [],
+  );
 
   const [answers, setAnswers] = useState<Record<string, ISubmitQuizAnswer>>({});
 
@@ -84,29 +93,81 @@ export default function ChallengeQuizPanel({
       moduleId,
   );
 
-  // Reset answers and last attempt when moduleId changes
+  // Fetch attempts on mount and reset answers/lastAttempt when moduleId changes
   useEffect(() => {
     setAnswers({});
     dispatch(clearLastAttempt());
+    if (moduleId) {
+      dispatch(fetchMyModuleAttempts(moduleId));
+    }
   }, [dispatch, moduleId]);
 
+  const attemptPassed = moduleAttempts.some((a) => a.passed);
+  const bestAttemptScore = moduleAttempts.reduce(
+    (max, a) => Math.max(max, a.score ?? 0),
+    0,
+  );
+
+  // "passed" according to the SERVER (version-aware).
+  // Do NOT include old `attemptPassed` here — the server already checks
+  // whether the pass is still valid given any newly-added questions.
   const isModulePassed =
     moduleQuizPassed ||
-    currentProgress?.quizSummary?.passed ||
     (lastAttempt?.passed && true) ||
     false;
 
+  // Map of questions already answered correctly in any previous passed attempt
+  const previouslyPassedQuestionsMap = useMemo(() => {
+    const map = new Map<string, any>();
+    for (const attempt of moduleAttempts) {
+      if (attempt.passed) {
+        for (const ans of attempt.answers ?? []) {
+          if (ans.isCorrect) {
+            const qId =
+              typeof ans.question === "object" && ans.question
+                ? String((ans.question as any)._id ?? ans.question)
+                : String(ans.question);
+            if (qId) {
+              map.set(qId, ans);
+            }
+          }
+        }
+      }
+    }
+    return map;
+  }, [moduleAttempts]);
+
+  // Questions in this module that still require an answer
+  const pendingQuestions = useMemo(() => {
+    return questions.filter((q) => !previouslyPassedQuestionsMap.has(q._id));
+  }, [questions, previouslyPassedQuestionsMap]);
+
+  // Whether the module has any pending questions that must be answered
+  const hasNewQuestions = pendingQuestions.length > 0;
+
   const scoreAchieved =
     lastAttempt?.score ??
+    (bestAttemptScore > 0 ? bestAttemptScore : undefined) ??
     moduleScore ??
     currentProgress?.quizSummary?.bestScore ??
     0;
 
+  const attemptsUsed =
+    Math.max(
+      currentProgress?.quizSummary?.attemptsUsed ?? 0,
+      moduleAttempts.length,
+    );
+  const maximumAttempts = currentProgress?.quizSummary?.maximumAttempts ?? 2;
+  const attemptsExhausted =
+    maximumAttempts > 0 && attemptsUsed >= maximumAttempts;
+
+  // Always fetch questions when quiz is unlocked. The server automatically returns
+  // an empty array [] if the user already passed the current questions version.
   useEffect(() => {
-    if (quizUnlocked && !isModulePassed && moduleId) {
+    if (quizUnlocked && moduleId) {
       dispatch(fetchQuizQuestions({ moduleId, includeArchived: false }));
     }
-  }, [dispatch, moduleId, quizUnlocked, isModulePassed]);
+  }, [dispatch, moduleId, quizUnlocked]);
 
   const selectSingleOption = (questionId: string, optionIndex: number) => {
     setAnswers((prev) => ({
@@ -136,8 +197,21 @@ export default function ChallengeQuizPanel({
   };
 
   const handleSubmit = async () => {
-    if (Object.keys(answers).length < questions.length) {
-      toast.error("Please answer every question before submitting");
+    if (attemptsExhausted) {
+      toast.error(
+        `Maximum ${maximumAttempts} quiz attempts have already been used.`,
+      );
+      return;
+    }
+
+    const pendingAnswered = pendingQuestions.every(
+      (q) =>
+        answers[q._id]?.selectedOptionIndexes !== undefined ||
+        answers[q._id]?.booleanAnswer !== undefined,
+    );
+
+    if (!pendingAnswered) {
+      toast.error("Please answer all new questions before submitting");
       return;
     }
 
@@ -153,6 +227,9 @@ export default function ChallengeQuizPanel({
         toast.success(
           `🎉 Congratulations! You passed with ${res.attempt.score}%!`,
         );
+        dispatch(fetchQuizQuestions({ moduleId, includeArchived: false }));
+        dispatch(fetchMyModuleAttempts(moduleId));
+        dispatch(fetchMyAllProgress());
       } else {
         toast.error(
           `Score: ${res.attempt.score}%. You need at least 70% to pass.`,
@@ -161,11 +238,21 @@ export default function ChallengeQuizPanel({
 
       dispatch(fetchMyModuleProgress(moduleId));
       dispatch(fetchMyCertificates());
-    } catch (error: any) {
+    } catch (error: unknown) {
       const msg =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Failed to submit quiz attempt";
+        typeof error === "string"
+          ? error
+          : error instanceof Error
+            ? error.message
+            : "Failed to submit quiz attempt";
+
+      if (msg.toLowerCase().includes("already been passed")) {
+        toast.success("This quiz has already been passed!");
+        dispatch(fetchMyModuleAttempts(moduleId));
+        dispatch(fetchMyModuleProgress(moduleId));
+        return;
+      }
+
       toast.error(msg);
     }
   };
@@ -188,11 +275,15 @@ export default function ChallengeQuizPanel({
       );
       dispatch(fetchMyCertificates());
       dispatch(fetchMyModuleProgress(moduleId));
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const responseError = error as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
       const msg =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Failed to issue certificate. Ensure you have passed all module quizzes in this pillar.";
+        responseError.response?.data?.message ||
+        responseError.message ||
+        "Failed to issue certificate. Complete the latest videos and quizzes in every module first.";
       toast.error(msg);
     }
   };
@@ -201,9 +292,8 @@ export default function ChallengeQuizPanel({
   const thisPillarCertificate = pillarId
     ? myCertificates.find(
         (cert) =>
-          (typeof cert.pillar === "string"
-            ? cert.pillar
-            : cert.pillar?._id) === pillarId && cert.status === "issued",
+          (typeof cert.pillar === "string" ? cert.pillar : cert.pillar?._id) ===
+            pillarId && cert.status === "issued",
       )
     : undefined;
 
@@ -228,7 +318,12 @@ export default function ChallengeQuizPanel({
   }
 
   /* ─── 2. Pillar Certificate Already Claimed / Issued ─── */
-  if (Boolean(pillarId) && (alreadyCertified || thisPillarCertificate)) {
+  if (
+    Boolean(pillarId) &&
+    (alreadyCertified || thisPillarCertificate) &&
+    !hasNewQuestions &&
+    !questionsLoading
+  ) {
     return (
       <div className="relative overflow-hidden rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-8 shadow-sm">
         <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-emerald-200/40 blur-3xl" />
@@ -299,7 +394,8 @@ export default function ChallengeQuizPanel({
 
         <div className="mt-6 border-t border-[#E8DDCA] pt-5">
           <p className="mb-3 text-xs text-[#8A8175]">
-            Review the module lessons and downloadable resources, then try again.
+            Review the module lessons and downloadable resources, then try
+            again.
           </p>
           <button
             onClick={handleRetake}
@@ -314,7 +410,17 @@ export default function ChallengeQuizPanel({
   }
 
   /* ─── 4. Module Quiz Already Passed (Previously or Just Submitted) ─── */
-  if (isModulePassed) {
+  // Show "passed" UI when:
+  //   a) Server confirmed passed (version-aware) AND no new questions pending, OR
+  //   b) User has a prior passing attempt AND loading is done AND server returned
+  //      no new questions (empty array means their pass is still valid).
+  // If hasNewQuestions is true, new questions exist — fall through to quiz form.
+  const serverConfirmedPassed =
+    isModulePassed && !hasNewQuestions && !questionsLoading;
+  const priorPassNoNewQuestions =
+    attemptPassed && !questionsLoading && !hasNewQuestions;
+
+  if (serverConfirmedPassed || priorPassNoNewQuestions) {
     const remainingModules = pillarTotalModules - pillarPassedModules;
 
     return (
@@ -359,7 +465,9 @@ export default function ChallengeQuizPanel({
                   {pillarTotalModules > 0 ? `${pillarTotalModules} ` : ""}
                   modules in{" "}
                   {pillarName ? (
-                    <span className="font-semibold text-[#B18A3A]">{pillarName}</span>
+                    <span className="font-semibold text-[#B18A3A]">
+                      {pillarName}
+                    </span>
                   ) : (
                     "this pillar"
                   )}
@@ -371,14 +479,16 @@ export default function ChallengeQuizPanel({
                   <span className="font-semibold text-[#B18A3A]">
                     {pillarPassedModules} of {pillarTotalModules}
                   </span>{" "}
-                  module{pillarTotalModules !== 1 ? "s" : ""} passed.{" "}
-                  Complete the remaining{" "}
+                  module{pillarTotalModules !== 1 ? "s" : ""} passed. Complete
+                  the remaining{" "}
                   <span className="font-semibold text-[#B18A3A]">
                     {remainingModules} module{remainingModules !== 1 ? "s" : ""}
                   </span>{" "}
                   in{" "}
                   {pillarName ? (
-                    <span className="font-semibold text-[#B18A3A]">{pillarName}</span>
+                    <span className="font-semibold text-[#B18A3A]">
+                      {pillarName}
+                    </span>
                   ) : (
                     "this pillar"
                   )}{" "}
@@ -407,9 +517,7 @@ export default function ChallengeQuizPanel({
                 <div
                   key={i}
                   className={`h-2 flex-1 rounded-full ${
-                    i < pillarPassedModules
-                      ? "bg-emerald-500"
-                      : "bg-[#E8DDCA]"
+                    i < pillarPassedModules ? "bg-emerald-500" : "bg-[#E8DDCA]"
                   }`}
                 />
               ))}
@@ -479,7 +587,12 @@ export default function ChallengeQuizPanel({
       ) : (
         <>
           {questions.map((question, index) => {
+            const isPassedPreviously =
+              previouslyPassedQuestionsMap.has(question._id);
+            const prevAns = previouslyPassedQuestionsMap.get(question._id);
+
             const isAnswered =
+              isPassedPreviously ||
               answers[question._id]?.selectedOptionIndexes !== undefined ||
               answers[question._id]?.booleanAnswer !== undefined;
 
@@ -487,44 +600,132 @@ export default function ChallengeQuizPanel({
               <div
                 key={question._id}
                 className={`rounded-2xl border p-5 transition duration-150 ${
-                  isAnswered
-                    ? "border-[#B18A3A]/40 bg-[#FAF8F4]"
-                    : "border-[#E8DDCA] bg-white"
+                  isPassedPreviously
+                    ? "border-emerald-200 bg-emerald-50/30"
+                    : isAnswered
+                      ? "border-[#B18A3A]/40 bg-[#FAF8F4]"
+                      : "border-[#E8DDCA] bg-white"
                 }`}
               >
-                <p className="text-sm font-semibold text-[#171717]">
-                  <span className="text-[#B18A3A]">{index + 1}.</span>{" "}
-                  {question.question}
-                </p>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-[#171717]">
+                      <span
+                        className={
+                          isPassedPreviously
+                            ? "text-emerald-700"
+                            : "text-[#B18A3A]"
+                        }
+                      >
+                        {index + 1}.
+                      </span>{" "}
+                      {question.question}
+                    </p>
+                    {isPassedPreviously ? (
+                      <p className="mt-1 text-xs font-medium text-emerald-700">
+                        ✓ You have already answered this question correctly. No
+                        further action needed.
+                      </p>
+                    ) : (
+                      <p className="mt-1 text-xs text-[#8A8175]">
+                        Please choose your answer below to complete this module.
+                      </p>
+                    )}
+                  </div>
+                  {isPassedPreviously ? (
+                    <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-emerald-100 border border-emerald-300 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800">
+                      <CheckCircle2 size={13} className="text-emerald-600" />
+                      Passed
+                    </span>
+                  ) : (
+                    <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-300 px-2.5 py-0.5 text-[11px] font-bold text-amber-800">
+                      <Sparkles size={13} className="text-amber-600" />
+                      New Question
+                    </span>
+                  )}
+                </div>
 
                 {question.questionType === "true_false" ? (
                   <div className="mt-4 flex gap-3">
-                    <button
-                      type="button"
-                      onClick={() => selectBoolean(question._id, true)}
-                      className={`flex-1 cursor-pointer rounded-xl border py-2.5 text-center text-sm font-medium transition ${
-                        answers[question._id]?.booleanAnswer === true
-                          ? "border-[#B18A3A] bg-[#F3E9D2] text-[#B18A3A] shadow-sm ring-1 ring-[#B18A3A]"
-                          : "border-[#E8DDCA] bg-white text-[#171717] hover:border-[#B18A3A]/60"
-                      }`}
-                    >
-                      True
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => selectBoolean(question._id, false)}
-                      className={`flex-1 cursor-pointer rounded-xl border py-2.5 text-center text-sm font-medium transition ${
-                        answers[question._id]?.booleanAnswer === false
-                          ? "border-[#B18A3A] bg-[#F3E9D2] text-[#B18A3A] shadow-sm ring-1 ring-[#B18A3A]"
-                          : "border-[#E8DDCA] bg-white text-[#171717] hover:border-[#B18A3A]/60"
-                      }`}
-                    >
-                      False
-                    </button>
+                    {isPassedPreviously ? (
+                      <>
+                        <div
+                          className={`flex-1 rounded-xl border py-2.5 text-center text-sm font-semibold ${
+                            prevAns?.booleanAnswer === true
+                              ? "border-emerald-500 bg-emerald-100 text-emerald-800 ring-2 ring-emerald-400"
+                              : "border-slate-200 bg-slate-50 text-slate-400 opacity-60"
+                          }`}
+                        >
+                          True {prevAns?.booleanAnswer === true && "✓"}
+                        </div>
+                        <div
+                          className={`flex-1 rounded-xl border py-2.5 text-center text-sm font-semibold ${
+                            prevAns?.booleanAnswer === false
+                              ? "border-emerald-500 bg-emerald-100 text-emerald-800 ring-2 ring-emerald-400"
+                              : "border-slate-200 bg-slate-50 text-slate-400 opacity-60"
+                          }`}
+                        >
+                          False {prevAns?.booleanAnswer === false && "✓"}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => selectBoolean(question._id, true)}
+                          className={`flex-1 cursor-pointer rounded-xl border py-2.5 text-center text-sm font-medium transition ${
+                            answers[question._id]?.booleanAnswer === true
+                              ? "border-[#B18A3A] bg-[#F3E9D2] text-[#B18A3A] shadow-sm ring-1 ring-[#B18A3A]"
+                              : "border-[#E8DDCA] bg-white text-[#171717] hover:border-[#B18A3A]/60"
+                          }`}
+                        >
+                          True
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => selectBoolean(question._id, false)}
+                          className={`flex-1 cursor-pointer rounded-xl border py-2.5 text-center text-sm font-medium transition ${
+                            answers[question._id]?.booleanAnswer === false
+                              ? "border-[#B18A3A] bg-[#F3E9D2] text-[#B18A3A] shadow-sm ring-1 ring-[#B18A3A]"
+                              : "border-[#E8DDCA] bg-white text-[#171717] hover:border-[#B18A3A]/60"
+                          }`}
+                        >
+                          False
+                        </button>
+                      </>
+                    )}
                   </div>
                 ) : (
                   <div className="mt-4 space-y-2">
                     {question.options?.map((option, optionIndex) => {
+                      if (isPassedPreviously) {
+                        const wasSelected =
+                          prevAns?.selectedOptionIndexes?.includes(
+                            optionIndex,
+                          ) ?? false;
+                        return (
+                          <div
+                            key={optionIndex}
+                            className={`flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left text-sm ${
+                              wasSelected
+                                ? "border-emerald-500 bg-emerald-100/90 font-medium text-emerald-950 ring-1 ring-emerald-400"
+                                : "border-slate-200 bg-slate-50/70 text-slate-400 opacity-60"
+                            }`}
+                          >
+                            <span>{option}</span>
+                            <div
+                              className={`flex h-4 w-4 items-center justify-center rounded-full border text-[10px] ${
+                                wasSelected
+                                  ? "border-emerald-600 bg-emerald-600 font-bold text-white"
+                                  : "border-slate-300 bg-white"
+                              }`}
+                            >
+                              {wasSelected && "✓"}
+                            </div>
+                          </div>
+                        );
+                      }
+
                       const isMulti =
                         question.questionType === "multiple_choice";
                       const isSelected =
@@ -566,12 +767,36 @@ export default function ChallengeQuizPanel({
 
           <div className="flex items-center justify-between border-t border-[#E8DDCA] pt-4">
             <p className="text-xs text-[#8A8175]">
-              {Object.keys(answers).length} of {questions.length} answered
+              {previouslyPassedQuestionsMap.size > 0 ? (
+                <>
+                  <span className="font-semibold text-emerald-700">
+                    {previouslyPassedQuestionsMap.size} passed previously
+                  </span>
+                  {" · "}
+                  <span className="font-semibold text-[#B18A3A]">
+                    {
+                      pendingQuestions.filter(
+                        (q) =>
+                          answers[q._id]?.selectedOptionIndexes !== undefined ||
+                          answers[q._id]?.booleanAnswer !== undefined,
+                      ).length
+                    }{" "}
+                    of {pendingQuestions.length} new answered
+                  </span>
+                </>
+              ) : (
+                `${Object.keys(answers).length} of ${questions.length} answered`
+              )}
             </p>
             <button
               onClick={handleSubmit}
               disabled={
-                submitting || Object.keys(answers).length < questions.length
+                submitting ||
+                pendingQuestions.some(
+                  (q) =>
+                    answers[q._id]?.selectedOptionIndexes === undefined &&
+                    answers[q._id]?.booleanAnswer === undefined,
+                )
               }
               className="flex cursor-pointer items-center gap-2 rounded-xl bg-[#B18A3A] px-7 py-3 text-sm font-semibold text-white shadow-md transition duration-200 hover:-translate-y-0.5 hover:bg-[#997734] hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-40"
             >

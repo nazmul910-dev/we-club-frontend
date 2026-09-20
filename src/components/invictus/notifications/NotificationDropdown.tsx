@@ -38,16 +38,10 @@ export default function NotificationDropdown() {
     (state) => state.notification
   );
 
-  // Initial fetch and periodic polling every 30s
+  // Initial fetch on mount
   useEffect(() => {
     dispatch(fetchMyUnreadCount());
     dispatch(fetchMyNotifications({ limit: 6 }));
-
-    const interval = setInterval(() => {
-      dispatch(fetchMyUnreadCount());
-    }, 30000);
-
-    return () => clearInterval(interval);
   }, [dispatch]);
 
   // Refetch latest notifications when dropdown opens

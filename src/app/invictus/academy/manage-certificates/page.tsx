@@ -17,6 +17,8 @@ import {
 } from "@/lib/features/invictus/academy/cerfificate/certificateTypes";
 import { fetchAllCertificates } from "@/lib/features/invictus/academy/cerfificate/certificateSlice";
 
+import { PaginationControl } from "@/components/ui/PaginationControll";
+
 const CertificateDetailModal = dynamic(
     () =>
         import("@/components/invictus/academy/ceftificates/CertificateDetailModal"),
@@ -44,6 +46,8 @@ function ManageCertificatesContent() {
         "",
     );
 
+    const [page, setPage] = useState(1);
+
     const [detailOpen, setDetailOpen] = useState(false);
     const [selectedCertificate, setSelectedCertificate] =
         useState<IQuizCertificate | null>(null);
@@ -62,15 +66,19 @@ function ManageCertificatesContent() {
     }, []);
 
     useEffect(() => {
+        setPage(1);
+    }, [moduleFilter, statusFilter]);
+
+    useEffect(() => {
         dispatch(
             fetchAllCertificates({
                 moduleId: moduleFilter || undefined,
                 status: statusFilter || undefined,
-                page: 1,
-                limit: 50,
+                page,
+                limit: 10,
             }),
         );
-    }, [dispatch, moduleFilter, statusFilter]);
+    }, [dispatch, moduleFilter, statusFilter, page]);
 
     useEffect(() => {
         if (error) {
@@ -181,13 +189,26 @@ function ManageCertificatesContent() {
                         Loading certificates...
                     </p>
                 ) : (
-                    <CertificateTable
-                        data={certificates}
-                        onView={(certificate) => {
-                            setSelectedCertificate(certificate);
-                            setDetailOpen(true);
-                        }}
-                    />
+                    <>
+                        <CertificateTable
+                            data={certificates}
+                            onView={(certificate) => {
+                                setSelectedCertificate(certificate);
+                                setDetailOpen(true);
+                            }}
+                        />
+
+                        {meta?.totalPages > 1 && (
+                            <div className="mt-6 flex justify-center">
+                                <PaginationControl
+                                    currentPage={meta.page || page}
+                                    totalPages={meta.totalPages}
+                                    onPageChange={setPage}
+                                    variant="invictus"
+                                />
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
 

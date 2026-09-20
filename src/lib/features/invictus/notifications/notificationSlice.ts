@@ -111,6 +111,15 @@ const notificationSlice = createSlice({
     clearNotificationError(state) {
       state.error = null;
     },
+    addRealtimeNotification(state, action: PayloadAction<INotificationItem>) {
+      const exists = state.notifications.some((n) => n._id === action.payload._id);
+      if (!exists) {
+        state.notifications.unshift(action.payload);
+      }
+      if (!action.payload.isRead) {
+        state.unreadCount += 1;
+      }
+    },
   },
   extraReducers: (builder) => {
     // --- Fetch My Notifications ---
@@ -179,6 +188,6 @@ const notificationSlice = createSlice({
   },
 });
 
-export const { incrementUnreadCount, clearNotificationError } =
+export const { incrementUnreadCount, clearNotificationError, addRealtimeNotification } =
   notificationSlice.actions;
 export default notificationSlice.reducer;

@@ -1,5 +1,5 @@
-export const PILLAR_NAMES = ["FEARLESS", "LIMITLESS", "BORDERLESS"] as const;
-export const PILLAR_SLUGS = ["fearless", "limitless", "borderless"] as const;
+export const PILLAR_NAMES = ["FARELESS", "LIMITLESS", "BORDERLESS"] as const;
+export const PILLAR_SLUGS = ["fareless", "limitless", "borderless"] as const;
 export const PILLAR_ICONS = ["crown", "infinity", "globe"] as const;
 export const PILLAR_STATUSES = ["draft", "published", "archived"] as const;
 export const INTRO_VIDEO_STATUSES = [
@@ -12,7 +12,7 @@ export const INTRO_VIDEO_STATUSES = [
 export const MAX_PILLARS = 3;
 
 export const PILLAR_RULES = {
-  FEARLESS: { slug: "fearless", icon: "crown", order: 1 },
+  FARELESS: { slug: "fareless", icon: "crown", order: 1 },
   LIMITLESS: { slug: "limitless", icon: "infinity", order: 2 },
   BORDERLESS: { slug: "borderless", icon: "globe", order: 3 },
 } as const;

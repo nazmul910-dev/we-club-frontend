@@ -140,7 +140,18 @@ const resourceSlice = createSlice({
       })
       .addCase(createResource.fulfilled, (state, action) => {
         state.actionLoading = false;
-        state.resources.push(action.payload);
+        const newResource = action.payload;
+        state.resources = [
+          newResource,
+          ...state.resources
+            .filter((r) => r._id !== newResource._id)
+            .map((r) =>
+              r.module?._id === newResource.module?._id &&
+              r.status !== "archived"
+                ? { ...r, order: r.order + 1 }
+                : r,
+            ),
+        ];
       })
       .addCase(createResource.rejected, (state, action) => {
         state.actionLoading = false;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import {
   Dialog,
@@ -16,11 +16,34 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 
-import { UploadCloud, Video as VideoIcon, X } from "lucide-react";
+import {
+  Check,
+  ChevronsUpDown,
+  UploadCloud,
+  Video as VideoIcon,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 
+import {
+  Command,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+
 import { useAppDispatch } from "@/lib/redux/store/hook";
-import { createVideo } from "@/lib/features/invictus/academy/video-module/videoSlice";
+import {
+  createVideo,
+  fetchVideos,
+} from "@/lib/features/invictus/academy/video-module/videoSlice";
 import { courseApi } from "@/lib/features/invictus/academy/course/courseApi";
 import type { ICourseModule } from "@/lib/features/invictus/academy/course/courseTypes";
 
@@ -38,7 +61,6 @@ const emptyForm = {
   isRequired: true,
   requiredWatchPercent: 80,
   pointsReward: 10,
-  order: 1,
 };
 
 const generateSlug = (value: string) =>
@@ -56,26 +78,33 @@ export default function CreateVideoModal({ open, onClose }: Props) {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [form, setForm] = useState(emptyForm);
+  const [courseSearch, setCourseSearch] = useState("");
+  const [coursePickerOpen, setCoursePickerOpen] = useState(false);
 
-  useEffect(() => {
-    if (open) {
-      loadCourses();
-    }
-  }, [open]);
-
-  const loadCourses = async () => {
+  const loadCourses = useCallback(async () => {
     try {
       const res = await courseApi.getCourses();
-      const published = res.data.filter(
-        (item) => item.status === "published",
-      );
+      const published = res.data.filter((item) => item.status === "published");
       setCourses(published);
     } catch (error) {
       console.log(error);
     }
-  };
+  }, []);
 
-  const updateField = (key: keyof typeof emptyForm, value: string | number | boolean) => {
+  useEffect(() => {
+    if (!open) return;
+
+    const timeoutId = window.setTimeout(() => {
+      void loadCourses();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [loadCourses, open]);
+
+  const updateField = (
+    key: keyof typeof emptyForm,
+    value: string | number | boolean,
+  ) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     setErrors((prev) => ({ ...prev, [key]: "" }));
   };
@@ -88,11 +117,10 @@ export default function CreateVideoModal({ open, onClose }: Props) {
   const validate = () => {
     const next: Record<string, string> = {};
 
-    if (!form.courseId) next.courseId = "Select the course this video belongs to";
+    if (!form.courseId)
+      next.courseId = "Select the course this video belongs to";
     if (!form.title.trim() || form.title.trim().length < 2)
       next.title = "Title minimum 2 charecter";
-    if (!form.slug.trim()) next.slug = "Slug is required";
-    if (!form.order || form.order < 1) next.order = "Order must be at least 1";
     if (!video) next.video = "Please select a video file to upload";
 
     setErrors(next);
@@ -102,6 +130,8 @@ export default function CreateVideoModal({ open, onClose }: Props) {
   const resetForm = () => {
     setForm(emptyForm);
     setVideo(null);
+    setCourseSearch("");
+    setCoursePickerOpen(false);
   };
 
   const handleClose = () => {
@@ -130,17 +160,20 @@ export default function CreateVideoModal({ open, onClose }: Props) {
         String(form.requiredWatchPercent),
       );
       formData.append("pointsReward", String(form.pointsReward));
-      formData.append("order", String(form.order));
 
       await dispatch(
         createVideo({ moduleId: form.courseId, data: formData }),
       ).unwrap();
 
+      void dispatch(fetchVideos({ includeArchived: true }));
+
       toast.success("Module video uploaded successfully!");
       handleClose();
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Video could not be uploaded, try again later!";
+        error instanceof Error
+          ? error.message
+          : "Video could not be uploaded, try again later!";
       toast.error(message);
       setErrors((prev) => ({
         ...prev,
@@ -163,18 +196,69 @@ export default function CreateVideoModal({ open, onClose }: Props) {
         <div className="space-y-5">
           <div>
             <Label>Course</Label>
-            <select
-              className="mt-2 w-full cursor-pointer rounded-xl border border-[#E7DDCC] p-3"
-              value={form.courseId}
-              onChange={(e) => updateField("courseId", e.target.value)}
+            <Popover
+              open={coursePickerOpen}
+              onOpenChange={(open) => {
+                setCoursePickerOpen(open);
+                if (!open) setCourseSearch("");
+              }}
             >
-              <option value="">Select Course</option>
-              {courses.map((course) => (
-                <option key={course._id} value={course._id}>
-                  {course.title} · {course.pillar?.name}
-                </option>
-              ))}
-            </select>
+              <PopoverTrigger className="block w-full">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="mt-2 h-auto min-h-12 w-full justify-between rounded-xl border-[#E7DDCC] p-3 text-left font-normal"
+                >
+                  <span
+                    className={cn(!form.courseId && "text-muted-foreground")}
+                  >
+                    {form.courseId
+                      ? courses.find((course) => course._id === form.courseId)
+                          ?.title
+                      : "Select Course"}
+                  </span>
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-[var(--anchor-width)] p-0"
+                align="start"
+              >
+                <Command>
+                  <CommandInput
+                    value={courseSearch}
+                    onValueChange={setCourseSearch}
+                    placeholder="Search courses..."
+                  />
+                  <CommandList>
+                    <CommandEmpty>No courses found.</CommandEmpty>
+                    {courses.map((course) => (
+                      <CommandItem
+                        key={course._id}
+                        value={`${course.title} ${course.pillar?.name ?? ""}`}
+                        onSelect={() => {
+                          updateField("courseId", course._id);
+                          setCoursePickerOpen(false);
+                          setCourseSearch("");
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            "h-4 w-4",
+                            form.courseId === course._id
+                              ? "opacity-100"
+                              : "opacity-0",
+                          )}
+                        />
+                        <span>
+                          {course.title} · {course.pillar?.name}
+                        </span>
+                      </CommandItem>
+                    ))}
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
             {errors.courseId && (
               <p className="mt-1 text-xs text-red-500">{errors.courseId}</p>
             )}
@@ -258,33 +342,17 @@ export default function CreateVideoModal({ open, onClose }: Props) {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>Lesson Order</Label>
-              <Input
-                className="mt-2"
-                type="number"
-                min={1}
-                value={form.order}
-                onChange={(e) => updateField("order", Number(e.target.value))}
-              />
-              {errors.order && (
-                <p className="mt-1 text-xs text-red-500">{errors.order}</p>
-              )}
-            </div>
-
-            <div>
-              <Label>Points Reward</Label>
-              <Input
-                className="mt-2"
-                type="number"
-                min={0}
-                value={form.pointsReward}
-                onChange={(e) =>
-                  updateField("pointsReward", Number(e.target.value))
-                }
-              />
-            </div>
+          <div>
+            <Label>Points Reward</Label>
+            <Input
+              className="mt-2"
+              type="number"
+              min={0}
+              value={form.pointsReward}
+              onChange={(e) =>
+                updateField("pointsReward", Number(e.target.value))
+              }
+            />
           </div>
 
           <div>
@@ -305,7 +373,7 @@ export default function CreateVideoModal({ open, onClose }: Props) {
             <div>
               <p className="font-medium">Premium Video</p>
               <p className="text-sm text-gray-500">
-                Requires an active pillar purchase to watch
+                Uses pillar access; no separate video payment is required
               </p>
             </div>
             <Switch
@@ -329,9 +397,7 @@ export default function CreateVideoModal({ open, onClose }: Props) {
             />
           </div>
 
-          {errors.form && (
-            <p className="text-sm text-red-500">{errors.form}</p>
-          )}
+          {errors.form && <p className="text-sm text-red-500">{errors.form}</p>}
         </div>
 
         <DialogFooter>

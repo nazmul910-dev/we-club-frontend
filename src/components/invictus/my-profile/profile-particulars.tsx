@@ -18,6 +18,7 @@ export default function ProfileParticulars({ profile }: any) {
     {
       label: "TITLE",
       value: profile.role,
+      uppercase: true,
     },
 
     {
@@ -72,7 +73,11 @@ export default function ProfileParticulars({ profile }: any) {
                 {field.label}
               </p>
 
-              <p className="mt-3 text-sm text-[#111]">
+              <p
+                className={`mt-3 text-sm text-[#111] ${
+                  field.uppercase ? "uppercase" : ""
+                }`}
+              >
                 {field.value || <span className="text-[#999]">Add</span>}
               </p>
             </div>

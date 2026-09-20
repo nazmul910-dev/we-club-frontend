@@ -85,14 +85,13 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="absolute top-5 left-5">
         <div className="flex ">
-        <button
-          type="button"
-          onClick={() => router.back()}
+        <Link
+          href="/"
           className="cursor-pointer group    text-white flex justify-center items-center gap-x-1 "
         >
           <ArrowLeft size={18} className="text-amber-400 group-hover:-translate-x-1 duration-300"/>
           <p className="group-hover:text-amber-400 duration-300">Back</p>
-        </button>
+        </Link>
       </div>
       </div>
       <div>

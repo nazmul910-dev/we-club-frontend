@@ -89,7 +89,7 @@ export interface ICreateModuleVideoForm {
   isRequired?: boolean;
   requiredWatchPercent?: number;
   pointsReward?: number;
-  order: number;
+  order?: number;
 }
 
 // Update Payload (metadata only, JSON)

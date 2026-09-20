@@ -45,7 +45,9 @@ export default function FirstYearPage() {
       action:
         item.trigger === "manual"
           ? { label: item.actionLabel ?? "Open", href: item.actionUrl }
-          : undefined,
+          : item.trigger === "video_watch" && item.actionUrl
+            ? { label: item.actionLabel ?? "Watch Video", href: item.actionUrl }
+            : undefined,
     };
   });
 
@@ -118,7 +120,7 @@ export default function FirstYearPage() {
         )}
 
         {/* CTA banner */}
-        <section className="flex flex-col items-start justify-between gap-4 rounded-lg bg-[#FAF6EE] border border-[#DECDB0] shadow-2xs px-6 py-6 sm:flex-row sm:items-center">
+        {/* <section className="flex flex-col items-start justify-between gap-4 rounded-lg bg-[#FAF6EE] border border-[#DECDB0] shadow-2xs px-6 py-6 sm:flex-row sm:items-center">
           <div>
             <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#4A3B12]">
               Associates Only
@@ -134,7 +136,7 @@ export default function FirstYearPage() {
             Go to WE Command Center
             <ExternalLinkIcon />
           </a>
-        </section>
+        </section> */}
       </PageContainer>
     </div>
   );

@@ -22,9 +22,24 @@ const initialState: QuizAttemptState = {
 
 export const submitQuizAttempt = createAsyncThunk(
   "quizAttempt/submit",
-  async ({ moduleId, data }: { moduleId: string; data: ISubmitQuizAttempt }) => {
-    const res = await quizAttemptApi.submit(moduleId, data);
-    return { moduleId, attempt: res.data };
+  async (
+    { moduleId, data }: { moduleId: string; data: ISubmitQuizAttempt },
+    { rejectWithValue },
+  ) => {
+    try {
+      const res = await quizAttemptApi.submit(moduleId, data);
+      return { moduleId, attempt: res.data };
+    } catch (error: unknown) {
+      const responseError = error as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
+      return rejectWithValue(
+        responseError.response?.data?.message ||
+          responseError.message ||
+          "Failed to submit quiz attempt",
+      );
+    }
   },
 );
 
@@ -57,7 +72,10 @@ const quizAttemptSlice = createSlice({
         state.submitting = false;
         state.lastAttempt = action.payload.attempt;
         const list = state.attemptsByModuleId[action.payload.moduleId] ?? [];
-        state.attemptsByModuleId[action.payload.moduleId] = [action.payload.attempt, ...list];
+        state.attemptsByModuleId[action.payload.moduleId] = [
+          action.payload.attempt,
+          ...list,
+        ];
       })
       .addCase(submitQuizAttempt.rejected, (state, action) => {
         state.submitting = false;
@@ -70,7 +88,8 @@ const quizAttemptSlice = createSlice({
       })
       .addCase(fetchMyModuleAttempts.fulfilled, (state, action) => {
         state.loading = false;
-        state.attemptsByModuleId[action.payload.moduleId] = action.payload.attempts || [];
+        state.attemptsByModuleId[action.payload.moduleId] =
+          action.payload.attempts || [];
       })
       .addCase(fetchMyModuleAttempts.rejected, (state, action) => {
         state.loading = false;
@@ -79,5 +98,6 @@ const quizAttemptSlice = createSlice({
   },
 });
 
-export const { clearLastAttempt, clearQuizAttemptError } = quizAttemptSlice.actions;
+export const { clearLastAttempt, clearQuizAttemptError } =
+  quizAttemptSlice.actions;
 export default quizAttemptSlice.reducer;

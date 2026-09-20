@@ -18,6 +18,7 @@ const SESSION_TYPE_LABEL: Record<string, string> = {
   other: "SESSION",
 };
 
+
 function EventCard({
   session,
   isRegistered,
@@ -91,13 +92,13 @@ function EventCard({
           </div>
         </div>
 
-        <div className="flex items-center justify-between border-t border-[#EFE6D6] pt-4">
+        <div className="grid items-start justify-start gap-3 border-t border-[#EFE6D6] pt-4">
           <p className="font-montserrat text-[13px] text-gray-600">{label}</p>
 
           <button
             onClick={handleAction}
             disabled={registering || (isRegistered && !canJoin)}
-            className={`flex items-center gap-2 rounded-full px-4 py-2 font-montserrat text-[10px] font-bold tracking-widest transition-all duration-300 ${
+            className={`flex items-center justify-center gap-2 rounded-full px-4 py-2 font-montserrat text-[10px] font-bold tracking-widest transition-all duration-300 ${
               canJoin
                 ? "bg-[#1C1A16] text-[#DECDB0] hover:bg-[#332C1E] cursor-pointer hover:-translate-y-0.5 hover:shadow-lg active:scale-95"
                 : isRegistered

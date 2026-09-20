@@ -32,7 +32,14 @@ export interface AdminOnboardingTask {
   trigger: OnboardingTaskTrigger;
   actionLabel?: string;
   actionUrl?: string;
-  linkedVideo?: string;
+  linkedVideo?:
+    | string
+    | {
+        _id: string;
+        title: string;
+        slug?: string;
+        module?: string | { _id: string; title: string };
+      };
   pointsReward: number;
   status: OnboardingTaskStatus;
   publishedAt?: string;
@@ -46,7 +53,7 @@ export interface AdminOnboardingTask {
 export interface CreateOnboardingTaskPayload {
   title: string;
   description?: string;
-  order: number;
+  order?: number;
   trigger?: OnboardingTaskTrigger;
   actionLabel?: string;
   actionUrl?: string;

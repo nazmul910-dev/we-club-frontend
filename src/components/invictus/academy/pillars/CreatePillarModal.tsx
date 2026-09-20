@@ -118,7 +118,7 @@ export default function CreatePillarDialog({ open, onClose, usedNames }: Props) 
 
       const payload = {
         name: form.name as PillarName,
-        slug: form.slug as "fearless" | "limitless" | "borderless",
+        slug: form.slug as "fareless" | "limitless" | "borderless",
         title: form.title.trim(),
         tagline: form.tagline.trim(),
         description: form.description.trim(),
@@ -162,7 +162,7 @@ export default function CreatePillarDialog({ open, onClose, usedNames }: Props) 
         <div className="space-y-5">
           {availableNames.length === 0 ? (
             <p className="rounded-xl bg-[#F3E9D2] p-4 text-sm text-[#B08A3E]">
-              Already all pillars (FEARLESS, LIMITLESS, BORDERLESS) ready.
+              Already all pillars (FARELESS, LIMITLESS, BORDERLESS) ready.
               
             </p>
           ) : (

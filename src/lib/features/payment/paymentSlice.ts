@@ -37,7 +37,6 @@ export interface MyUpgradePlansData {
   plans: UpgradePlanOption[];
 }
 
-
 interface MyUpgradePlansResponse {
   success: boolean;
   message: string;
@@ -58,8 +57,6 @@ interface UpgradeCheckoutResponse {
     discount: unknown;
   };
 }
-
-
 
 export interface RegistrationPaymentUser {
   fullName: string;
@@ -139,13 +136,13 @@ interface PaymentState {
   isDetailsLoading: boolean;
   detailsError: string | null;
 
-  upgradePlans: MyUpgradePlansData | null,
-  isUpgradePlansLoading: boolean,
-  upgradePlansError: string | null,
+  upgradePlans: MyUpgradePlansData | null;
+  isUpgradePlansLoading: boolean;
+  upgradePlansError: string | null;
 
-  upgradeCheckoutUrl: string | null,
-  isUpgradeCheckoutLoading: boolean,
-  upgradeCheckoutError: string | null,
+  upgradeCheckoutUrl: string | null;
+  isUpgradeCheckoutLoading: boolean;
+  upgradeCheckoutError: string | null;
 
   checkoutUrl: string | null;
   isCheckoutLoading: boolean;
@@ -164,13 +161,13 @@ const initialState: PaymentState = {
   isDetailsLoading: false,
   detailsError: null,
 
-  upgradePlans:null,
-  isUpgradePlansLoading:false,
-  upgradePlansError:null,
+  upgradePlans: null,
+  isUpgradePlansLoading: false,
+  upgradePlansError: null,
 
-  upgradeCheckoutUrl:null,
-  isUpgradeCheckoutLoading:false,
-  upgradeCheckoutError:null,
+  upgradeCheckoutUrl: null,
+  isUpgradeCheckoutLoading: false,
+  upgradeCheckoutError: null,
 
   checkoutUrl: null,
   isCheckoutLoading: false,
@@ -190,13 +187,15 @@ export const fetchMyUpgradePlans = createAsyncThunk<
   { rejectValue: string }
 >("payment/fetchMyUpgradePlans", async (_, { rejectWithValue }) => {
   try {
-    const res = await api.get<MyUpgradePlansResponse>("/payments/upgrade/plans");
+    const res = await api.get<MyUpgradePlansResponse>(
+      "/payments/upgrade/plans",
+    );
 
     return res.data.data;
   } catch (err) {
     if (axios.isAxiosError(err)) {
       return rejectWithValue(
-        err.response?.data?.message || "Failed to load upgrade plans"
+        err.response?.data?.message || "Failed to load upgrade plans",
       );
     }
 
@@ -221,40 +220,95 @@ export const createUpgradeCheckout = createAsyncThunk<
     } catch (err) {
       if (axios.isAxiosError(err)) {
         return rejectWithValue(
-          err.response?.data?.message || "Failed to start upgrade checkout"
+          err.response?.data?.message || "Failed to start upgrade checkout",
         );
       }
 
       return rejectWithValue("Unexpected error");
     }
-  }
+  },
 );
 
+export interface AccessUpgradePlan {
+  hasBoth: boolean;
+  currentAccessTo: string;
+  targetAccessTo?: string;
+  displayName?: string;
+  addOnName?: string;
+  amountCents?: number;
+  amount?: number;
+  currency?: string;
+  formattedAmount?: string;
+  billingText?: string;
+  subscriptionExpiresAt?: string;
+}
+
+export const fetchAccessUpgradePlan = createAsyncThunk<
+  AccessUpgradePlan,
+  void,
+  { rejectValue: string }
+>("payment/fetchAccessUpgradePlan", async (_, { rejectWithValue }) => {
+  try {
+    const res = await api.get<{ data: AccessUpgradePlan }>(
+      "/payments/access-upgrade/plan",
+    );
+    return res.data.data;
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to load access upgrade plan",
+      );
+    }
+    return rejectWithValue("Unexpected error");
+  }
+});
+
+export const createAccessUpgradeCheckout = createAsyncThunk<
+  string,
+  { cancelPath?: string; discountCode?: string },
+  { rejectValue: string }
+>(
+  "payment/createAccessUpgradeCheckout",
+  async ({ cancelPath, discountCode }, { rejectWithValue }) => {
+    try {
+      const res = await api.post<{ data: { checkoutUrl: string } }>(
+        "/payments/access-upgrade/checkout",
+        { cancelPath, discountCode },
+      );
+      return res.data.data.checkoutUrl;
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        return rejectWithValue(
+          err.response?.data?.message ||
+            "Failed to start access upgrade checkout",
+        );
+      }
+      return rejectWithValue("Unexpected error");
+    }
+  },
+);
 
 export const fetchRegistrationPaymentDetails = createAsyncThunk<
   RegistrationPaymentDetails,
   string,
   { rejectValue: string }
->(
-  "payment/fetchRegistrationDetails",
-  async (token, { rejectWithValue }) => {
-    try {
-      const res = await api.get<RegistrationPaymentDetailsResponse>(
-        `/payments/registration-link/${token}`
+>("payment/fetchRegistrationDetails", async (token, { rejectWithValue }) => {
+  try {
+    const res = await api.get<RegistrationPaymentDetailsResponse>(
+      `/payments/registration-link/${token}`,
+    );
+
+    return res.data.data;
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to load payment details",
       );
-
-      return res.data.data;
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        return rejectWithValue(
-          err.response?.data?.message || "Failed to load payment details"
-        );
-      }
-
-      return rejectWithValue("Unexpected error");
     }
+
+    return rejectWithValue("Unexpected error");
   }
-);
+});
 
 export const createRegistrationCheckout = createAsyncThunk<
   string,
@@ -266,20 +320,20 @@ export const createRegistrationCheckout = createAsyncThunk<
     try {
       const res = await api.post<RegistrationCheckoutResponse>(
         `/payments/registration-link/${token}/checkout`,
-        { discountCode }
+        { discountCode },
       );
 
       return res.data.data.checkoutUrl;
     } catch (err) {
       if (axios.isAxiosError(err)) {
         return rejectWithValue(
-          err.response?.data?.message || "Failed to start checkout"
+          err.response?.data?.message || "Failed to start checkout",
         );
       }
 
       return rejectWithValue("Unexpected error");
     }
-  }
+  },
 );
 
 export const fetchPendingRegistrationPayments = createAsyncThunk<
@@ -291,20 +345,20 @@ export const fetchPendingRegistrationPayments = createAsyncThunk<
   async (_, { rejectWithValue }) => {
     try {
       const res = await api.get<PendingRegistrationPaymentsResponse>(
-        "/payments/registration-pending"
+        "/payments/registration-pending",
       );
 
       return res.data.data;
     } catch (err) {
       if (axios.isAxiosError(err)) {
         return rejectWithValue(
-          err.response?.data?.message || "Failed to load pending payments"
+          err.response?.data?.message || "Failed to load pending payments",
         );
       }
 
       return rejectWithValue("Unexpected error");
     }
-  }
+  },
 );
 
 export const sendRegistrationPaymentLink = createAsyncThunk<
@@ -316,20 +370,20 @@ export const sendRegistrationPaymentLink = createAsyncThunk<
   async (linkId, { rejectWithValue }) => {
     try {
       const res = await api.post<SendRegistrationPaymentLinkResponse>(
-        `/payments/registration-link/${linkId}/send`
+        `/payments/registration-link/${linkId}/send`,
       );
 
       return { linkId, email: res.data.data.email };
     } catch (err) {
       if (axios.isAxiosError(err)) {
         return rejectWithValue(
-          err.response?.data?.message || "Failed to send payment link"
+          err.response?.data?.message || "Failed to send payment link",
         );
       }
 
       return rejectWithValue("Unexpected error");
     }
-  }
+  },
 );
 
 const paymentSlice = createSlice({
@@ -346,7 +400,7 @@ const paymentSlice = createSlice({
       state.sendLinkError = action.payload;
     },
 
-     resetUpgradeCheckoutError: (state) => {
+    resetUpgradeCheckoutError: (state) => {
       state.upgradeCheckoutError = null;
     },
   },
@@ -389,7 +443,8 @@ const paymentSlice = createSlice({
       })
       .addCase(fetchPendingRegistrationPayments.rejected, (state, action) => {
         state.isPendingLoading = false;
-        state.pendingError = action.payload ?? "Failed to load pending payments";
+        state.pendingError =
+          action.payload ?? "Failed to load pending payments";
       })
 
       .addCase(sendRegistrationPaymentLink.pending, (state, action) => {
@@ -400,7 +455,7 @@ const paymentSlice = createSlice({
         state.sendingLinkId = null;
 
         const link = state.pendingRegistrations.find(
-          (item) => item._id === action.payload.linkId
+          (item) => item._id === action.payload.linkId,
         );
 
         if (link) {
@@ -421,7 +476,8 @@ const paymentSlice = createSlice({
       })
       .addCase(fetchMyUpgradePlans.rejected, (state, action) => {
         state.isUpgradePlansLoading = false;
-        state.upgradePlansError = action.payload ?? "Failed to load upgrade plans";
+        state.upgradePlansError =
+          action.payload ?? "Failed to load upgrade plans";
       })
 
       .addCase(createUpgradeCheckout.pending, (state) => {
@@ -434,7 +490,8 @@ const paymentSlice = createSlice({
       })
       .addCase(createUpgradeCheckout.rejected, (state, action) => {
         state.isUpgradeCheckoutLoading = false;
-        state.upgradeCheckoutError = action.payload ?? "Upgrade checkout failed";
+        state.upgradeCheckoutError =
+          action.payload ?? "Upgrade checkout failed";
       });
   },
 });

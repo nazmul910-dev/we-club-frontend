@@ -54,6 +54,7 @@ import { formatDate2 } from "@/lib/utils/Helpers";
 import StatusBadge from "@/components/mentorBooking/StatusBadge";
 import BookingDetails from "@/components/mentorBooking/BookingDetails";
 import { PageContainer } from "@/components/common";
+import { PaginationControl } from "@/components/ui/PaginationControll";
 
 const STATUS_LABELS = {
   requested: "Requested",
@@ -374,38 +375,13 @@ export default function AdminMentorBookingsPage() {
             </div>
 
             {meta && meta.totalPages > 1 && (
-              <div className="flex flex-col gap-3 border-t px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-                <p className="text-sm text-gray-500 text-center sm:text-left">
-                  Page {meta.page} of {meta.totalPages}
-                </p>
-
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 sm:flex-none"
-                    disabled={page <= 1 || status.adminList === "loading"}
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  >
-                    Previous
-                  </Button>
-
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 sm:flex-none"
-                    disabled={
-                      page >= meta.totalPages || status.adminList === "loading"
-                    }
-                    onClick={() =>
-                      setPage((p) => Math.min(meta.totalPages, p + 1))
-                    }
-                  >
-                    Next
-                  </Button>
-                </div>
+              <div className="mt-6 flex justify-center border-t pt-4 px-4">
+                <PaginationControl
+                  currentPage={page}
+                  totalPages={meta.totalPages}
+                  onPageChange={setPage}
+                  variant="invictus"
+                />
               </div>
             )}
           </CardContent>
