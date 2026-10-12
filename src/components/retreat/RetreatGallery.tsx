@@ -6,7 +6,22 @@ export type RetreatGalleryProps = {
 };
 
 export function RetreatGallery({ title, images }: RetreatGalleryProps) {
-  if (images.length === 0) return null;
+  const validImages = images.filter((image) => {
+    if (typeof image !== "string") return false;
+
+    const source = image.trim();
+    if (!source || source === "[]") return false;
+    if (source.startsWith("/") && !source.startsWith("//")) return true;
+
+    try {
+      const url = new URL(source);
+      return url.protocol === "http:" || url.protocol === "https:";
+    } catch {
+      return false;
+    }
+  });
+
+  if (validImages.length === 0) return null;
 
   return (
     <div className="">
@@ -18,7 +33,7 @@ export function RetreatGallery({ title, images }: RetreatGalleryProps) {
       </div>
 
       <div className="grid gap-7 sm:gap-2.5 sm:grid-cols-3">
-        {images.map((src, i) => (
+        {validImages.map((src, i) => (
           <div
             key={src}
             className="group relative aspect-square overflow-hidden bg-line rounded-2xl"

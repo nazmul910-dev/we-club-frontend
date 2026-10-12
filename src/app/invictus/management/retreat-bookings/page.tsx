@@ -83,7 +83,13 @@ function RetreatBookingsManagementContent() {
     useEffect(() => {
         getRetreatLocations()
             .then(setLocations)
-            .catch(() => setLocations([]));
+            .catch((error: unknown) =>
+                toast.error(
+                    error instanceof Error
+                        ? error.message
+                        : "Unable to load retreat locations",
+                ),
+            );
     }, []);
 
     const loadBookings = () => {

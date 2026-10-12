@@ -33,6 +33,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
   createRetreatLocation,
   selectRetreatStatus,
@@ -266,6 +267,9 @@ export default function LocationFormDialog({
       : createRetreatLocation.fulfilled.match(result);
 
     if (succeeded) {
+      toast.success(
+        location ? "Retreat location updated" : "Retreat location created",
+      );
       onOpenChange(false);
     }
   };

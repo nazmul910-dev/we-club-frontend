@@ -38,7 +38,7 @@ export type RetreatBooking = {
   _id: string;
   user: string | RetreatBookingUser;
   retreatBatch: string | RetreatBatch;
-  retreatLocation: string | RetreatLocationRef;
+  retreatLocation: string | RetreatLocationRef | null;
   status: RetreatBookingStatus;
   amount: number;
   amountPaid?: number;
@@ -229,7 +229,7 @@ export interface IRetreatLocationSummary {
 export interface IRetreatBatch {
   _id: string;
 
-  retreatLocation: IRetreatLocationSummary | string;
+  retreatLocation: IRetreatLocationSummary | string | null;
 
   batchName: string;
   slug: string;
@@ -282,7 +282,13 @@ export interface ICreateRetreatBatchPayload {
   notes?: string;
 }
 
-export type IUpdateRetreatBatchPayload = Partial<ICreateRetreatBatchPayload>;
+export type IUpdateRetreatBatchPayload = Omit<
+  Partial<ICreateRetreatBatchPayload>,
+  "depositAmount" | "bookingDeadline"
+> & {
+  depositAmount?: number | null;
+  bookingDeadline?: string | null;
+};
 
 export interface IRetreatBatchQuery {
   locationId?: string;

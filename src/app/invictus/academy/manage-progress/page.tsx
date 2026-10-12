@@ -54,7 +54,15 @@ function ManageProgressContent() {
     const loadCourses = async () => {
         try {
             const res = await courseApi.getCourses();
-            setCourses(res.data);
+            // Only offer non-archived modules in the filter dropdown; archived
+            // modules are excluded from the progress view on the backend as well.
+            const active = res.data.filter((c) => c.status !== "archived");
+            setCourses(active);
+            // If the previously-selected module was just archived, reset the filter
+            // so the user doesn't end up querying a module that no longer shows up.
+            setModuleFilter((prev) =>
+                prev && !active.some((c) => c._id === prev) ? "" : prev,
+            );
         } catch (err) {
             console.log(err);
         }

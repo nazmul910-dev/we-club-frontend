@@ -55,8 +55,10 @@ function OnboardingTasksContent() {
     }, [statusFilter]);
 
     const filteredTasks = useMemo(() => {
-        if (!statusFilter) return tasks;
-        return tasks.filter((item) => item.status === statusFilter);
+        if (statusFilter) return tasks.filter((item) => item.status === statusFilter);
+        // Default: hide archived tasks — they are soft-deleted and should not
+        // clutter the active task list unless the admin explicitly filters for them.
+        return tasks.filter((item) => item.status !== "archived");
     }, [tasks, statusFilter]);
 
     const totalPages = Math.ceil(filteredTasks.length / ITEMS_PER_PAGE);
@@ -67,13 +69,15 @@ function OnboardingTasksContent() {
     }, [filteredTasks, page]);
 
     const stats = useMemo(() => {
-        const total = tasks.length;
-        const published = tasks.filter(
+        const activeTasks = tasks.filter((item) => item.status !== "archived");
+        const total = activeTasks.length;
+        const published = activeTasks.filter(
             (item) => item.status === "published",
         ).length;
-        const totalPoints = tasks
-            .filter((item) => item.status !== "archived")
-            .reduce((sum, item) => sum + (item.pointsReward || 0), 0);
+        const totalPoints = activeTasks.reduce(
+            (sum, item) => sum + (item.pointsReward || 0),
+            0,
+        );
 
         return { total, published, totalPoints };
     }, [tasks]);
@@ -144,7 +148,7 @@ function OnboardingTasksContent() {
                     }
                     className="w-full cursor-pointer rounded-xl border border-[#E7DDCC] bg-white p-3 text-sm"
                 >
-                    <option value="">All Statuses</option>
+                    <option value="">All Active</option>
                     <option value="draft">Draft</option>
                     <option value="published">Published</option>
                     <option value="archived">Archived</option>

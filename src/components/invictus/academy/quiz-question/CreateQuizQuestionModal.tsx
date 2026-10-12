@@ -63,7 +63,6 @@ const emptyForm = {
   correctOptionIndexes: [0],
   correctBooleanAnswer: true,
   explanation: "",
-  order: 1,
 };
 
 export default function CreateQuizQuestionModal({ open, onClose }: Props) {
@@ -206,10 +205,6 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
       }
     }
 
-    if (!form.order || form.order < 1) {
-      next.order = "Order must be at least 1";
-    }
-
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -239,7 +234,6 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
         question: form.question.trim(),
         questionType: form.questionType,
         explanation: form.explanation.trim() || undefined,
-        order: Number(form.order),
       };
 
       if (
@@ -261,7 +255,7 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
         }),
       ).unwrap();
 
-      void dispatch(fetchQuizQuestions({ moduleId: form.moduleId }));
+      void dispatch(fetchQuizQuestions({ includeArchived: true }));
 
       toast.success("Quiz question created successfully!");
       handleClose();
@@ -589,22 +583,7 @@ export default function CreateQuizQuestionModal({ open, onClose }: Props) {
             />
           </div>
 
-          {/* Order */}
-          <div>
-            <Label className="text-xs font-semibold uppercase tracking-wider text-[#8A8175]">
-              Display Order
-            </Label>
-            <Input
-              type="number"
-              min={1}
-              value={form.order}
-              onChange={(e) => updateField("order", Number(e.target.value))}
-              className="mt-1.5 h-10 w-32 rounded-xl border-[#E7DDCC] text-sm"
-            />
-            {errors.order && (
-              <p className="mt-1 text-xs text-red-500">{errors.order}</p>
-            )}
-          </div>
+
 
           {errors.form && (
             <p className="text-sm font-medium text-red-500">{errors.form}</p>

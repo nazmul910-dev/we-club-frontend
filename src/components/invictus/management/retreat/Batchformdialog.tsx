@@ -39,6 +39,7 @@ import {
 } from "@/lib/features/retreat/retreatSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
 import { DateTimePicker } from "@/components/common/date-time-picker";
+import { toast } from "sonner";
 
 interface BatchFormDialogProps {
   open: boolean;
@@ -111,12 +112,21 @@ function localInputToIso(value: string): string | undefined {
   return date.toISOString();
 }
 
-function toFormState(batch: IRetreatBatch): BatchFormState {
+function toFormState(
+  batch: IRetreatBatch,
+  locations: IRetreatLocation[],
+): BatchFormState {
+  const linkedLocationId =
+    typeof batch.retreatLocation === "string"
+      ? batch.retreatLocation
+      : batch.retreatLocation?._id;
+
   return {
-    retreatLocation:
-      typeof batch.retreatLocation === "string"
-        ? batch.retreatLocation
-        : batch.retreatLocation._id,
+    retreatLocation: locations.some(
+      (location) => location._id === linkedLocationId,
+    )
+      ? linkedLocationId ?? ""
+      : "",
     batchName: batch.batchName,
     slug: batch.slug,
     startDate: isoToLocalInput(batch.startDate),
@@ -155,9 +165,13 @@ export default function BatchFormDialog({
 
   useEffect(() => {
     if (open) {
-      setForm(batch ? toFormState(batch) : emptyForm(defaultLocationId));
+      setForm(
+        batch
+          ? toFormState(batch, locations)
+          : emptyForm(defaultLocationId),
+      );
     }
-  }, [open, batch, defaultLocationId]);
+  }, [open, batch, defaultLocationId, locations]);
 
   const startIso = localInputToIso(form.startDate);
   const endIso = localInputToIso(form.endDate);
@@ -167,8 +181,13 @@ export default function BatchFormDialog({
     form.batchName.trim().length >= 2 &&
     Boolean(startIso) &&
     Boolean(endIso) &&
+    Boolean(startIso && endIso && new Date(endIso) > new Date(startIso)) &&
+    form.price.trim().length > 0 &&
     Number(form.capacity) >= 1 &&
     Number(form.price) >= 0 &&
+    (!form.depositAmount.trim() ||
+      (Number.isFinite(Number(form.depositAmount)) &&
+        Number(form.depositAmount) >= 0)) &&
     !isSubmitting;
 
   const handleSubmit = async () => {
@@ -195,7 +214,16 @@ export default function BatchFormDialog({
     };
 
     const result = batch
-      ? await dispatch(updateRetreatBatch({ id: batch._id, payload }))
+      ? await dispatch(
+          updateRetreatBatch({
+            id: batch._id,
+            payload: {
+              ...payload,
+              depositAmount: payload.depositAmount ?? null,
+              bookingDeadline: payload.bookingDeadline ?? null,
+            },
+          }),
+        )
       : await dispatch(createRetreatBatch(payload));
 
     const succeeded = batch
@@ -203,6 +231,9 @@ export default function BatchFormDialog({
       : createRetreatBatch.fulfilled.match(result);
 
     if (succeeded) {
+      toast.success(
+        batch ? "Retreat batch updated" : "Retreat batch created",
+      );
       onOpenChange(false);
     }
   };
@@ -247,6 +278,17 @@ export default function BatchFormDialog({
                 </option>
               ))}
             </select>
+            {batch && !form.retreatLocation && (
+              <p className="text-xs text-amber-700">
+                This batch has no available linked location. Choose a location
+                to repair the association before saving.
+              </p>
+            )}
+            {locations.length === 0 && (
+              <p className="text-xs text-amber-700">
+                Create a retreat location before creating or repairing a batch.
+              </p>
+            )}
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

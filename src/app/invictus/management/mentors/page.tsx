@@ -13,6 +13,7 @@ import {
   RefreshCw,
   Search,
   ShieldCheck,
+  Undo2,
   Users,
 } from "lucide-react";
 
@@ -52,6 +53,7 @@ import {
   fetchMentorProfiles,
   moveMentorToDraft,
   publishMentor,
+  restoreMentor,
   updateMentor,
 } from "@/lib/features/mentorManagement/mentorManagementSlice";
 import type {
@@ -61,6 +63,7 @@ import type {
 } from "@/lib/features/mentorManagement/mentorManagementTypes";
 import { toast } from "sonner";
 import { PaginationControl } from "@/components/ui/PaginationControll";
+import InvictusConfirmDialog from "@/components/invictus/academy/shared/InvictusConfirmDialog";
 
 const emptyForm = {
   bio: "",
@@ -77,6 +80,7 @@ const emptyForm = {
 type FormState = typeof emptyForm;
 type CreateMode = "create" | "existing";
 type StatusFilter = "all" | "draft" | "published" | "archived";
+type ConfirmAction = "archive" | "publish" | "restore";
 
 const statusStyles: Record<StatusFilter, string> = {
   all: "bg-stone-100 text-stone-600",
@@ -98,6 +102,10 @@ function MentorManagementContent() {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [mode, setMode] = useState<CreateMode>("create");
   const [editing, setEditing] = useState<MentorProfile | null>(null);
+  const [confirmTarget, setConfirmTarget] = useState<{
+    profile: MentorProfile;
+    action: ConfirmAction;
+  } | null>(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [page, setPage] = useState(1);
@@ -327,7 +335,11 @@ function MentorManagementContent() {
   };
 
   const runAction = async (
-    action: typeof publishMentor | typeof moveMentorToDraft | typeof archiveMentor,
+    action:
+      | typeof publishMentor
+      | typeof moveMentorToDraft
+      | typeof archiveMentor
+      | typeof restoreMentor,
     id: string,
     successMessage: string,
   ) => {
@@ -337,6 +349,50 @@ function MentorManagementContent() {
     } catch (error) {
       toast.error(
         typeof error === "string" ? error : "Unable to update mentor profile",
+      );
+    }
+  };
+
+  const confirmProfileAction = async () => {
+    if (!confirmTarget) return;
+
+    const { profile, action } = confirmTarget;
+    const actions = {
+      archive: {
+        thunk: archiveMentor,
+        success: "Mentor profile archived",
+        failure: "Unable to archive mentor profile",
+      },
+      publish: {
+        thunk: publishMentor,
+        success: "Mentor profile published",
+        failure: "Unable to publish mentor profile",
+      },
+      restore: {
+        thunk: restoreMentor,
+        success: "Mentor profile restored as draft",
+        failure: "Unable to restore mentor profile",
+      },
+    } satisfies Record<
+      ConfirmAction,
+      {
+        thunk:
+          | typeof archiveMentor
+          | typeof publishMentor
+          | typeof restoreMentor;
+        success: string;
+        failure: string;
+      }
+    >;
+    const selectedAction = actions[action];
+
+    try {
+      await dispatch(selectedAction.thunk(profile._id)).unwrap();
+      toast.success(selectedAction.success);
+      setConfirmTarget(null);
+    } catch (error) {
+      toast.error(
+        typeof error === "string" ? error : selectedAction.failure,
       );
     }
   };
@@ -598,6 +654,41 @@ function MentorManagementContent() {
         </DialogContent>
       </Dialog>
 
+      <InvictusConfirmDialog
+        open={confirmTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setConfirmTarget(null);
+        }}
+        title={
+          confirmTarget?.action === "archive"
+            ? "Archive this mentor?"
+            : confirmTarget?.action === "publish"
+              ? "Publish this mentor?"
+              : "Restore this mentor?"
+        }
+        description={
+          confirmTarget
+            ? confirmTarget.action === "archive"
+              ? `${confirmTarget.profile.mentor.fullName}'s profile will be hidden from members. You can restore it later from the Archived filter.`
+              : confirmTarget.action === "publish"
+                ? `${confirmTarget.profile.mentor.fullName}'s profile will be visible to members.`
+                : `${confirmTarget.profile.mentor.fullName}'s profile will be restored as a draft. You can publish it later.`
+            : undefined
+        }
+        confirmText={
+          confirmTarget?.action === "archive"
+            ? "Archive mentor"
+            : confirmTarget?.action === "publish"
+              ? "Publish mentor"
+              : "Restore mentor"
+        }
+        confirmVariant={
+          confirmTarget?.action === "archive" ? "danger" : "success"
+        }
+        loading={actionLoading}
+        onConfirm={confirmProfileAction}
+      />
+
       <div className="mt-7 flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8A8175]" size={16} />
@@ -659,12 +750,28 @@ function MentorManagementContent() {
                         <RefreshCw size={15} />
                       </Button>
                     ) : profile.status === "draft" ? (
-                      <Button variant="outline" size="icon" title="Publish mentor" disabled={actionLoading} onClick={() => runAction(publishMentor, profile._id, "Mentor profile published")}>
+                      <Button variant="outline" size="icon" title="Publish mentor" disabled={actionLoading} onClick={() => setConfirmTarget({ profile, action: "publish" })}>
                         <CheckCircle2 size={15} />
                       </Button>
                     ) : null}
-                    {profile.status !== "archived" && (
-                      <Button variant="outline" size="icon" title="Archive mentor" disabled={actionLoading} onClick={() => runAction(archiveMentor, profile._id, "Mentor profile archived")}>
+                    {profile.status === "archived" ? (
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        title="Restore mentor"
+                        disabled={actionLoading}
+                        onClick={() => setConfirmTarget({ profile, action: "restore" })}
+                      >
+                        <Undo2 size={15} />
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        title="Archive mentor"
+                        disabled={actionLoading}
+                        onClick={() => setConfirmTarget({ profile, action: "archive" })}
+                      >
                         <Archive size={15} />
                       </Button>
                     )}

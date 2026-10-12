@@ -60,7 +60,7 @@ export interface ICreateQuizQuestion {
   correctBooleanAnswer?: boolean;
 
   explanation?: string;
-  order: number;
+  order?: number;
 }
 
 // Update Payload

@@ -69,4 +69,11 @@ export const mentorManagementApi = {
     );
     return response.data;
   },
+
+  restore: async (id: string): Promise<ApiEnvelope<MentorProfile>> => {
+    const response = await api.patch<ApiEnvelope<MentorProfile>>(
+      `${BASE}/${id}/restore`,
+    );
+    return response.data;
+  },
 };

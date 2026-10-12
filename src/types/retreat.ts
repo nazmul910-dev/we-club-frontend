@@ -62,7 +62,7 @@ export type RetreatBatch = {
   status: string;
   isFeatured: boolean;
   isActive: boolean;
-  retreatLocation: string | RetreatLocationRef;
+  retreatLocation: string | RetreatLocationRef | null;
 };
 
 export interface RetreatBooking {

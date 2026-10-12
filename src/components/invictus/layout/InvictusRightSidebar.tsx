@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ExternalLink, Calendar, Video, Sparkles } from "lucide-react";
@@ -12,15 +12,48 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import api from "@/lib/api/api";
 import { sessionScheduleApi } from "@/lib/features/invictus/sessionSchedule/sessionScheduleApi";
 import type { ISessionScheduleItem } from "@/lib/features/invictus/sessionSchedule/sessionScheduleTypes";
+import { fetchRetreatOverview } from "@/lib/features/retreat/retreatSlice";
+import { useAppDispatch, useAppSelector } from "@/lib/redux/store/hook";
+import type { Retreat, RetreatBatch } from "@/types/retreat";
+import { getYouTubeId, youTubeThumbnail } from "@/utils/youtube";
 
 import adam from "@/assets/Invictus/Home/adam.jpg";
 import tour from "@/assets/Invictus/Navbar/tour.jpg";
 import Link from "next/link";
 import AccessUpgradeModal from "@/components/common/AccessUpgradeModal";
-import { useAppSelector } from "@/lib/redux/store/hook";
+
+type RetreatWithBatches = {
+  location: Retreat;
+  batches: RetreatBatch[];
+};
+
+function getNextRetreat(retreats: RetreatWithBatches[]) {
+  const now = Date.now();
+
+  return retreats
+    .flatMap(({ location, batches }) =>
+      batches
+        .filter((batch) => {
+          const startTime = new Date(batch.startDate).getTime();
+          const endTime = new Date(batch.endDate).getTime();
+          const isCurrent =
+            batch.status === "in_progress" &&
+            startTime <= now &&
+            endTime >= now;
+          const isUpcoming =
+            startTime >= now && ["upcoming", "open"].includes(batch.status);
+          return isCurrent || isUpcoming;
+        })
+        .map((batch) => ({ location, batch })),
+    )
+    .sort(
+      (left, right) =>
+        new Date(left.batch.startDate).getTime() -
+        new Date(right.batch.startDate).getTime(),
+    )[0] ?? null;
+}
 
 function formatSessionTime(startTime: string, timezone?: string) {
   const d = new Date(startTime);
@@ -34,14 +67,9 @@ function formatSessionTime(startTime: string, timezone?: string) {
   return `${weekday} · ${time}`;
 }
 
-interface LatestRetreatInfo {
-  title: string;
-  dateLabel: string;
-  coverImage?: string;
-}
-
 export default function InvictusRightSidebar() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [switchModal, setSwitchModal] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const profile = useAppSelector((state) => state.authUser.profile);
@@ -53,10 +81,12 @@ export default function InvictusRightSidebar() {
     tokenUser?.role === "admin";
   const [sessions, setSessions] = useState<ISessionScheduleItem[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(true);
-  const [latestRetreat, setLatestRetreat] = useState<LatestRetreatInfo | null>(
+  const retreats = useAppSelector((state) => state.retreat.retreats);
+  const isLoadingRetreats = useAppSelector((state) => state.retreat.isLoading);
+  const [failedRetreatImage, setFailedRetreatImage] = useState<string | null>(
     null,
   );
-  const [imageError, setImageError] = useState(false);
+  const hasRequestedRetreats = useRef(false);
 
   useEffect(() => {
     sessionScheduleApi
@@ -65,59 +95,35 @@ export default function InvictusRightSidebar() {
       .catch(() => setSessions([]))
       .finally(() => setLoadingSessions(false));
 
-    // Fetch latest retreat location
-    api
-      .get("/invictus/retreat-locations", { params: { limit: 1 } })
-      .then((locRes) => {
-        const loc = locRes?.data?.data?.data?.[0] ?? locRes?.data?.data?.[0];
-        if (!loc) return;
-
-        // Try to get the latest batch for this location
-        api
-          .get("/invictus/retreat-batches", {
-            params: { locationId: loc._id, limit: 1 },
-          })
-          .then((batchRes) => {
-            const batch =
-              batchRes?.data?.data?.data?.[0] ?? batchRes?.data?.data?.[0];
-
-            let dateLabel = "Exclusive Retreat";
-            if (batch?.startDate) {
-              const start = new Date(batch.startDate);
-              if (!isNaN(start.getTime())) {
-                const month = start.toLocaleDateString("en-US", {
-                  month: "long",
-                });
-                const year = start.getFullYear();
-                dateLabel = `${month} ${year} · Exclusive`;
-              }
-            } else if (loc.city && loc.country) {
-              dateLabel = `${loc.city}, ${loc.country} · Exclusive`;
-            } else if (loc.tagline) {
-              dateLabel = `${loc.tagline} · Exclusive`;
-            }
-
-            setLatestRetreat({
-              title: loc.title || "Leadership Retreat",
-              dateLabel,
-              coverImage: loc.coverImage || undefined,
-            });
-          })
-          .catch(() => {
-            // No batch — still show location info
-            setLatestRetreat({
-              title: loc.title || "Leadership Retreat",
-              dateLabel: loc.city
-                ? `${loc.city}, ${loc.country} · Exclusive`
-                : "Exclusive Retreat",
-              coverImage: loc.coverImage || undefined,
-            });
-          });
-      })
-      .catch(() => {
-        // leave latestRetreat null → fallback image shows
-      });
   }, []);
+
+  useEffect(() => {
+    if (
+      retreats.length === 0 &&
+      !isLoadingRetreats &&
+      !hasRequestedRetreats.current
+    ) {
+      hasRequestedRetreats.current = true;
+      dispatch(fetchRetreatOverview());
+    }
+  }, [dispatch, isLoadingRetreats, retreats.length]);
+
+  const nextRetreat = useMemo(() => getNextRetreat(retreats), [retreats]);
+
+  const videoId = getYouTubeId(nextRetreat?.location.promoVideoUrl);
+  const retreatImage = videoId
+    ? youTubeThumbnail(videoId)
+    : nextRetreat?.location.coverImage || "";
+  const retreatDate = nextRetreat
+    ? `${new Date(nextRetreat.batch.startDate).toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+      })} - ${new Date(nextRetreat.batch.endDate).toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      })}`
+    : null;
 
   return (
     <>
@@ -256,27 +262,29 @@ export default function InvictusRightSidebar() {
             onClick={() => router.push("/invictus/retreats")}
             className="group relative overflow-hidden rounded-xl border border-[#DECDB0] bg-black/90 aspect-video flex items-end p-3 cursor-pointer"
           >
-            {latestRetreat?.coverImage && !imageError ? (
+            {retreatImage && failedRetreatImage !== retreatImage ? (
               <img
-                src={latestRetreat.coverImage}
-                alt={latestRetreat.title || "Retreat"}
-                onError={() => setImageError(true)}
+                src={retreatImage}
+                alt={nextRetreat?.location.title || "Retreat"}
+                onError={() => setFailedRetreatImage(retreatImage)}
                 className="absolute inset-0 h-full w-full object-cover opacity-75 group-hover:scale-105 transition duration-500"
               />
             ) : (
               <Image
                 src={tour}
-                alt={latestRetreat?.title || "Marrakech Retreat"}
+                alt={nextRetreat?.location.title || "Retreat"}
                 loading="eager"
                 className="absolute inset-0 h-full w-full object-cover opacity-75 group-hover:scale-105 transition duration-500"
               />
             )}
             <div className="relative z-10 text-white">
               <p className="font-playfair text-xs font-bold line-clamp-1">
-                {latestRetreat?.title || "Leadership Retreat"}
+                {nextRetreat?.location.title || "No upcoming retreat"}
               </p>
               <p className="font-montserrat text-[9px] text-white/80 line-clamp-1">
-                {latestRetreat?.dateLabel || "October 2026 · Exclusive"}
+                {nextRetreat
+                  ? `${nextRetreat.location.city}, ${nextRetreat.location.country}${retreatDate ? ` · ${retreatDate}` : ""}`
+                  : "Check back for upcoming dates"}
               </p>
             </div>
           </div>

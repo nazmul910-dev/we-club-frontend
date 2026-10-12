@@ -99,6 +99,7 @@ interface RetreatState {
   adminActionError: string | null;
 
   locations: IRetreatLocation[];
+  allManagementLocations: IRetreatLocation[];
   locationsMeta: IPaginationMeta | null;
   selectedLocation: IRetreatLocation | null;
 
@@ -160,6 +161,7 @@ const initialState: RetreatState = {
   isAdminActing: false,
   adminActionError: null,
   locations: [],
+  allManagementLocations: [],
   locationsMeta: null,
   selectedLocation: null,
 
@@ -281,7 +283,9 @@ export const fetchRetreatOverview = createAsyncThunk<
         const locId =
           typeof batch.retreatLocation === "string"
             ? batch.retreatLocation
-            : batch.retreatLocation._id;
+            : batch.retreatLocation?._id;
+
+        if (!locId) continue;
 
         if (!batchesByLocation.has(locId)) {
           batchesByLocation.set(locId, []);
@@ -317,7 +321,37 @@ export const fetchRetreatLocations = createAsyncThunk<
   { state: RootState; rejectValue: string }
 >("retreat/fetchLocations", async (query, { rejectWithValue }) => {
   try {
-    return await retreatLocationApi.fetchAll(query);
+    return await retreatLocationApi.fetchAllForManagement(query);
+  } catch (error) {
+    return rejectWithValue(getErrorMessage(error));
+  }
+});
+
+export const fetchAllManagementRetreatLocations = createAsyncThunk<
+  IRetreatLocation[],
+  void,
+  { state: RootState; rejectValue: string }
+>("retreat/fetchAllManagementLocations", async (_, { rejectWithValue }) => {
+  try {
+    const firstPage = await retreatLocationApi.fetchAllForManagement({
+      page: 1,
+      limit: 100,
+    });
+    const remainingPages = await Promise.all(
+      Array.from(
+        { length: Math.max(0, firstPage.meta.totalPages - 1) },
+        (_, index) =>
+          retreatLocationApi.fetchAllForManagement({
+            page: index + 2,
+            limit: 100,
+          }),
+      ),
+    );
+
+    return [
+      ...firstPage.data,
+      ...remainingPages.flatMap((page) => page.data),
+    ];
   } catch (error) {
     return rejectWithValue(getErrorMessage(error));
   }
@@ -369,7 +403,7 @@ export const fetchRetreatBatches = createAsyncThunk<
   { state: RootState; rejectValue: string }
 >("retreat/fetchBatches", async (query, { rejectWithValue }) => {
   try {
-    return await retreatBatchApi.fetchAll(query);
+    return await retreatBatchApi.fetchAllForManagement(query);
   } catch (error) {
     return rejectWithValue(getErrorMessage(error));
   }
@@ -842,6 +876,13 @@ const retreatSlice = createSlice({
         state.error =
           action.payload ?? "Failed to load retreat locations";
       })
+      .addCase(fetchAllManagementRetreatLocations.fulfilled, (state, action) => {
+        state.allManagementLocations = action.payload;
+      })
+      .addCase(fetchAllManagementRetreatLocations.rejected, (state, action) => {
+        state.error =
+          action.payload ?? "Failed to load retreat locations for batch forms";
+      })
 
       // locations: create
       .addCase(createRetreatLocation.pending, (state) => {
@@ -853,6 +894,12 @@ const retreatSlice = createSlice({
         (state, action: PayloadAction<IRetreatLocation>) => {
           state.locationCreateStatus = "succeeded";
           state.locations.unshift(action.payload);
+          state.allManagementLocations = [
+            action.payload,
+            ...state.allManagementLocations.filter(
+              (location) => location._id !== action.payload._id,
+            ),
+          ];
         },
       )
       .addCase(createRetreatLocation.rejected, (state, action) => {
@@ -874,6 +921,10 @@ const retreatSlice = createSlice({
             location._id === action.payload._id
               ? action.payload
               : location,
+          );
+          state.allManagementLocations = state.allManagementLocations.map(
+            (location) =>
+              location._id === action.payload._id ? action.payload : location,
           );
           if (state.selectedLocation?._id === action.payload._id) {
             state.selectedLocation = action.payload;
@@ -898,6 +949,10 @@ const retreatSlice = createSlice({
           state.locations = state.locations.filter(
             (location) => location._id !== action.payload,
           );
+          state.allManagementLocations =
+            state.allManagementLocations.filter(
+              (location) => location._id !== action.payload,
+            );
           if (state.selectedLocation?._id === action.payload) {
             state.selectedLocation = null;
           }
@@ -1403,4 +1458,3 @@ export const selectSelectedRetreatBatch = (state: RootState) =>
   state.retreat.selectedBatch;
 
 export default retreatSlice.reducer;
-

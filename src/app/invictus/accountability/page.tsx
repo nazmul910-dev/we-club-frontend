@@ -156,6 +156,7 @@ export default function MyAccountabilityPage() {
   const primaryMentorProfile = myMentor?.primaryMentor?.mentorProfile;
   const primaryMentor = myMentor?.primaryMentor?.mentor;
   const coMentor = myMentor?.coMentor?.mentor;
+  const coMentorChangeLocked = myMentor?.coMentorChangeLocked ?? false;
   const availableCoMentors = useAppSelector(
     (state) => state.mentorBooking.availableCoMentors,
   );
@@ -450,27 +451,42 @@ export default function MyAccountabilityPage() {
                           {coMentor.fullName}
                         </p>
                         <p className="mt-1 text-[11px] text-[#8A6E22]">
-                          Permanent assignment
+                          {coMentorChangeLocked
+                            ? "Change unavailable during an active session"
+                            : "You can change your co-mentor"}
                         </p>
                       </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={coMentorChangeLocked}
+                        onClick={() => setCoMentorDialogOpen(true)}
+                        className="ml-auto shrink-0 border-[#D9C58A] text-[#8A6E22]"
+                      >
+                        Change
+                      </Button>
                     </div>
                   </div>
                 ) : (
                   <button
                     type="button"
+                    disabled={coMentorChangeLocked}
                     onClick={() => setCoMentorDialogOpen(true)}
-                    className="group flex min-h-25 items-center justify-between rounded-xl border border-dashed border-[#C6A34A] bg-[#FFFCF5] px-5 py-4 text-left transition hover:border-[#A9812F] hover:bg-[#FFF8E8]"
+                    className="group flex min-h-25 items-center justify-between rounded-xl border border-dashed border-[#C6A34A] bg-[#FFFCF5] px-5 py-4 text-left transition hover:border-[#A9812F] hover:bg-[#FFF8E8] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <span>
                       <span className="block text-[11px] font-semibold uppercase tracking-wide text-[#9C9284]">
                         co_mentor
                       </span>
                       <span className="mt-1 block text-sm font-semibold text-[#B8923D]">
-                        Select your co_mentor
+                        {coMentorChangeLocked
+                          ? "Selection unavailable during an active session"
+                          : "Select your co_mentor"}
                       </span>
                     </span>
                     <span className="rounded-lg bg-[#C6A34A] px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-white transition group-hover:bg-[#A9812F]">
-                      Choose mentor
+                      {coMentorChangeLocked ? "In session" : "Choose mentor"}
                     </span>
                   </button>
                 )}
@@ -499,8 +515,9 @@ export default function MyAccountabilityPage() {
                   Choose your co_mentor
                 </DialogTitle>
                 <DialogDescription>
-                  This is a permanent choice. Select one published mentor who is
-                  not the primary mentor.
+                  Choose a published mentor who is not the primary mentor. You
+                  can change your selection before a session starts or after it
+                  ends.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">

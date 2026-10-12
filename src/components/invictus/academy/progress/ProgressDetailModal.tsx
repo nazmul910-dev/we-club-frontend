@@ -134,6 +134,8 @@ function ModuleProgressCard({ record }: { record: IModuleProgress }) {
     }
   };
 
+  const isArchived = (record.module as unknown as { status?: string } | null)?.status === "archived";
+
   return (
     <div className="rounded-2xl border border-[#E7DDCC] p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -145,7 +147,11 @@ function ModuleProgressCard({ record }: { record: IModuleProgress }) {
         </div>
 
         <div className="flex items-center gap-2">
-          {record.isCompleted ? (
+          {isArchived ? (
+            <Badge className="flex w-fit items-center gap-1 bg-gray-100 text-gray-500 hover:bg-gray-100">
+              Archived
+            </Badge>
+          ) : record.isCompleted ? (
             <Badge className="flex w-fit items-center gap-1 bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
               <CircleCheck size={12} />
               Completed
@@ -160,10 +166,10 @@ function ModuleProgressCard({ record }: { record: IModuleProgress }) {
           <Button
             variant="outline"
             size="icon"
-            disabled={refreshing}
-            className="h-8 w-8 cursor-pointer border-[#E7DDCC] transition-transform duration-200 hover:-translate-y-0.5 hover:border-[#B08A3E] hover:text-[#B08A3E] active:translate-y-0"
+            disabled={refreshing || isArchived}
+            className="h-8 w-8 cursor-pointer border-[#E7DDCC] transition-transform duration-200 hover:-translate-y-0.5 hover:border-[#B08A3E] hover:text-[#B08A3E] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-40"
             onClick={handleRefresh}
-            title="Recalculate this module"
+            title={isArchived ? "Cannot recalculate progress for an archived module" : "Recalculate this module"}
           >
             <RefreshCcw size={14} className={refreshing ? "animate-spin" : ""} />
           </Button>

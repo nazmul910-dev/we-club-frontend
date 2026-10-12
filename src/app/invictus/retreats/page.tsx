@@ -103,11 +103,18 @@ export default function RetreatPage() {
         const upcoming = retreats
             .flatMap(({ location, batches }) =>
                 batches
-                    .filter(
-                        (batch) =>
-                            new Date(batch.startDate).getTime() >= now &&
-                            ["upcoming", "open"].includes(batch.status),
-                    )
+                    .filter((batch) => {
+                        const startTime = new Date(batch.startDate).getTime();
+                        const endTime = new Date(batch.endDate).getTime();
+                        const isCurrent =
+                            batch.status === "in_progress" &&
+                            startTime <= now &&
+                            endTime >= now;
+                        const isUpcoming =
+                            startTime >= now &&
+                            ["upcoming", "open"].includes(batch.status);
+                        return isCurrent || isUpcoming;
+                    })
                     .map((batch) => ({ location, batch })),
             )
             .sort(
@@ -161,18 +168,6 @@ export default function RetreatPage() {
         return <RetreatPageSkeleton />;
     }
 
-
-    if (!nextRetreat || !nextBatch) {
-        return (
-            <PageContainer
-                variant="invictus"
-                as="main"
-                className="py-20 text-center text-ink-soft"
-            >
-                No upcoming retreats are available.
-            </PageContainer>
-        );
-    }
 
     // const schedule = getSchedule(nextBatch);
 

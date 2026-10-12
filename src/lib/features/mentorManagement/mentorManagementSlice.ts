@@ -72,7 +72,7 @@ export const updateMentor = createAsyncThunk<
 });
 
 const createAction = (
-  action: "publish" | "draft" | "archive",
+  action: "publish" | "draft" | "archive" | "restore",
   fallback: string,
 ) =>
   createAsyncThunk<MentorProfile, string, { rejectValue: string }>(
@@ -98,6 +98,10 @@ export const moveMentorToDraft = createAction(
 export const archiveMentor = createAction(
   "archive",
   "Failed to archive mentor profile",
+);
+export const restoreMentor = createAction(
+  "restore",
+  "Failed to restore mentor profile",
 );
 
 const upsertProfile = (state: MentorManagementState, profile: MentorProfile) => {
@@ -138,23 +142,28 @@ const mentorManagementSlice = createSlice({
         state.error = action.payload ?? "Failed to load mentor profiles";
       });
 
-    [createMentor, updateMentor, publishMentor, moveMentorToDraft, archiveMentor].forEach(
-      (action) => {
-        builder
-          .addCase(action.pending, (state) => {
-            state.actionLoading = true;
-            state.error = null;
-          })
-          .addCase(action.fulfilled, (state, result) => {
-            state.actionLoading = false;
-            upsertProfile(state, result.payload);
-          })
-          .addCase(action.rejected, (state, result) => {
-            state.actionLoading = false;
-            state.error = result.payload ?? "Mentor action failed";
-          });
-      },
-    );
+    [
+      createMentor,
+      updateMentor,
+      publishMentor,
+      moveMentorToDraft,
+      archiveMentor,
+      restoreMentor,
+    ].forEach((action) => {
+      builder
+        .addCase(action.pending, (state) => {
+          state.actionLoading = true;
+          state.error = null;
+        })
+        .addCase(action.fulfilled, (state, result) => {
+          state.actionLoading = false;
+          upsertProfile(state, result.payload);
+        })
+        .addCase(action.rejected, (state, result) => {
+          state.actionLoading = false;
+          state.error = result.payload ?? "Mentor action failed";
+        });
+    });
   },
 });
 

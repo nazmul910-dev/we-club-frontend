@@ -84,6 +84,14 @@ export const archiveQuizQuestion = createAsyncThunk(
   },
 );
 
+export const deleteQuizQuestion = createAsyncThunk(
+  "quizQuestion/delete",
+  async (id: string) => {
+    const res = await quizQuestionApi.delete(id);
+    return { ...res.data, id };
+  },
+);
+
 const upsertQuestion = (state: QuizQuestionState, updated: IQuizQuestion) => {
   const index = state.questions.findIndex((item) => item._id === updated._id);
   if (index !== -1) {
@@ -193,6 +201,15 @@ const quizQuestionSlice = createSlice({
       })
       .addCase(archiveQuizQuestion.rejected, (state, action) => {
         state.error = action.error.message || "Failed to archive question";
+      })
+
+      .addCase(deleteQuizQuestion.fulfilled, (state, action) => {
+        state.questions = state.questions.filter(
+          (q) => q._id !== action.payload.id,
+        );
+      })
+      .addCase(deleteQuizQuestion.rejected, (state, action) => {
+        state.error = action.error.message || "Failed to delete question";
       });
   },
 });

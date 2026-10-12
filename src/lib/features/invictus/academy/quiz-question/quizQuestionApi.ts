@@ -72,4 +72,12 @@ export const quizQuestionApi = {
     const res = await api.patch(`${QUESTION_URL}/${id}/archive`);
     return res.data;
   },
+
+  // Delete
+  delete: async (
+    id: string,
+  ): Promise<ApiEnvelope<{ message: string; questionId: string }>> => {
+    const res = await api.delete(`${QUESTION_URL}/${id}`);
+    return res.data;
+  },
 };

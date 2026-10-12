@@ -22,6 +22,7 @@ import {
   CircleCheck,
   ListChecks,
   CircleHelp,
+  Trash2,
 } from "lucide-react";
 
 import { useAppDispatch } from "@/lib/redux/store/hook";
@@ -30,6 +31,8 @@ import {
   publishQuizQuestion,
   draftQuizQuestion,
   archiveQuizQuestion,
+  deleteQuizQuestion,
+  fetchQuizQuestions,
 } from "@/lib/features/invictus/academy/quiz-question/quizQuestionSlice";
 
 import type { IQuizQuestion } from "@/lib/features/invictus/academy/quiz-question/quizQuestionTypes";
@@ -72,8 +75,10 @@ export default function QuizQuestionTable({ data, onEdit }: Props) {
   const [archiveTarget, setArchiveTarget] = useState<IQuizQuestion | null>(
     null,
   );
-
   const [archiving, setArchiving] = useState(false);
+
+  const [deleteTarget, setDeleteTarget] = useState<IQuizQuestion | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const handleStatus = (item: IQuizQuestion, checked: boolean) => {
     if (checked) {
@@ -90,12 +95,30 @@ export default function QuizQuestionTable({ data, onEdit }: Props) {
       setArchiving(true);
 
       await dispatch(archiveQuizQuestion(archiveTarget._id)).unwrap();
+      await dispatch(fetchQuizQuestions({ includeArchived: true })).unwrap();
 
       setArchiveTarget(null);
     } catch (error) {
       console.log(error);
     } finally {
       setArchiving(false);
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+
+    try {
+      setDeleting(true);
+
+      await dispatch(deleteQuizQuestion(deleteTarget._id)).unwrap();
+      await dispatch(fetchQuizQuestions({ includeArchived: true })).unwrap();
+
+      setDeleteTarget(null);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -198,12 +221,22 @@ export default function QuizQuestionTable({ data, onEdit }: Props) {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="cursor-pointer text-red-500"
+                    className="cursor-pointer text-amber-600 hover:bg-amber-50"
                     disabled={item.status === "archived"}
                     onClick={() => setArchiveTarget(item)}
                     title="Archive question"
                   >
                     <Archive size={16} />
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="cursor-pointer text-red-600 hover:bg-red-50"
+                    onClick={() => setDeleteTarget(item)}
+                    title="Delete question permanently"
+                  >
+                    <Trash2 size={16} />
                   </Button>
                 </div>
               </TableCell>
@@ -238,6 +271,23 @@ export default function QuizQuestionTable({ data, onEdit }: Props) {
         confirmVariant="danger"
         loading={archiving}
         onConfirm={confirmArchive}
+      />
+
+      <InvictusConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        title="Delete this question permanently?"
+        description={
+          deleteTarget
+            ? `"${deleteTarget.question}" will be permanently removed and remaining question orders will be adjusted.`
+            : undefined
+        }
+        confirmText="Delete"
+        confirmVariant="danger"
+        loading={deleting}
+        onConfirm={confirmDelete}
       />
     </div>
   );

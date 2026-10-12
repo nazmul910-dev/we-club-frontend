@@ -45,6 +45,7 @@ import {
 import {
     deleteRetreatBatch,
     deleteRetreatLocation,
+    fetchAllManagementRetreatLocations,
     fetchRetreatBatches,
     fetchRetreatLocations,
     selectRetreatBatches,
@@ -145,6 +146,13 @@ export default function RetreatManagementPage() {
     const [tab, setTab] = useState<Tab>("locations");
 
     const locations = useAppSelector(selectRetreatLocations);
+    const allManagementLocations = useAppSelector(
+        (state) => state.retreat.allManagementLocations,
+    );
+    const batchLocationOptions =
+        allManagementLocations.length > 0
+            ? allManagementLocations
+            : locations;
     const locationsMeta = useAppSelector(selectRetreatLocationsMeta);
     const batches = useAppSelector(selectRetreatBatches);
     const batchesMeta = useAppSelector(selectRetreatBatchesMeta);
@@ -246,7 +254,11 @@ export default function RetreatManagementPage() {
             deleteRetreatLocation(deletingLocation._id),
         );
         if (deleteRetreatLocation.fulfilled.match(result)) {
+            toast.success("Retreat location deleted");
             setDeletingLocation(null);
+            loadLocations(locationPage);
+            loadBatches(batchPage);
+            dispatch(fetchAllManagementRetreatLocations());
         }
     };
 
@@ -254,12 +266,35 @@ export default function RetreatManagementPage() {
         if (!deletingBatch) return;
         const result = await dispatch(deleteRetreatBatch(deletingBatch._id));
         if (deleteRetreatBatch.fulfilled.match(result)) {
+            toast.success("Retreat batch deleted");
             setDeletingBatch(null);
+            loadBatches(batchPage);
+        }
+    };
+
+    const handleLocationFormOpenChange = (open: boolean) => {
+        setLocationFormOpen(open);
+        if (!open) {
+            setEditingLocation(null);
+            setLocationPage(1);
+            loadLocations(1);
+            loadBatches(batchPage);
+            dispatch(fetchAllManagementRetreatLocations());
+        }
+    };
+
+    const handleBatchFormOpenChange = (open: boolean) => {
+        setBatchFormOpen(open);
+        if (!open) {
+            setEditingBatch(null);
+            setBatchPage(1);
+            loadBatches(1);
         }
     };
 
     useEffect(() => {
         dispatch(fetchRetreatLocations({ limit: PAGE_SIZE, page: 1 }));
+        dispatch(fetchAllManagementRetreatLocations());
         dispatch(
             fetchRetreatBatches({
                 limit: PAGE_SIZE,
@@ -616,7 +651,7 @@ export default function RetreatManagementPage() {
                                                     <SelectItem value="all">
                                                         All locations
                                                     </SelectItem>
-                                                    {locations.map((loc) => (
+                                                    {batchLocationOptions.map((loc) => (
                                                         <SelectItem
                                                             key={loc._id}
                                                             value={loc._id}
@@ -700,14 +735,14 @@ export default function RetreatManagementPage() {
                                                 setEditingBatch(null);
                                                 setBatchFormOpen(true);
                                             }}
-                                            disabled={locations.length === 0}
+                                            disabled={batchLocationOptions.length === 0}
                                             className={primaryButtonClass}
                                         >
                                             <Plus className="mr-2 h-4 w-4" />
                                             Add batch
                                         </Button>
                                     </div>
-                                    {locations.length === 0 && (
+                                    {batchLocationOptions.length === 0 && (
                                         <p className="mt-2 text-xs text-[#B0A996]">
                                             Add a retreat location first before
                                             creating a batch.
@@ -783,7 +818,7 @@ export default function RetreatManagementPage() {
                                                             const locationLabel =
                                                                 getBatchLocationLabel(
                                                                     batch.retreatLocation,
-                                                                    locations,
+                                                                    batchLocationOptions,
                                                                 );
 
                                                             return (
@@ -914,15 +949,15 @@ export default function RetreatManagementPage() {
             {locationFormOpen && (
                 <LocationFormDialog
                     open={locationFormOpen}
-                    onOpenChange={setLocationFormOpen}
+                    onOpenChange={handleLocationFormOpenChange}
                     location={editingLocation}
                 />
             )}
             {batchFormOpen && (
                 <BatchFormDialog
                     open={batchFormOpen}
-                    onOpenChange={setBatchFormOpen}
-                    locations={locations}
+                    onOpenChange={handleBatchFormOpenChange}
+                    locations={batchLocationOptions}
                     batch={editingBatch}
                 />
             )}
@@ -933,7 +968,7 @@ export default function RetreatManagementPage() {
                         if (!open) setDeletingLocation(null);
                     }}
                     title="Delete this retreat location?"
-                    description={`"${deletingLocation?.title ?? ""}" will be permanently removed. This cannot be undone.`}
+                    description={`"${deletingLocation?.title ?? ""}" will be permanently removed. Locations linked to batches or bookings cannot be deleted; archive the location instead to preserve its history.`}
                     isDeleting={status.locationDelete === "loading"}
                     onConfirm={handleDeleteLocation}
                 />
@@ -945,7 +980,7 @@ export default function RetreatManagementPage() {
                         if (!open) setDeletingBatch(null);
                     }}
                     title="Delete this retreat batch?"
-                    description={`"${deletingBatch?.batchName ?? ""}" will be permanently removed. This cannot be undone.`}
+                    description={`"${deletingBatch?.batchName ?? ""}" will be permanently removed. Batches with booking history cannot be deleted so payment and booking records remain intact.`}
                     isDeleting={status.batchDelete === "loading"}
                     onConfirm={handleDeleteBatch}
                 />

@@ -153,6 +153,7 @@ export interface IMentorPairing {
 export interface IMyMentorResponse {
   primaryMentor: IMentorPairing;
   coMentor: IMentorPairing | null;
+  coMentorChangeLocked: boolean;
   nextSession: IMentorBooking | null;
 }
 

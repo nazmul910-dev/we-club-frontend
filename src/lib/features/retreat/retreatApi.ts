@@ -45,6 +45,15 @@ export const retreatLocationApi = {
     return data.data;
   },
 
+  fetchAllForManagement: async (
+    query: IRetreatLocationQuery = {},
+  ): Promise<IPaginatedRetreatLocations> => {
+    const { data } = await api.get<
+      IApiEnvelope<IPaginatedRetreatLocations>
+    >(`${LOCATIONS_URL}/management`, { params: query });
+    return data.data;
+  },
+
   // GET /:idOrSlug
   fetchOne: async (idOrSlug: string): Promise<IRetreatLocation> => {
     const { data } = await api.get<IApiEnvelope<IRetreatLocation>>(
@@ -169,6 +178,16 @@ export const retreatBatchApi = {
     return data.data;
   },
 
+  fetchAllForManagement: async (
+    query: IRetreatBatchQuery = {},
+  ): Promise<IPaginatedRetreatBatches> => {
+    const { data } = await api.get<IApiEnvelope<IPaginatedRetreatBatches>>(
+      `${BATCHES_URL}/management`,
+      { params: query },
+    );
+    return data.data;
+  },
+
   // GET /:idOrSlug
   fetchOne: async (idOrSlug: string): Promise<IRetreatBatch> => {
     const { data } = await api.get<IApiEnvelope<IRetreatBatch>>(
@@ -230,11 +249,21 @@ export const getRetreatBatches = async (
 };
 
 export const getRetreatLocations = async (): Promise<Retreat[]> => {
-  const response = await api.get<{ data: PaginatedResponse<Retreat> }>(
-    "/invictus/retreat-locations",
-    { params: { status: "published", isActive: true, limit: 100 } },
-  );
-  return response.data.data.data;
+  const locations: Retreat[] = [];
+  let page = 1;
+  let totalPages = 1;
+
+  do {
+    const response = await api.get<{ data: PaginatedResponse<Retreat> }>(
+      "/invictus/retreat-locations/management",
+      { params: { page, limit: 100 } },
+    );
+    locations.push(...response.data.data.data);
+    totalPages = response.data.data.meta.totalPages;
+    page += 1;
+  } while (page <= totalPages);
+
+  return locations;
 };
 
 export const getRetreatBatchesForLocations = async (

@@ -61,11 +61,11 @@ const TRIGGER_OPTIONS: {
     label: "Auto on login",
     hint: "Marked complete automatically the next time the member logs in.",
   },
-  {
-    value: "video_watch",
-    label: "Video watch",
-    hint: "Marked complete automatically once the linked module video is finished.",
-  },
+  // {
+  //   value: "video_watch",
+  //   label: "Video watch",
+  //   hint: "Marked complete automatically once the linked module video is finished.",
+  // },
 ];
 
 const emptyForm = {
